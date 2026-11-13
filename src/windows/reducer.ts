@@ -1,17 +1,23 @@
 /**
- * Transitions for the window list: open, close, activate. Pure reducer: it
- * reads its state and returns a new one, never mutating the window objects or
- * the array it was given. Unread counts and navigation come later.
+ * Transitions for the window list: open, close, activate, and the navigation
+ * actions, which are built in navigation next door. Pure reducer: it reads its
+ * state and returns a new one, never mutating the window objects or the array
+ * it was given.
  */
 
-import { STATUS_WINDOW_ID, windowId } from './model';
+import { STATUS_WINDOW_ID, withActive, windowId } from './model';
 import type { WindowRef, WindowsState, WindowState } from './model';
+import { activateNext, activateNumber, activatePrevious, moveWindow } from './navigation';
 
 /** One thing that can happen to the window list. */
 export type WindowsAction =
   | { readonly type: 'open'; readonly ref: WindowRef; readonly title: string }
   | { readonly type: 'close'; readonly id: string }
-  | { readonly type: 'activate'; readonly id: string };
+  | { readonly type: 'activate'; readonly id: string }
+  | { readonly type: 'activateNumber'; readonly number: number }
+  | { readonly type: 'next' }
+  | { readonly type: 'previous' }
+  | { readonly type: 'move'; readonly id: string; readonly toNumber: number };
 
 /** Apply a window action. Returns the same state when the action changes nothing. */
 export function windowsReducer(state: WindowsState, action: WindowsAction): WindowsState {
@@ -21,7 +27,15 @@ export function windowsReducer(state: WindowsState, action: WindowsAction): Wind
     case 'close':
       return closeWindow(state, action.id);
     case 'activate':
-      return activateWindow(state, action.id);
+      return withActive(state, action.id);
+    case 'activateNumber':
+      return activateNumber(state, action.number);
+    case 'next':
+      return activateNext(state);
+    case 'previous':
+      return activatePrevious(state);
+    case 'move':
+      return moveWindow(state, action.id, action.toNumber);
   }
 }
 
@@ -32,7 +46,7 @@ export function windowsReducer(state: WindowsState, action: WindowsAction): Wind
 function openWindow(state: WindowsState, ref: WindowRef, title: string): WindowsState {
   const id = windowId(ref);
   if (state.windows.some((win) => win.id === id)) {
-    return activateWindow(state, id);
+    return withActive(state, id);
   }
   const fresh: WindowState = { id, ref, title, unread: 0, highlight: false };
   return { windows: [...state.windows, fresh], activeId: id };
@@ -57,21 +71,4 @@ function closeWindow(state: WindowsState, id: string): WindowsState {
   }
   const previous = windows.at(index - 1);
   return { windows, activeId: previous?.id ?? STATUS_WINDOW_ID };
-}
-
-/**
- * Make a window the active one, which clears what it had unread and its
- * highlight: looking at a window is what acknowledges it. Windows that have
- * nothing to clear are handed back as they were.
- */
-function activateWindow(state: WindowsState, id: string): WindowsState {
-  if (!state.windows.some((win) => win.id === id)) {
-    return state;
-  }
-  const windows = state.windows.map((win): WindowState =>
-    win.id === id && (win.unread !== 0 || win.highlight)
-      ? { ...win, unread: 0, highlight: false }
-      : win,
-  );
-  return { windows, activeId: id };
 }
