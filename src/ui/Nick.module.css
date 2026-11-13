@@ -1,0 +1,28 @@
+/* The author nick: <handle> with dimmed brackets. The handle is a span or a
+   button dressed to look exactly like the span; .button and .self come after
+   .handle so they win on source order at equal specificity. */
+
+.bracket {
+  color: var(--color-dim);
+}
+
+.handle {
+  color: var(--color-fg);
+}
+
+.button {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+}
+
+.button:focus-visible {
+  outline: 1px solid var(--color-dim);
+}
+
+.self {
+  color: var(--color-accent);
+  font-weight: bold;
+}
