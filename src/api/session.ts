@@ -2,13 +2,13 @@
  * The API session: the one origin and bearer token every endpoint call needs.
  * Endpoint functions take an {@link ApiSession} instead of threading origin and
  * token separately, and forward their requests through
- * {@link sessionRequest}, the only place that re-joins the two with
- * `apiRequest` (./http).
+ * {@link sessionRequest} — or, when they do not page, {@link sessionRequestData}
+ * — the only places that re-join the two with `apiRequest` (./http).
  */
 import type { ApiError } from './errors';
 import { type RequestOptions, apiRequest } from './http';
 import type { ApiResponse } from './response';
-import type { Result } from '../lib/result';
+import { type Result, ok } from '../lib/result';
 
 /** An account's connection to one instance: its origin and bearer token. */
 export type ApiSession = {
@@ -33,4 +33,18 @@ export async function sessionRequest<T>(
     origin: session.origin,
     ...(session.token === null ? {} : { token: session.token }),
   });
+}
+
+/**
+ * Sends {@link sessionRequest} and keeps only the validated body, dropping the
+ * `Link` header. Endpoint functions that do not page return the data directly,
+ * so this is their one unwrap of {@link sessionRequest}'s {@link ApiResponse};
+ * any failure is passed through unchanged.
+ */
+export async function sessionRequestData<T>(
+  session: ApiSession,
+  options: Omit<RequestOptions<T>, 'origin' | 'token'>,
+): Promise<Result<T, ApiError>> {
+  const response = await sessionRequest(session, options);
+  return response.ok ? ok(response.value.data) : response;
 }

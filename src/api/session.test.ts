@@ -7,8 +7,8 @@ import { HttpResponse, http } from 'msw';
 import * as v from 'valibot';
 import { describe, expect, it } from 'vitest';
 
-import { type ApiSession, sessionRequest } from './session';
-import { ok } from '../lib/result';
+import { type ApiSession, sessionRequest, sessionRequestData } from './session';
+import { err, ok } from '../lib/result';
 import { server } from '../test/server';
 
 const ORIGIN = 'https://wired.example';
@@ -76,5 +76,33 @@ describe(sessionRequest, () => {
     });
 
     expect(result).toStrictEqual(ok({ data: PROFILE, link: '<https://x/n>; rel="next"' }));
+  });
+});
+
+describe(sessionRequestData, () => {
+  it('keeps only the validated data of a success', async () => {
+    server.use(
+      http.get(`${ORIGIN}${PATH}`, () => {
+        return HttpResponse.json({ ...PROFILE, secret: 'x' });
+      }),
+    );
+
+    const session: ApiSession = { origin: ORIGIN, token: 'secret' };
+    const result = await sessionRequestData(session, { path: PATH, schema: profileSchema });
+
+    expect(result).toStrictEqual(ok(PROFILE));
+  });
+
+  it('passes a failure through unchanged', async () => {
+    server.use(
+      http.get(`${ORIGIN}${PATH}`, () => {
+        return HttpResponse.json({ error: 'Denied' }, { status: 403 });
+      }),
+    );
+
+    const session: ApiSession = { origin: ORIGIN, token: 'secret' };
+    const result = await sessionRequestData(session, { path: PATH, schema: profileSchema });
+
+    expect(result).toStrictEqual(err({ kind: 'http', status: 403, message: 'Denied' }));
   });
 });
