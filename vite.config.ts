@@ -1,9 +1,19 @@
+import { existsSync, readFileSync } from 'node:fs';
+
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vitest/config';
 
 import { cspPlugin } from './tooling/csp.ts';
+import { configPath, loadConfig } from './tooling/loadConfig.ts';
+
+// The build-time configuration (decision 3), loaded once and injected into
+// the bundle as a constant; the tests run against the same value.
+const wiredConfig = loadConfig(configPath(import.meta.dirname, process.env, existsSync), (path) =>
+  readFileSync(path, 'utf8'),
+);
 
 export default defineConfig({
+  define: { __WIRED_CONFIG__: JSON.stringify(wiredConfig) },
   // Relative asset URLs, so the build can be hosted under any path.
   base: './',
   plugins: [react(), cspPlugin()],
