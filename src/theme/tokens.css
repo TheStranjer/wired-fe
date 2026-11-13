@@ -1,16 +1,17 @@
 /*
  * Theme tokens: the only place colors and font stacks are written.
  * Every other stylesheet uses var(--...). Stylelint enforces this.
- * Placeholder palette until the theme ticket picks the built-in themes.
+ * Green on black. Warnings and errors stay amber and red so they read as
+ * different from ordinary text.
  */
 :root {
-  --color-bg: #0a0a0c;
-  --color-fg: #c8c8cc;
-  --color-dim: #5a5a66;
-  --color-accent: #d0506e;
-  --color-ok: #6fbf73;
-  --color-warn: #d8b45a;
-  --color-error: #e05050;
+  --color-bg: #000;
+  --color-fg: #3d6;
+  --color-dim: #1d7a3c;
+  --color-accent: #8dffaa;
+  --color-ok: #3d6;
+  --color-warn: #e0b040;
+  --color-error: #ff5050;
   --font-mono: ui-monospace, 'DejaVu Sans Mono', 'Liberation Mono', monospace;
   --font-size: 14px;
   --line-height: 1.4;
