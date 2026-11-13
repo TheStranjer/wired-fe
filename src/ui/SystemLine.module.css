@@ -1,0 +1,38 @@
+/* A client message line: the clock, an accent-green *** marker and the
+   text, whose colour carries the level. Long messages wrap like the rest
+   of the scrollback. */
+
+.line {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.marker {
+  color: var(--color-accent);
+}
+
+.info {
+  color: var(--color-dim);
+}
+
+.warn {
+  color: var(--color-warn);
+}
+
+.error {
+  color: var(--color-error);
+}
+
+/* The standard clip pattern: invisible on screen, still announced by
+   assistive technology. */
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border-width: 0;
+}
