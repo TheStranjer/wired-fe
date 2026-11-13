@@ -73,6 +73,7 @@ src/
   features/<x>/   one vertical slice per window kind or flow: timeline, thread, compose, notifications, profile, login...
   ui/             presentational components: no data fetching, no account state
   keys/           keymap, modes (insert/navigation), rebinding
+  windows/        window list state: open, close, activate, numbering, unread (pure)
   commands/       the command registry, parser, completion, /help
   accounts/       multi-account store, OAuth app registration and login, token storage
   capabilities/   backend detection -> one typed Capabilities object (decision 5)
