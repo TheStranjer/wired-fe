@@ -5,54 +5,25 @@
  * join order, capping the result, and handing the very same buffer back when
  * nothing in the page is new.
  */
-import * as v from 'valibot';
 import { describe, expect, it } from 'vitest';
 
 import { type Buffer, EMPTY_BUFFER, SCROLLBACK_LIMIT, type SystemLineData } from './buffer';
 import { addStatuses } from './bufferPosts';
-import { StatusSchema, type Status } from '../api/schemas/status';
+import type { Status } from '../api/schemas/status';
+import { status, TEST_DATE } from '../test/fixtures';
 import type { LabelBook } from '../windows/labels';
-
-/** The moment every test status is stamped with. */
-const DATE = '2026-11-12T21:14:05.000Z';
-
-/** The author every test status shares, in the shape the schema reads. */
-const ACCOUNT = {
-  id: '1',
-  username: 'lain',
-  acct: 'lain@wired.example',
-  display_name: 'Lain',
-  created_at: DATE,
-  note: '<p>hi</p>',
-  url: 'https://wired.example/@lain',
-  avatar: 'https://wired.example/avi.png',
-  header: 'https://wired.example/banner.png',
-  followers_count: 0,
-  following_count: 0,
-  statuses_count: 0,
-};
-
-/** A status parsed from the smallest wire object the schema accepts, plus `extras`. */
-function status(id: string, extras: Record<string, unknown> = {}): Status {
-  return v.parse(StatusSchema, {
-    id,
-    uri: `https://wired.example/n/${id}`,
-    created_at: DATE,
-    account: ACCOUNT,
-    content: `<p>${id}</p>`,
-    visibility: 'public',
-    replies_count: 0,
-    reblogs_count: 0,
-    favourites_count: 0,
-    ...extras,
-  });
-}
 
 /** A client-message line keyed `sys:<seq>`, to stand beside the posts. */
 function systemLine(seq: number): SystemLineData {
   const n = String(seq);
 
-  return { kind: 'system', key: `sys:${n}`, date: new Date(DATE), level: 'info', text: 'l' };
+  return {
+    kind: 'system',
+    key: `sys:${n}`,
+    date: new Date(TEST_DATE),
+    level: 'info',
+    text: 'l',
+  };
 }
 
 /** A buffer holding one client line, so the posts join around something. */
