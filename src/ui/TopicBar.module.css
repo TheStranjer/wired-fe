@@ -1,0 +1,19 @@
+/* The topic line: one row of text, truncated with an ellipsis when too long. */
+
+.bar {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.title {
+  color: var(--color-accent);
+}
+
+.account {
+  color: var(--color-fg);
+}
+
+.topic {
+  color: var(--color-dim);
+}
