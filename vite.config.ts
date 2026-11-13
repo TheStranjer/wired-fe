@@ -16,7 +16,7 @@ export default defineConfig({
   define: { __WIRED_CONFIG__: JSON.stringify(wiredConfig) },
   // Relative asset URLs, so the build can be hosted under any path.
   base: './',
-  plugins: [react(), cspPlugin()],
+  plugins: [react(), cspPlugin(wiredConfig.instances)],
   build: {
     target: 'es2024',
     // The deliverable is index.html plus one JS and one CSS file.
