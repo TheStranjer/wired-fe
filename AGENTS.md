@@ -79,6 +79,7 @@ src/
   capabilities/   backend detection -> one typed Capabilities object (decision 5)
   api/            HTTP and streaming clients, valibot schemas, backend adapters
   config/         typed access to build-time configuration
+  storage/        the only module that touches localStorage: namespaced, versioned, validated
   lib/            pure helpers with no React and no I/O
   theme/          tokens.css, global.css, fonts, effects
   test/           test setup and shared test helpers

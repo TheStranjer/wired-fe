@@ -57,23 +57,38 @@ export const RESTRICTED_SYNTAX = [
   { selector: 'ForInStatement', message: 'Use Object.keys/entries or for...of.' },
 ];
 
+/**
+ * The no-restricted-globals entries, without the leading "error". Exported so
+ * eslint.config.js can re-apply all of them minus the localStorage ones inside
+ * src/storage, the module that owns localStorage (AGENTS.md "Security").
+ * @public
+ * @type {{ readonly name: string; readonly message: string }[]}
+ */
+export const RESTRICTED_GLOBALS = [
+  { name: 'fetch', message: 'HTTP goes through src/api.' },
+  { name: 'WebSocket', message: 'Streaming goes through src/api.' },
+  { name: 'localStorage', message: 'Persistence goes through the storage module.' },
+  { name: 'sessionStorage', message: 'Persistence goes through the storage module.' },
+];
+
+/**
+ * The no-restricted-properties entries, without the leading "error". Exported
+ * for the same reason as RESTRICTED_GLOBALS.
+ * @public
+ * @type {{ readonly object: string; readonly property: string; readonly message: string }[]}
+ */
+export const RESTRICTED_PROPERTIES = [
+  { object: 'window', property: 'fetch', message: 'HTTP goes through src/api.' },
+  { object: 'window', property: 'localStorage', message: 'Use the storage module.' },
+  { object: 'window', property: 'sessionStorage', message: 'Use the storage module.' },
+];
+
 /** Architectural bans: things that must go through one owning module. */
 /** @type {import('eslint').Linter.RulesRecord} */
 const BANS = {
   'no-restricted-syntax': ['error', ...RESTRICTED_SYNTAX],
-  'no-restricted-globals': [
-    'error',
-    { name: 'fetch', message: 'HTTP goes through src/api.' },
-    { name: 'WebSocket', message: 'Streaming goes through src/api.' },
-    { name: 'localStorage', message: 'Persistence goes through the storage module.' },
-    { name: 'sessionStorage', message: 'Persistence goes through the storage module.' },
-  ],
-  'no-restricted-properties': [
-    'error',
-    { object: 'window', property: 'fetch', message: 'HTTP goes through src/api.' },
-    { object: 'window', property: 'localStorage', message: 'Use the storage module.' },
-    { object: 'window', property: 'sessionStorage', message: 'Use the storage module.' },
-  ],
+  'no-restricted-globals': ['error', ...RESTRICTED_GLOBALS],
+  'no-restricted-properties': ['error', ...RESTRICTED_PROPERTIES],
 };
 
 /** TypeScript rules beyond strict-type-checked. */
