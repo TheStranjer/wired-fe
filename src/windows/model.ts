@@ -1,7 +1,8 @@
 /**
  * The window model: what a window is, how it is named and how it is found
- * again (AGENTS.md "Windows, like IRC buffers"). Pure data and lookups;
- * transitions between states live in the reducer next door.
+ * again (AGENTS.md "Windows, like IRC buffers"). Pure data and lookups, plus
+ * the one transition every path shares, activation; the rest of the
+ * transitions live in the reducer and navigation next door.
  */
 
 /** The kinds of view a window can hold. */
@@ -77,6 +78,24 @@ export function windowNumber(state: WindowsState, id: string): number | null {
     return null;
   }
   return index + 1;
+}
+
+/**
+ * Make the window with `id` the active one, which clears what it had unread
+ * and its highlight: looking at a window is what acknowledges it. The reducer
+ * and the navigation helpers share this so every activation path behaves the
+ * same; an id no window has leaves the state as it was.
+ */
+export function withActive(state: WindowsState, id: string): WindowsState {
+  if (!state.windows.some((win) => win.id === id)) {
+    return state;
+  }
+  const windows = state.windows.map((win): WindowState =>
+    win.id === id && (win.unread !== 0 || win.highlight)
+      ? { ...win, unread: 0, highlight: false }
+      : win,
+  );
+  return { windows, activeId: id };
 }
 
 /**
