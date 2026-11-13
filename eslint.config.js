@@ -18,9 +18,23 @@ import globals from 'globals';
 import { configs as tsConfigs } from 'typescript-eslint';
 
 import { LAYER_POLICIES, LAYERS } from './tooling/eslint/layers.js';
-import { BASE_RULES, REMOTE_HTML_RULES, TEST_RULES } from './tooling/eslint/rules.js';
+import {
+  BASE_RULES,
+  REMOTE_HTML_RULES,
+  RESTRICTED_GLOBALS,
+  RESTRICTED_PROPERTIES,
+  TEST_RULES,
+} from './tooling/eslint/rules.js';
 
 const TSCONFIGS = ['tsconfig.json'];
+
+/** Every global ban except the localStorage ones (src/storage owns those). */
+const STORAGE_GLOBALS = RESTRICTED_GLOBALS.filter((entry) => entry.name !== 'localStorage');
+
+/** Every property ban except the localStorage ones (src/storage owns those). */
+const STORAGE_PROPERTIES = RESTRICTED_PROPERTIES.filter(
+  (entry) => entry.property !== 'localStorage',
+);
 
 export default defineConfig(
   globalIgnores(['dist/', 'coverage/', 'test-results/', 'playwright-report/']),
@@ -81,6 +95,16 @@ export default defineConfig(
         { object: 'window', property: 'localStorage', message: 'Use the storage module.' },
         { object: 'window', property: 'sessionStorage', message: 'Use the storage module.' },
       ],
+    },
+  },
+  {
+    // AGENTS.md "Security": src/storage is the only module that touches
+    // localStorage. Every other ban stays in force inside it; sessionStorage
+    // still belongs to the storage module, not to its callers.
+    files: ['src/storage/**/*.ts'],
+    rules: {
+      'no-restricted-globals': ['error', ...STORAGE_GLOBALS],
+      'no-restricted-properties': ['error', ...STORAGE_PROPERTIES],
     },
   },
   {
