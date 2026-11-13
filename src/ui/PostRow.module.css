@@ -1,0 +1,31 @@
+/* One post as one chat line. The row is the full width of the scrollback,
+   so clicking beside the text still selects it; the selected row carries
+   the status-bar colour, and the CW button is text-coloured warning amber
+   with no button chrome. */
+
+.row {
+  display: block;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.selected {
+  background: var(--color-bar-bg);
+}
+
+.label {
+  color: var(--color-dim);
+}
+
+.spoiler {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  font: inherit;
+  color: var(--color-warn);
+  cursor: pointer;
+}
+
+.spoiler:focus-visible {
+  outline: 1px solid var(--color-warn);
+}
