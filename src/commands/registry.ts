@@ -19,13 +19,35 @@ function compareNames(a: CommandDefinition, b: CommandDefinition): number {
 }
 
 /**
+ * Why {@link definition} binds the same mode and chord twice, or null when its
+ * bindings are internally consistent. Cross-command clashes are the keymap's
+ * job; chord syntax is not checked here (commands cannot import from keys).
+ */
+function findDuplicateBinding(definition: CommandDefinition): string | null {
+  const seen = new Set<string>();
+  for (const binding of definition.bindings ?? []) {
+    const key = `${binding.mode} ${binding.chord}`;
+    if (seen.has(key)) {
+      return `Duplicate binding: ${binding.chord} in ${binding.mode} mode (command /${definition.name})`;
+    }
+    seen.add(key);
+  }
+  return null;
+}
+
+/**
  * Index {@link definitions} by name and alias. Returns err naming the
  * offender when a name or alias does not match the pattern, when two commands
- * share a name, or when an alias equals any name or another alias.
+ * share a name, when an alias equals any name or another alias, or when one
+ * definition binds the same mode and chord twice.
  */
 export function buildRegistry(definitions: readonly CommandDefinition[]): Result<Registry, string> {
   const byName = new Map<string, CommandDefinition>();
   for (const definition of definitions) {
+    const bindingError = findDuplicateBinding(definition);
+    if (bindingError !== null) {
+      return err(bindingError);
+    }
     for (const label of [definition.name, ...definition.aliases]) {
       if (!NAME_PATTERN.test(label)) {
         const kind = label === definition.name ? 'name' : 'alias';

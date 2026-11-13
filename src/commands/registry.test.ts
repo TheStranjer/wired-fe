@@ -5,7 +5,14 @@
 import { describe, expect, it } from 'vitest';
 
 import { buildRegistry, lookupCommand } from './registry';
-import type { CommandContext, CommandDefinition, CommandOutcome, Registry } from './types';
+import type {
+  BindingMode,
+  CommandBinding,
+  CommandContext,
+  CommandDefinition,
+  CommandOutcome,
+  Registry,
+} from './types';
 import { err } from '../lib/result';
 
 /** A fixture definition whose handler prints a line and reports {@link outcome}. */
@@ -34,6 +41,15 @@ function built(definitions: readonly CommandDefinition[]): Registry {
     throw new Error(`buildRegistry unexpectedly rejected definitions: ${result.error}`);
   }
   return result.value;
+}
+
+/** The two binding modes, as the tests below name them. */
+const INSERT: BindingMode = 'insert';
+const NAVIGATION: BindingMode = 'navigation';
+
+/** A fixture definition for {@link name} declaring default {@link bindings}. */
+function withBindings(name: string, bindings: readonly CommandBinding[]): CommandDefinition {
+  return { ...definition(name), bindings };
 }
 
 describe(buildRegistry, () => {
@@ -101,6 +117,43 @@ describe(buildRegistry, () => {
     expect(buildRegistry([definition('fav', ['fav'])])).toStrictEqual(
       err('Duplicate name: /fav (already used by /fav)'),
     );
+  });
+
+  it('builds a definition that declares bindings', () => {
+    const win = withBindings('win', [{ mode: NAVIGATION, chord: 'Alt+3', args: '3' }]);
+    const registry = built([win]);
+
+    expect(registry.byName.get('win')).toBe(win);
+    expect(registry.commands[0]?.bindings).toStrictEqual(win.bindings);
+  });
+
+  it('rejects the same mode and chord twice in one definition, naming command and chord', () => {
+    const win = withBindings('win', [
+      { mode: NAVIGATION, chord: 'Alt+3', args: '3' },
+      { mode: NAVIGATION, chord: 'Alt+3', args: '' },
+    ]);
+
+    expect(buildRegistry([win])).toStrictEqual(
+      err('Duplicate binding: Alt+3 in navigation mode (command /win)'),
+    );
+  });
+
+  it('accepts the same chord in two different modes of one definition', () => {
+    const win = withBindings('win', [
+      { mode: INSERT, chord: 'Alt+3', args: '3' },
+      { mode: NAVIGATION, chord: 'Alt+3', args: '3' },
+    ]);
+
+    expect(built([win]).commands).toHaveLength(1);
+  });
+
+  it('accepts one command repeating a chord another command binds', () => {
+    const registry = built([
+      withBindings('next', [{ mode: NAVIGATION, chord: 'j', args: '' }]),
+      withBindings('follow', [{ mode: NAVIGATION, chord: 'j', args: '' }]),
+    ]);
+
+    expect(registry.commands.map((command) => command.name)).toStrictEqual(['follow', 'next']);
   });
 });
 
