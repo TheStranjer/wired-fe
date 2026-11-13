@@ -1,0 +1,124 @@
+/**
+ * Tests for the post row: the one-line chat content and its order, the
+ * content-warning button and its reveal states, the selected marking, and
+ * click routing between the row, the nick and the CW button.
+ */
+import { fireEvent, render, screen } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
+
+import { PostRow } from './PostRow';
+import type { PostRowProps } from './PostRow';
+
+const BASE_PROPS: PostRowProps = {
+  label: 'a3',
+  date: new Date(2026, 0, 2, 23, 4),
+  clockFormat: '24h',
+  author: { handle: 'alice', fullHandle: '@alice@m.example', self: false },
+  contentHtml: '<p>present day, present time</p>',
+  spoilerText: '',
+  revealed: false,
+  selected: false,
+  onToggleReveal: vi.fn<() => void>(),
+  onSelect: vi.fn<() => void>(),
+  onSelectAuthor: vi.fn<() => void>(),
+};
+
+/** Render one row with fresh mocks for all three actions. */
+function renderPost(overrides: Partial<PostRowProps> = {}) {
+  const onToggleReveal = vi.fn<() => void>();
+  const onSelect = vi.fn<() => void>();
+  const onSelectAuthor = vi.fn<() => void>();
+  const view = render(
+    <PostRow
+      {...BASE_PROPS}
+      {...overrides}
+      onToggleReveal={onToggleReveal}
+      onSelect={onSelect}
+      onSelectAuthor={onSelectAuthor}
+    />,
+  );
+  return { view, onToggleReveal, onSelect, onSelectAuthor };
+}
+
+describe(PostRow, () => {
+  it('renders label, clock, nick and content as one line', () => {
+    const { view } = renderPost();
+
+    expect(view.container.textContent).toBe('[a3] 23:04 <alice> present day, present time');
+  });
+
+  it('is an article named by label and full handle', () => {
+    renderPost();
+
+    expect(screen.getByRole('article', { name: 'Post a3 by @alice@m.example' })).toBeVisible();
+  });
+
+  it('shows no content-warning button on a plain post', () => {
+    renderPost();
+
+    expect(screen.queryByRole('button', { name: /\[CW/u })).toBeNull();
+  });
+
+  it('hides the content behind a collapsed CW button', () => {
+    renderPost({ spoilerText: 'lain spoilers', contentHtml: '<p>the fourth wall</p>' });
+
+    const button = screen.getByRole('button', { name: '[CW: lain spoilers]' });
+
+    expect(button).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByText('the fourth wall')).toBeNull();
+  });
+
+  it('toggles the warning from its button, which the row click leaves alone', () => {
+    const { onToggleReveal, onSelect } = renderPost({ spoilerText: 'spoilers' });
+
+    fireEvent.click(screen.getByRole('button', { name: '[CW: spoilers]' }));
+
+    expect(onToggleReveal).toHaveBeenCalledTimes(1);
+    expect(onSelect).not.toHaveBeenCalled();
+  });
+
+  it('shows the content after the button once revealed', () => {
+    const { view } = renderPost({
+      spoilerText: 'lain spoilers',
+      contentHtml: '<p>the fourth wall</p>',
+      revealed: true,
+    });
+
+    expect(screen.getByRole('button', { name: '[CW: lain spoilers]' })).toHaveAttribute(
+      'aria-expanded',
+      'true',
+    );
+    expect(view.container.textContent).toBe(
+      '[a3] 23:04 <alice> [CW: lain spoilers] the fourth wall',
+    );
+  });
+
+  it('marks the selected row with aria-current', () => {
+    renderPost({ selected: true });
+
+    expect(screen.getByRole('article')).toHaveAttribute('aria-current', 'true');
+  });
+
+  it('leaves an unselected row without aria-current', () => {
+    renderPost();
+
+    expect(screen.getByRole('article')).not.toHaveAttribute('aria-current');
+  });
+
+  it('selects the row when its text is clicked', () => {
+    const { onSelect } = renderPost();
+
+    fireEvent.click(screen.getByText('[a3]'));
+
+    expect(onSelect).toHaveBeenCalledTimes(1);
+  });
+
+  it('opens the author when the nick is clicked, without selecting', () => {
+    const { onSelect, onSelectAuthor } = renderPost();
+
+    fireEvent.click(screen.getByRole('button', { name: '@alice@m.example' }));
+
+    expect(onSelectAuthor).toHaveBeenCalledTimes(1);
+    expect(onSelect).not.toHaveBeenCalled();
+  });
+});
