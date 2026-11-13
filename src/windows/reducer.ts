@@ -1,13 +1,14 @@
 /**
- * Transitions for the window list: open, close, activate, and the navigation
- * actions, which are built in navigation next door. Pure reducer: it reads its
- * state and returns a new one, never mutating the window objects or the array
- * it was given.
+ * Transitions for the window list: open, close, activate, the navigation
+ * actions, which are built in navigation next door, and the unread tracking
+ * built in unread next door. Pure reducer: it reads its state and returns a
+ * new one, never mutating the window objects or the array it was given.
  */
 
 import { STATUS_WINDOW_ID, withActive, windowId } from './model';
 import type { WindowRef, WindowsState, WindowState } from './model';
 import { activateNext, activateNumber, activatePrevious, moveWindow } from './navigation';
+import { markRead, markUnread } from './unread';
 
 /** One thing that can happen to the window list. */
 export type WindowsAction =
@@ -17,7 +18,14 @@ export type WindowsAction =
   | { readonly type: 'activateNumber'; readonly number: number }
   | { readonly type: 'next' }
   | { readonly type: 'previous' }
-  | { readonly type: 'move'; readonly id: string; readonly toNumber: number };
+  | { readonly type: 'move'; readonly id: string; readonly toNumber: number }
+  | {
+      readonly type: 'markUnread';
+      readonly id: string;
+      readonly count: number;
+      readonly highlight: boolean;
+    }
+  | { readonly type: 'markRead'; readonly id: string };
 
 /** Apply a window action. Returns the same state when the action changes nothing. */
 export function windowsReducer(state: WindowsState, action: WindowsAction): WindowsState {
@@ -36,6 +44,10 @@ export function windowsReducer(state: WindowsState, action: WindowsAction): Wind
       return activatePrevious(state);
     case 'move':
       return moveWindow(state, action.id, action.toNumber);
+    case 'markUnread':
+      return markUnread(state, action.id, action.count, action.highlight);
+    case 'markRead':
+      return markRead(state, action.id);
   }
 }
 
