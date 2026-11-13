@@ -65,6 +65,25 @@ export default defineConfig(
     },
   },
   {
+    // AGENTS.md "Security" bans fetch/WebSocket *outside* their owning module,
+    // src/api. Inside it they must stay reachable: this layer owns the HTTP
+    // entry point (apiRequest) and the streaming client. The storage bans
+    // still apply here; the storage module owns those.
+    files: ['src/api/**/*.ts'],
+    rules: {
+      'no-restricted-globals': [
+        'error',
+        { name: 'localStorage', message: 'Persistence goes through the storage module.' },
+        { name: 'sessionStorage', message: 'Persistence goes through the storage module.' },
+      ],
+      'no-restricted-properties': [
+        'error',
+        { object: 'window', property: 'localStorage', message: 'Use the storage module.' },
+        { object: 'window', property: 'sessionStorage', message: 'Use the storage module.' },
+      ],
+    },
+  },
+  {
     // The single sanctioned HTML sink (AGENTS.md Security, decision 10):
     // every ban except dangerouslySetInnerHTML stays in force for this file.
     files: ['src/ui/RemoteHtml.tsx'],
