@@ -61,8 +61,21 @@ const ALLOWED = {
   'test-support': ['test-support', 'api', 'lib'],
 };
 
+/**
+ * Test files may reach the shared test helpers (`server.use(...)` on the MSW
+ * server, see src/test/server.ts). Production files still cannot import from
+ * the test-support layer: the allowance keys on the file name, not the layer.
+ */
+const TEST_FILE_POLICY = {
+  from: { file: { path: '**/*.test.{ts,tsx}' } },
+  allow: { to: { element: { type: 'test-support' } } },
+};
+
 /** The policies for the `boundaries/dependencies` rule. */
-export const LAYER_POLICIES = Object.entries(ALLOWED).map(([type, types]) => ({
-  from: { element: { type } },
-  allow: { to: { element: { types } } },
-}));
+export const LAYER_POLICIES = [
+  ...Object.entries(ALLOWED).map(([type, types]) => ({
+    from: { element: { type } },
+    allow: { to: { element: { types } } },
+  })),
+  TEST_FILE_POLICY,
+];
