@@ -1,0 +1,18 @@
+.shell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space);
+  padding: var(--space);
+  height: 100%;
+}
+
+.banner {
+  margin: 0;
+  color: var(--color-accent);
+  font-weight: bold;
+}
+
+.motd {
+  margin: 0;
+  color: var(--color-dim);
+}

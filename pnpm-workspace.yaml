@@ -1,0 +1,12 @@
+# pnpm settings for WiredFE. This is a single package, not a monorepo; pnpm
+# reads its project-level settings from this file.
+
+# Supply chain: refuse versions published less than a week ago (minutes), so
+# a hijacked release has time to be caught before it lands here.
+minimumReleaseAge: 10080
+
+# Pin exact versions in package.json; upgrades are deliberate commits.
+savePrefix: ''
+
+# Never run dependency install scripts unless listed here.
+strictDepBuilds: true

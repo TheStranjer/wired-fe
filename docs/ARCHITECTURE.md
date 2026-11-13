@@ -1,0 +1,31 @@
+# Architecture
+
+Numbered decisions. Tickets and code comments cite them as "decision N". To change one, amend it here in the same commit as the code.
+
+1. **Stack**: React 19 + TypeScript 6 (strict), built by Vite into a static bundle. Node and pnpm versions are pinned in `mise.toml` and `package.json` `packageManager`. TypeScript stays on 6.x until typescript-eslint supports 7.
+
+2. **Deliverable**: `dist/` holds `index.html`, one `wired.[hash].js` and one `wired.[hash].css` (no code splitting), plus the fixed files from `public/`. Asset URLs are relative (`base: './'`), so the bundle can be hosted at any path on any static host.
+
+3. **Build-time configuration**: deployment settings (which instances the build may talk to, defaults, branding) are fixed when the bundle is built, from one typed and validated config file. There is no runtime config fetch. Instance modes:
+   - `same-origin`: the backend sits behind the same origin (reverse proxy). The usual deployment.
+   - `fixed`: one named origin.
+   - `list`: the user picks from a list.
+   - `open`: the user may type any instance.
+
+   The CSP `connect-src` is derived from the mode.
+
+4. **Routing**: hash routing (`/#/@lain@wired.example`). WiredFE's URLs can never collide with the backend's content-negotiated ActivityPub URLs (`/users/...`, `/objects/...`, `/notice/...`), and any static host works without rewrite rules.
+
+5. **Backends: capabilities, not brands.** WiredFE talks to Wired, Mastodon and Pleroma/Akkoma. On connect it reads NodeInfo (`software.name`, `metadata.features`), `/api/v1/instance` and `/api/v2/instance` once, and builds one typed `Capabilities` object. UI and commands check capabilities (`caps.emojiReactions`), never the backend's name; only `src/capabilities` reads the brand. A capability that is advertised but answers 404/501 is treated as absent.
+
+6. **One command registry.** Every user action is a registry entry: name, aliases, argument grammar, required capability, help text, default hotkey, and the handler. The command line, `/help`, tab completion, the keymap and click targets are all generated from it.
+
+7. **Wired's shapes are the internal model.** API responses are parsed with valibot schemas in `src/api`. Mastodon and Pleroma responses go through adapters that map them onto Wired's entity shapes; the rest of the app sees one model.
+
+8. **Auth**: per instance, WiredFE registers an OAuth app at runtime (`POST /api/v1/apps`) and caches its credentials; there is no build-time client secret. Authorization code flow with the redirect URI derived from `window.location`. Tokens are stored per account, keyed by instance origin plus account id.
+
+9. **Default assets contract**: Wired builds its default avatar, banner, instance thumbnail and mascot URLs against its `FRONTEND_BASE_URL` (WBE-304). WiredFE ships those files at fixed paths under `public/images/`: `avi.png`, `banner.png`, `thumbnail.jpg`, `mascot.png`. Renaming one breaks every Wired instance's defaults.
+
+10. **Security posture**: strict CSP written into `index.html` at build time; no third-party origins at runtime; remote HTML rendered only through one sanitizing component; network and storage access confined to their owning modules (ESLint enforces it).
+
+11. **Testing**: Vitest + Testing Library for units (jsdom), recorded per-backend fixtures for API adapters, Playwright against the production build for flows. No test waits on real time.
