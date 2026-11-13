@@ -4,8 +4,8 @@
  */
 import { describe, expect, it } from 'vitest';
 
-import { type Registry, buildRegistry, lookupCommand } from './registry';
-import type { CommandContext, CommandDefinition, CommandOutcome } from './types';
+import { buildRegistry, lookupCommand } from './registry';
+import type { CommandContext, CommandDefinition, CommandOutcome, Registry } from './types';
 import { err } from '../lib/result';
 
 /** A fixture definition whose handler prints a line and reports {@link outcome}. */
