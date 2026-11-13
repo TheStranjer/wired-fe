@@ -34,22 +34,33 @@ const HYGIENE = {
   'object-shorthand': ['error', 'always'],
 };
 
+/** The selector of the ban that src/ui/RemoteHtml.tsx alone may lift. */
+const DANGEROUS_HTML_SELECTOR = "JSXAttribute[name.name='dangerouslySetInnerHTML']";
+
+/**
+ * The no-restricted-syntax selector objects, without the leading "error".
+ * Exported so REMOTE_HTML_RULES can re-apply every ban except the
+ * dangerouslySetInnerHTML one to the single sanctioned HTML sink.
+ * @public
+ * @type {{ readonly selector: string; readonly message: string }[]}
+ */
+export const RESTRICTED_SYNTAX = [
+  {
+    selector: DANGEROUS_HTML_SELECTOR,
+    message: 'Render remote HTML only through the sanitizing component (see AGENTS.md).',
+  },
+  {
+    selector: "JSXAttribute[name.name='style']",
+    message: 'Style with CSS modules and theme tokens, not inline styles.',
+  },
+  { selector: 'TSEnumDeclaration', message: 'Use a union of string literals.' },
+  { selector: 'ForInStatement', message: 'Use Object.keys/entries or for...of.' },
+];
+
 /** Architectural bans: things that must go through one owning module. */
 /** @type {import('eslint').Linter.RulesRecord} */
 const BANS = {
-  'no-restricted-syntax': [
-    'error',
-    {
-      selector: "JSXAttribute[name.name='dangerouslySetInnerHTML']",
-      message: 'Render remote HTML only through the sanitizing component (see AGENTS.md).',
-    },
-    {
-      selector: "JSXAttribute[name.name='style']",
-      message: 'Style with CSS modules and theme tokens, not inline styles.',
-    },
-    { selector: 'TSEnumDeclaration', message: 'Use a union of string literals.' },
-    { selector: 'ForInStatement', message: 'Use Object.keys/entries or for...of.' },
-  ],
+  'no-restricted-syntax': ['error', ...RESTRICTED_SYNTAX],
   'no-restricted-globals': [
     'error',
     { name: 'fetch', message: 'HTTP goes through src/api.' },
@@ -127,4 +138,17 @@ export const TEST_RULES = {
   'vitest/require-mock-type-parameters': 'off',
   'vitest/prefer-lowercase-title': 'off',
   'vitest/valid-title': ['error', { allowArguments: true }],
+};
+
+/**
+ * Rules for src/ui/RemoteHtml.tsx, the one place raw HTML renders (AGENTS.md
+ * Security, decision 10): every syntax ban still applies except the
+ * dangerouslySetInnerHTML one.
+ * @type {import('eslint').Linter.RulesRecord}
+ */
+export const REMOTE_HTML_RULES = {
+  'no-restricted-syntax': [
+    'error',
+    ...RESTRICTED_SYNTAX.filter((entry) => entry.selector !== DANGEROUS_HTML_SELECTOR),
+  ],
 };
