@@ -1,18 +1,14 @@
-.shell {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space);
-  padding: var(--space);
-  height: 100%;
-}
-
-.banner {
-  margin: 0;
-  color: var(--color-accent);
-  font-weight: bold;
-}
-
-.motd {
-  margin: 0;
-  color: var(--color-dim);
+/* The page heading exists for the accessibility tree and the e2e test, not
+   for the screen: the topic bar names the window instead. Standard clip
+   pattern; the element stays focusable and in the a11y tree. */
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
 }
