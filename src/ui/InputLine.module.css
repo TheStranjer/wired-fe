@@ -1,0 +1,23 @@
+/* The command line: prompt and input on one row, input filling the rest. */
+
+.container {
+  display: flex;
+  gap: var(--space);
+}
+
+.prompt {
+  color: var(--color-accent);
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+
+.input:focus-visible {
+  outline: 1px solid var(--color-dim);
+}
