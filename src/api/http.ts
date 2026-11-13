@@ -30,15 +30,24 @@ export type RequestOptions<T> = {
   readonly json?: unknown;
   /** A multipart request body; mutually exclusive with {@link RequestOptions.json}. */
   readonly form?: FormData;
+  /** Extra request headers, e.g. `Idempotency-Key`; the built-in headers win a clash. */
+  readonly headers?: Readonly<Record<string, string>>;
   /** A signal that cancels the request, yielding the `aborted` error. */
   readonly signal?: AbortSignal;
   /** The schema the response body is validated against. */
   readonly schema: v.GenericSchema<unknown, T>;
 };
 
-/** The headers every request carries: JSON acceptance, bearer auth, JSON content type. */
+/**
+ * The headers a request carries: the caller's {@link RequestOptions.headers}
+ * first, then the built-in ones — JSON acceptance, bearer auth, JSON content
+ * type — which overwrite a clash with an extra header of the same name.
+ */
 function requestHeaders<T>(options: RequestOptions<T>): Record<string, string> {
-  const headers: Record<string, string> = { Accept: 'application/json' };
+  const headers: Record<string, string> = {
+    ...(options.headers ?? {}),
+    Accept: 'application/json',
+  };
   if (options.token !== undefined) {
     headers['Authorization'] = `Bearer ${options.token}`;
   }

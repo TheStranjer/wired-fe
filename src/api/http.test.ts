@@ -51,6 +51,47 @@ describe(apiRequest, () => {
     expect(result).toStrictEqual(ok(expected));
   });
 
+  it('sends an extra header next to the built-ins', async () => {
+    server.use(
+      http.post(`${ORIGIN}/statuses`, ({ request }) => {
+        expect(request.headers.get('Idempotency-Key')).toBe('key-1');
+        expect(request.headers.get('Accept')).toBe('application/json');
+
+        return HttpResponse.json(PROFILE);
+      }),
+    );
+
+    const result = await apiRequest({
+      origin: ORIGIN,
+      path: '/statuses',
+      method: 'POST',
+      headers: { 'Idempotency-Key': 'key-1' },
+      schema: profileSchema,
+    });
+
+    expect(result).toStrictEqual(ok({ data: PROFILE, link: null }));
+  });
+
+  it('lets the built-in Authorization overwrite a provided one', async () => {
+    server.use(
+      http.get(`${ORIGIN}/me`, ({ request }) => {
+        expect(request.headers.get('Authorization')).toBe('Bearer secret');
+
+        return HttpResponse.json(PROFILE);
+      }),
+    );
+
+    const result = await apiRequest({
+      origin: ORIGIN,
+      path: '/me',
+      token: 'secret',
+      headers: { Authorization: 'Bearer forged' },
+      schema: profileSchema,
+    });
+
+    expect(result).toStrictEqual(ok({ data: PROFILE, link: null }));
+  });
+
   it('builds Mastodon-style query strings', async () => {
     server.use(
       http.get(`${ORIGIN}/search`, ({ request }) => {
