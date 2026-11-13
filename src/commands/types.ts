@@ -44,6 +44,22 @@ export type CommandContext = {
   readonly clearActiveWindow: () => void;
 };
 
+/** Which keyboard mode a default binding is active in (decision 6). */
+export type BindingMode = 'insert' | 'navigation';
+
+/**
+ * One default key binding of a command: in {@link mode}, pressing
+ * {@link chord} runs `/name args`. The keymap is generated from the bindings
+ * declared across the registry.
+ */
+export type CommandBinding = {
+  readonly mode: BindingMode;
+  /** Canonical chord, e.g. `Alt+3` (see src/keys/chord.ts). */
+  readonly chord: string;
+  /** Argument text appended to `/name `, may be `''`. */
+  readonly args: string;
+};
+
 /** One command, exactly as a file in defs/ exports it. */
 export type CommandDefinition = {
   /** The name without its slash: a letter, then letters, digits, hyphens. */
@@ -56,4 +72,6 @@ export type CommandDefinition = {
   readonly summary: string;
   /** Do the thing. `args` is the raw argument text after the name. */
   readonly run: (args: string, context: CommandContext) => Promise<CommandOutcome>;
+  /** Default key bindings this command declares; absent means none. */
+  readonly bindings?: readonly CommandBinding[];
 };
