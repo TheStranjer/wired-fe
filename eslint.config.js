@@ -18,7 +18,7 @@ import globals from 'globals';
 import { configs as tsConfigs } from 'typescript-eslint';
 
 import { LAYER_POLICIES, LAYERS } from './tooling/eslint/layers.js';
-import { BASE_RULES, TEST_RULES } from './tooling/eslint/rules.js';
+import { BASE_RULES, REMOTE_HTML_RULES, TEST_RULES } from './tooling/eslint/rules.js';
 
 const TSCONFIGS = ['tsconfig.json'];
 
@@ -62,6 +62,15 @@ export default defineConfig(
       'boundaries/dependencies': ['error', { default: 'disallow', policies: LAYER_POLICIES }],
       'boundaries/no-unknown-files': 'error',
       'boundaries/no-unknown-dependencies': 'error',
+    },
+  },
+  {
+    // The single sanctioned HTML sink (AGENTS.md Security, decision 10):
+    // every ban except dangerouslySetInnerHTML stays in force for this file.
+    files: ['src/ui/RemoteHtml.tsx'],
+    rules: {
+      ...REMOTE_HTML_RULES,
+      '@eslint-react/dom-no-dangerously-set-innerhtml': 'off',
     },
   },
   {

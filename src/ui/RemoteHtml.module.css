@@ -1,0 +1,22 @@
+/* Sanitized remote markup. .invisible and .ellipsis are class names that
+   arrive inside the remote HTML (Mastodon's link shortening), so they are
+   matched as :global classes under the module root instead of being local. */
+
+/* stylelint-disable selector-pseudo-class-no-unknown -- :global is the CSS
+   Modules escape for class names written by remote servers, not by us. */
+.root a {
+  color: var(--color-accent);
+  text-decoration: underline;
+}
+
+.root p {
+  margin: 0;
+}
+
+.root :global(.invisible) {
+  display: none;
+}
+
+.root :global(.ellipsis)::after {
+  content: '…';
+}
