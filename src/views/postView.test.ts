@@ -66,7 +66,8 @@ function wireStatus(
   };
 }
 
-/** The metadata of a status nothing has happened to: no reply, no audience, no tallies. */
+/** The metadata of a status nothing has happened to: no reply, no audience,
+ * no tallies, no attachments. */
 const QUIET = {
   replyTo: null,
   visibility: 'public',
@@ -74,6 +75,8 @@ const QUIET = {
   counts: { replies: 0, boosts: 0, favourites: 0 },
   mine: { boosted: false, favourited: false, bookmarked: false },
   reactions: [],
+  media: [],
+  sensitive: false,
 } as const;
 
 describe(postView, () => {
@@ -110,6 +113,8 @@ describe(postView, () => {
         { name: '❤️', count: 3, me: true },
         { name: 'lain', count: 1, me: false },
       ],
+      media: [],
+      sensitive: false,
     });
   });
 
@@ -147,6 +152,59 @@ describe(postView, () => {
       boostedBy: { handle: 'bob', fullHandle: '@bob@wired.example' },
       ...QUIET,
     });
+  });
+
+  it('maps attachments onto media items under the row names', () => {
+    const status = parse(
+      wireStatus('1', wireAccount('acc-lain', 'lain', 'lain'), {
+        sensitive: true,
+        media_attachments: [
+          {
+            id: 'm1',
+            type: 'image',
+            url: 'https://wired.example/media/m1.png',
+            preview_url: 'https://wired.example/media/m1.small.png',
+            description: 'the fourth wall',
+          },
+          { id: 'm2', type: 'unknown', url: 'https://wired.example/media/m2.mkv' },
+        ],
+      }),
+    );
+
+    expect(postView(status, SIGNED_OUT).media).toStrictEqual([
+      {
+        id: 'm1',
+        type: 'image',
+        url: 'https://wired.example/media/m1.png',
+        previewUrl: 'https://wired.example/media/m1.small.png',
+        description: 'the fourth wall',
+      },
+      {
+        id: 'm2',
+        type: 'unknown',
+        url: 'https://wired.example/media/m2.mkv',
+        previewUrl: null,
+        description: null,
+      },
+    ]);
+    expect(postView(status, SIGNED_OUT).sensitive).toBe(true);
+  });
+
+  it('shows the attachments and warning of the original, not the boost', () => {
+    const boost = parse(
+      wireStatus('boost-1', wireAccount('acc-bob', 'bob', 'bob'), {
+        sensitive: true,
+        media_attachments: [{ id: 'boost-m', type: 'image', url: 'https://wired.example/b.png' }],
+        reblog: wireStatus('orig', wireAccount('acc-alice', 'alice', 'alice@other.example'), {
+          media_attachments: [{ id: 'orig-m', type: 'image', url: 'https://wired.example/o.png' }],
+        }),
+      }),
+    );
+
+    const view = postView(boost, SIGNED_OUT);
+
+    expect(view.media.map((item) => item.id)).toStrictEqual(['orig-m']);
+    expect(view.sensitive).toBe(false);
   });
 
   it('flags the original author as self, not the booster', () => {

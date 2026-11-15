@@ -1,9 +1,10 @@
 /**
  * Tests for the post row: the one-line chat content and its order, who
  * boosted the post above it, who it answers before the body, the metadata
- * suffix after it, the content-warning button and its reveal states, the
- * selected marking, and click routing between the row, the nick and the CW
- * button.
+ * suffix after it, the selected marking, and click routing between the row,
+ * the nick and the CW button. The body's own states are tested with the
+ * component that renders them, ./PostBody; the media lines below it with
+ * ./PostRow.media; keeping the selection in view with ./LineView.scroll.
  */
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
@@ -21,6 +22,9 @@ const BASE_PROPS: PostRowProps = {
   contentHtml: '<p>present day, present time</p>',
   spoilerText: '',
   revealed: false,
+  media: [],
+  sensitive: false,
+  autoExpand: false,
   visibility: 'public',
   counts: { replies: 0, boosts: 0, favourites: 0 },
   mine: { boosted: false, favourited: false, bookmarked: false },
@@ -145,21 +149,6 @@ describe(PostRow, () => {
     );
   });
 
-  it('shows no content-warning button on a plain post', () => {
-    renderPost();
-
-    expect(screen.queryByRole('button', { name: /\[CW/u })).toBeNull();
-  });
-
-  it('hides the content behind a collapsed CW button', () => {
-    renderPost({ spoilerText: 'lain spoilers', contentHtml: '<p>the fourth wall</p>' });
-
-    const button = screen.getByRole('button', { name: '[CW: lain spoilers]' });
-
-    expect(button).toHaveAttribute('aria-expanded', 'false');
-    expect(screen.queryByText('the fourth wall')).toBeNull();
-  });
-
   it('toggles the warning from its button, which the row click leaves alone', () => {
     const { onToggleReveal, onSelect } = renderPost({ spoilerText: 'spoilers' });
 
@@ -167,22 +156,6 @@ describe(PostRow, () => {
 
     expect(onToggleReveal).toHaveBeenCalledTimes(1);
     expect(onSelect).not.toHaveBeenCalled();
-  });
-
-  it('shows the content after the button once revealed', () => {
-    const { view } = renderPost({
-      spoilerText: 'lain spoilers',
-      contentHtml: '<p>the fourth wall</p>',
-      revealed: true,
-    });
-
-    expect(screen.getByRole('button', { name: '[CW: lain spoilers]' })).toHaveAttribute(
-      'aria-expanded',
-      'true',
-    );
-    expect(view.container.textContent).toBe(
-      '[a3] 23:04 <alice> [CW: lain spoilers] the fourth wall',
-    );
   });
 
   it('keeps the tallies after a content warning', () => {

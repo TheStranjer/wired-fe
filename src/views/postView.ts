@@ -6,14 +6,17 @@
  * view model comes out. A boost displays the original status with the
  * booster's name attached to it, and so does every piece of metadata: the
  * reply it answers, its audience, its counters, the viewer's marks on it, its
- * reactions and whether it was edited all come from the displayed status,
+ * reactions, its attachments and its sensitive flag, and whether it was
+ * edited all come from the displayed status,
  * never from the boost around it.
  */
 
 import { fullHandle } from '../accounts/handle';
 import type { Account } from '../api/schemas/account';
+import type { MediaAttachment } from '../api/schemas/mediaAttachment';
 import type { Reaction } from '../api/schemas/reaction';
 import type { Status, Visibility } from '../api/schemas/status';
+import type { MediaItem } from '../ui/MediaList';
 
 /** Who is looking: the instance origin handles are rendered against, and the
  * id of the active account, or null when nobody is signed in. */
@@ -45,6 +48,12 @@ export type PostView = {
   readonly contentHtml: string;
   /** The content warning of the displayed status; '' when there is none. */
   readonly spoilerText: string;
+  /** The attachments of the displayed status, as the row's media lines draw
+   * them; empty when it carries none. */
+  readonly media: readonly MediaItem[];
+  /** Whether the author marked the displayed status sensitive; its media then
+   * never opens by itself. */
+  readonly sensitive: boolean;
   /** Who boosted the displayed status; null when nothing was boosted. */
   readonly boostedBy: {
     readonly handle: string;
@@ -127,6 +136,17 @@ function reactionOf(reaction: Reaction): PostView['reactions'][number] {
   return { name: reaction.name, count: reaction.count, me: reaction.me };
 }
 
+/** One attachment in the row's own field names. */
+function mediaItem(attachment: MediaAttachment): MediaItem {
+  return {
+    id: attachment.id,
+    type: attachment.type,
+    url: attachment.url,
+    previewUrl: attachment.preview_url,
+    description: attachment.description,
+  };
+}
+
 /**
  * Map a status onto one row's data: a boost shows the reblogged status and
  * names the booster, anything else shows itself with no booster.
@@ -140,6 +160,8 @@ export function postView(status: Status, viewer: Viewer): PostView {
     author: authorOf(shown.account, viewer),
     contentHtml: shown.content,
     spoilerText: shown.spoiler_text,
+    media: shown.media_attachments.map(mediaItem),
+    sensitive: shown.sensitive,
     boostedBy: boosted === null ? null : handles(status.account, viewer.origin),
     replyTo: replyTo(shown),
     visibility: shown.visibility,
