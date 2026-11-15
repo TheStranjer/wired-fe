@@ -1,0 +1,18 @@
+/* A mention line (WFE-101): the mentioned post as an ordinary row, marked by a
+   dim @ in the left gutter so it reads as "you are in this one" in the
+   notifications buffer. The @ is decorative (aria-hidden); the row underneath is
+   the same full-width row every timeline shows. */
+
+.mention {
+  align-items: baseline;
+  display: flex;
+}
+
+.marker {
+  color: var(--color-dim);
+  flex: none;
+}
+
+.mention > article {
+  min-width: 0;
+}

@@ -2,24 +2,17 @@
  * One line of a window's scrollback, whatever it holds (AGENTS.md "Layout":
  * src/views is the rendering shared by every window, because feature slices
  * cannot import each other). The line's kind picks the view: a client message
- * prints as it was stored, a post as the row its status maps onto seen through
- * the window's account, and a notification — until its own ticket gives it a
- * view — as a client message naming who did what. Nothing here holds state: the
- * clock format, the label, the selection and the open content warnings all come
- * from the app state, and a click asks the one reducer for the transition. When
- * the selection moves onto a row, the view keeps that row in view.
+ * prints as it was stored, a post through the shared ./PostLine row, and a
+ * notification through ./NotificationLine — a mention as a post, the rest as a
+ * `***` sentence. Nothing here holds state or maps an entity: each kind's own
+ * view reads the app state it needs and asks the one reducer for the move.
  */
-import { useEffect, useRef } from 'react';
 import type { JSX } from 'react';
 
-import { postView, type Viewer } from './postView';
-import { fullHandle } from '../accounts/handle';
-import type { AppState } from '../state/appState';
-import type { LineData, NotificationLineData, PostLineData, SystemLineData } from '../state/buffer';
-import { labelForStatus } from '../state/bufferSelection';
-import { accountByKey, bufferFor, windowAccountKey } from '../state/selectors';
-import { useAppDispatch, useAppState } from '../state/StateContext';
-import { PostRow } from '../ui/PostRow';
+import { NotificationLine } from './NotificationLine';
+import { PostLine } from './PostLine';
+import type { LineData, SystemLineData } from '../state/buffer';
+import { useAppState } from '../state/StateContext';
 import { SystemLine } from '../ui/SystemLine';
 
 /** Props of {@link LineView}: the window a line is shown in, and the line. */
@@ -27,37 +20,6 @@ type LineViewProps = {
   readonly windowId: string;
   readonly line: LineData;
 };
-
-/** Props of the two views that read their window's account: line and window. */
-type WindowedProps<Line extends LineData> = {
-  readonly windowId: string;
-  readonly line: Line;
-};
-
-/** The viewer of a window's lines: the account it belongs to, or nobody. */
-function viewerFor(state: AppState, windowId: string): Viewer {
-  const account = accountByKey(state, windowAccountKey(state, windowId));
-  if (account === null) {
-    return { origin: '', accountId: null };
-  }
-  return { origin: account.origin, accountId: account.accountId };
-}
-
-/** Nothing yet: a later ticket opens the author's profile window from here. */
-function selectAuthor(): void {
-  // Opening a window is the window layer's move, which this view does not own.
-}
-
-/**
- * Keep a row the selection just moved onto inside its scrollback, nearest edge
- * so a fully visible row does not jump. jsdom implements no scrollIntoView at
- * all, so the view asks the element whether it has one before calling it.
- */
-function scrollRowIntoView(row: HTMLElement | null): void {
-  if (row !== null && 'scrollIntoView' in row) {
-    row.scrollIntoView({ block: 'nearest' });
-  }
-}
 
 /** One client message, printed as the buffer stored it. */
 function SystemLineView(props: { readonly line: SystemLineData }): JSX.Element {
@@ -68,75 +30,6 @@ function SystemLineView(props: { readonly line: SystemLineData }): JSX.Element {
   );
 }
 
-/**
- * One notification, as a client message until its own view lands: the full
- * handle of the account who did the thing and the type the backend called it.
- */
-function NotificationLineView(props: WindowedProps<NotificationLineData>): JSX.Element {
-  const { windowId, line } = props;
-  const state = useAppState();
-  const { notification } = line;
-  const { origin } = viewerFor(state, windowId);
-  return (
-    <SystemLine
-      clockFormat={state.settings.clockFormat}
-      date={new Date(notification.created_at)}
-      level="info"
-      text={`@${fullHandle(notification.account, origin)} ${notification.type}`}
-    />
-  );
-}
-
-/** One post: the row its status maps onto, as the window's account sees it. */
-function PostLineView(props: WindowedProps<PostLineData>): JSX.Element {
-  const { windowId, line } = props;
-  const state = useAppState();
-  const dispatch = useAppDispatch();
-  const buffer = bufferFor(state, windowId);
-  const view = postView(line.status, viewerFor(state, windowId), (id) =>
-    labelForStatus(buffer, id),
-  );
-  const rowRef = useRef<HTMLElement | null>(null);
-  const selected = buffer.selectedKey === line.key;
-  useEffect(() => {
-    if (selected) {
-      scrollRowIntoView(rowRef.current);
-    }
-  }, [selected]);
-  return (
-    <PostRow
-      ref={rowRef}
-      autoExpand={state.settings.expandMedia}
-      author={view.author}
-      boostedBy={view.boostedBy}
-      clockFormat={state.settings.clockFormat}
-      counts={view.counts}
-      contentHtml={view.contentHtml}
-      date={view.date}
-      edited={view.edited}
-      label={labelForStatus(buffer, line.status.id) ?? ''}
-      media={view.media}
-      mine={view.mine}
-      poll={view.poll}
-      quote={view.quote}
-      reactions={view.reactions}
-      replyTo={view.replyTo}
-      visibility={view.visibility}
-      onSelect={() => {
-        dispatch({ type: 'select', windowId, key: line.key });
-      }}
-      onSelectAuthor={selectAuthor}
-      onToggleReveal={() => {
-        dispatch({ type: 'toggleReveal', windowId, key: line.key });
-      }}
-      revealed={buffer.revealed.has(line.key)}
-      selected={selected}
-      sensitive={view.sensitive}
-      spoilerText={view.spoilerText}
-    />
-  );
-}
-
 /** One scrollback line of any window, drawn by the view its kind asks for. */
 export function LineView(props: LineViewProps): JSX.Element {
   const { windowId, line } = props;
@@ -144,8 +37,8 @@ export function LineView(props: LineViewProps): JSX.Element {
     case 'system':
       return <SystemLineView line={line} />;
     case 'post':
-      return <PostLineView line={line} windowId={windowId} />;
+      return <PostLine lineKey={line.key} status={line.status} windowId={windowId} />;
     case 'notification':
-      return <NotificationLineView line={line} windowId={windowId} />;
+      return <NotificationLine line={line} windowId={windowId} />;
   }
 }

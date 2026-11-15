@@ -187,12 +187,27 @@ describe(LineView, () => {
     expect(screen.getByRole('article')).not.toHaveAttribute('aria-current');
   });
 
-  it('prints a notification as the message naming who did what', () => {
+  it('prints a notification as the sentence naming what the actor did', () => {
     const state = seeded();
 
     const { container } = renderLine(state, lineOf(state, 'notification'));
 
-    expect(container.textContent).toMatch(/^\d\d:\d\d \*\*\* @lain@wired\.example follow$/u);
+    expect(container.textContent).toMatch(/^\d\d:\d\d \*\*\* @lain@wired\.example followed you$/u);
+  });
+
+  it('shows a mention notification as a post row', () => {
+    const mentioned = appReducer(opened(), {
+      type: 'notifications',
+      windowId: HOME,
+      notifications: [notification('n1', status('m'))],
+      where: 'newer',
+    });
+
+    renderLine(mentioned, lineOf(mentioned, 'notification'));
+
+    expect(
+      screen.getByRole('article', { name: 'Post a0 by @lain@wired.example' }),
+    ).toBeInTheDocument();
   });
 
   it('falls back to no viewer once the window has lost its account', () => {
