@@ -1,12 +1,14 @@
 /**
  * The keymap generated from the command registry: the command lines bindings
- * produce, and the three refusals (non-canonical chord, a chord that would
- * block typing in insert mode, a chord another command already took).
+ * produce, the three refusals (non-canonical chord, a chord that would
+ * block typing in insert mode, a chord another command already took), and
+ * that the shipped commands' bindings all install without one.
  */
 import { describe, expect, it } from 'vitest';
 
 import { buildKeymap } from './keymap';
 import type { Keymap } from './keymap';
+import { loadDefinitions } from '../commands/definitions';
 import { buildRegistry } from '../commands/registry';
 import type { CommandBinding, CommandDefinition, Registry } from '../commands/types';
 
@@ -34,6 +36,15 @@ function registryOf(definitions: readonly CommandDefinition[]): Registry {
 /** The keymap built straight from fixture {@link definitions}. */
 function keymapOf(...definitions: readonly CommandDefinition[]): Keymap {
   return buildKeymap(registryOf(definitions));
+}
+
+/** The definitions the shipped defs folder exports, throwing when it fails. */
+function shippedDefinitions(): readonly CommandDefinition[] {
+  const result = loadDefinitions();
+  if (!result.ok) {
+    throw new Error(`loadDefinitions unexpectedly rejected the defs folder: ${result.error}`);
+  }
+  return result.value;
 }
 
 describe(buildKeymap, () => {
@@ -148,5 +159,9 @@ describe(buildKeymap, () => {
       '/bravo: invalid key Bad',
       '/bravo: k already bound to /alpha 1',
     ]);
+  });
+
+  it('installs every binding the shipped commands declare', () => {
+    expect(buildKeymap(registryOf(shippedDefinitions())).problems).toStrictEqual([]);
   });
 });

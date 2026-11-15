@@ -3,8 +3,9 @@
  * through its window's account, and a notification as the client message it is
  * until its own view lands. Each renders inside AppStateProvider over a state
  * holding one window and one buffer with a line of every kind, and the reader's
- * own moves — selection, content-warning reveal — are asserted on the rendered
- * row, since the real reducer is what the view dispatches to.
+ * own moves — selection, content-warning reveal, and keeping a new selection
+ * in view (asserted in ./LineView.scroll.test.tsx) — are asserted on the
+ * rendered row, since the real reducer is what the view dispatches to.
  */
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';

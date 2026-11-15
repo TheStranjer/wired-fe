@@ -1,11 +1,12 @@
 /**
  * Tests for the shared scrollback: one window's lines in buffer order inside a
  * single labelled log region, a window no buffer answers for rendering an empty
- * region, and a click on a row inside the scrollback moving that window's own
- * selection through the reducer the provider holds.
+ * region, a click on a row inside the scrollback moving that window's own
+ * selection through the reducer the provider holds, and the row the selection
+ * moves onto being the only one kept in view.
  */
 import { fireEvent, render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { BufferView } from './BufferView';
 import type { StoredAccount } from '../accounts/accountStore';
@@ -115,6 +116,25 @@ describe(BufferView, () => {
     fireEvent.click(screen.getByText('[a0]'));
 
     expect(screen.getByRole('article')).toHaveAttribute('aria-current', 'true');
+  });
+
+  it('keeps the row the selection moved onto in view, and only that row', () => {
+    renderBuffer(seeded([status('b'), status('a')]));
+
+    const scrolls = screen.getAllByRole('article').map((row) => {
+      const scrollIntoView = vi.fn();
+      Object.defineProperty(row, 'scrollIntoView', {
+        configurable: true,
+        writable: true,
+        value: scrollIntoView,
+      });
+      return scrollIntoView;
+    });
+
+    fireEvent.click(screen.getByText('[a1]'));
+
+    expect(scrolls[1]).toHaveBeenCalledWith({ block: 'nearest' });
+    expect(scrolls[0]).not.toHaveBeenCalled();
   });
 
   it('opens the warning of a row inside the scrollback', () => {

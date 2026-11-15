@@ -7,11 +7,10 @@
  * who it answers before the body, and everything the backend counted sits
  * after the body in {@link PostMeta}.
  */
-import type { JSX, MouseEvent } from 'react';
+import type { JSX, MouseEvent, Ref } from 'react';
 
 import { Nick } from './Nick';
-import { PostMeta } from './PostMeta';
-import type { PostMetaProps } from './PostMeta';
+import { PostMeta, type PostMetaProps } from './PostMeta';
 import styles from './PostRow.module.css';
 import { RemoteHtml } from './RemoteHtml';
 import { Timestamp } from './Timestamp';
@@ -22,6 +21,8 @@ import type { ClockFormat } from '../lib/time';
  * — the metadata that goes after the body is exactly what PostMeta takes.
  */
 export type PostRowProps = {
+  /** The row's DOM node, so the view can keep a new selection in view. */
+  readonly ref?: Ref<HTMLElement> | undefined;
   /** The short row label, e.g. "a3"; commands and hotkeys refer to posts by it. */
   readonly label: string;
   /** The moment of the post, shown by {@link Timestamp}. */
@@ -118,8 +119,8 @@ function BoostLine(props: {
 }
 
 /** The parts of {@link PostRowProps} the post's own line draws: everything but
- * who boosted it above, and how the row itself is selected. */
-type LineProps = Omit<PostRowProps, 'boostedBy' | 'selected' | 'onSelect'>;
+ * who boosted it above, how the row itself is selected, and its DOM node. */
+type LineProps = Omit<PostRowProps, 'boostedBy' | 'selected' | 'onSelect' | 'ref'>;
 
 /** The line itself: the label, the clock, the nick, who the post answers, its
  * body and everything the backend counted after it. */
@@ -174,7 +175,7 @@ function PostLine(props: LineProps): JSX.Element {
 
 /** One post as a chat line; clicking the row selects it, clicking the nick opens the author. */
 export function PostRow(props: PostRowProps): JSX.Element {
-  const { boostedBy, selected, onSelect, ...line } = props;
+  const { boostedBy, selected, onSelect, ref, ...line } = props;
 
   return (
     <article
@@ -190,6 +191,7 @@ export function PostRow(props: PostRowProps): JSX.Element {
           onSelect();
         }
       }}
+      ref={ref}
     >
       {boostedBy === null ? undefined : <BoostLine boostedBy={boostedBy} />}
       <PostLine {...line} />
