@@ -8,7 +8,7 @@ import { type Mock, describe, expect, it, vi } from 'vitest';
 import { dispatchInput, type TextHandler } from './dispatch';
 import { buildRegistry } from './registry';
 import type { CommandContext, CommandDefinition, CommandOutcome, Registry } from './types';
-import { initialWindowsState } from '../windows/model';
+import { fakeCommandContext } from '../test/commandContext';
 
 /** A text handler no command test should ever reach. */
 const NEVER_TEXT: TextHandler = vi.fn<TextHandler>();
@@ -16,20 +16,13 @@ const NEVER_TEXT: TextHandler = vi.fn<TextHandler>();
 /** The context print, with vitest's call history. */
 type PrintMock = Mock<CommandContext['print']>;
 
-/** A stub context printing into {@link print}; the rest of it changes nothing. */
+/** A stub context printing into {@link print} over {@link registry}. */
 function stubContext(registry: Registry): {
   readonly context: CommandContext;
   readonly print: PrintMock;
 } {
   const print: PrintMock = vi.fn();
-  const context: CommandContext = {
-    print,
-    registry,
-    windows: initialWindowsState(),
-    dispatchWindows: () => undefined,
-    clearActiveWindow: () => undefined,
-  };
-  return { context, print };
+  return { context: fakeCommandContext({ registry, print }), print };
 }
 
 /** A definition these tests consider well-formed, running whatever {@link run} does. */

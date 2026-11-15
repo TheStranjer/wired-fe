@@ -76,7 +76,17 @@ const ALLOWED = {
   storage: ['storage', 'lib'],
   lib: ['lib'],
   theme: [],
-  'test-support': ['test-support', 'api', 'lib'],
+  'test-support': [
+    'test-support',
+    'state',
+    'commands',
+    'accounts',
+    'storage',
+    'config',
+    'windows',
+    'api',
+    'lib',
+  ],
 };
 
 /**

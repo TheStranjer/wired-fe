@@ -8,7 +8,7 @@
 import { type Mock, describe, expect, it, vi } from 'vitest';
 
 import { command } from './help';
-import { initialWindowsState } from '../../windows/model';
+import { fakeCommandContext } from '../../test/commandContext';
 import { buildRegistry } from '../registry';
 import type { CommandContext, CommandDefinition, CommandOutcome, Registry } from '../types';
 
@@ -36,14 +36,7 @@ function stubContext(): {
   readonly print: Mock<CommandContext['print']>;
 } {
   const print: Mock<CommandContext['print']> = vi.fn();
-  const context: CommandContext = {
-    print,
-    registry: stubRegistry(),
-    windows: initialWindowsState(),
-    dispatchWindows: vi.fn(),
-    clearActiveWindow: vi.fn(),
-  };
-  return { context, print };
+  return { context: fakeCommandContext({ registry: stubRegistry(), print }), print };
 }
 
 /** Every line the detail block of /help itself consists of, in order. */
