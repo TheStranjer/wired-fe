@@ -1,6 +1,10 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
-  "entry": ["src/commands/defs/*.ts", "!src/commands/defs/*.test.ts"],
+  "entry": [
+    "src/commands/defs/*.ts",
+    "!src/commands/defs/*.test.ts",
+    "src/features/*/windowKind.tsx"
+  ],
   "project": ["src/**/*.{ts,tsx}", "tooling/**/*.{js,ts}", "e2e/**/*.ts"],
   "ignoreExportsUsedInFile": false
 }
