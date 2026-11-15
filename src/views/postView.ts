@@ -19,6 +19,7 @@ import type { MediaAttachment } from '../api/schemas/mediaAttachment';
 import type { Poll } from '../api/schemas/poll';
 import type { Reaction } from '../api/schemas/reaction';
 import type { Status, Visibility } from '../api/schemas/status';
+import type { EmojiRef } from '../ui/emojify';
 import type { MediaItem } from '../ui/MediaList';
 import type { PollViewData } from '../ui/PollView';
 
@@ -43,6 +44,8 @@ export type PostView = {
   };
   /** The body as hostile remote HTML; RemoteHtml sanitizes it. */
   readonly contentHtml: string;
+  /** The status's own custom emoji, as the row's body renders them inline. */
+  readonly emojis: readonly EmojiRef[];
   /** The content warning of the displayed status; '' when there is none. */
   readonly spoilerText: string;
   /** The attachments of the displayed status, as the row's media lines draw
@@ -179,6 +182,7 @@ export function postView(status: Status, viewer: Viewer, labelOf: LabelOf = () =
     date: new Date(shown.created_at),
     author: authorOf(shown.account, viewer),
     contentHtml: shown.content,
+    emojis: shown.emojis.map(({ shortcode, static_url }) => ({ shortcode, url: static_url })),
     spoilerText: shown.spoiler_text,
     media: shown.media_attachments.map(mediaItem),
     sensitive: shown.sensitive,

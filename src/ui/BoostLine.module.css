@@ -1,0 +1,5 @@
+/* The line naming who boosted a post: metadata, so dimmed like the label. */
+
+.boost {
+  color: var(--color-dim);
+}

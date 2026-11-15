@@ -1,5 +1,6 @@
-/* Sanitized remote markup. .invisible and .ellipsis are class names that
-   arrive inside the remote HTML (Mastodon's link shortening), so they are
+/* Sanitized remote markup. .invisible, .ellipsis and .emoji are class names
+   that arrive inside the remote HTML or are written onto it after the fact
+   (Mastodon's link shortening, our own custom-emoji images), so they are
    matched as :global classes under the module root instead of being local. */
 
 /* stylelint-disable selector-pseudo-class-no-unknown -- :global is the CSS
@@ -19,4 +20,9 @@
 
 .root :global(.ellipsis)::after {
   content: '…';
+}
+
+.root :global(.emoji) {
+  height: 1.2em;
+  vertical-align: middle;
 }

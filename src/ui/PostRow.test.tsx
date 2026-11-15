@@ -23,6 +23,7 @@ const BASE_PROPS: PostRowProps = {
   replyTo: null,
   quote: null,
   contentHtml: '<p>present day, present time</p>',
+  emojis: [],
   spoilerText: '',
   revealed: false,
   poll: null,
@@ -150,6 +151,18 @@ describe(PostRow, () => {
 
     expect(view.container.textContent).toBe(
       '⟳ <bob> boosted[a3] 23:04 <alice> ↳ re @carol: present day direct✉  ↩2 ⟳1 ★5 🔥2 (edited)',
+    );
+  });
+
+  it('renders a known shortcode in the body as its emoji image', () => {
+    renderPost({
+      contentHtml: '<p>:cat: approved</p>',
+      emojis: [{ shortcode: 'cat', url: 'https://example.org/cat.png' }],
+    });
+
+    expect(screen.getByRole('img', { name: ':cat:' })).toHaveAttribute(
+      'src',
+      'https://example.org/cat.png',
     );
   });
 

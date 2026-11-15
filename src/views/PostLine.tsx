@@ -76,6 +76,7 @@ export function PostLine(props: PostLineProps): JSX.Element {
       contentHtml={view.contentHtml}
       date={view.date}
       edited={view.edited}
+      emojis={view.emojis}
       label={labelForStatus(buffer, status.id) ?? ''}
       media={view.media}
       mine={view.mine}

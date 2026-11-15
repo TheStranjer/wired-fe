@@ -7,6 +7,7 @@
  */
 import type { JSX } from 'react';
 
+import type { EmojiRef } from './emojify';
 import styles from './PostBody.module.css';
 import { RemoteHtml } from './RemoteHtml';
 
@@ -14,6 +15,8 @@ import { RemoteHtml } from './RemoteHtml';
 export type PostBodyProps = {
   /** The body as hostile remote HTML; {@link RemoteHtml} sanitizes it. */
   readonly contentHtml: string;
+  /** The post's own custom emoji, rendered inline in the body. */
+  readonly emojis: readonly EmojiRef[];
   /** The content warning text; the empty string means there is none. */
   readonly spoilerText: string;
   /** Whether a warned body is shown; meaningless without a warning. */
@@ -27,10 +30,10 @@ export type PostBodyProps = {
  * once revealed. While hidden the content is not rendered at all.
  */
 export function PostBody(props: PostBodyProps): JSX.Element {
-  const { contentHtml, spoilerText, revealed, onToggleReveal } = props;
+  const { contentHtml, emojis, spoilerText, revealed, onToggleReveal } = props;
 
   if (spoilerText === '') {
-    return <RemoteHtml html={contentHtml} inline />;
+    return <RemoteHtml emojis={emojis} html={contentHtml} inline />;
   }
   return (
     <>
@@ -45,7 +48,7 @@ export function PostBody(props: PostBodyProps): JSX.Element {
       {revealed ? (
         <>
           {' '}
-          <RemoteHtml html={contentHtml} inline />
+          <RemoteHtml emojis={emojis} html={contentHtml} inline />
         </>
       ) : undefined}
     </>
