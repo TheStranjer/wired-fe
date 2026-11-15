@@ -6,6 +6,7 @@
 import { type Mock, describe, expect, it, vi } from 'vitest';
 
 import { command } from './win';
+import { fakeCommandContext } from '../../test/commandContext';
 import {
   STATUS_WINDOW_ID,
   initialWindowsState,
@@ -14,10 +15,7 @@ import {
   type WindowsState,
 } from '../../windows/model';
 import { windowsReducer } from '../../windows/reducer';
-import type { CommandContext, Registry } from '../types';
-
-/** The empty registry: /win never consults it. */
-const REGISTRY: Registry = { commands: [], byName: new Map() };
+import type { CommandContext } from '../types';
 
 /** The home and notifications views the three-window fixture shows. */
 const HOME: WindowRef = { kind: 'home', accountKey: 'lain@wired.example', target: null };
@@ -50,14 +48,11 @@ function stubContext(windows: WindowsState): {
 } {
   const dispatchWindows: Mock<CommandContext['dispatchWindows']> = vi.fn();
   const print: Mock<CommandContext['print']> = vi.fn();
-  const context: CommandContext = {
-    print,
-    registry: REGISTRY,
-    windows,
+  return {
+    context: fakeCommandContext({ windows, dispatchWindows, print }),
     dispatchWindows,
-    clearActiveWindow: vi.fn(),
+    print,
   };
-  return { context, dispatchWindows, print };
 }
 
 describe('/win', () => {

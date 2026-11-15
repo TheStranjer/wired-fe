@@ -9,6 +9,12 @@
  * that commands and the registry do not have to import each other.
  */
 
+import type { AccountStore } from '../accounts/accountStore';
+import type { WiredConfig } from '../config/schema';
+import type { AppState } from '../state/appState';
+import type { Draft } from '../state/draft';
+import type { AppAction } from '../state/reducer';
+import type { Store } from '../storage/store';
 import type { WindowsState } from '../windows/model';
 import type { WindowsAction } from '../windows/reducer';
 
@@ -28,8 +34,10 @@ export type Registry = {
 };
 
 /**
- * Everything a command may do: talk to the user, read the command list and
- * read and change the window list. The app builds one per run.
+ * Everything a command may do: talk to the user, read the command list, read
+ * and change the window list, read and move the whole app state, post through
+ * the active window, rewrite the command line, navigate, and reach the
+ * persisted stores and the build-time configuration. The app builds one per run.
  */
 export type CommandContext = {
   /** Print a client message into the active window; no level means `info`. */
@@ -42,6 +50,29 @@ export type CommandContext = {
   readonly dispatchWindows: (action: WindowsAction) => void;
   /** Empty the scrollback of the active window (`/clear`). */
   readonly clearActiveWindow: () => void;
+  /** The whole app state as it is while the command runs. */
+  readonly state: AppState;
+  /** Ask the application's one reducer for a transition. */
+  readonly dispatch: (action: AppAction) => void;
+  /** The current moment, so printed lines and posts can be stamped. */
+  readonly now: () => Date;
+  /** Posts through the active window (its kind's post handler). Resolves to an error message or null. */
+  readonly post: (draft: Draft) => Promise<string | null>;
+  /** Replaces the command-line text (used by prefill hotkeys and /edit). */
+  readonly setInput: (text: string) => void;
+  /** Goes to a view by URL, e.g. a hash route (decision 4). */
+  readonly navigate: (url: string) => void;
+  /** Where the page is right now, for building and comparing URLs. */
+  readonly page: { readonly origin: string; readonly pathname: string };
+  /** The build-time configuration of this bundle (decision 3). */
+  readonly config: WiredConfig;
+  /** The persisted stores a command may read and write (decision 10). */
+  readonly stores: {
+    readonly apps: Store;
+    readonly login: Store;
+    readonly accounts: AccountStore;
+    readonly settings: Store;
+  };
 };
 
 /** Which keyboard mode a default binding is active in (decision 6). */

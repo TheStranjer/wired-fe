@@ -5,11 +5,9 @@
 import { type Mock, describe, expect, it, vi } from 'vitest';
 
 import { command } from './close';
+import { fakeCommandContext } from '../../test/commandContext';
 import { initialWindowsState, type WindowState, type WindowsState } from '../../windows/model';
-import type { CommandContext, Registry } from '../types';
-
-/** The empty registry: /close never consults it. */
-const REGISTRY: Registry = { commands: [], byName: new Map() };
+import type { CommandContext } from '../types';
 
 /** A home window, id spelled as windowId() spells it. */
 const HOME: WindowState = {
@@ -35,14 +33,12 @@ function stubContext(windows: WindowsState): {
   const clearActiveWindow: Mock<CommandContext['clearActiveWindow']> = vi.fn();
   const dispatchWindows: Mock<CommandContext['dispatchWindows']> = vi.fn();
   const print: Mock<CommandContext['print']> = vi.fn();
-  const context: CommandContext = {
-    print,
-    registry: REGISTRY,
-    windows,
-    dispatchWindows,
+  return {
+    context: fakeCommandContext({ windows, clearActiveWindow, dispatchWindows, print }),
     clearActiveWindow,
+    dispatchWindows,
+    print,
   };
-  return { context, clearActiveWindow, dispatchWindows, print };
 }
 
 describe('/close', () => {

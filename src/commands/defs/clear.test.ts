@@ -5,11 +5,8 @@
 import { type Mock, describe, expect, it, vi } from 'vitest';
 
 import { command } from './clear';
-import { initialWindowsState } from '../../windows/model';
-import type { CommandContext, Registry } from '../types';
-
-/** The empty registry: /clear never consults it. */
-const REGISTRY: Registry = { commands: [], byName: new Map() };
+import { fakeCommandContext } from '../../test/commandContext';
+import type { CommandContext } from '../types';
 
 /** A context whose window layer is mocks, with the mocks kept for assertions. */
 function stubContext(): {
@@ -19,14 +16,11 @@ function stubContext(): {
 } {
   const clearActiveWindow: Mock<CommandContext['clearActiveWindow']> = vi.fn();
   const dispatchWindows: Mock<CommandContext['dispatchWindows']> = vi.fn();
-  const context: CommandContext = {
-    print: vi.fn(),
-    registry: REGISTRY,
-    windows: initialWindowsState(),
-    dispatchWindows,
+  return {
+    context: fakeCommandContext({ clearActiveWindow, dispatchWindows }),
     clearActiveWindow,
+    dispatchWindows,
   };
-  return { context, clearActiveWindow, dispatchWindows };
 }
 
 describe('/clear', () => {
