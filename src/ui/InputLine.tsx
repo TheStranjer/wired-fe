@@ -17,13 +17,15 @@ export type InputLineProps = {
   readonly onChange: (value: string) => void;
   /** Called with the text when Enter is pressed on a non-blank line. */
   readonly onSubmit: (value: string) => void;
+  /** Called when the input gains focus (AGENTS.md "Two hotkey modes": focusing leaves navigation). */
+  readonly onFocus?: () => void;
   /** Forwarded to the input so the parent can focus it. */
   readonly inputRef?: Ref<HTMLInputElement>;
 };
 
 /** A single-line composer styled after an IRC input. */
 export function InputLine(props: InputLineProps): JSX.Element {
-  const { prompt, value, onChange, onSubmit, inputRef } = props;
+  const { prompt, value, onChange, onSubmit, onFocus, inputRef } = props;
 
   function handleChange(event: ChangeEvent<HTMLInputElement>): void {
     onChange(event.target.value);
@@ -46,6 +48,7 @@ export function InputLine(props: InputLineProps): JSX.Element {
         autoComplete="off"
         className={styles['input']}
         onChange={handleChange}
+        onFocus={onFocus}
         onKeyDown={handleKeyDown}
         ref={inputRef}
         spellCheck={false}

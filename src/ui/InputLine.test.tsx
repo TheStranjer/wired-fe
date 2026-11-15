@@ -1,5 +1,5 @@
 /**
- * Tests for the command line component: prompt, controlled typing, Enter.
+ * Tests for the command line component: prompt, controlled typing, Enter and focus.
  */
 import { fireEvent, render, screen } from '@testing-library/react';
 import { createRef } from 'react';
@@ -74,5 +74,17 @@ describe(InputLine, () => {
     render(<InputLine prompt=">" value="" onChange={NOOP} onSubmit={NOOP} inputRef={inputRef} />);
 
     expect(inputRef.current).toBe(screen.getByRole('textbox', { name: 'Command line' }));
+  });
+
+  it('calls onFocus when the command line gains focus', () => {
+    let focusCount = 0;
+    const onFocus = (): void => {
+      focusCount += 1;
+    };
+    render(<InputLine prompt=">" value="" onChange={NOOP} onSubmit={NOOP} onFocus={onFocus} />);
+
+    fireEvent.focus(screen.getByRole('textbox', { name: 'Command line' }));
+
+    expect(focusCount).toBe(1);
   });
 });
