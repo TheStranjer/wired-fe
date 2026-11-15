@@ -105,7 +105,7 @@ describe(BufferView, () => {
     expect(lines).toStrictEqual([
       '23:04 *** connected to wired.example',
       expect.stringMatching(/^\[a0\] \d\d:\d\d <lain@wired\.example> a$/u),
-      expect.stringMatching(/^\d\d:\d\d \*\*\* @lain@wired\.example follow$/u),
+      expect.stringMatching(/^\d\d:\d\d \*\*\* @lain@wired\.example followed you$/u),
     ]);
   });
 

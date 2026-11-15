@@ -37,10 +37,13 @@ const EXCERPT_LIMIT = 120;
 /** One run of any whitespace, collapsed out of the excerpt. */
 const WHITESPACE_RUN = /\s+/gu;
 
-/** Remote markup as single-line plain text: through the one sanitizer first, so
+/**
+ * Remote markup as single-line plain text: through the one sanitizer first, so
  * the words inside forbidden elements never reach the excerpt, then a detached
- * DOMParser parse resolves the tags and entities, and whitespace collapses. */
-function plainText(html: string): string {
+ * DOMParser parse resolves the tags and entities, and whitespace collapses.
+ * Shared by quote excerpts and notification lines (the same hostile content).
+ */
+export function plainText(html: string): string {
   const safe = sanitizeRemoteHtml(html);
   const { body } = new DOMParser().parseFromString(safe, 'text/html');
   return body.textContent.replace(WHITESPACE_RUN, ' ').trim();
