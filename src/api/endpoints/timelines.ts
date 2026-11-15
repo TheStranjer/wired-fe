@@ -23,8 +23,8 @@ const StatusListSchema: v.GenericSchema<unknown, readonly Status[]> = v.array(St
 type PublicOptions = {
   /** True sends `local: true`; false omits the parameter entirely. */
   readonly local: boolean;
-  /** The page to fetch; omitted when undefined. */
-  readonly page?: PageRequest;
+  /** The page to fetch; omitted or undefined asks for the newest one. */
+  readonly page?: PageRequest | undefined;
 };
 
 /**
