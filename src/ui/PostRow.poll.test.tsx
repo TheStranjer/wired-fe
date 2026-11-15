@@ -18,6 +18,7 @@ const BASE_PROPS: PostRowProps = {
   author: { handle: 'alice', fullHandle: '@alice@m.example', self: false },
   boostedBy: null,
   replyTo: null,
+  quote: null,
   contentHtml: '<p>present day, present time</p>',
   spoilerText: '',
   revealed: false,

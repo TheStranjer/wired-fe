@@ -2,8 +2,9 @@
  * Tests for addStatuses: a page arrives newest-first and joins the scrollback
  * oldest-first — appended when newer, prepended when older — skipping ids the
  * buffer already shows and repeats inside the page, labelling each addition in
- * join order, capping the result, and handing the very same buffer back when
- * nothing in the page is new.
+ * join order (and every shown quote right after its quoter), capping the
+ * result, and handing the very same buffer back when nothing in the page is
+ * new.
  */
 import { describe, expect, it } from 'vitest';
 
@@ -71,6 +72,48 @@ describe(addStatuses, () => {
 
     expect(labels(after.labels)).toStrictEqual({ p1: 'a0', p2: 'a1', p3: 'a2' });
     expect(after.labels.next).toBe(3);
+  });
+
+  it('labels a quoted status right after its quoter', () => {
+    const after = addStatuses(
+      EMPTY_BUFFER,
+      [status('q2', { quote: status('inner-2') }), status('q1', { quote: status('inner-1') })],
+      'newer',
+    );
+
+    expect(labels(after.labels)).toStrictEqual({
+      q1: 'a0',
+      'inner-1': 'a1',
+      q2: 'a2',
+      'inner-2': 'a3',
+    });
+  });
+
+  it('labels the quote a boost shows, which rides on the original', () => {
+    const after = addStatuses(
+      EMPTY_BUFFER,
+      [status('b', { reblog: status('orig', { quote: status('inner') }) })],
+      'newer',
+    );
+
+    expect(labels(after.labels)).toStrictEqual({ b: 'a0', inner: 'a1' });
+  });
+
+  it('gives a quote no label when the post carries none', () => {
+    const after = addStatuses(EMPTY_BUFFER, [status('plain')], 'newer');
+
+    expect(labels(after.labels)).toStrictEqual({ plain: 'a0' });
+    expect(after.labels.next).toBe(1);
+  });
+
+  it('keeps the label a quote was given when its own line later joins', () => {
+    const first = addStatuses(EMPTY_BUFFER, [status('q', { quote: status('inner') })], 'newer');
+
+    const after = addStatuses(first, [status('inner')], 'newer');
+
+    expect(labels(after.labels)).toStrictEqual({ q: 'a0', inner: 'a1' });
+    expect(after.labels.next).toBe(2);
+    expect(keys(after)).toStrictEqual(['post:q', 'post:inner']);
   });
 
   it('keeps labelling across pages, so an older page continues the book', () => {

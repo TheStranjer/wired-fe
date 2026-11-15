@@ -1,0 +1,7 @@
+/* The quote line under its quoter: metadata like the boost and reply marks,
+   so it dims with the label. The nick inside keeps its own colours — the
+   brackets come from Nick, the text from the quote's dim. */
+
+.quote {
+  color: var(--color-dim);
+}

@@ -3,9 +3,11 @@
  * the scrollback, update them and take them away (AGENTS.md "Windows, like IRC
  * buffers"). APIs return statuses newest first while the buffer keeps its lines
  * oldest first, so {@link addStatuses} turns each batch around; every status id
- * that joins gets its window label in the order it is added. Like the rest of
- * src/state these functions are pure, and each returns the very same buffer
- * when its request matches nothing, so callers can compare by identity.
+ * that joins gets its window label in the order it is added, and the shown
+ * quote of a line is labelled right after its quoter so commands can name it
+ * too. Like the rest of src/state these functions are pure, and each returns
+ * the very same buffer when its request matches nothing, so callers can compare
+ * by identity.
  */
 
 import { type Buffer, capLines, type LineData, type PostLineData } from './buffer';
@@ -47,9 +49,17 @@ function freshStatuses(lines: readonly LineData[], statuses: readonly Status[]):
   return fresh;
 }
 
+/** The quote a post line shows: a boost quotes through its original, a plain
+ * status with its own. Exported for the label lookup, which must answer for
+ * exactly the quotes the book was grown with. */
+export function shownQuote(status: Status): Status | null {
+  return (status.reblog ?? status).quote;
+}
+
 /**
  * The post lines for `chronological` (oldest first) and the label book grown
- * by each status id in the order its line joins the buffer.
+ * by each status id — and by its shown quote's, right after — in the order
+ * their lines join the buffer.
  */
 function labelLines(
   labels: LabelBook,
@@ -59,6 +69,10 @@ function labelLines(
   let book = labels;
   for (const status of chronological) {
     [book] = assignLabel(book, status.id);
+    const quoted = shownQuote(status);
+    if (quoted !== null) {
+      [book] = assignLabel(book, quoted.id);
+    }
     lines.push({ kind: 'post', key: postKey(status.id), status });
   }
   return [lines, book];

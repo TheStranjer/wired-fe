@@ -8,9 +8,11 @@
  * reply it answers, its audience, its counters, the viewer's marks on it, its
  * reactions, its attachments, its poll and its sensitive flag, and whether it was
  * edited all come from the displayed status,
- * never from the boost around it.
+ * never from the boost around it. A quoted post rides along as the excerpt
+ * line ui/QuoteBlock draws, mapped in ./quoteView.
  */
 
+import { quoteView, type Handles, type LabelOf, type QuoteView } from './quoteView';
 import { fullHandle } from '../accounts/handle';
 import type { Account } from '../api/schemas/account';
 import type { MediaAttachment } from '../api/schemas/mediaAttachment';
@@ -25,13 +27,6 @@ import type { PollViewData } from '../ui/PollView';
 export type Viewer = {
   readonly origin: string;
   readonly accountId: string | null;
-};
-
-/** An account's two handle forms: the nick's short form and the @-prefixed
- * full one. */
-type Handles = {
-  readonly handle: string;
-  readonly fullHandle: string;
 };
 
 /** The data props of one PostRow, derived from a single status. */
@@ -91,6 +86,9 @@ export type PostView = {
   /** The poll the displayed status carries, as the row draws it under the
    * body; null when it carries none. */
   readonly poll: PollViewData | null;
+  /** The post the displayed status quotes, as the dim ┌ line under the row
+   * draws it; null when it quotes nothing. */
+  readonly quote: QuoteView | null;
 };
 
 /** The nick's two forms for an account seen from `origin`. */
@@ -170,9 +168,10 @@ function pollOf(poll: Poll | null): PollViewData | null {
 
 /**
  * Map a status onto one row's data: a boost shows the reblogged status and
- * names the booster, anything else shows itself with no booster.
+ * names the booster, anything else shows itself with no booster. `labelOf`
+ * gives a quoted status the label its window gave it, null for none.
  */
-export function postView(status: Status, viewer: Viewer): PostView {
+export function postView(status: Status, viewer: Viewer, labelOf: LabelOf = () => null): PostView {
   const boosted = status.reblog;
   const shown = boosted ?? status;
   return {
@@ -191,5 +190,6 @@ export function postView(status: Status, viewer: Viewer): PostView {
     mine: mineOf(shown),
     reactions: shown.emoji_reactions.map(reactionOf),
     poll: pollOf(shown.poll),
+    quote: quoteView(shown.quote, viewer.origin, labelOf),
   };
 }

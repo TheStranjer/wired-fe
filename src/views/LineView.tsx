@@ -93,7 +93,9 @@ function PostLineView(props: WindowedProps<PostLineData>): JSX.Element {
   const state = useAppState();
   const dispatch = useAppDispatch();
   const buffer = bufferFor(state, windowId);
-  const view = postView(line.status, viewerFor(state, windowId));
+  const view = postView(line.status, viewerFor(state, windowId), (id) =>
+    labelForStatus(buffer, id),
+  );
   const rowRef = useRef<HTMLElement | null>(null);
   const selected = buffer.selectedKey === line.key;
   useEffect(() => {
@@ -116,6 +118,7 @@ function PostLineView(props: WindowedProps<PostLineData>): JSX.Element {
       media={view.media}
       mine={view.mine}
       poll={view.poll}
+      quote={view.quote}
       reactions={view.reactions}
       replyTo={view.replyTo}
       visibility={view.visibility}

@@ -3,8 +3,8 @@
  * recorded Wired fixture, a remote acct that keeps its host, a boost showing
  * the original under the booster's name, and the three answers to "is this
  * me?". The metadata the row shows after the body has its own file,
- * postView.meta.test.ts, the poll under the body another; these tests still
- * name every field a row gets.
+ * postView.meta.test.ts; the poll, the quote and the attachments under it
+ * have theirs; these tests still name every field a row gets.
  */
 
 import * as v from 'valibot';
@@ -79,6 +79,7 @@ const QUIET = {
   media: [],
   sensitive: false,
   poll: null,
+  quote: null,
 } as const;
 
 describe(postView, () => {
@@ -118,6 +119,11 @@ describe(postView, () => {
       media: [],
       sensitive: false,
       poll: null,
+      quote: {
+        label: null,
+        author: { handle: 'alice@other.example', fullHandle: '@alice@other.example' },
+        excerpt: 'The wired is all one network.',
+      },
     });
   });
 
@@ -155,59 +161,6 @@ describe(postView, () => {
       boostedBy: { handle: 'bob', fullHandle: '@bob@wired.example' },
       ...QUIET,
     });
-  });
-
-  it('maps attachments onto media items under the row names', () => {
-    const status = parse(
-      wireStatus('1', wireAccount('acc-lain', 'lain', 'lain'), {
-        sensitive: true,
-        media_attachments: [
-          {
-            id: 'm1',
-            type: 'image',
-            url: 'https://wired.example/media/m1.png',
-            preview_url: 'https://wired.example/media/m1.small.png',
-            description: 'the fourth wall',
-          },
-          { id: 'm2', type: 'unknown', url: 'https://wired.example/media/m2.mkv' },
-        ],
-      }),
-    );
-
-    expect(postView(status, SIGNED_OUT).media).toStrictEqual([
-      {
-        id: 'm1',
-        type: 'image',
-        url: 'https://wired.example/media/m1.png',
-        previewUrl: 'https://wired.example/media/m1.small.png',
-        description: 'the fourth wall',
-      },
-      {
-        id: 'm2',
-        type: 'unknown',
-        url: 'https://wired.example/media/m2.mkv',
-        previewUrl: null,
-        description: null,
-      },
-    ]);
-    expect(postView(status, SIGNED_OUT).sensitive).toBe(true);
-  });
-
-  it('shows the attachments and warning of the original, not the boost', () => {
-    const boost = parse(
-      wireStatus('boost-1', wireAccount('acc-bob', 'bob', 'bob'), {
-        sensitive: true,
-        media_attachments: [{ id: 'boost-m', type: 'image', url: 'https://wired.example/b.png' }],
-        reblog: wireStatus('orig', wireAccount('acc-alice', 'alice', 'alice@other.example'), {
-          media_attachments: [{ id: 'orig-m', type: 'image', url: 'https://wired.example/o.png' }],
-        }),
-      }),
-    );
-
-    const view = postView(boost, SIGNED_OUT);
-
-    expect(view.media.map((item) => item.id)).toStrictEqual(['orig-m']);
-    expect(view.sensitive).toBe(false);
   });
 
   it('flags the original author as self, not the booster', () => {
