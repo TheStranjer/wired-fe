@@ -4,12 +4,14 @@
  * buffer, oldest first, each keyed by the stable key the buffer gave it so a
  * line that stays on screen keeps its DOM. An unknown window reads as the empty
  * buffer, so a window that has just closed renders nothing rather than throwing.
+ * Scrolling to the very top asks the reducer for that window's older history;
+ * whichever loader owns the window answers the ask (see ./useTimeline).
  */
 import type { JSX } from 'react';
 
 import { LineView } from './LineView';
 import { bufferFor } from '../state/selectors';
-import { useAppState } from '../state/StateContext';
+import { useAppDispatch, useAppState } from '../state/StateContext';
 import { Scrollback } from '../ui/Scrollback';
 
 /** Props of {@link BufferView}: the window to show and the region's name. */
@@ -22,9 +24,15 @@ type BufferViewProps = {
 /** The scrollback of one window: its buffer's lines, oldest first. */
 export function BufferView(props: BufferViewProps): JSX.Element {
   const { windowId, label } = props;
+  const dispatch = useAppDispatch();
   const { lines } = bufferFor(useAppState(), windowId);
   return (
-    <Scrollback label={label}>
+    <Scrollback
+      label={label}
+      onReachTop={(): void => {
+        dispatch({ type: 'requestOlder', windowId });
+      }}
+    >
       {lines.map((line) => (
         <LineView key={line.key} line={line} windowId={windowId} />
       ))}

@@ -2,8 +2,9 @@
  * Tests for the shared scrollback: one window's lines in buffer order inside a
  * single labelled log region, a window no buffer answers for rendering an empty
  * region, a click on a row inside the scrollback moving that window's own
- * selection through the reducer the provider holds, and the row the selection
- * moves onto being the only one kept in view.
+ * selection through the reducer the provider holds, the row the selection
+ * moves onto being the only one kept in view, and scrolling to the very top
+ * asking that window's buffer for older posts.
  */
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
@@ -13,7 +14,8 @@ import type { StoredAccount } from '../accounts/accountStore';
 import type { Status } from '../api/schemas/status';
 import { type AppState, coreReducer, initialAppState } from '../state/appState';
 import { appReducer } from '../state/reducer';
-import { AppStateProvider } from '../state/StateContext';
+import { bufferFor } from '../state/selectors';
+import { AppStateProvider, useAppState } from '../state/StateContext';
 import { notification, status } from '../test/fixtures';
 import { windowId } from '../windows/model';
 import type { WindowRef } from '../windows/model';
@@ -77,11 +79,18 @@ function seeded(posts: readonly Status[] = [status('a')]): AppState {
   });
 }
 
-/** Show {@link state}'s scrollback for the window {@link at}. */
+/** The window's older-request count, as a line a test can read. */
+function OlderRequests() {
+  const { olderRequests } = bufferFor(useAppState(), WINDOW);
+  return <span>{`older requests: ${String(olderRequests)}`}</span>;
+}
+
+/** Show {@link state}'s scrollback for the window {@link at}, with its ask counter. */
 function renderBuffer(state: AppState, at = WINDOW) {
   return render(
     <AppStateProvider initial={state}>
       <BufferView label="notifications" windowId={at} />
+      <OlderRequests />
     </AppStateProvider>,
   );
 }
@@ -145,5 +154,25 @@ describe(BufferView, () => {
     fireEvent.click(screen.getByRole('button', { name: '[CW: lain spoilers]' }));
 
     expect(screen.getByText('the fourth wall')).toBeInTheDocument();
+  });
+
+  it('asks its window for older posts when the scrollback reaches the top', () => {
+    renderBuffer(seeded());
+
+    expect(screen.getByText('older requests: 0')).toBeInTheDocument();
+
+    fireEvent.scroll(screen.getByRole('log', { name: 'notifications' }));
+
+    expect(screen.getByText('older requests: 1')).toBeInTheDocument();
+  });
+
+  it('asks again for every scroll to the top', () => {
+    renderBuffer(seeded());
+
+    const log = screen.getByRole('log', { name: 'notifications' });
+    fireEvent.scroll(log);
+    fireEvent.scroll(log);
+
+    expect(screen.getByText('older requests: 2')).toBeInTheDocument();
   });
 });
