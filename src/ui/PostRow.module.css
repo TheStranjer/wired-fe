@@ -1,7 +1,8 @@
 /* One post as one chat line. The row is the full width of the scrollback,
    so clicking beside the text still selects it; the selected row carries
    the status-bar colour, and the CW button is text-coloured warning amber
-   with no button chrome. */
+   with no button chrome. Who boosted the post and who it answers are
+   metadata, so they are dimmed like the label. */
 
 .row {
   display: block;
@@ -14,6 +15,14 @@
 }
 
 .label {
+  color: var(--color-dim);
+}
+
+.boost {
+  color: var(--color-dim);
+}
+
+.reply {
   color: var(--color-dim);
 }
 

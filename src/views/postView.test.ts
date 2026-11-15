@@ -1,7 +1,9 @@
 /**
  * Tests for postView: the plain local status with its username nick, the
  * recorded Wired fixture, a remote acct that keeps its host, a boost showing
- * the original under the booster's name, and the three answers to "is this me?".
+ * the original under the booster's name, and the three answers to "is this
+ * me?". The metadata the row shows after the body has its own file,
+ * postView.meta.test.ts; these tests still name every field a row gets.
  */
 
 import * as v from 'valibot';
@@ -64,6 +66,16 @@ function wireStatus(
   };
 }
 
+/** The metadata of a status nothing has happened to: no reply, no audience, no tallies. */
+const QUIET = {
+  replyTo: null,
+  visibility: 'public',
+  edited: false,
+  counts: { replies: 0, boosts: 0, favourites: 0 },
+  mine: { boosted: false, favourited: false, bookmarked: false },
+  reactions: [],
+} as const;
+
 describe(postView, () => {
   it('maps a local status onto a plain row', () => {
     const status = parse(wireStatus('1', wireAccount('acc-lain', 'lain', 'lain')));
@@ -75,6 +87,7 @@ describe(postView, () => {
       contentHtml: '<p>post 1</p>',
       spoilerText: '',
       boostedBy: null,
+      ...QUIET,
     });
   });
 
@@ -88,6 +101,15 @@ describe(postView, () => {
       contentHtml: '<p>She is everywhere now.</p>',
       spoilerText: '',
       boostedBy: null,
+      replyTo: null,
+      visibility: 'public',
+      edited: true,
+      counts: { replies: 3, boosts: 2, favourites: 9 },
+      mine: { boosted: false, favourited: true, bookmarked: true },
+      reactions: [
+        { name: '❤️', count: 3, me: true },
+        { name: 'lain', count: 1, me: false },
+      ],
     });
   });
 
@@ -123,6 +145,7 @@ describe(postView, () => {
       contentHtml: '<p>the original words</p>',
       spoilerText: 'cw on the original',
       boostedBy: { handle: 'bob', fullHandle: '@bob@wired.example' },
+      ...QUIET,
     });
   });
 
