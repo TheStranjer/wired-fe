@@ -9,7 +9,8 @@
  * clearing itself once the command is done with.
  */
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { HttpResponse, http } from 'msw';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { Root } from './Root';
 import { accountKey, type StoredAccount } from '../accounts/accountStore';
@@ -17,6 +18,7 @@ import { initialAppState } from '../state/appState';
 import type { AppState } from '../state/appState';
 import { type AppAction, appReducer } from '../state/reducer';
 import { AppStateProvider } from '../state/StateContext';
+import { server } from '../test/server';
 import { STATUS_WINDOW_ID, windowId } from '../windows/model';
 import type { WindowRef } from '../windows/model';
 import type { WindowsAction } from '../windows/reducer';
@@ -32,8 +34,11 @@ const ACCOUNT: StoredAccount = {
   token: 'not-a-real-token',
 };
 
-/** The home window the tests open; it has no kind implemented. */
+/** The home window the tests open; src/features/home implements its kind. */
 const HOME: WindowRef = { kind: 'home', accountKey: ACCOUNT.key, target: null };
+
+/** The timeline that window fetches, which these shell tests do not care about. */
+const HOME_TIMELINE = 'https://wired.example/api/v1/timelines/home';
 
 /** One action for the window list. */
 function win(action: WindowsAction): AppAction {
@@ -71,12 +76,23 @@ function submit(text: string): void {
   fireEvent.keyDown(input, { key: 'Enter' });
 }
 
+/** The empty home timeline every home window asks for, so no request goes unhandled. */
+function serveEmptyHomeTimeline(): void {
+  server.use(
+    http.get(HOME_TIMELINE, () => {
+      return HttpResponse.json([]);
+    }),
+  );
+}
+
 /** The topic bar, the shell's banner region. */
 function banner(): HTMLElement {
   return screen.getByRole('banner');
 }
 
 describe(Root, () => {
+  beforeEach(serveEmptyHomeTimeline);
+
   it('shows the status window with its kind topic', () => {
     renderRoot([]);
 

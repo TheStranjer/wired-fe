@@ -1,11 +1,11 @@
 /**
  * Tests for the context the app builds for one render: printing into the active
  * window at the asked level, the window list and the actions commands ask it
- * for, clearing the active window, refusing to post where the shipped window
- * kinds take no posts, and the page, configuration, registry, stores and clock
- * every command reads. The kinds here are the real ones: the bundle has one, the
- * status window, and it posts nowhere. How posting reaches a kind that does
- * answer is in useCommandContext.post.test.tsx.
+ * for, clearing the active window, refusing to post where no shipped window
+ * kind takes posts, and the page, configuration, registry, stores and clock
+ * every command reads. The kinds here are the real ones: the status window and
+ * the home window, and only that second one posts. How posting reaches a kind
+ * that does answer is in useCommandContext.post.test.tsx.
  */
 import { act, renderHook } from '@testing-library/react';
 import type { RenderHookResult } from '@testing-library/react';
@@ -27,8 +27,11 @@ import { STATUS_WINDOW_ID, windowId } from '../windows/model';
 import type { WindowRef, WindowState } from '../windows/model';
 import type { WindowsAction } from '../windows/reducer';
 
-/** The home window the tests open; no shipped kind implements it. */
+/** The home window these tests open: src/features/home implements its kind. */
 const HOME: WindowRef = { kind: 'home', accountKey: null, target: null };
+
+/** A window whose kind no shipped feature implements, so it takes no posts. */
+const NO_KIND: WindowRef = { kind: 'thread', accountKey: null, target: '7' };
 
 /** The message a window whose kind takes no posts gets back. */
 const NO_POST = "You can't post in this window. Try /home";
@@ -150,7 +153,7 @@ describe(useCommandContext, () => {
   });
 
   it('refuses to post in a window whose kind no feature implements', async () => {
-    const opened = [win({ type: 'open', ref: HOME, title: 'home' })];
+    const opened = [win({ type: 'open', ref: NO_KIND, title: 'thread' })];
     const { context } = renderContext(opened, vi.fn()).result.current;
 
     await expect(context.post({ text: 'hello world' })).resolves.toBe(NO_POST);

@@ -8,7 +8,8 @@
  * own tests.
  */
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { HttpResponse, http } from 'msw';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { Root } from './Root';
 import { accountKey, type StoredAccount } from '../accounts/accountStore';
@@ -16,6 +17,7 @@ import { initialAppState } from '../state/appState';
 import type { AppState } from '../state/appState';
 import { type AppAction, appReducer } from '../state/reducer';
 import { AppStateProvider } from '../state/StateContext';
+import { server } from '../test/server';
 import { STATUS_WINDOW_ID } from '../windows/model';
 import type { WindowRef } from '../windows/model';
 import type { WindowsAction } from '../windows/reducer';
@@ -30,8 +32,11 @@ const ACCOUNT: StoredAccount = {
   token: 'not-a-real-token',
 };
 
-/** The second window the digit chords jump to; it has no kind implemented. */
+/** The second window the digit chords jump to; src/features/home implements its kind. */
 const HOME: WindowRef = { kind: 'home', accountKey: ACCOUNT.key, target: null };
+
+/** The timeline that window fetches once it is shown, which chords are not about. */
+const HOME_TIMELINE = 'https://wired.example/api/v1/timelines/home';
 
 /** One action for the window list. */
 function win(action: WindowsAction): AppAction {
@@ -68,7 +73,18 @@ const TWO_WINDOWS: readonly AppAction[] = [
   win({ type: 'activate', id: STATUS_WINDOW_ID }),
 ];
 
+/** The empty home timeline a shown home window asks for, so no request goes unhandled. */
+function serveEmptyHomeTimeline(): void {
+  server.use(
+    http.get(HOME_TIMELINE, () => {
+      return HttpResponse.json([]);
+    }),
+  );
+}
+
 describe(Root, () => {
+  beforeEach(serveEmptyHomeTimeline);
+
   it('Escape switches the status line to [NAV] and blurs the command line', () => {
     renderRoot([]);
     const input = commandLine();

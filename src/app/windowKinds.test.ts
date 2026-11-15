@@ -130,4 +130,8 @@ describe(loadWindowKinds, () => {
   it('includes the status kind window 1 opens with', () => {
     expect([...loaded().keys()]).toContain('status');
   });
+
+  it('includes the home kind /home opens a window with', () => {
+    expect([...loaded().keys()]).toContain('home');
+  });
 });
