@@ -2,11 +2,11 @@
  * Startup: what the shell does the moment it mounts (AGENTS.md "Windows, like
  * IRC buffers"). It greets, completes an OAuth login the redirect may have
  * left in the address bar (decision 8), restores the persisted accounts into
- * the app state, and asks every instance an account lives on what it turned
- * out to be (decision 5) — all through injected dependencies, so the whole
- * flow runs in a test without React, storage or the network. Everything it
- * says goes into the status window, window 1, which is where every session
- * begins.
+ * the app state, opens a home window for each of them, and asks every instance
+ * an account lives on what it turned out to be (decision 5) — all through
+ * injected dependencies, so the whole flow runs in a test without React,
+ * storage or the network. Everything it says goes into the status window,
+ * window 1, which is where every session begins.
  */
 
 import type { AppStores } from './stores';
@@ -21,6 +21,7 @@ import {
 import type { InstancesConfig, WiredConfig } from '../config/schema';
 import type { Result } from '../lib/result';
 import type { LineLevel } from '../state/buffer';
+import { openHomeWindows } from '../state/homeWindow';
 import type { Dispatch } from '../state/StateContext';
 import { STATUS_WINDOW_ID } from '../windows/model';
 
@@ -157,10 +158,10 @@ async function finishPendingLogin(deps: StartupDeps): Promise<void> {
 
 /**
  * Boot the session into the status window: greet, finish a login left in the
- * URL, then restore the stored accounts into the app state and either hint at
- * `/connect` (no accounts, by instance mode) or detect each account's
- * instance once — concurrently, one report per origin — and announce every
- * account, the active one marked.
+ * URL, then restore the stored accounts into the app state and open each one's
+ * home window, and either hint at `/connect` (no accounts, by instance mode) or
+ * detect each account's instance once — concurrently, one report per origin —
+ * and announce every account, the active one marked.
  */
 export async function runStartup(deps: StartupDeps): Promise<void> {
   greet(deps);
@@ -168,6 +169,9 @@ export async function runStartup(deps: StartupDeps): Promise<void> {
   const accounts = deps.stores.accounts.list();
   const activeKey = deps.stores.accounts.activeKey();
   deps.dispatch({ type: 'accounts', accounts, activeKey });
+  for (const action of openHomeWindows(accounts, activeKey)) {
+    deps.dispatch({ type: 'windows', action });
+  }
   if (accounts.length === 0) {
     printStatus(deps, notConnected(deps.config.instances), 'info');
     return;

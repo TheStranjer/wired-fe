@@ -16,6 +16,7 @@ const EXPECTED = [
   'connect',
   'copy',
   'help',
+  'home',
   'more',
   'open',
   'select',
