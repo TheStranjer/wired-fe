@@ -19,20 +19,24 @@ export type InputLineProps = {
   readonly onSubmit: (value: string) => void;
   /** Called when the input gains focus (AGENTS.md "Two hotkey modes": focusing leaves navigation). */
   readonly onFocus?: () => void;
+  /** Called on every keydown before the line's own Enter handling; a handler
+   * that prevents the event's default swallows the key, Enter included. */
+  readonly onKeyDown?: (event: KeyboardEvent<HTMLInputElement>) => void;
   /** Forwarded to the input so the parent can focus it. */
   readonly inputRef?: Ref<HTMLInputElement>;
 };
 
 /** A single-line composer styled after an IRC input. */
 export function InputLine(props: InputLineProps): JSX.Element {
-  const { prompt, value, onChange, onSubmit, onFocus, inputRef } = props;
+  const { prompt, value, onChange, onSubmit, onFocus, onKeyDown, inputRef } = props;
 
   function handleChange(event: ChangeEvent<HTMLInputElement>): void {
     onChange(event.target.value);
   }
 
   function handleKeyDown(event: KeyboardEvent<HTMLInputElement>): void {
-    if (event.key === 'Enter' && value.trim() !== '') {
+    onKeyDown?.(event);
+    if (event.key === 'Enter' && !event.defaultPrevented && value.trim() !== '') {
       event.preventDefault();
       onSubmit(value);
     }

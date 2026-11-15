@@ -1,5 +1,6 @@
 /**
- * Tests for the command line component: prompt, controlled typing, Enter and focus.
+ * Tests for the command line component: prompt, controlled typing, Enter, the
+ * onKeyDown hook that runs before Enter handling, and focus.
  */
 import { fireEvent, render, screen } from '@testing-library/react';
 import { createRef } from 'react';
@@ -74,6 +75,48 @@ describe(InputLine, () => {
     render(<InputLine prompt=">" value="" onChange={NOOP} onSubmit={NOOP} inputRef={inputRef} />);
 
     expect(inputRef.current).toBe(screen.getByRole('textbox', { name: 'Command line' }));
+  });
+
+  it('calls onKeyDown with every key, before its own Enter handling', () => {
+    const seen: string[] = [];
+    const onSubmit = vi.fn<(value: string) => void>();
+    render(
+      <InputLine
+        prompt=">"
+        value="hello wired"
+        onChange={NOOP}
+        onSubmit={onSubmit}
+        onKeyDown={(event) => {
+          seen.push(event.key);
+        }}
+      />,
+    );
+    const input = screen.getByRole('textbox', { name: 'Command line' });
+
+    fireEvent.keyDown(input, { key: 'ArrowUp' });
+    fireEvent.keyDown(input, { key: 'Enter' });
+
+    expect(seen).toStrictEqual(['ArrowUp', 'Enter']);
+    expect(onSubmit).toHaveBeenCalledWith('hello wired');
+  });
+
+  it('submits nothing when onKeyDown prevents Enter', () => {
+    const onSubmit = vi.fn<(value: string) => void>();
+    render(
+      <InputLine
+        prompt=">"
+        value="hello wired"
+        onChange={NOOP}
+        onSubmit={onSubmit}
+        onKeyDown={(event) => {
+          event.preventDefault();
+        }}
+      />,
+    );
+
+    fireEvent.keyDown(screen.getByRole('textbox', { name: 'Command line' }), { key: 'Enter' });
+
+    expect(onSubmit).not.toHaveBeenCalled();
   });
 
   it('calls onFocus when the command line gains focus', () => {
