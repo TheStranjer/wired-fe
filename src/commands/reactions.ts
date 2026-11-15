@@ -1,0 +1,144 @@
+/**
+ * The body the `/react` and `/unreact` definitions share (decision 6): the
+ * post resolves the way the other post commands resolve theirs, the emoji is
+ * the single word left over, and the instance's capabilities (decision 5)
+ * gate the send — `emojiReactions` always, `customEmojiReactions` on top for
+ * a `:shortcode:`. A shortcode travels to the endpoint without its colons,
+ * as Pleroma expects; a Unicode emoji travels exactly as typed. The status
+ * the instance answers replaces the post in every scrollback, and the window
+ * prints the emoji, the verb and the label of the line that showed the post.
+ */
+
+import { type StatusTarget, resolveStatusTarget } from './targets';
+import type { CommandContext, CommandOutcome } from './types';
+import { react, unreact } from '../api/endpoints/reactions';
+import { type ApiError, describeApiError } from '../api/errors';
+import type { Status } from '../api/schemas/status';
+import { type Capabilities, type FeatureFlag, hasFeature } from '../capabilities/capabilities';
+import { type Result, err, ok } from '../lib/result';
+import { labelForStatus, statusOfLine } from '../state/bufferSelection';
+import { activeBuffer, capabilitiesFor } from '../state/selectors';
+
+/** Which of the two commands is running: attach the emoji, or detach it. */
+export type ReactionKind = 'react' | 'unreact';
+
+/** A `:shortcode:` reaction: a word that opens and closes on one colon. */
+const SHORTCODE = /^:[A-Za-z0-9_]+:$/u;
+
+/** The reaction was sent and every scrollback knows the answered status. */
+const OK: CommandOutcome = { ok: true };
+
+/** One word of the command line: as typed, and as it leaves for the server. */
+type Emoji = {
+  readonly typed: string;
+  readonly send: string;
+  readonly custom: boolean;
+};
+
+/** One settled reaction: the post, the emoji, and which way it goes. */
+type Reaction = {
+  readonly target: StatusTarget;
+  readonly emoji: Emoji;
+  readonly kind: ReactionKind;
+};
+
+/** A failure naming {@link message}. */
+function fail(message: string): CommandOutcome {
+  return { ok: false, message };
+}
+
+/**
+ * The leftover argument text as the one reaction emoji: a `:shortcode:`
+ * travels without its colons, anything else exactly as typed. An empty or
+ * multi-word argument names no single emoji and is refused.
+ */
+function parseEmoji(rest: string, kind: ReactionKind): Result<Emoji, string> {
+  const word = rest.trim();
+  if (word === '' || /\s/u.test(word)) {
+    return err(`Usage: /${kind} [label] <emoji>`);
+  }
+  const custom = SHORTCODE.test(word);
+  return ok({ typed: word, send: custom ? word.slice(1, -1) : word, custom });
+}
+
+/** The capability flags {@link emoji} needs on the instance being reacted to. */
+function requiredFlags(emoji: Emoji): readonly FeatureFlag[] {
+  return emoji.custom ? ['emojiReactions', 'customEmojiReactions'] : ['emojiReactions'];
+}
+
+/**
+ * Why {@link emoji} cannot be sent to {@link capabilities}: the refusal
+ * naming the first capability that is missing, or null when all of them are
+ * met. Capabilities that were never read refuse as though the plain
+ * `emojiReactions` flag were absent — no reaction endpoint is trusted there.
+ */
+function refusal(capabilities: Capabilities | null, emoji: Emoji): string | null {
+  if (capabilities === null) {
+    return 'Instance lacks emojiReactions';
+  }
+  const missing = requiredFlags(emoji).find((flag) => !hasFeature(capabilities, flag));
+  return missing === undefined ? null : `Instance lacks ${missing}`;
+}
+
+/** The bracketed label of the active window's line showing {@link status}. */
+function targetLabel(context: CommandContext, status: Status): string {
+  const buffer = activeBuffer(context.state);
+  for (const line of buffer.lines) {
+    const shown = statusOfLine(line);
+    if (shown !== null && (shown === status || shown.reblog === status)) {
+      return `[${labelForStatus(buffer, shown.id) ?? status.id}]`;
+    }
+  }
+  return `[${status.id}]`;
+}
+
+/** Attach or detach {@link reaction}'s emoji on its post. */
+async function sendReaction(reaction: Reaction): Promise<Result<Status, ApiError>> {
+  const { session } = reaction.target;
+  const { id } = reaction.target.status;
+  return reaction.kind === 'react'
+    ? await react(session, id, reaction.emoji.send)
+    : await unreact(session, id, reaction.emoji.send);
+}
+
+/**
+ * Send {@link reaction}, share the status the instance answered with every
+ * scrollback, and print the emoji, the verb and the label of the line.
+ */
+async function apply(reaction: Reaction, context: CommandContext): Promise<CommandOutcome> {
+  const answered = await sendReaction(reaction);
+  if (!answered.ok) {
+    return fail(describeApiError(answered.error));
+  }
+  context.dispatch({ type: 'statusUpdated', status: answered.value });
+  const verb = reaction.kind === 'react' ? 'reacted' : 'unreacted';
+  context.print(
+    `${reaction.emoji.typed} ${verb} to ${targetLabel(context, reaction.target.status)}`,
+  );
+  return OK;
+}
+
+/**
+ * Run one emoji reaction command over {@link args}: resolve the post, parse
+ * the emoji left over, refuse it when the instance cannot serve it, and send
+ * it; on success every scrollback shows the answered status.
+ */
+export async function runReaction(
+  args: string,
+  context: CommandContext,
+  kind: ReactionKind,
+): Promise<CommandOutcome> {
+  const target = resolveStatusTarget(args, context);
+  if (!target.ok) {
+    return fail(target.error);
+  }
+  const emoji = parseEmoji(target.value.rest, kind);
+  if (!emoji.ok) {
+    return fail(emoji.error);
+  }
+  const problem = refusal(capabilitiesFor(context.state, target.value.accountKey), emoji.value);
+  if (problem !== null) {
+    return fail(problem);
+  }
+  return await apply({ target: target.value, emoji: emoji.value, kind }, context);
+}
