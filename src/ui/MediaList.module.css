@@ -1,0 +1,41 @@
+/* One placeholder line per media attachment below the post body. The toggle
+   is text with no button chrome, like the CW button, in warning amber; the
+   sensitive mark that never auto-opens comes in red. The opened file is a
+   block under its placeholder, never larger than the scrollback and never
+   taller than a screenful of lines. */
+
+.line {
+  display: block;
+}
+
+.toggle {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  font: inherit;
+  color: var(--color-warn);
+  cursor: pointer;
+}
+
+.toggle:focus-visible {
+  outline: 1px solid var(--color-warn);
+}
+
+.sensitive {
+  color: var(--color-error);
+}
+
+.link {
+  display: block;
+}
+
+.image {
+  display: block;
+  max-width: 100%;
+  max-height: 40vh;
+}
+
+.player {
+  display: block;
+  max-width: 100%;
+}

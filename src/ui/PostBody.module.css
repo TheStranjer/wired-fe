@@ -1,0 +1,16 @@
+/* The content-warning button: text-coloured warning amber with no button
+   chrome, so it reads as the `[CW:]` marker it is, not a control borrowed
+   from a toolbar. */
+
+.spoiler {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  font: inherit;
+  color: var(--color-warn);
+  cursor: pointer;
+}
+
+.spoiler:focus-visible {
+  outline: 1px solid var(--color-warn);
+}

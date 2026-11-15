@@ -4,15 +4,18 @@
  * presentational: mapping an API Status onto these props is the timeline
  * slice's job; the ui layer never sees API types (AGENTS.md "Layout").
  * A boost adds the dim line of who boosted it above the row, a reply adds
- * who it answers before the body, and everything the backend counted sits
- * after the body in {@link PostMeta}.
+ * who it answers before the body, everything the backend counted sits after
+ * the body in {@link PostMeta}, and the post's attachments — if it has any —
+ * open as placeholder lines of their own below it in {@link MediaList}.
  */
 import type { JSX, MouseEvent, Ref } from 'react';
 
+import { MediaList } from './MediaList';
+import type { MediaItem } from './MediaList';
 import { Nick } from './Nick';
+import { PostBody } from './PostBody';
 import { PostMeta, type PostMetaProps } from './PostMeta';
 import styles from './PostRow.module.css';
-import { RemoteHtml } from './RemoteHtml';
 import { Timestamp } from './Timestamp';
 import type { ClockFormat } from '../lib/time';
 
@@ -44,12 +47,20 @@ export type PostRowProps = {
   /** Who the post answers, e.g. "@carol" or "a thread"; null when it answers
    * nobody. Shown as `↳ re …: ` before the body. */
   readonly replyTo: string | null;
-  /** The body as hostile remote HTML; {@link RemoteHtml} sanitizes it. */
+  /** The body as hostile remote HTML; {@link PostBody} sanitizes it. */
   readonly contentHtml: string;
   /** The content warning text; the empty string means there is none. */
   readonly spoilerText: string;
   /** Whether a warned body is shown; meaningless without a warning. */
   readonly revealed: boolean;
+  /** The post's attachments, one placeholder line each below the body; empty
+   * when it carries none. */
+  readonly media: readonly MediaItem[];
+  /** Whether the author marked the post sensitive; its media never opens by
+   * itself and says so. */
+  readonly sensitive: boolean;
+  /** Whether media starts open (the reader's `expandMedia` setting). */
+  readonly autoExpand: boolean;
   /** True for the row the user is on; marks it with aria-current. */
   readonly selected: boolean;
   /** Called when the content-warning button is pressed. */
@@ -60,48 +71,13 @@ export type PostRowProps = {
   readonly onSelectAuthor: () => void;
 } & PostMetaProps;
 
-/** The parts of {@link PostRowProps} the body needs. */
-type BodyProps = Pick<PostRowProps, 'contentHtml' | 'spoilerText' | 'revealed'> & {
-  readonly onToggleReveal: () => void;
-};
-
 /** The controls inside a row: they own their own clicks, the row takes the rest. */
-const CONTROL_SELECTOR = 'button, a';
+const CONTROL_SELECTOR = 'button, a, audio, video';
 
-/** True when the click landed on a button or link inside the row. */
+/** True when the click landed on a control inside the row. */
 function clickedControl(event: MouseEvent<HTMLElement>): boolean {
   const { target } = event;
   return target instanceof Element && target.closest(CONTROL_SELECTOR) !== null;
-}
-
-/**
- * The row's body: plain markup, or a `[CW:]` button followed by the markup
- * once revealed. While hidden the content is not rendered at all.
- */
-function PostBody(props: BodyProps): JSX.Element {
-  const { contentHtml, spoilerText, revealed, onToggleReveal } = props;
-
-  if (spoilerText === '') {
-    return <RemoteHtml html={contentHtml} inline />;
-  }
-  return (
-    <>
-      <button
-        aria-expanded={revealed}
-        className={styles['spoiler']}
-        onClick={onToggleReveal}
-        type="button"
-      >
-        {`[CW: ${spoilerText}]`}
-      </button>
-      {revealed ? (
-        <>
-          {' '}
-          <RemoteHtml html={contentHtml} inline />
-        </>
-      ) : undefined}
-    </>
-  );
 }
 
 /** Who boosted the post, in their own dim line above it: `⟳ <bob> boosted`. */
@@ -119,8 +95,12 @@ function BoostLine(props: {
 }
 
 /** The parts of {@link PostRowProps} the post's own line draws: everything but
- * who boosted it above, how the row itself is selected, and its DOM node. */
-type LineProps = Omit<PostRowProps, 'boostedBy' | 'selected' | 'onSelect' | 'ref'>;
+ * who boosted it above, the media lines below, how the row itself is selected,
+ * and its DOM node. */
+type LineProps = Omit<
+  PostRowProps,
+  'boostedBy' | 'media' | 'sensitive' | 'autoExpand' | 'selected' | 'onSelect' | 'ref'
+>;
 
 /** The line itself: the label, the clock, the nick, who the post answers, its
  * body and everything the backend counted after it. */
@@ -175,7 +155,7 @@ function PostLine(props: LineProps): JSX.Element {
 
 /** One post as a chat line; clicking the row selects it, clicking the nick opens the author. */
 export function PostRow(props: PostRowProps): JSX.Element {
-  const { boostedBy, selected, onSelect, ref, ...line } = props;
+  const { boostedBy, media, sensitive, autoExpand, selected, onSelect, ref, ...line } = props;
 
   return (
     <article
@@ -195,6 +175,7 @@ export function PostRow(props: PostRowProps): JSX.Element {
     >
       {boostedBy === null ? undefined : <BoostLine boostedBy={boostedBy} />}
       <PostLine {...line} />
+      <MediaList autoExpand={autoExpand} items={media} sensitive={sensitive} />
     </article>
   );
 }

@@ -104,6 +104,7 @@ function PostLineView(props: WindowedProps<PostLineData>): JSX.Element {
   return (
     <PostRow
       ref={rowRef}
+      autoExpand={state.settings.expandMedia}
       author={view.author}
       boostedBy={view.boostedBy}
       clockFormat={state.settings.clockFormat}
@@ -112,6 +113,7 @@ function PostLineView(props: WindowedProps<PostLineData>): JSX.Element {
       date={view.date}
       edited={view.edited}
       label={labelForStatus(buffer, line.status.id) ?? ''}
+      media={view.media}
       mine={view.mine}
       reactions={view.reactions}
       replyTo={view.replyTo}
@@ -125,6 +127,7 @@ function PostLineView(props: WindowedProps<PostLineData>): JSX.Element {
       }}
       revealed={buffer.revealed.has(line.key)}
       selected={selected}
+      sensitive={view.sensitive}
       spoilerText={view.spoilerText}
     />
   );
