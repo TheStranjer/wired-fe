@@ -126,4 +126,8 @@ describe(loadWindowKinds, () => {
   it('returns the kinds collected from the features folder as a map', () => {
     expect(loaded()).toStrictEqual(expect.any(Map));
   });
+
+  it('includes the status kind window 1 opens with', () => {
+    expect([...loaded().keys()]).toContain('status');
+  });
 });
