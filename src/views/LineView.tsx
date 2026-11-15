@@ -6,8 +6,10 @@
  * the window's account, and a notification — until its own ticket gives it a
  * view — as a client message naming who did what. Nothing here holds state: the
  * clock format, the label, the selection and the open content warnings all come
- * from the app state, and a click asks the one reducer for the transition.
+ * from the app state, and a click asks the one reducer for the transition. When
+ * the selection moves onto a row, the view keeps that row in view.
  */
+import { useEffect, useRef } from 'react';
 import type { JSX } from 'react';
 
 import { postView, type Viewer } from './postView';
@@ -46,6 +48,17 @@ function selectAuthor(): void {
   // Opening a window is the window layer's move, which this view does not own.
 }
 
+/**
+ * Keep a row the selection just moved onto inside its scrollback, nearest edge
+ * so a fully visible row does not jump. jsdom implements no scrollIntoView at
+ * all, so the view asks the element whether it has one before calling it.
+ */
+function scrollRowIntoView(row: HTMLElement | null): void {
+  if (row !== null && 'scrollIntoView' in row) {
+    row.scrollIntoView({ block: 'nearest' });
+  }
+}
+
 /** One client message, printed as the buffer stored it. */
 function SystemLineView(props: { readonly line: SystemLineData }): JSX.Element {
   const { line } = props;
@@ -81,8 +94,16 @@ function PostLineView(props: WindowedProps<PostLineData>): JSX.Element {
   const dispatch = useAppDispatch();
   const buffer = bufferFor(state, windowId);
   const view = postView(line.status, viewerFor(state, windowId));
+  const rowRef = useRef<HTMLElement | null>(null);
+  const selected = buffer.selectedKey === line.key;
+  useEffect(() => {
+    if (selected) {
+      scrollRowIntoView(rowRef.current);
+    }
+  }, [selected]);
   return (
     <PostRow
+      ref={rowRef}
       author={view.author}
       boostedBy={view.boostedBy}
       clockFormat={state.settings.clockFormat}
@@ -103,7 +124,7 @@ function PostLineView(props: WindowedProps<PostLineData>): JSX.Element {
         dispatch({ type: 'toggleReveal', windowId, key: line.key });
       }}
       revealed={buffer.revealed.has(line.key)}
-      selected={buffer.selectedKey === line.key}
+      selected={selected}
       spoilerText={view.spoilerText}
     />
   );
