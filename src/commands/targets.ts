@@ -8,7 +8,8 @@
  * a word that is neither — or no word at all — leaves the post the
  * navigation mode selected to stand. A boost resolves to the original status
  * and to its author: the booster showed the post, it is not what the post
- * is about.
+ * is about. The module also answers the label a command prints for a resolved
+ * post: the one of the line the window shows, boost wrapper included.
  */
 
 import type { CommandContext } from './types';
@@ -18,7 +19,12 @@ import type { Account } from '../api/schemas/account';
 import type { Status } from '../api/schemas/status';
 import type { ApiSession } from '../api/session';
 import { type Result, err, ok } from '../lib/result';
-import { selectedStatus, statusForLabel } from '../state/bufferSelection';
+import {
+  labelForStatus,
+  selectedStatus,
+  statusForLabel,
+  statusOfLine,
+} from '../state/bufferSelection';
 import { activeBuffer, sessionFor, windowAccountKey } from '../state/selectors';
 import { activeWindow } from '../windows/model';
 
@@ -111,6 +117,23 @@ export function resolveStatusTarget(
     rest: byLabel ? rest : args.trim(),
     ...acting.value,
   });
+}
+
+/**
+ * The bracketed label of the active window's line that shows {@link status},
+ * directly or as the original it boosts: the `[a3]` the post commands print, so
+ * what they name is the line the user is looking at. The bare id for a status no
+ * line carries, or for a window that never labelled it.
+ */
+export function targetLabel(context: CommandContext, status: Status): string {
+  const buffer = activeBuffer(context.state);
+  for (const line of buffer.lines) {
+    const shown = statusOfLine(line);
+    if (shown !== null && (shown === status || shown.reblog === status)) {
+      return `[${labelForStatus(buffer, shown.id) ?? status.id}]`;
+    }
+  }
+  return `[${status.id}]`;
 }
 
 /** The account named by {@link handle}, or the refusal quoting why the lookup failed. */
