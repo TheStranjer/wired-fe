@@ -16,6 +16,9 @@ vi.mock(import('./registry'), () => ({
   appRegistry: () => ({ ok: false, error: './defs/x.ts does not export a command' }),
 }));
 
+/** Startup has its own tests; the shell tests do not boot the session. */
+vi.mock(import('./startup'), () => ({ runStartup: vi.fn() }));
+
 describe(Root, () => {
   it('prints the registry error into the status buffer once', async () => {
     render(

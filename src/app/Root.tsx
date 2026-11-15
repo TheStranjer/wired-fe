@@ -7,7 +7,8 @@
  * runs a command or posts the text through the active window's kind, and clears
  * itself when the line is done with. The window kinds and the command registry
  * are each collected once, when this module loads; a load that failed prints
- * its reason into the status window once, on mount.
+ * its reason into the status window once, on mount, beside the one startup run
+ * (the greeting, the restored accounts and their instances) that boots there.
  */
 
 import { useEffect, useState } from 'react';
@@ -17,6 +18,7 @@ import { appRegistry } from './registry';
 import { Shell } from './Shell';
 import { useClock } from './useClock';
 import { useCommandContext } from './useCommandContext';
+import { useStartup } from './useStartup';
 import { loadWindowKinds } from './windowKinds';
 import { dispatchInput } from '../commands/dispatch';
 import type { CommandContext } from '../commands/types';
@@ -135,6 +137,7 @@ export function Root(): JSX.Element {
   const clock = useClock(state.settings.clockFormat);
   const [value, setValue] = useState('');
   const context = useCommandContext(setValue);
+  useStartup();
 
   useEffect(() => {
     for (const reason of [failure(KINDS), failure(REGISTRY)]) {

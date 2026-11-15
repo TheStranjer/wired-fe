@@ -67,3 +67,12 @@ export async function detectInstance(
   const docs: Documents = { nodeInfo: nodeInfo.value, v1: dataOrNull(v1), v2: dataOrNull(v2) };
   return ok({ origin, title: titleOf(docs, origin), capabilities: deriveCapabilities(docs) });
 }
+
+/**
+ * How to say a detection failed, in one line: the `src/api` error type and its
+ * description, re-exported so callers above the api layer (decision 10) can
+ * handle and report a failed {@link detectInstance} without importing from
+ * `src/api` themselves.
+ */
+export { describeApiError } from '../api/errors';
+export type { ApiError } from '../api/errors';

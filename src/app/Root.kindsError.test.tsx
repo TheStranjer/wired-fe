@@ -17,6 +17,9 @@ vi.mock(import('./windowKinds'), () => ({
   loadWindowKinds: () => ({ ok: false, error: 'boom: no windowKind' }),
 }));
 
+/** Startup has its own tests; the shell tests do not boot the session. */
+vi.mock(import('./startup'), () => ({ runStartup: vi.fn() }));
+
 /** Shows every system line of the active window's buffer as text. */
 function BufferReader(): JSX.Element {
   const { lines } = activeBuffer(useAppState());

@@ -9,7 +9,7 @@
  * clearing itself once the command is done with.
  */
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { Root } from './Root';
 import { accountKey, type StoredAccount } from '../accounts/accountStore';
@@ -20,6 +20,9 @@ import { AppStateProvider } from '../state/StateContext';
 import { STATUS_WINDOW_ID, windowId } from '../windows/model';
 import type { WindowRef } from '../windows/model';
 import type { WindowsAction } from '../windows/reducer';
+
+/** Startup has its own tests; the shell tests do not boot the session. */
+vi.mock(import('./startup'), () => ({ runStartup: vi.fn() }));
 
 const ACCOUNT: StoredAccount = {
   key: accountKey('https://wired.example', '1'),

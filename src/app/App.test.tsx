@@ -4,9 +4,12 @@
  * and topic, the window list, and the command line.
  */
 import { render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { App } from './App';
+
+/** Startup has its own tests; the shell tests do not boot the session. */
+vi.mock(import('./startup'), () => ({ runStartup: vi.fn() }));
 
 describe(App, () => {
   it('shows WIRED as the page heading', () => {
