@@ -134,4 +134,11 @@ describe(loadWindowKinds, () => {
   it('includes the home kind /home opens a window with', () => {
     expect([...loaded().keys()]).toContain('home');
   });
+
+  it('includes the local and federated kinds /local and /federated open windows with', () => {
+    const keys = [...loaded().keys()];
+
+    expect(keys).toContain('local');
+    expect(keys).toContain('federated');
+  });
 });

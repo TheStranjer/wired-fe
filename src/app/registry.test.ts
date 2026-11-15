@@ -15,8 +15,10 @@ const EXPECTED = [
   'close',
   'connect',
   'copy',
+  'federated',
   'help',
   'home',
+  'local',
   'more',
   'open',
   'select',
@@ -50,6 +52,16 @@ describe(appRegistry, () => {
     expect(byName.get('help')?.name).toBe('help');
     expect(byName.get('sel')?.name).toBe('select');
     expect(byName.get('window')?.name).toBe('win');
+    expect(byName.get('fed')?.name).toBe('federated');
+  });
+
+  it('answers to the two public timeline windows by the names they are typed as', () => {
+    const { byName } = built();
+
+    expect(byName.get('local')?.name).toBe('local');
+    expect(byName.get('local')?.usage).toBe('/local');
+    expect(byName.get('federated')?.name).toBe('federated');
+    expect(byName.get('federated')?.usage).toBe('/federated');
   });
 
   it('computes the registry once and hands out that one value', () => {
