@@ -5,7 +5,8 @@
  * slice's job; the ui layer never sees API types (AGENTS.md "Layout").
  * A boost adds the dim line of who boosted it above the row, a reply adds
  * who it answers before the body, everything the backend counted sits after
- * the body in {@link PostMeta}, and the post's poll and attachments — if it
+ * the body in {@link PostMeta}, a quote it carries adds the dim ┌ excerpt line
+ * under it in {@link QuoteBlock}, and the post's poll and attachments — if it
  * has any — open as lines of their own below it in {@link PollView} and
  * {@link MediaList}.
  */
@@ -19,6 +20,7 @@ import type { PollViewData } from './PollView';
 import { PostBody } from './PostBody';
 import { PostMeta, type PostMetaProps } from './PostMeta';
 import styles from './PostRow.module.css';
+import { QuoteBlock, type QuoteBlockProps } from './QuoteBlock';
 import { Timestamp } from './Timestamp';
 import type { ClockFormat } from '../lib/time';
 
@@ -50,6 +52,9 @@ export type PostRowProps = {
   /** Who the post answers, e.g. "@carol" or "a thread"; null when it answers
    * nobody. Shown as `↳ re …: ` before the body. */
   readonly replyTo: string | null;
+  /** The post this one quotes, drawn as the dim ┌ excerpt line under it by
+   * {@link QuoteBlock}; null when it quotes nothing. */
+  readonly quote: QuoteBlockProps | null;
   /** The body as hostile remote HTML; {@link PostBody} sanitizes it. */
   readonly contentHtml: string;
   /** The content warning text; the empty string means there is none. */
@@ -109,7 +114,7 @@ type LineProps = Omit<
 >;
 
 /** The line itself: the label, the clock, the nick, who the post answers, its
- * body and everything the backend counted after it. */
+ * body, everything the backend counted after it and its quote's ┌ line below. */
 function PostLine(props: LineProps): JSX.Element {
   const {
     label,
@@ -125,6 +130,7 @@ function PostLine(props: LineProps): JSX.Element {
     mine,
     reactions,
     edited,
+    quote,
     onToggleReveal,
     onSelectAuthor,
   } = props;
@@ -155,6 +161,7 @@ function PostLine(props: LineProps): JSX.Element {
         reactions={reactions}
         visibility={visibility}
       />
+      {quote === null ? undefined : <QuoteBlock {...quote} />}
     </>
   );
 }

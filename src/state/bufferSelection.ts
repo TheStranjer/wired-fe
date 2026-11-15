@@ -9,6 +9,7 @@
  */
 
 import type { Buffer, LineData } from './buffer';
+import { shownQuote } from './bufferPosts';
 import type { Status } from '../api/schemas/status';
 import { idForLabel, labelForId } from '../windows/labels';
 
@@ -130,9 +131,10 @@ export function selectedStatus(buffer: Buffer): Status | null {
 
 /**
  * The status a command's label stands for: {@link idForLabel} reads the label in
- * any case, the line showing that id answers. null for a label this window never
- * gave, and for one whose line has scrolled out of the scrollback while the
- * label stayed in the book.
+ * any case, the line showing that id answers — as its own status, or as the
+ * quote shown on it, which the label book grew for too. null for a label this
+ * window never gave, and for one whose line has scrolled out of the scrollback
+ * while the label stayed in the book.
  */
 export function statusForLabel(buffer: Buffer, label: string): Status | null {
   const id = idForLabel(buffer.labels, label);
@@ -141,8 +143,15 @@ export function statusForLabel(buffer: Buffer, label: string): Status | null {
   }
   for (const line of buffer.lines) {
     const status = statusOfLine(line);
-    if (status !== null && status.id === id) {
+    if (status === null) {
+      continue;
+    }
+    if (status.id === id) {
       return status;
+    }
+    const quoted = shownQuote(status);
+    if (quoted !== null && quoted.id === id) {
+      return quoted;
     }
   }
   return null;

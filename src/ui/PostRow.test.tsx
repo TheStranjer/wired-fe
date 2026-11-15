@@ -4,8 +4,9 @@
  * suffix after it, the selected marking, and click routing between the row,
  * the nick and the CW button. The body's own states are tested with the
  * component that renders them, ./PostBody; the media lines below it with
- * ./PostRow.media; the poll under it with ./PostRow.poll; keeping the
- * selection in view with ./LineView.scroll.
+ * ./PostRow.media; the poll under it with ./PostRow.poll; the quote line
+ * under it with ./PostRow.quote; keeping the selection in view with
+ * ./LineView.scroll.
  */
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
@@ -20,6 +21,7 @@ const BASE_PROPS: PostRowProps = {
   author: { handle: 'alice', fullHandle: '@alice@m.example', self: false },
   boostedBy: null,
   replyTo: null,
+  quote: null,
   contentHtml: '<p>present day, present time</p>',
   spoilerText: '',
   revealed: false,
