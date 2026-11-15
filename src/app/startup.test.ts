@@ -97,6 +97,7 @@ async function start(options: {
     stores: fakeStores(options.accounts ?? [], options.activeKey ?? null),
     config,
     now: () => NOW,
+    location: { search: '', pathname: '/', hash: '', replaceUrl: () => undefined },
   };
   const deps: StartupDeps =
     options.detect === undefined ? base : { ...base, detect: options.detect };

@@ -2,7 +2,7 @@
  * Startup's instance-detection report: once per distinct origin, all of them
  * at once (decision 5); failures printed as an error and dispatching no
  * profile; and, with no detector injected, the real {@link detectInstance}
- * answering. Shared helpers mirror startup.test.ts beside this file.
+ * answering.
  */
 import { HttpResponse, http } from 'msw';
 import { describe, expect, it, vi, type Mock } from 'vitest';
@@ -108,6 +108,7 @@ async function start(options: {
     stores: fakeStores(options.accounts),
     config,
     now: () => NOW,
+    location: { search: '', pathname: '/', hash: '', replaceUrl: () => undefined },
   };
   const deps: StartupDeps =
     options.detect === undefined ? base : { ...base, detect: options.detect };

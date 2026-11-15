@@ -1,14 +1,17 @@
 /**
  * Startup: what the shell does the moment it mounts (AGENTS.md "Windows, like
- * IRC buffers"). It greets, restores the persisted accounts into the app
- * state, and asks every instance an account lives on what it turned out to be
- * (decision 5) — all through injected dependencies, so the whole flow runs in
- * a test without React, storage or the network. Everything it says goes into
- * the status window, window 1, which is where every session begins.
+ * IRC buffers"). It greets, completes an OAuth login the redirect may have
+ * left in the address bar (decision 8), restores the persisted accounts into
+ * the app state, and asks every instance an account lives on what it turned
+ * out to be (decision 5) — all through injected dependencies, so the whole
+ * flow runs in a test without React, storage or the network. Everything it
+ * says goes into the status window, window 1, which is where every session
+ * begins.
  */
 
 import type { AppStores } from './stores';
 import type { StoredAccount } from '../accounts/accountStore';
+import { completeLogin } from '../accounts/completeLogin';
 import {
   type ApiError,
   type InstanceProfile,
@@ -24,16 +27,30 @@ import { STATUS_WINDOW_ID } from '../windows/model';
 /** The read of what one instance turned out to be; {@link detectInstance} by default. */
 export type Detect = (origin: string) => Promise<Result<InstanceProfile, ApiError>>;
 
+/** The pieces of the address bar startup reads and may rewrite. */
+export type StartupLocation = {
+  /** The current query string (real one: `window.location.search`). */
+  readonly search: string;
+  /** The current path (real one: `window.location.pathname`). */
+  readonly pathname: string;
+  /** The current hash route (real one: `window.location.hash`). */
+  readonly hash: string;
+  /** Rewrites the address bar without a reload (real one: `history.replaceState(null, '', path)`). */
+  readonly replaceUrl: (path: string) => void;
+};
+
 /** Everything startup needs, all of it injectable so the flow is testable. */
 export type StartupDeps = {
   /** Asks the application's one reducer for a transition. */
   readonly dispatch: Dispatch;
-  /** The persisted stores; startup reads only the accounts one. */
+  /** The persisted stores; startup uses all but the settings one. */
   readonly stores: AppStores;
   /** The build-time configuration of this bundle (decision 3). */
   readonly config: WiredConfig;
   /** The current moment, for stamping every printed line. */
   readonly now: () => Date;
+  /** Where the page is, for finishing an OAuth login left in the URL (decision 8). */
+  readonly location: StartupLocation;
   /** How to read an instance; {@link detectInstance} unless a test says otherwise. */
   readonly detect?: Detect;
 };
@@ -109,14 +126,45 @@ function announceAccounts(
   }
 }
 
+/** The line that reports a login completed from the address bar (decision 8). */
+function loggedInLine(account: StoredAccount): string {
+  return `Logged in to ${account.origin} as @${account.handle}`;
+}
+
 /**
- * Boot the session into the status window: greet, then restore the stored
- * accounts into the app state and either hint at `/connect` (no accounts, by
- * instance mode) or detect each account's instance once — concurrently, one
- * report per origin — and announce every account, the active one marked.
+ * Complete an OAuth login the redirect may have left in the URL: hand the
+ * query to {@link completeLogin} before anything is restored, print what came
+ * of it, and rewrite the address bar to the same page without its query so
+ * `code` and `state` disappear and a reload never replays them. A URL that
+ * carries no callback prints nothing and is left alone.
+ */
+async function finishPendingLogin(deps: StartupDeps): Promise<void> {
+  const { apps, login, accounts } = deps.stores;
+  const outcome = await completeLogin(
+    { apps, login, accounts },
+    { search: deps.location.search, appName: deps.config.appName, now: deps.now().getTime() },
+  );
+  if (outcome.kind === 'none') {
+    return;
+  }
+  if (outcome.kind === 'ok') {
+    printStatus(deps, loggedInLine(outcome.account), 'info');
+  } else {
+    printStatus(deps, outcome.message, 'error');
+  }
+  deps.location.replaceUrl(deps.location.pathname + deps.location.hash);
+}
+
+/**
+ * Boot the session into the status window: greet, finish a login left in the
+ * URL, then restore the stored accounts into the app state and either hint at
+ * `/connect` (no accounts, by instance mode) or detect each account's
+ * instance once — concurrently, one report per origin — and announce every
+ * account, the active one marked.
  */
 export async function runStartup(deps: StartupDeps): Promise<void> {
   greet(deps);
+  await finishPendingLogin(deps);
   const accounts = deps.stores.accounts.list();
   const activeKey = deps.stores.accounts.activeKey();
   deps.dispatch({ type: 'accounts', accounts, activeKey });
