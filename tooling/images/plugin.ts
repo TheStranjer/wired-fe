@@ -20,11 +20,13 @@ import type { PixelImage } from './pixelArt.ts';
 /** The path prefix Wired builds its default asset URLs under (WBE-304). */
 const IMAGE_PATH = '/images/';
 
-/** Encode one image as PNG: RGBA pixels, lossless. */
+/** Encode one image as PNG: RGBA pixels, lossless. pngjs would otherwise try
+ * all five filters on every scanline in JavaScript, and these flat pixel-art
+ * rows gain nothing that choose: the scanlines go out unfiltered. */
 function encodePng(image: PixelImage): Uint8Array {
   const png = new PNG({ width: image.width, height: image.height });
   png.data = Buffer.from(image.data);
-  return new Uint8Array(PNG.sync.write(png));
+  return new Uint8Array(PNG.sync.write(png, { filterType: 0 }));
 }
 
 /** Encode one image as JPEG at quality 85: the format thumbnail.jpg asks for. */
@@ -33,10 +35,22 @@ function encodeJpeg(image: PixelImage): Uint8Array {
   return new Uint8Array(jpeg.data);
 }
 
+/** The bytes of every definition encoded so far. The four files are fixed at
+ * build time (decision 9) and pure functions of their definition, so one
+ * encode serves the build, every dev-server request and the tests; a WeakMap
+ * lets the bytes go when their definition does. */
+const ENCODED_IMAGES = new WeakMap<DefaultImage, Uint8Array>();
+
 /** The bytes of one definition, in the format its file name asks for. */
 export function encodeImage(definition: DefaultImage): Uint8Array {
+  const cached = ENCODED_IMAGES.get(definition);
+  if (cached !== undefined) {
+    return cached;
+  }
   const image = renderPixelArt(definition.rows, definition.palette, definition.scale);
-  return definition.name.endsWith('.jpg') ? encodeJpeg(image) : encodePng(image);
+  const bytes = definition.name.endsWith('.jpg') ? encodeJpeg(image) : encodePng(image);
+  ENCODED_IMAGES.set(definition, bytes);
+  return bytes;
 }
 
 /** The bundle path of one definition: fixed by the contract (decision 9). */
