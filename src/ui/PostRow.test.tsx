@@ -1,7 +1,9 @@
 /**
- * Tests for the post row: the one-line chat content and its order, the
- * content-warning button and its reveal states, the selected marking, and
- * click routing between the row, the nick and the CW button.
+ * Tests for the post row: the one-line chat content and its order, who
+ * boosted the post above it, who it answers before the body, the metadata
+ * suffix after it, the content-warning button and its reveal states, the
+ * selected marking, and click routing between the row, the nick and the CW
+ * button.
  */
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
@@ -14,9 +16,16 @@ const BASE_PROPS: PostRowProps = {
   date: new Date(2026, 0, 2, 23, 4),
   clockFormat: '24h',
   author: { handle: 'alice', fullHandle: '@alice@m.example', self: false },
+  boostedBy: null,
+  replyTo: null,
   contentHtml: '<p>present day, present time</p>',
   spoilerText: '',
   revealed: false,
+  visibility: 'public',
+  counts: { replies: 0, boosts: 0, favourites: 0 },
+  mine: { boosted: false, favourited: false, bookmarked: false },
+  reactions: [],
+  edited: false,
   selected: false,
   onToggleReveal: vi.fn<() => void>(),
   onSelect: vi.fn<() => void>(),
@@ -40,6 +49,14 @@ function renderPost(overrides: Partial<PostRowProps> = {}) {
   return { view, onToggleReveal, onSelect, onSelectAuthor };
 }
 
+/** The row's own mark on a boost, a favourite and a bookmark, with tallies. */
+const MINE: Partial<PostRowProps> = {
+  counts: { replies: 2, boosts: 1, favourites: 5 },
+  mine: { boosted: true, favourited: true, bookmarked: true },
+  reactions: [{ name: '🔥', count: 2, me: true }],
+  edited: true,
+};
+
 describe(PostRow, () => {
   it('renders label, clock, nick and content as one line', () => {
     const { view } = renderPost();
@@ -51,6 +68,81 @@ describe(PostRow, () => {
     renderPost();
 
     expect(screen.getByRole('article', { name: 'Post a3 by @alice@m.example' })).toBeVisible();
+  });
+
+  it('names who boosted the post on the line above it', () => {
+    const { view } = renderPost({
+      boostedBy: { handle: 'bob', fullHandle: '@bob@m.example' },
+    });
+
+    expect(view.container.textContent).toBe(
+      '⟳ <bob> boosted[a3] 23:04 <alice> present day, present time',
+    );
+    expect(screen.getByText('⟳')).toHaveAttribute('aria-hidden', 'true');
+  });
+
+  it('leaves an unboosted post without a boost line', () => {
+    const { view } = renderPost();
+
+    expect(view.container.querySelector('div')).toBeNull();
+    expect(view.container.textContent).not.toContain('boosted');
+  });
+
+  it('names the account a reply answers before the body', () => {
+    const { view } = renderPost({ replyTo: '@carol' });
+
+    expect(view.container.textContent).toBe(
+      '[a3] 23:04 <alice> ↳ re @carol: present day, present time',
+    );
+  });
+
+  it('says a thread when the account it answers is not known', () => {
+    const { view } = renderPost({ replyTo: 'a thread' });
+
+    expect(view.container.textContent).toBe(
+      '[a3] 23:04 <alice> ↳ re a thread: present day, present time',
+    );
+  });
+
+  it('shows the audience glyph after the body, with its words', () => {
+    const { view } = renderPost({ visibility: 'direct', contentHtml: '<p>present day</p>' });
+
+    expect(screen.getByTitle('direct')).toBeInTheDocument();
+    expect(screen.getByText('direct')).toBeInTheDocument();
+    expect(view.container.textContent).toBe('[a3] 23:04 <alice> present day direct✉');
+  });
+
+  it('shows no audience glyph to the whole wired', () => {
+    renderPost();
+
+    expect(screen.queryByTitle('public')).toBeNull();
+  });
+
+  it('tallies replies, boosts and favourites after the body', () => {
+    const { view } = renderPost(MINE);
+
+    expect(view.container.textContent).toBe(
+      '[a3] 23:04 <alice> present day, present time  ↩2 ⟳1 ★5 🔖 🔥2 (edited)',
+    );
+    expect(screen.getByText('⟳1')).toHaveAttribute('title', 'you boosted this');
+    expect(screen.getByText('🔥2')).toHaveAttribute('title', 'you reacted with 🔥');
+  });
+
+  it('shows one post as the row the ticket asks for', () => {
+    const { view } = renderPost({
+      boostedBy: { handle: 'bob', fullHandle: '@bob@m.example' },
+      replyTo: '@carol',
+      visibility: 'direct',
+      contentHtml: '<p>present day</p>',
+      counts: { replies: 2, boosts: 1, favourites: 5 },
+      mine: { boosted: false, favourited: true, bookmarked: false },
+      reactions: [{ name: '🔥', count: 2, me: false }],
+      edited: true,
+    });
+
+    expect(view.container.textContent).toBe(
+      '⟳ <bob> boosted[a3] 23:04 <alice> ↳ re @carol: present day direct✉  ↩2 ⟳1 ★5 🔥2 (edited)',
+    );
   });
 
   it('shows no content-warning button on a plain post', () => {
@@ -93,6 +185,20 @@ describe(PostRow, () => {
     );
   });
 
+  it('keeps the tallies after a content warning', () => {
+    const { view } = renderPost({
+      spoilerText: 'lain spoilers',
+      contentHtml: '<p>the fourth wall</p>',
+      revealed: true,
+      visibility: 'unlisted',
+      counts: { replies: 1, boosts: 0, favourites: 0 },
+    });
+
+    expect(view.container.textContent).toBe(
+      '[a3] 23:04 <alice> [CW: lain spoilers] the fourth wall unlisted~  ↩1',
+    );
+  });
+
   it('marks the selected row with aria-current', () => {
     renderPost({ selected: true });
 
@@ -109,6 +215,14 @@ describe(PostRow, () => {
     const { onSelect } = renderPost();
 
     fireEvent.click(screen.getByText('[a3]'));
+
+    expect(onSelect).toHaveBeenCalledTimes(1);
+  });
+
+  it('selects the row when the boost line is clicked', () => {
+    const { onSelect } = renderPost({ boostedBy: { handle: 'bob', fullHandle: '@bob@m.example' } });
+
+    fireEvent.click(screen.getByText('boosted'));
 
     expect(onSelect).toHaveBeenCalledTimes(1);
   });

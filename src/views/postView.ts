@@ -4,12 +4,16 @@
  * entities and produces the plain data props PostRow takes, since the ui layer
  * never sees API types. Pure: one status and the viewer go in, one immutable
  * view model comes out. A boost displays the original status with the
- * booster's name attached to it.
+ * booster's name attached to it, and so does every piece of metadata: the
+ * reply it answers, its audience, its counters, the viewer's marks on it, its
+ * reactions and whether it was edited all come from the displayed status,
+ * never from the boost around it.
  */
 
 import { fullHandle } from '../accounts/handle';
 import type { Account } from '../api/schemas/account';
-import type { Status } from '../api/schemas/status';
+import type { Reaction } from '../api/schemas/reaction';
+import type { Status, Visibility } from '../api/schemas/status';
 
 /** Who is looking: the instance origin handles are rendered against, and the
  * id of the active account, or null when nobody is signed in. */
@@ -46,6 +50,33 @@ export type PostView = {
     readonly handle: string;
     readonly fullHandle: string;
   } | null;
+  /** Who the displayed status answers, as `@carol`: the mention the backend
+   * resolved for it, or `a thread` when it names an account the status does
+   * not carry; null when the status answers nobody. */
+  readonly replyTo: string | null;
+  /** Who could see the displayed status; its glyph follows the body. */
+  readonly visibility: Visibility;
+  /** Whether the author edited the displayed status after posting it. */
+  readonly edited: boolean;
+  /** What the backend counted on the displayed status. */
+  readonly counts: {
+    readonly replies: number;
+    readonly boosts: number;
+    readonly favourites: number;
+  };
+  /** Which of those the viewer has already done themselves. */
+  readonly mine: {
+    readonly boosted: boolean;
+    readonly favourited: boolean;
+    readonly bookmarked: boolean;
+  };
+  /** The emoji reactions on the displayed status: the emoji, its tally, and
+   * whether the viewer sent one, in the order the backend sent them. */
+  readonly reactions: readonly {
+    readonly name: string;
+    readonly count: number;
+    readonly me: boolean;
+  }[];
 };
 
 /** The nick's two forms for an account seen from `origin`. */
@@ -62,6 +93,41 @@ function authorOf(account: Account, viewer: Viewer): PostView['author'] {
 }
 
 /**
+ * Who a status answers, in the words the row has room for: the mention whose
+ * id the backend named as the parent author, else the thread it belongs to.
+ */
+function replyTo(status: Status): string | null {
+  if (status.in_reply_to_id === null) {
+    return null;
+  }
+  const parent = status.mentions.find((mention) => mention.id === status.in_reply_to_account_id);
+  return parent === undefined ? 'a thread' : `@${parent.acct}`;
+}
+
+/** The tallies the row shows, under the names the row uses. */
+function countsOf(status: Status): PostView['counts'] {
+  return {
+    replies: status.replies_count,
+    boosts: status.reblogs_count,
+    favourites: status.favourites_count,
+  };
+}
+
+/** The marks the viewer has left on the status themselves. */
+function mineOf(status: Status): PostView['mine'] {
+  return {
+    boosted: status.reblogged,
+    favourited: status.favourited,
+    bookmarked: status.bookmarked,
+  };
+}
+
+/** One reaction without the image url the row does not draw (yet). */
+function reactionOf(reaction: Reaction): PostView['reactions'][number] {
+  return { name: reaction.name, count: reaction.count, me: reaction.me };
+}
+
+/**
  * Map a status onto one row's data: a boost shows the reblogged status and
  * names the booster, anything else shows itself with no booster.
  */
@@ -75,5 +141,11 @@ export function postView(status: Status, viewer: Viewer): PostView {
     contentHtml: shown.content,
     spoilerText: shown.spoiler_text,
     boostedBy: boosted === null ? null : handles(status.account, viewer.origin),
+    replyTo: replyTo(shown),
+    visibility: shown.visibility,
+    edited: shown.edited_at !== null,
+    counts: countsOf(shown),
+    mine: mineOf(shown),
+    reactions: shown.emoji_reactions.map(reactionOf),
   };
 }

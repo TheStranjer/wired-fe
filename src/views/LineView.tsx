@@ -84,10 +84,17 @@ function PostLineView(props: WindowedProps<PostLineData>): JSX.Element {
   return (
     <PostRow
       author={view.author}
+      boostedBy={view.boostedBy}
       clockFormat={state.settings.clockFormat}
+      counts={view.counts}
       contentHtml={view.contentHtml}
       date={view.date}
+      edited={view.edited}
       label={labelForStatus(buffer, line.status.id) ?? ''}
+      mine={view.mine}
+      reactions={view.reactions}
+      replyTo={view.replyTo}
+      visibility={view.visibility}
       onSelect={() => {
         dispatch({ type: 'select', windowId, key: line.key });
       }}
