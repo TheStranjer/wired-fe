@@ -1,8 +1,9 @@
 /**
  * Tests for the one boot the shell runs on mount: `bootOnce` starts exactly
  * the first time and is inert once the flag is raised, and `useStartup` hands
- * `runStartup` the live dispatch, the shared stores, the build configuration
- * and a fresh clock, injecting no detector of its own, even under StrictMode.
+ * `runStartup` the live dispatch, the shared stores, the build configuration,
+ * the live address bar and a fresh clock, injecting no detector of its own,
+ * even under StrictMode.
  */
 import { renderHook } from '@testing-library/react';
 import { StrictMode, type JSX, type ReactNode } from 'react';
@@ -77,6 +78,42 @@ describe(useStartup, () => {
     expect(deps?.config).toBe(buildConfig);
     expect(deps?.detect).toBeUndefined();
     expect(deps?.now()).toBeInstanceOf(Date);
+  });
+
+  it('hands startup the live address bar', () => {
+    renderHook(
+      () => {
+        useStartup();
+      },
+      { wrapper: withProvider },
+    );
+
+    const deps = started.mock.calls[0]?.[0];
+
+    expect(deps?.location.search).toBe(window.location.search);
+    expect(deps?.location.pathname).toBe(window.location.pathname);
+    expect(deps?.location.hash).toBe(window.location.hash);
+  });
+
+  it('hands startup a replaceUrl that rewrites the address bar', () => {
+    renderHook(
+      () => {
+        useStartup();
+      },
+      { wrapper: withProvider },
+    );
+
+    const deps = started.mock.calls[0]?.[0];
+
+    deps?.location.replaceUrl('/elsewhere?code=abc#/home');
+
+    expect(window.location.pathname).toBe('/elsewhere');
+    expect(window.location.search).toBe('?code=abc');
+
+    deps?.location.replaceUrl('/');
+
+    expect(window.location.pathname).toBe('/');
+    expect(window.location.hash).toBe('');
   });
 
   it('boots exactly once even under StrictMode', () => {
