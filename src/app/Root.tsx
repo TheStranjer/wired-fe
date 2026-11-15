@@ -3,25 +3,26 @@
  * every region is drawn from the app state the AppStateProvider above holds.
  * The active window's kind decides its topic and scrollback; the window list,
  * the active account, the clock and the hotkey mode fill the status line; the
- * command line hands every submitted line to the dispatcher (decision 6), which
- * runs a command or posts the text through the active window's kind, and clears
- * itself when the line is done with. The window kinds and the command registry
- * are each collected once, when this module loads; a load that failed prints
- * its reason into the status window once, on mount, beside the one startup run
- * (the greeting, the restored accounts and their instances) that boots there.
+ * command line and the global hotkeys (AGENTS.md "Two hotkey modes") hand every
+ * line — typed or bound to a chord — to the dispatcher (decision 6), which runs
+ * a command or posts the text through the active window's kind, and clears the
+ * line when it is done with. The window kinds and the command registry are each
+ * collected once, when this module loads; a load that failed prints its reason
+ * into the status window once, on mount, beside the one startup run (the
+ * greeting, the restored accounts and their instances) that boots there.
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { JSX } from 'react';
 
 import { appRegistry } from './registry';
 import { Shell } from './Shell';
 import { useClock } from './useClock';
 import { useCommandContext } from './useCommandContext';
+import { textHandler, useHotkeys } from './useHotkeys';
 import { useStartup } from './useStartup';
 import { loadWindowKinds } from './windowKinds';
 import { dispatchInput } from '../commands/dispatch';
-import type { CommandContext } from '../commands/types';
 import type { Result } from '../lib/result';
 import type { ClockFormat } from '../lib/time';
 import type { AppState } from '../state/appState';
@@ -60,21 +61,6 @@ type RegionProps = {
 /** Why {@link loaded} could not be loaded, or null when it could. */
 function failure<E>(loaded: Result<unknown, E>): E | null {
   return loaded.ok ? null : loaded.error;
-}
-
-/** Do what one submitted line asks — command or post — then clear the line. */
-async function runLine(
-  text: string,
-  context: CommandContext,
-  setInput: (text: string) => void,
-): Promise<void> {
-  await dispatchInput(text, context, async (line) => {
-    const error = await context.post({ text: line });
-    if (error !== null) {
-      context.print(error, 'error');
-    }
-  });
-  setInput('');
 }
 
 /** The account behind {@link key}, named the way the bars show it; null if none. */
@@ -129,14 +115,50 @@ function WindowBody(props: RegionProps): JSX.Element {
   return <Body windowId={win.id} />;
 }
 
+/** The command line plus its hotkey wiring: the ref lets the modes move the
+ * caret, and focusing the line while navigation is shown switches back. */
+function CommandLine(): JSX.Element {
+  const state = useAppState();
+  const dispatch = useAppDispatch();
+  const [value, setValue] = useState('');
+  const context = useCommandContext(setValue);
+  const inputRef = useRef<HTMLInputElement>(null);
+  useHotkeys(inputRef, context);
+
+  /** Do what one submitted line asks — command or post — then clear the line. */
+  async function runLine(line: string): Promise<void> {
+    await dispatchInput(line, context, textHandler(context));
+    setValue('');
+  }
+
+  function submitLine(line: string): void {
+    void runLine(line);
+  }
+
+  function handleInputFocus(): void {
+    if (state.mode === 'navigation') {
+      dispatch({ type: 'mode', mode: 'insert' });
+    }
+  }
+
+  return (
+    <InputLine
+      prompt=">"
+      value={value}
+      onChange={setValue}
+      onSubmit={submitLine}
+      inputRef={inputRef}
+      onFocus={handleInputFocus}
+    />
+  );
+}
+
 /** The five shell regions, filled from the app state above it. */
 export function Root(): JSX.Element {
   const state = useAppState();
   const dispatch = useAppDispatch();
   const active = activeWindow(state.windows);
   const clock = useClock(state.settings.clockFormat);
-  const [value, setValue] = useState('');
-  const context = useCommandContext(setValue);
   useStartup();
 
   useEffect(() => {
@@ -152,10 +174,6 @@ export function Root(): JSX.Element {
       }
     }
   }, [dispatch]);
-
-  function submitLine(line: string): void {
-    void runLine(line, context, setValue);
-  }
 
   return (
     <Shell
@@ -173,7 +191,7 @@ export function Root(): JSX.Element {
           }}
         />
       }
-      input={<InputLine prompt=">" value={value} onChange={setValue} onSubmit={submitLine} />}
+      input={<CommandLine />}
     />
   );
 }
