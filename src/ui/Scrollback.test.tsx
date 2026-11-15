@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
-import { isAtBottom, Scrollback } from './Scrollback';
+import { adjustedScrollTop, isAtBottom, Scrollback } from './Scrollback';
 
 /** Metrics for a scrolled element, as a browser would report them. */
 function metrics(scrollTop: number, clientHeight: number, scrollHeight: number) {
@@ -23,6 +23,11 @@ function fakeGeometry(
   });
 }
 
+/** One keyed div per line, the shape BufferView hands {@link Scrollback}. */
+function lineKeys(...keys: readonly string[]) {
+  return keys.map((key) => <div key={key}>{key}</div>);
+}
+
 describe(isAtBottom, () => {
   it('is true when the view sits exactly at the bottom', () => {
     expect(isAtBottom(metrics(900, 100, 1000))).toBe(true);
@@ -40,6 +45,24 @@ describe(isAtBottom, () => {
     expect(isAtBottom(metrics(890, 100, 1000), 10)).toBe(true);
     expect(isAtBottom(metrics(889, 100, 1000), 10)).toBe(false);
     expect(isAtBottom(metrics(100, 100, 1000), 800)).toBe(true);
+  });
+});
+
+describe(adjustedScrollTop, () => {
+  it('moves the view down by the height older lines added above it', () => {
+    expect(adjustedScrollTop(500, 700, 200)).toBe(400);
+  });
+
+  it('moves the view up by the height lines above it took away', () => {
+    expect(adjustedScrollTop(700, 500, 400)).toBe(200);
+  });
+
+  it('holds the position when the height did not change', () => {
+    expect(adjustedScrollTop(500, 500, 200)).toBe(200);
+  });
+
+  it('never sends the view above the top', () => {
+    expect(adjustedScrollTop(700, 100, 200)).toBe(0);
   });
 });
 
@@ -91,5 +114,70 @@ describe(Scrollback, () => {
     view.rerender(<Scrollback label="home timeline">two</Scrollback>);
 
     expect(element.scrollTop).toBe(500);
+  });
+
+  it('asks for older lines when the user scrolls to the very top', () => {
+    const onReachTop = vi.fn();
+    render(
+      <Scrollback label="home timeline" onReachTop={onReachTop}>
+        {lineKeys('a', 'b')}
+      </Scrollback>,
+    );
+    const element = screen.getByRole('log', { name: 'home timeline' });
+
+    // Mounting is not a scroll, however short the buffer is.
+    expect(onReachTop).not.toHaveBeenCalled();
+
+    fakeGeometry(element, metrics(0, 100, 500));
+    fireEvent.scroll(element);
+
+    expect(onReachTop).toHaveBeenCalledTimes(1);
+  });
+
+  it('says nothing while a scroll stops short of the top', () => {
+    const onReachTop = vi.fn();
+    render(
+      <Scrollback label="home timeline" onReachTop={onReachTop}>
+        {lineKeys('a')}
+      </Scrollback>,
+    );
+    const element = screen.getByRole('log', { name: 'home timeline' });
+
+    fakeGeometry(element, metrics(200, 100, 500));
+    fireEvent.scroll(element);
+
+    expect(onReachTop).not.toHaveBeenCalled();
+  });
+
+  it('keeps the reading position when older lines arrive above the first line', () => {
+    const view = render(<Scrollback label="home timeline">{lineKeys('a', 'b')}</Scrollback>);
+    const element = screen.getByRole('log', { name: 'home timeline' });
+
+    fakeGeometry(element, metrics(200, 100, 500));
+    fireEvent.scroll(element);
+    // jsdom has no layout, so the height the view measures only becomes real by
+    // faking it and committing once: that render is the "before" of the page.
+    view.rerender(<Scrollback label="home timeline">{lineKeys('a', 'b')}</Scrollback>);
+
+    fakeGeometry(element, metrics(200, 100, 700));
+    view.rerender(<Scrollback label="home timeline">{lineKeys('older', 'a', 'b')}</Scrollback>);
+
+    expect(element.scrollTop).toBe(400);
+  });
+
+  it('leaves the view alone when lines join below while the first line stays', () => {
+    const view = render(<Scrollback label="home timeline">{lineKeys('a', 'b')}</Scrollback>);
+    const element = screen.getByRole('log', { name: 'home timeline' });
+
+    fakeGeometry(element, metrics(200, 100, 500));
+    fireEvent.scroll(element);
+    view.rerender(<Scrollback label="home timeline">{lineKeys('a', 'b')}</Scrollback>);
+
+    fakeGeometry(element, metrics(200, 100, 700));
+    view.rerender(<Scrollback label="home timeline">{lineKeys('a', 'b', 'newer')}</Scrollback>);
+
+    // The first line is still `a`: the new line joined below, so the view keeps
+    // the position the reader scrolled to rather than being pushed about.
+    expect(element.scrollTop).toBe(200);
   });
 });
