@@ -2,18 +2,25 @@
  * The shell wired to real state (AGENTS.md "Windows, like IRC buffers"):
  * every region is drawn from the app state the AppStateProvider above holds.
  * The active window's kind decides its topic and scrollback; the window list,
- * the active account, the clock and the hotkey mode fill the status line;
- * the command line holds its own text until the command layer takes it over.
- * The window kinds are collected once, when this module loads; a load that
- * failed prints its reason into the status window once, on mount.
+ * the active account, the clock and the hotkey mode fill the status line; the
+ * command line hands every submitted line to the dispatcher (decision 6), which
+ * runs a command or posts the text through the active window's kind, and clears
+ * itself when the line is done with. The window kinds and the command registry
+ * are each collected once, when this module loads; a load that failed prints
+ * its reason into the status window once, on mount.
  */
 
 import { useEffect, useState } from 'react';
 import type { JSX } from 'react';
 
+import { appRegistry } from './registry';
 import { Shell } from './Shell';
 import { useClock } from './useClock';
+import { useCommandContext } from './useCommandContext';
 import { loadWindowKinds } from './windowKinds';
+import { dispatchInput } from '../commands/dispatch';
+import type { CommandContext } from '../commands/types';
+import type { Result } from '../lib/result';
 import type { ClockFormat } from '../lib/time';
 import type { AppState } from '../state/appState';
 import { accountByKey } from '../state/selectors';
@@ -31,6 +38,9 @@ import type { WindowKind, WindowState } from '../windows/model';
 /** The one load of the self-registered kinds, shared by every mount. */
 const KINDS = loadWindowKinds();
 
+/** The one command registry, shared by every mount. */
+const REGISTRY = appRegistry();
+
 /** The kind map the shell draws from; empty when the load failed. */
 const WINDOW_KINDS: ReadonlyMap<WindowKind, WindowKindDefinition> = KINDS.ok
   ? KINDS.value
@@ -44,6 +54,26 @@ type RegionProps = {
   readonly win: WindowState;
   readonly state: AppState;
 };
+
+/** Why {@link loaded} could not be loaded, or null when it could. */
+function failure<E>(loaded: Result<unknown, E>): E | null {
+  return loaded.ok ? null : loaded.error;
+}
+
+/** Do what one submitted line asks — command or post — then clear the line. */
+async function runLine(
+  text: string,
+  context: CommandContext,
+  setInput: (text: string) => void,
+): Promise<void> {
+  await dispatchInput(text, context, async (line) => {
+    const error = await context.post({ text: line });
+    if (error !== null) {
+      context.print(error, 'error');
+    }
+  });
+  setInput('');
+}
 
 /** The account behind {@link key}, named the way the bars show it; null if none. */
 function accountLabel(state: AppState, key: string | null): string | null {
@@ -104,22 +134,24 @@ export function Root(): JSX.Element {
   const active = activeWindow(state.windows);
   const clock = useClock(state.settings.clockFormat);
   const [value, setValue] = useState('');
+  const context = useCommandContext(setValue);
 
   useEffect(() => {
-    if (!KINDS.ok) {
-      dispatch({
-        type: 'print',
-        windowId: STATUS_WINDOW_ID,
-        date: new Date(),
-        level: 'error',
-        text: KINDS.error,
-      });
+    for (const reason of [failure(KINDS), failure(REGISTRY)]) {
+      if (reason !== null) {
+        dispatch({
+          type: 'print',
+          windowId: STATUS_WINDOW_ID,
+          date: new Date(),
+          level: 'error',
+          text: reason,
+        });
+      }
     }
   }, [dispatch]);
 
-  function submitLine(): void {
-    // Command handling is the next ticket; submitting only clears the line.
-    setValue('');
+  function submitLine(line: string): void {
+    void runLine(line, context, setValue);
   }
 
   return (
