@@ -3,7 +3,8 @@
  * recorded Wired fixture, a remote acct that keeps its host, a boost showing
  * the original under the booster's name, and the three answers to "is this
  * me?". The metadata the row shows after the body has its own file,
- * postView.meta.test.ts; these tests still name every field a row gets.
+ * postView.meta.test.ts, the poll under the body another; these tests still
+ * name every field a row gets.
  */
 
 import * as v from 'valibot';
@@ -77,6 +78,7 @@ const QUIET = {
   reactions: [],
   media: [],
   sensitive: false,
+  poll: null,
 } as const;
 
 describe(postView, () => {
@@ -115,6 +117,7 @@ describe(postView, () => {
       ],
       media: [],
       sensitive: false,
+      poll: null,
     });
   });
 

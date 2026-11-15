@@ -4,7 +4,8 @@
  * suffix after it, the selected marking, and click routing between the row,
  * the nick and the CW button. The body's own states are tested with the
  * component that renders them, ./PostBody; the media lines below it with
- * ./PostRow.media; keeping the selection in view with ./LineView.scroll.
+ * ./PostRow.media; the poll under it with ./PostRow.poll; keeping the
+ * selection in view with ./LineView.scroll.
  */
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
@@ -22,6 +23,7 @@ const BASE_PROPS: PostRowProps = {
   contentHtml: '<p>present day, present time</p>',
   spoilerText: '',
   revealed: false,
+  poll: null,
   media: [],
   sensitive: false,
   autoExpand: false,

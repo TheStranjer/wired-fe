@@ -6,7 +6,7 @@
  * view model comes out. A boost displays the original status with the
  * booster's name attached to it, and so does every piece of metadata: the
  * reply it answers, its audience, its counters, the viewer's marks on it, its
- * reactions, its attachments and its sensitive flag, and whether it was
+ * reactions, its attachments, its poll and its sensitive flag, and whether it was
  * edited all come from the displayed status,
  * never from the boost around it.
  */
@@ -14,9 +14,11 @@
 import { fullHandle } from '../accounts/handle';
 import type { Account } from '../api/schemas/account';
 import type { MediaAttachment } from '../api/schemas/mediaAttachment';
+import type { Poll } from '../api/schemas/poll';
 import type { Reaction } from '../api/schemas/reaction';
 import type { Status, Visibility } from '../api/schemas/status';
 import type { MediaItem } from '../ui/MediaList';
+import type { PollViewData } from '../ui/PollView';
 
 /** Who is looking: the instance origin handles are rendered against, and the
  * id of the active account, or null when nobody is signed in. */
@@ -86,6 +88,9 @@ export type PostView = {
     readonly count: number;
     readonly me: boolean;
   }[];
+  /** The poll the displayed status carries, as the row draws it under the
+   * body; null when it carries none. */
+  readonly poll: PollViewData | null;
 };
 
 /** The nick's two forms for an account seen from `origin`. */
@@ -147,6 +152,22 @@ function mediaItem(attachment: MediaAttachment): MediaItem {
   };
 }
 
+/** The displayed status's poll in the row's own field names; null when none. */
+function pollOf(poll: Poll | null): PollViewData | null {
+  if (poll === null) {
+    return null;
+  }
+  return {
+    options: poll.options.map((option) => ({ title: option.title, votes: option.votes_count })),
+    totalVotes: poll.votes_count,
+    expiresAt: poll.expires_at === null ? null : new Date(poll.expires_at),
+    expired: poll.expired,
+    multiple: poll.multiple,
+    ownVotes: poll.own_votes,
+    voted: poll.voted,
+  };
+}
+
 /**
  * Map a status onto one row's data: a boost shows the reblogged status and
  * names the booster, anything else shows itself with no booster.
@@ -169,5 +190,6 @@ export function postView(status: Status, viewer: Viewer): PostView {
     counts: countsOf(shown),
     mine: mineOf(shown),
     reactions: shown.emoji_reactions.map(reactionOf),
+    poll: pollOf(shown.poll),
   };
 }

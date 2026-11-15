@@ -21,6 +21,7 @@ const BASE_PROPS: PostRowProps = {
   contentHtml: '<p>present day, present time</p>',
   spoilerText: '',
   revealed: false,
+  poll: null,
   media: [],
   sensitive: false,
   autoExpand: false,
