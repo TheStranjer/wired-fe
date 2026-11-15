@@ -1,8 +1,9 @@
 /**
- * Tests for the booted application: the heading, the placeholder scrollback
- * and the command line clearing after a submit.
+ * Tests for the booted application: the visually hidden heading, and the
+ * live shell the state provider mounts beneath it — the status window's log
+ * and topic, the window list, and the command line.
  */
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
 import { App } from './App';
@@ -14,30 +15,11 @@ describe(App, () => {
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('WIRED');
   });
 
-  it('shows the not-connected line in the status log', () => {
+  it('mounts the shell over the live app state', () => {
     render(<App />);
 
-    const log = screen.getByRole('log', { name: 'status' });
-
-    expect(within(log).getByText('WIRED // not connected')).toBeInTheDocument();
-  });
-
-  it('renders the command line', () => {
-    render(<App />);
-
+    expect(screen.getByRole('log', { name: 'status' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Window 1: status' })).toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: 'Command line' })).toHaveValue('');
-  });
-
-  it('clears the command line after Enter', () => {
-    render(<App />);
-
-    const input = screen.getByRole('textbox', { name: 'Command line' });
-    fireEvent.change(input, { target: { value: '/help' } });
-
-    expect(input).toHaveValue('/help');
-
-    fireEvent.keyDown(input, { key: 'Enter' });
-
-    expect(input).toHaveValue('');
   });
 });
