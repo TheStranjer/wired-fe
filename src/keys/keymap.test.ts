@@ -1,8 +1,9 @@
 /**
- * The keymap generated from the command registry: the command lines bindings
- * produce, the three refusals (non-canonical chord, a chord that would
- * block typing in insert mode, a chord another command already took), and
- * that the shipped commands' bindings all install without one.
+ * The keymap generated from the command registry: the command-line entries
+ * bindings produce, run or prefill, the three refusals (non-canonical chord,
+ * a chord that would block typing in insert mode, a chord another command
+ * already took), and that the shipped commands' bindings all install without
+ * one.
  */
 import { describe, expect, it } from 'vitest';
 
@@ -68,8 +69,19 @@ describe(buildKeymap, () => {
       withBindings('fav', [{ mode: 'navigation', chord: 'f', args: '' }]),
     );
 
-    expect(keymap.insert.get('Alt+3')).toBe('/win 3');
-    expect(keymap.navigation.get('f')).toBe('/fav');
+    expect(keymap.insert.get('Alt+3')).toStrictEqual({ line: '/win 3', prefill: false });
+    expect(keymap.navigation.get('f')).toStrictEqual({ line: '/fav', prefill: false });
+    expect(keymap.problems).toStrictEqual([]);
+  });
+
+  it('carries a binding’s prefill flag into the entry', () => {
+    const keymap = keymapOf(
+      withBindings('reply', [{ mode: 'navigation', chord: 'r', args: '{label}', prefill: true }]),
+      withBindings('win', [{ mode: 'insert', chord: 'Alt+3', args: '3', prefill: false }]),
+    );
+
+    expect(keymap.navigation.get('r')).toStrictEqual({ line: '/reply {label}', prefill: true });
+    expect(keymap.insert.get('Alt+3')).toStrictEqual({ line: '/win 3', prefill: false });
     expect(keymap.problems).toStrictEqual([]);
   });
 
@@ -81,8 +93,14 @@ describe(buildKeymap, () => {
       ]),
     );
 
-    expect(keymap.insert.get('Alt+ArrowRight')).toBe('/win next');
-    expect(keymap.navigation.get('Alt+ArrowRight')).toBe('/win prev');
+    expect(keymap.insert.get('Alt+ArrowRight')).toStrictEqual({
+      line: '/win next',
+      prefill: false,
+    });
+    expect(keymap.navigation.get('Alt+ArrowRight')).toStrictEqual({
+      line: '/win prev',
+      prefill: false,
+    });
     expect(keymap.problems).toStrictEqual([]);
   });
 
@@ -119,7 +137,7 @@ describe(buildKeymap, () => {
 
     expect(keymap.problems).toStrictEqual(['/fav: Shift+a would block typing in insert mode']);
     expect(keymap.insert.size).toBe(0);
-    expect(keymap.navigation.get('Shift+a')).toBe('/fav');
+    expect(keymap.navigation.get('Shift+a')).toStrictEqual({ line: '/fav', prefill: false });
   });
 
   it('installs a printable chord in navigation mode and a named key in insert mode', () => {
@@ -128,8 +146,8 @@ describe(buildKeymap, () => {
       withBindings('help', [{ mode: 'insert', chord: 'F1', args: '' }]),
     );
 
-    expect(keymap.navigation.get('j')).toBe('/next');
-    expect(keymap.insert.get('F1')).toBe('/help');
+    expect(keymap.navigation.get('j')).toStrictEqual({ line: '/next', prefill: false });
+    expect(keymap.insert.get('F1')).toStrictEqual({ line: '/help', prefill: false });
     expect(keymap.problems).toStrictEqual([]);
   });
 
@@ -139,7 +157,7 @@ describe(buildKeymap, () => {
       withBindings('alpha', [{ mode: 'navigation', chord: 'j', args: 'first' }]),
     );
 
-    expect(keymap.navigation.get('j')).toBe('/alpha first');
+    expect(keymap.navigation.get('j')).toStrictEqual({ line: '/alpha first', prefill: false });
     expect(keymap.problems).toStrictEqual(['/zulu: j already bound to /alpha first']);
   });
 
@@ -153,7 +171,7 @@ describe(buildKeymap, () => {
       withBindings('alpha', [{ mode: 'navigation', chord: 'k', args: '1' }]),
     );
 
-    expect(keymap.navigation.get('k')).toBe('/alpha 1');
+    expect(keymap.navigation.get('k')).toStrictEqual({ line: '/alpha 1', prefill: false });
     expect(keymap.problems).toStrictEqual([
       '/bravo: x would block typing in insert mode',
       '/bravo: invalid key Bad',

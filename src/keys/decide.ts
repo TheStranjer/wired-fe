@@ -15,20 +15,22 @@ import { type InputMode, nextMode } from './mode';
 export type KeyDecision =
   | { readonly kind: 'mode'; readonly mode: InputMode }
   | { readonly kind: 'run'; readonly line: string }
+  | { readonly kind: 'prefill'; readonly line: string }
   | { readonly kind: 'none' };
 
 /**
  * Decide {@link chord} pressed in {@link mode}: a mode change wins, else the
- * command line bound to the chord in that mode's map, else nothing.
+ * command line bound to the chord in that mode's map — to run, or to fill
+ * into the command line when the binding is a prefill — else nothing.
  */
 export function decideKey(mode: InputMode, chord: string, keymap: Keymap): KeyDecision {
   const changed = nextMode(mode, chord);
   if (changed !== null) {
     return { kind: 'mode', mode: changed };
   }
-  const line = keymap[mode].get(chord);
-  if (line !== undefined) {
-    return { kind: 'run', line };
+  const entry = keymap[mode].get(chord);
+  if (entry === undefined) {
+    return { kind: 'none' };
   }
-  return { kind: 'none' };
+  return entry.prefill ? { kind: 'prefill', line: entry.line } : { kind: 'run', line: entry.line };
 }

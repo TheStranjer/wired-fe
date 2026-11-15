@@ -1,6 +1,6 @@
 /**
  * The pure key press decision: mode changes first, then the current mode's
- * keymap entry, then nothing.
+ * keymap entry — run or prefill — then nothing.
  */
 import { describe, expect, it } from 'vitest';
 
@@ -10,12 +10,13 @@ import type { Keymap } from './keymap';
 /** A keymap with an Alt chord and even an Escape entry in insert mode. */
 const KEYMAP: Keymap = {
   insert: new Map([
-    ['Alt+3', '/win 3'],
-    ['Escape', '/never-runs'],
+    ['Alt+3', { line: '/win 3', prefill: false }],
+    ['Escape', { line: '/never-runs', prefill: false }],
   ]),
   navigation: new Map([
-    ['j', '/next'],
-    ['f', '/fav a3'],
+    ['j', { line: '/next', prefill: false }],
+    ['f', { line: '/fav a3', prefill: false }],
+    ['r', { line: '/reply {label}', prefill: true }],
   ]),
   problems: [],
 };
@@ -39,6 +40,13 @@ describe(decideKey, () => {
   it('runs the command line a bound chord carries', () => {
     expect(decideKey('navigation', 'j', KEYMAP)).toStrictEqual({ kind: 'run', line: '/next' });
     expect(decideKey('insert', 'Alt+3', KEYMAP)).toStrictEqual({ kind: 'run', line: '/win 3' });
+  });
+
+  it('prefills the command line when the binding asks for it', () => {
+    expect(decideKey('navigation', 'r', KEYMAP)).toStrictEqual({
+      kind: 'prefill',
+      line: '/reply {label}',
+    });
   });
 
   it('does nothing for a chord bound only in the other mode', () => {
