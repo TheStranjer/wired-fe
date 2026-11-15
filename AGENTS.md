@@ -71,6 +71,7 @@ Layers are enforced by `eslint-plugin-boundaries` (`tooling/eslint/layers.js`). 
 src/
   app/            composition root: main.tsx, <App>, providers, window layout
   features/<x>/   one vertical slice per window kind or flow: timeline, thread, compose, notifications, profile, login...
+  views/          rendering shared by every window: lines, buffers, timeline loading
   ui/             presentational components: no data fetching, no account state
   keys/           keymap, modes (insert/navigation), rebinding
   windows/        window list state: open, close, activate, numbering, unread (pure)

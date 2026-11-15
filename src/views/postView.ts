@@ -1,18 +1,19 @@
 /**
- * The timeline slice's Status -> PostView mapping (AGENTS.md "Layout"): the
- * vertical slice that reads api entities and produces the plain data props
- * PostRow renders, since the ui layer never sees API types. Pure: one status
- * and the viewer go in, one immutable view model comes out. A boost displays
- * the original status with the booster's name attached to it.
+ * The Status -> PostView mapping the shared line views render (AGENTS.md
+ * "Layout": src/views is the rendering shared by every window): it reads api
+ * entities and produces the plain data props PostRow takes, since the ui layer
+ * never sees API types. Pure: one status and the viewer go in, one immutable
+ * view model comes out. A boost displays the original status with the
+ * booster's name attached to it.
  */
 
-import { fullHandle } from '../../accounts/handle';
-import type { Account } from '../../api/schemas/account';
-import type { Status } from '../../api/schemas/status';
+import { fullHandle } from '../accounts/handle';
+import type { Account } from '../api/schemas/account';
+import type { Status } from '../api/schemas/status';
 
 /** Who is looking: the instance origin handles are rendered against, and the
  * id of the active account, or null when nobody is signed in. */
-type Viewer = {
+export type Viewer = {
   readonly origin: string;
   readonly accountId: string | null;
 };
