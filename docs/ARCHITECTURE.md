@@ -24,7 +24,7 @@ Numbered decisions. Tickets and code comments cite them as "decision N". To chan
 
 8. **Auth**: per instance, WiredFE registers an OAuth app at runtime (`POST /api/v1/apps`) and caches its credentials; there is no build-time client secret. Authorization code flow with the redirect URI derived from `window.location`. Tokens are stored per account, keyed by instance origin plus account id.
 
-9. **Default assets contract**: Wired builds its default avatar, banner, instance thumbnail and mascot URLs against its `FRONTEND_BASE_URL` (WBE-304). WiredFE ships those files at fixed paths under `public/images/`: `avi.png`, `banner.png`, `thumbnail.jpg`, `mascot.png`. Renaming one breaks every Wired instance's defaults.
+9. **Default assets contract**: Wired builds its default avatar, banner, instance thumbnail and mascot URLs against its `FRONTEND_BASE_URL` (WBE-304). WiredFE ships those files at fixed paths under `images/`: `avi.png`, `banner.png`, `thumbnail.jpg`, `mascot.png`. They are generated at build time by the Vite plugin in `tooling/images` (pixel-art grids, pure-JavaScript PNG/JPEG encoders) and emitted into `dist/images/`; the dev server serves the same URLs from memory. The files are not stored in `public/`. Renaming one breaks every Wired instance's defaults.
 
 10. **Security posture**: strict CSP written into `index.html` at build time; no third-party origins at runtime; remote HTML rendered only through one sanitizing component; network and storage access confined to their owning modules (ESLint enforces it).
 
