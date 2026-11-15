@@ -115,6 +115,7 @@ function PostLineView(props: WindowedProps<PostLineData>): JSX.Element {
       label={labelForStatus(buffer, line.status.id) ?? ''}
       media={view.media}
       mine={view.mine}
+      poll={view.poll}
       reactions={view.reactions}
       replyTo={view.replyTo}
       visibility={view.visibility}

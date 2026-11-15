@@ -1,0 +1,16 @@
+/* The poll lines under a post's body (WFE-98): the alignment is the monospace
+   text itself, so nothing may wrap or collapse its spaces — every line is
+   pre. The footer is metadata and dims like the label; the viewer's own vote
+   mark comes out in the accent colour, the words riding in its title. */
+
+.poll {
+  white-space: pre;
+}
+
+.own {
+  color: var(--color-accent);
+}
+
+.footer {
+  color: var(--color-dim);
+}

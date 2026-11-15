@@ -5,14 +5,17 @@
  * slice's job; the ui layer never sees API types (AGENTS.md "Layout").
  * A boost adds the dim line of who boosted it above the row, a reply adds
  * who it answers before the body, everything the backend counted sits after
- * the body in {@link PostMeta}, and the post's attachments — if it has any —
- * open as placeholder lines of their own below it in {@link MediaList}.
+ * the body in {@link PostMeta}, and the post's poll and attachments — if it
+ * has any — open as lines of their own below it in {@link PollView} and
+ * {@link MediaList}.
  */
 import type { JSX, MouseEvent, Ref } from 'react';
 
 import { MediaList } from './MediaList';
 import type { MediaItem } from './MediaList';
 import { Nick } from './Nick';
+import { PollView } from './PollView';
+import type { PollViewData } from './PollView';
 import { PostBody } from './PostBody';
 import { PostMeta, type PostMetaProps } from './PostMeta';
 import styles from './PostRow.module.css';
@@ -53,6 +56,9 @@ export type PostRowProps = {
   readonly spoilerText: string;
   /** Whether a warned body is shown; meaningless without a warning. */
   readonly revealed: boolean;
+  /** The post's poll, its option lines below the body; null when the post
+   * carries none. Shown by {@link PollView}. */
+  readonly poll: PollViewData | null;
   /** The post's attachments, one placeholder line each below the body; empty
    * when it carries none. */
   readonly media: readonly MediaItem[];
@@ -95,11 +101,11 @@ function BoostLine(props: {
 }
 
 /** The parts of {@link PostRowProps} the post's own line draws: everything but
- * who boosted it above, the media lines below, how the row itself is selected,
- * and its DOM node. */
+ * who boosted it above, the poll and media lines below, how the row itself is
+ * selected, and its DOM node. */
 type LineProps = Omit<
   PostRowProps,
-  'boostedBy' | 'media' | 'sensitive' | 'autoExpand' | 'selected' | 'onSelect' | 'ref'
+  'boostedBy' | 'poll' | 'media' | 'sensitive' | 'autoExpand' | 'selected' | 'onSelect' | 'ref'
 >;
 
 /** The line itself: the label, the clock, the nick, who the post answers, its
@@ -155,7 +161,7 @@ function PostLine(props: LineProps): JSX.Element {
 
 /** One post as a chat line; clicking the row selects it, clicking the nick opens the author. */
 export function PostRow(props: PostRowProps): JSX.Element {
-  const { boostedBy, media, sensitive, autoExpand, selected, onSelect, ref, ...line } = props;
+  const { boostedBy, poll, media, sensitive, autoExpand, selected, onSelect, ref, ...line } = props;
 
   return (
     <article
@@ -175,6 +181,9 @@ export function PostRow(props: PostRowProps): JSX.Element {
     >
       {boostedBy === null ? undefined : <BoostLine boostedBy={boostedBy} />}
       <PostLine {...line} />
+      {poll === null ? undefined : (
+        <PollView clockFormat={line.clockFormat} label={line.label} poll={poll} />
+      )}
       <MediaList autoExpand={autoExpand} items={media} sensitive={sensitive} />
     </article>
   );
