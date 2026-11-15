@@ -9,6 +9,7 @@
 export const LAYERS = [
   { type: 'app', pattern: 'src/app' },
   { type: 'feature', pattern: 'src/features/*' },
+  { type: 'views', pattern: 'src/views' },
   { type: 'ui', pattern: 'src/ui' },
   { type: 'keys', pattern: 'src/keys' },
   { type: 'windows', pattern: 'src/windows' },
@@ -29,6 +30,7 @@ const ALLOWED = {
   app: [
     'app',
     'feature',
+    'views',
     'ui',
     'keys',
     'windows',
@@ -42,6 +44,7 @@ const ALLOWED = {
     'theme',
   ],
   feature: [
+    'views',
     'ui',
     'keys',
     'windows',
@@ -54,6 +57,7 @@ const ALLOWED = {
     'storage',
     'lib',
   ],
+  views: ['views', 'ui', 'state', 'api', 'accounts', 'capabilities', 'windows', 'config', 'lib'],
   ui: ['ui', 'lib'],
   keys: ['keys', 'windows', 'commands', 'lib', 'config', 'storage'],
   windows: ['windows', 'lib'],

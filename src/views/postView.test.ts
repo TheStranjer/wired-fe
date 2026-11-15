@@ -8,9 +8,9 @@ import * as v from 'valibot';
 import { describe, expect, it } from 'vitest';
 
 import { postView } from './postView';
-import wiredFixture from '../../api/fixtures/status/wired.json';
-import { StatusSchema } from '../../api/schemas/status';
-import type { Status } from '../../api/schemas/status';
+import wiredFixture from '../api/fixtures/status/wired.json';
+import { StatusSchema } from '../api/schemas/status';
+import type { Status } from '../api/schemas/status';
 
 const ORIGIN = 'https://wired.example';
 
