@@ -20,6 +20,7 @@ const BASE_PROPS: PostRowProps = {
   replyTo: null,
   quote: null,
   contentHtml: '<p>present day, present time</p>',
+  emojis: [],
   spoilerText: '',
   revealed: false,
   poll: null,

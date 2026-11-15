@@ -12,6 +12,8 @@
  */
 import type { JSX, MouseEvent, Ref } from 'react';
 
+import { BoostLine } from './BoostLine';
+import type { EmojiRef } from './emojify';
 import { MediaList } from './MediaList';
 import type { MediaItem } from './MediaList';
 import { Nick } from './Nick';
@@ -57,6 +59,8 @@ export type PostRowProps = {
   readonly quote: QuoteBlockProps | null;
   /** The body as hostile remote HTML; {@link PostBody} sanitizes it. */
   readonly contentHtml: string;
+  /** The post's own custom emoji, rendered inline in the body. */
+  readonly emojis: readonly EmojiRef[];
   /** The content warning text; the empty string means there is none. */
   readonly spoilerText: string;
   /** Whether a warned body is shown; meaningless without a warning. */
@@ -91,20 +95,6 @@ function clickedControl(event: MouseEvent<HTMLElement>): boolean {
   return target instanceof Element && target.closest(CONTROL_SELECTOR) !== null;
 }
 
-/** Who boosted the post, in their own dim line above it: `⟳ <bob> boosted`. */
-function BoostLine(props: {
-  readonly boostedBy: NonNullable<PostRowProps['boostedBy']>;
-}): JSX.Element {
-  const { handle, fullHandle } = props.boostedBy;
-  return (
-    <div className={styles['boost']}>
-      <span aria-hidden="true">{'⟳ '}</span>
-      <Nick handle={handle} fullHandle={fullHandle} self={false} />
-      {' boosted'}
-    </div>
-  );
-}
-
 /** The parts of {@link PostRowProps} the post's own line draws: everything but
  * who boosted it above, the poll and media lines below, how the row itself is
  * selected, and its DOM node. */
@@ -122,7 +112,6 @@ function PostLine(props: LineProps): JSX.Element {
     clockFormat,
     author,
     replyTo,
-    contentHtml,
     spoilerText,
     revealed,
     visibility,
@@ -149,7 +138,8 @@ function PostLine(props: LineProps): JSX.Element {
         <span className={styles['reply']}>{`↳ re ${replyTo}: `}</span>
       )}
       <PostBody
-        contentHtml={contentHtml}
+        contentHtml={props.contentHtml}
+        emojis={props.emojis}
         spoilerText={spoilerText}
         revealed={revealed}
         onToggleReveal={onToggleReveal}

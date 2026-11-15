@@ -77,6 +77,7 @@ const QUIET = {
   mine: { boosted: false, favourited: false, bookmarked: false },
   reactions: [],
   media: [],
+  emojis: [],
   sensitive: false,
   poll: null,
   quote: null,
@@ -117,6 +118,7 @@ describe(postView, () => {
         { name: 'lain', count: 1, me: false },
       ],
       media: [],
+      emojis: [{ shortcode: 'wired', url: 'https://wired.example/emoji/wired.gif' }],
       sensitive: false,
       poll: null,
       quote: {
@@ -125,6 +127,24 @@ describe(postView, () => {
         excerpt: 'The wired is all one network.',
       },
     });
+  });
+
+  it('maps the emoji list to inline refs on the static image', () => {
+    const status = parse(
+      wireStatus('1', wireAccount('acc-lain', 'lain', 'lain'), {
+        emojis: [
+          {
+            shortcode: 'lain',
+            url: 'https://wired.example/emoji/lain.gif',
+            static_url: 'https://wired.example/emoji/lain.png',
+          },
+        ],
+      }),
+    );
+
+    expect(postView(status, SIGNED_OUT).emojis).toStrictEqual([
+      { shortcode: 'lain', url: 'https://wired.example/emoji/lain.png' },
+    ]);
   });
 
   it('keeps the host in a remote acct', () => {
