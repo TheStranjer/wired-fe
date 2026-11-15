@@ -80,8 +80,9 @@ export type BindingMode = 'insert' | 'navigation';
 
 /**
  * One default key binding of a command: in {@link mode}, pressing
- * {@link chord} runs `/name args`. The keymap is generated from the bindings
- * declared across the registry.
+ * {@link chord} runs `/name args`, or — when {@link prefill} is set — fills
+ * that line into the command line instead. The keymap is generated from the
+ * bindings declared across the registry.
  */
 export type CommandBinding = {
   readonly mode: BindingMode;
@@ -89,6 +90,12 @@ export type CommandBinding = {
   readonly chord: string;
   /** Argument text appended to `/name `, may be `''`. */
   readonly args: string;
+  /**
+   * When true the chord does not run its line: it fills it into the command
+   * line for the user to finish (AGENTS.md "prefill bindings"). `{label}` in
+   * the args stands for the selected post's label. Absent means run.
+   */
+  readonly prefill?: boolean;
 };
 
 /** One command, exactly as a file in defs/ exports it. */

@@ -4,6 +4,7 @@
  * its command line through the dispatcher, an unbound chord is left alone, and
  * refused keymap bindings print as warnings into the status window once, on
  * mount. textHandler itself: it posts the text and prints the window's refusal.
+ * Prefill chords have their own file, useHotkeys.prefill.test.tsx.
  */
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { useRef } from 'react';

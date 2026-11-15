@@ -2,8 +2,9 @@
  * The keymap (decision 6): one hotkey map per mode (AGENTS.md "Two hotkey
  * modes"), generated from the default bindings declared across the command
  * registry. Chords are canonical strings (see ./chord) and every entry names
- * the command line the chord runs, so running a hotkey and typing the command
- * are the same path.
+ * the command line the chord carries — to run, or to fill into the command
+ * line when the binding is a prefill — so a hotkey and the typed command are
+ * one path.
  *
  * A binding that cannot work is reported in `problems` (for the status
  * window) instead of installed: a chord that is not canonical, one that would
@@ -14,20 +15,28 @@
 import { parseChord } from './chord';
 import type { CommandBinding, CommandDefinition, Registry } from '../commands/types';
 
+/** One keymap entry: a chord's command line, run or filled into the input. */
+type KeymapEntry = {
+  /** The command line the chord carries, e.g. `/win 3` or `/reply {label}`. */
+  readonly line: string;
+  /** True fills the line into the command line (a prefill binding), false runs it. */
+  readonly prefill: boolean;
+};
+
 /** The two hotkey maps and what went wrong building them. */
 export type Keymap = {
-  /** Chord -> command line while typing in the command line, e.g. `Alt+3` -> `/win 3`. */
-  readonly insert: ReadonlyMap<string, string>;
-  /** Chord -> command line while navigating. */
-  readonly navigation: ReadonlyMap<string, string>;
+  /** Chord -> entry while typing in the command line, e.g. `Alt+3` -> `/win 3`. */
+  readonly insert: ReadonlyMap<string, KeymapEntry>;
+  /** Chord -> entry while navigating. */
+  readonly navigation: ReadonlyMap<string, KeymapEntry>;
   /** Human-readable reasons a binding was refused, in registry order. */
   readonly problems: readonly string[];
 };
 
 /** The keymap under construction: the finished shape with mutable collections. */
 type PartialKeymap = {
-  readonly insert: Map<string, string>;
-  readonly navigation: Map<string, string>;
+  readonly insert: Map<string, KeymapEntry>;
+  readonly navigation: Map<string, KeymapEntry>;
   readonly problems: string[];
 };
 
@@ -75,10 +84,13 @@ function addBinding(
   const byMode = binding.mode === 'insert' ? target.insert : target.navigation;
   const existing = byMode.get(binding.chord);
   if (existing !== undefined) {
-    target.problems.push(`/${definition.name}: ${binding.chord} already bound to ${existing}`);
+    target.problems.push(`/${definition.name}: ${binding.chord} already bound to ${existing.line}`);
     return;
   }
-  byMode.set(binding.chord, commandLine(definition, binding));
+  byMode.set(binding.chord, {
+    line: commandLine(definition, binding),
+    prefill: binding.prefill ?? false,
+  });
 }
 
 /**
