@@ -17,9 +17,7 @@ import type { Poll } from '../../api/schemas/poll';
 import type { Status } from '../../api/schemas/status';
 import type { ApiSession } from '../../api/session';
 import { type Result, err, ok } from '../../lib/result';
-import { labelForStatus, statusOfLine } from '../../state/bufferSelection';
-import { activeBuffer } from '../../state/selectors';
-import { type StatusTarget, resolveStatusTarget } from '../targets';
+import { type StatusTarget, resolveStatusTarget, targetLabel } from '../targets';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** The ballot is cast and every scrollback knows the new tally. */
@@ -37,23 +35,6 @@ function words(text: string): readonly string[] {
 /** The word as a zero-based option index; NaN when it is no plain number. */
 function indexOf(word: string): number {
   return CHOICE.test(word) ? Number(word) - 1 : Number.NaN;
-}
-
-/**
- * The bracketed label of the active window's line that shows {@link status},
- * directly or as its boost: the line's own label, so a boost's poll is named
- * by the boost exactly as `PollView` names it. The bare id for a status no
- * line carries or none ever labelled.
- */
-function targetLabel(context: CommandContext, status: Status): string {
-  const buffer = activeBuffer(context.state);
-  for (const line of buffer.lines) {
-    const shown = statusOfLine(line);
-    if (shown !== null && (shown === status || shown.reblog === status)) {
-      return `[${labelForStatus(buffer, shown.id) ?? status.id}]`;
-    }
-  }
-  return `[${status.id}]`;
 }
 
 /** The poll a ballot may still land on; absent, closed and voted each refuse. */
