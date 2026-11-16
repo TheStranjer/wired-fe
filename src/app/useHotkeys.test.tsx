@@ -1,9 +1,10 @@
 /**
  * Tests for the wired hotkeys: mode chords dispatch `mode` and carry the caret
  * (navigation blurs the command line, insert focuses it), a bound chord runs
- * its command line through the dispatcher, an unbound chord is left alone, and
- * refused keymap bindings print as warnings into the status window once, on
- * mount. textHandler itself: it posts the text and prints the window's refusal.
+ * its command line through the dispatcher, an unbound chord is left alone, a
+ * chord pressed inside a modal dialog belongs to the dialog, and refused
+ * keymap bindings print as warnings into the status window once, on mount.
+ * textHandler itself: it posts the text and prints the window's refusal.
  * Prefill chords have their own file, useHotkeys.prefill.test.tsx.
  */
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
@@ -127,6 +128,21 @@ describe(useHotkeys, () => {
     expect(notPrevented).toBe(true);
     expect(context.dispatch).not.toHaveBeenCalled();
     expect(PROBE_RUN).not.toHaveBeenCalled();
+  });
+
+  it('leaves a chord pressed inside a modal dialog to the dialog', () => {
+    const context = hotkeyContext('insert');
+    const { container } = render(<Host context={context} />);
+    const dialog = document.createElement('div');
+    dialog.setAttribute('role', 'dialog');
+    const field = document.createElement('textarea');
+    dialog.append(field);
+    container.append(dialog);
+
+    const notPrevented = fireEvent.keyDown(field, { key: 'Escape' });
+
+    expect(notPrevented).toBe(true);
+    expect(context.dispatch).not.toHaveBeenCalled();
   });
 
   it('warns in the status window about refused bindings, once per mount', async () => {

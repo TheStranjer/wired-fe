@@ -13,6 +13,7 @@ const EXPECTED = [
   'about',
   'clear',
   'close',
+  'compose',
   'connect',
   'copy',
   'federated',

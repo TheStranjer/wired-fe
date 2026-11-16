@@ -3,10 +3,11 @@
  * hands the command layer everything it may do. State and dispatch come from the
  * React context, the registry and the stores from their one lazy load, the
  * configuration from the build (decision 3), `page` and `navigate` from
- * `window.location`, and the command line's text back through the `setInput` the
- * caller passes in. Posting is the active window's kind's decision (AGENTS.md
- * "The command line is the composer"): plain text means whatever that window says
- * it means, and a window whose kind cannot post says so.
+ * `window.location`, the command line's text back through the `setInput` the
+ * caller passes in, and the composer overlay through its `openComposer`.
+ * Posting is the active window's kind's decision (AGENTS.md "The command line
+ * is the composer"): plain text means whatever that window says it means, and
+ * a window whose kind cannot post says so.
  */
 
 import { appRegistry } from './registry';
@@ -57,9 +58,13 @@ function postHandler(win: WindowState, postContext: PostContext): CommandContext
  * The {@link CommandContext} for this render: everything a command may do with
  * the state as it stands right now. Build one per submit (or per bound hotkey)
  * and hand it to `dispatchInput`; {@link setInput} is the command line's own
- * setter, so a command that prefills or edits the line can rewrite it.
+ * setter, so a command that prefills or edits the line can rewrite it, and
+ * {@link openComposer} is the app's way to show the composer overlay (WFE-125).
  */
-export function useCommandContext(setInput: (text: string) => void): CommandContext {
+export function useCommandContext(
+  setInput: (text: string) => void,
+  openComposer: (initialText: string) => void,
+): CommandContext {
   const state = useAppState();
   const dispatch = useAppDispatch();
   const active = activeWindow(state.windows);
@@ -82,6 +87,7 @@ export function useCommandContext(setInput: (text: string) => void): CommandCont
     now,
     post: postHandler(active, { state, dispatch, now }),
     setInput,
+    openComposer,
     navigate: (url: string) => {
       window.location.assign(url);
     },

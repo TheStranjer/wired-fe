@@ -36,8 +36,9 @@ export type Registry = {
 /**
  * Everything a command may do: talk to the user, read the command list, read
  * and change the window list, read and move the whole app state, post through
- * the active window, rewrite the command line, navigate, and reach the
- * persisted stores and the build-time configuration. The app builds one per run.
+ * the active window, rewrite the command line, open the composer overlay,
+ * navigate, and reach the persisted stores and the build-time configuration.
+ * The app builds one per run.
  */
 export type CommandContext = {
   /** Print a client message into the active window; no level means `info`. */
@@ -60,6 +61,8 @@ export type CommandContext = {
   readonly post: (draft: Draft) => Promise<string | null>;
   /** Replaces the command-line text (used by prefill hotkeys and /edit). */
   readonly setInput: (text: string) => void;
+  /** Opens the composer overlay for a long post, filled with {@link initialText} (WFE-125). */
+  readonly openComposer: (initialText: string) => void;
   /** Goes to a view by URL, e.g. a hash route (decision 4). */
   readonly navigate: (url: string) => void;
   /** Where the page is right now, for building and comparing URLs. */

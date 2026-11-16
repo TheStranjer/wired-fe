@@ -11,7 +11,8 @@
  * beside the one startup run (the greeting, the restored accounts and their
  * instances) that boots there. Root is also where Tab's completion providers
  * meet (WFE-124): the registry's commands, the handles and tags the buffers
- * have shown, and the active account's instance's custom emoji.
+ * have shown, and the active account's instance's custom emoji; the composer
+ * overlay for long posts (WFE-125) opens above it all through ./useComposerOverlay.
  */
 
 import { useEffect, useState } from 'react';
@@ -21,6 +22,7 @@ import { CommandLine } from './CommandLine';
 import { appRegistry } from './registry';
 import { Shell } from './Shell';
 import { useClock } from './useClock';
+import { useComposerOverlay } from './useComposerOverlay';
 import { useStartup } from './useStartup';
 import { loadWindowKinds } from './windowKinds';
 import { type Provider, commandProvider } from '../commands/complete';
@@ -131,13 +133,31 @@ function WindowBody(props: RegionProps): JSX.Element {
   return <Body windowId={win.id} />;
 }
 
+/** The status line: clock, active account, numbered windows and hotkey mode. */
+function StatusBar(): JSX.Element {
+  const state = useAppState();
+  const dispatch = useAppDispatch();
+  const clock = useClock(state.settings.clockFormat);
+  return (
+    <StatusLine
+      clock={clock}
+      accountLabel={accountLabel(state, state.activeAccountKey)}
+      windows={statusWindows(state)}
+      mode={state.mode}
+      onSelectWindow={(number: number) => {
+        dispatch({ type: 'windows', action: { type: 'activateNumber', number } });
+      }}
+    />
+  );
+}
+
 /** The five shell regions, filled from the app state above it. */
 export function Root(): JSX.Element {
   const state = useAppState();
   const dispatch = useAppDispatch();
   const active = activeWindow(state.windows);
-  const clock = useClock(state.settings.clockFormat);
   const emojis = useCustomEmojis(state.activeAccountKey);
+  const composer = useComposerOverlay();
   useStartup();
 
   useEffect(() => {
@@ -155,22 +175,20 @@ export function Root(): JSX.Element {
   }, [dispatch]);
 
   return (
-    <Shell
-      topic={<Topic win={active} state={state} />}
-      scrollback={<WindowBody win={active} state={state} />}
-      sidePane={null}
-      statusLine={
-        <StatusLine
-          clock={clock}
-          accountLabel={accountLabel(state, state.activeAccountKey)}
-          windows={statusWindows(state)}
-          mode={state.mode}
-          onSelectWindow={(number: number) => {
-            dispatch({ type: 'windows', action: { type: 'activateNumber', number } });
-          }}
-        />
-      }
-      input={<CommandLine completion={completionProviders(state, emojis)} />}
-    />
+    <>
+      <Shell
+        topic={<Topic win={active} state={state} />}
+        scrollback={<WindowBody win={active} state={state} />}
+        sidePane={null}
+        statusLine={<StatusBar />}
+        input={
+          <CommandLine
+            completion={completionProviders(state, emojis)}
+            openComposer={composer.openComposer}
+          />
+        }
+      />
+      {composer.overlay}
+    </>
   );
 }

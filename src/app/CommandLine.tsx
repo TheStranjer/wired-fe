@@ -6,7 +6,8 @@
  * completes the word under the caret through ./useCompletion with the
  * providers the composition root passes in. The ref lets the hotkeys move the
  * caret, and focusing the line while navigation is shown switches back to
- * insert.
+ * insert. Opening the composer hands it the line's own plain text when the
+ * command itself named none (WFE-125).
  */
 
 import { useRef, useState } from 'react';
@@ -18,20 +19,55 @@ import { useCompletion } from './useCompletion';
 import { textHandler, useHotkeys } from './useHotkeys';
 import type { Provider } from '../commands/complete';
 import { dispatchInput } from '../commands/dispatch';
+import { parseInput } from '../commands/parseInput';
 import { useAppDispatch, useAppState } from '../state/StateContext';
 import { InputLine } from '../ui/InputLine';
 
-/** The words Tab may complete to, in provider order; built by ./Root. */
+/** What the shell gives the command line: completion words and the composer. */
 export type CommandLineProps = {
   readonly completion: readonly Provider[];
+  /** Opens the composer overlay (WFE-125); the app owns the box itself. */
+  readonly openComposer: (initialText: string) => void;
 };
+
+/**
+ * The text a bare `/compose` takes from the command line: the line's own
+ * plain text, so Ctrl+E turns a half-typed post into a draft in the box. A
+ * command — or an argument the command already carries — is none of that.
+ */
+function composerText(initialText: string, line: string): string {
+  if (initialText !== '') {
+    return initialText;
+  }
+  const parsed = parseInput(line);
+  return parsed.kind === 'text' ? parsed.text : '';
+}
+
+/**
+ * The composer opener the context carries: Root's opener wrapped so a bare
+ * open moves the command line's plain text into the box and empties the line
+ * it came from (WFE-125).
+ */
+function composerOpener(
+  open: (initialText: string) => void,
+  line: string,
+  setValue: (text: string) => void,
+): (initialText: string) => void {
+  return (initialText: string): void => {
+    const moved = composerText(initialText, line);
+    if (moved !== initialText) {
+      setValue('');
+    }
+    open(moved);
+  };
+}
 
 /** The command line and its hotkey, history and completion wiring. */
 export function CommandLine(props: CommandLineProps): JSX.Element {
   const state = useAppState();
   const dispatch = useAppDispatch();
   const [value, setValue] = useState('');
-  const context = useCommandContext(setValue);
+  const context = useCommandContext(setValue, composerOpener(props.openComposer, value, setValue));
   const inputRef = useRef<HTMLInputElement>(null);
   useHotkeys(inputRef, context);
   const history = useCommandHistory(state.mode, value, setValue);
@@ -50,10 +86,6 @@ export function CommandLine(props: CommandLineProps): JSX.Element {
     setValue('');
   }
 
-  function submitLine(line: string): void {
-    void runLine(line);
-  }
-
   function handleKeyDown(event: KeyboardEvent<HTMLInputElement>): void {
     completion(event);
     history.onKeyDown(event);
@@ -70,7 +102,9 @@ export function CommandLine(props: CommandLineProps): JSX.Element {
       prompt=">"
       value={value}
       onChange={setValue}
-      onSubmit={submitLine}
+      onSubmit={(line: string) => {
+        void runLine(line);
+      }}
       onKeyDown={handleKeyDown}
       inputRef={inputRef}
       onFocus={handleInputFocus}
