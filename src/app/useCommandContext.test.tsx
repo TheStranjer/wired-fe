@@ -24,14 +24,22 @@ import { type AppAction, appReducer } from '../state/reducer';
 import { bufferFor } from '../state/selectors';
 import { AppStateProvider, useAppState } from '../state/StateContext';
 import { STATUS_WINDOW_ID, windowId } from '../windows/model';
-import type { WindowRef, WindowState } from '../windows/model';
+import type { WindowKind, WindowRef, WindowState } from '../windows/model';
 import type { WindowsAction } from '../windows/reducer';
 
 /** The home window these tests open: src/features/home implements its kind. */
 const HOME: WindowRef = { kind: 'home', accountKey: null, target: null };
 
-/** A window whose kind no shipped feature implements, so it takes no posts. */
-const NO_KIND: WindowRef = { kind: 'search', accountKey: null, target: '7' };
+/**
+ * A window whose kind no shipped feature implements, so it takes no posts.
+ * Every kind in the union now has a definition, so reaching that branch
+ * takes a kind the model could carry tomorrow but no feature answers today.
+ */
+const NO_KIND: WindowRef = {
+  kind: 'phantom' as unknown as WindowKind,
+  accountKey: null,
+  target: '7',
+};
 
 /** The message a window whose kind takes no posts gets back. */
 const NO_POST = "You can't post in this window. Try /home";
@@ -153,7 +161,7 @@ describe(useCommandContext, () => {
   });
 
   it('refuses to post in a window whose kind no feature implements', async () => {
-    const opened = [win({ type: 'open', ref: NO_KIND, title: 'dm' })];
+    const opened = [win({ type: 'open', ref: NO_KIND, title: 'phantom' })];
     const { context } = renderContext(opened, vi.fn()).result.current;
 
     await expect(context.post({ text: 'hello world' })).resolves.toBe(NO_POST);
