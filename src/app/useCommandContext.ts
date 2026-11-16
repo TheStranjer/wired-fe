@@ -4,10 +4,11 @@
  * React context, the registry and the stores from their one lazy load, the
  * configuration from the build (decision 3), `page` and `navigate` from
  * `window.location`, the command line's text back through the `setInput` the
- * caller passes in, and the composer overlay through its `openComposer`.
- * Posting is the active window's kind's decision (AGENTS.md "The command line
- * is the composer"): plain text means whatever that window says it means, and
- * a window whose kind cannot post says so.
+ * caller passes in, the composer overlay through its `openComposer`, and the
+ * pending media (WFE-126) through the `attachments` Root's useAttachments
+ * hands down. Posting is the active window's kind's decision (AGENTS.md "The
+ * command line is the composer"): plain text means whatever that window says it
+ * means, and a window whose kind cannot post says so.
  */
 
 import { appRegistry } from './registry';
@@ -55,15 +56,50 @@ function postHandler(win: WindowState, postContext: PostContext): CommandContext
 }
 
 /**
+ * {@link draft} with the ids of {@link attachments}' pending media when it
+ * names none of its own (WFE-126); the same draft otherwise, so a window that
+ * already picked its media keeps exactly that list.
+ */
+function withPendingMedia(draft: Draft, attachments: CommandContext['attachments']): Draft {
+  const carries = draft.mediaIds !== undefined && draft.mediaIds.length > 0;
+  if (carries || attachments.pending.length === 0) {
+    return draft;
+  }
+  return { ...draft, mediaIds: attachments.pending.map((media) => media.id) };
+}
+
+/**
+ * The context's post: the draft goes out carrying the pending media, and a
+ * send that worked takes those ids out of the list with it — a refused post
+ * keeps its media for the retry.
+ */
+function posting(
+  win: WindowState,
+  postContext: PostContext,
+  attachments: CommandContext['attachments'],
+): CommandContext['post'] {
+  const send = postHandler(win, postContext);
+  return async (draft: Draft) => {
+    const error = await send(withPendingMedia(draft, attachments));
+    if (error === null) {
+      attachments.clear();
+    }
+    return error;
+  };
+}
+
+/**
  * The {@link CommandContext} for this render: everything a command may do with
  * the state as it stands right now. Build one per submit (or per bound hotkey)
  * and hand it to `dispatchInput`; {@link setInput} is the command line's own
- * setter, so a command that prefills or edits the line can rewrite it, and
- * {@link openComposer} is the app's way to show the composer overlay (WFE-125).
+ * setter, so a command that prefills or edits the line can rewrite it,
+ * {@link openComposer} is the app's way to show the composer overlay (WFE-125),
+ * and {@link attachments} is its way to hold media for the next post (WFE-126).
  */
 export function useCommandContext(
   setInput: (text: string) => void,
   openComposer: (initialText: string) => void,
+  attachments: CommandContext['attachments'],
 ): CommandContext {
   const state = useAppState();
   const dispatch = useAppDispatch();
@@ -85,9 +121,10 @@ export function useCommandContext(
     state,
     dispatch,
     now,
-    post: postHandler(active, { state, dispatch, now }),
+    post: posting(active, { state, dispatch, now }, attachments),
     setInput,
     openComposer,
+    attachments,
     navigate: (url: string) => {
       window.location.assign(url);
     },

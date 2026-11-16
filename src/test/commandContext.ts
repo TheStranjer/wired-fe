@@ -29,6 +29,16 @@ const EXAMPLE_PAGE = { origin: 'https://wired.example', pathname: '/' };
 /** The registry with no commands in it: tests override it when they need one. */
 const EMPTY_REGISTRY: Registry = { commands: [], byName: new Map() };
 
+/**
+ * The pending-media stub a context carries: recorded pick and clear, nothing
+ * waiting (WFE-126). {@link overrides} replaces the entries it names.
+ */
+export function fakeAttachments(
+  overrides: Partial<CommandContext['attachments']> = {},
+): CommandContext['attachments'] {
+  return { pick: vi.fn(), clear: vi.fn(), pending: [], ...overrides };
+}
+
 /** An in-memory {@link StorageBackend} over a Map; nothing reaches storage. */
 function memoryBackend(): StorageBackend {
   const entries = new Map<string, string>();
@@ -75,6 +85,7 @@ export function fakeCommandContext(overrides: Partial<CommandContext> = {}): Com
     post: vi.fn<CommandContext['post']>().mockResolvedValue(null),
     setInput: vi.fn(),
     openComposer: vi.fn(),
+    attachments: fakeAttachments(),
     navigate: vi.fn(),
     page: EXAMPLE_PAGE,
     config: EXAMPLE_CONFIG,

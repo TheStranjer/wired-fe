@@ -20,14 +20,17 @@ import { textHandler, useHotkeys } from './useHotkeys';
 import type { Provider } from '../commands/complete';
 import { dispatchInput } from '../commands/dispatch';
 import { parseInput } from '../commands/parseInput';
+import type { CommandContext } from '../commands/types';
 import { useAppDispatch, useAppState } from '../state/StateContext';
 import { InputLine } from '../ui/InputLine';
 
-/** What the shell gives the command line: completion words and the composer. */
+/** What the shell gives the command line: completion words, the composer and the pending media. */
 export type CommandLineProps = {
   readonly completion: readonly Provider[];
   /** Opens the composer overlay (WFE-125); the app owns the box itself. */
   readonly openComposer: (initialText: string) => void;
+  /** The media waiting for the next post (WFE-126); the app owns the list. */
+  readonly attachments: CommandContext['attachments'];
 };
 
 /**
@@ -67,7 +70,8 @@ export function CommandLine(props: CommandLineProps): JSX.Element {
   const state = useAppState();
   const dispatch = useAppDispatch();
   const [value, setValue] = useState('');
-  const context = useCommandContext(setValue, composerOpener(props.openComposer, value, setValue));
+  const lineOpener = composerOpener(props.openComposer, value, setValue);
+  const context = useCommandContext(setValue, lineOpener, props.attachments);
   const inputRef = useRef<HTMLInputElement>(null);
   useHotkeys(inputRef, context);
   const history = useCommandHistory(state.mode, value, setValue);

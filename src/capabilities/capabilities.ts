@@ -43,8 +43,8 @@ export const DEFAULT_POLL_LIMITS: PollLimits = {
 /** The post length of an instance that advertises none: Mastodon's classic 500. */
 const DEFAULT_MAX_CHARACTERS = 500;
 
-/** The attachment count of an instance that advertises none. */
-const DEFAULT_MAX_MEDIA_ATTACHMENTS = 4;
+/** The attachment count of an instance that advertises none; the shell's fallback too (WFE-126). */
+export const DEFAULT_MAX_MEDIA_ATTACHMENTS = 4;
 
 /** Feature strings of the Pleroma dialect that turn on a flag when advertised. */
 const PLEROMA_FEATURE_FLAGS: readonly (readonly [string, FeatureFlag])[] = [

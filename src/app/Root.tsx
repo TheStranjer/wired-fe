@@ -12,7 +12,8 @@
  * instances) that boots there. Root is also where Tab's completion providers
  * meet (WFE-124): the registry's commands, the handles and tags the buffers
  * have shown, and the active account's instance's custom emoji; the composer
- * overlay for long posts (WFE-125) opens above it all through ./useComposerOverlay.
+ * overlay for long posts (WFE-125) opens above it all through ./useComposerOverlay,
+ * and ./useAttachments holds the media waiting for the next post (WFE-126).
  */
 
 import { useEffect, useState } from 'react';
@@ -21,6 +22,7 @@ import type { JSX } from 'react';
 import { CommandLine } from './CommandLine';
 import { appRegistry } from './registry';
 import { Shell } from './Shell';
+import { useAttachments } from './useAttachments';
 import { useClock } from './useClock';
 import { useComposerOverlay } from './useComposerOverlay';
 import { useStartup } from './useStartup';
@@ -133,8 +135,8 @@ function WindowBody(props: RegionProps): JSX.Element {
   return <Body windowId={win.id} />;
 }
 
-/** The status line: clock, active account, numbered windows and hotkey mode. */
-function StatusBar(): JSX.Element {
+/** The status line: clock, active account, numbered windows, pending media and hotkey mode. */
+function StatusBar(props: { readonly pendingMedia: number }): JSX.Element {
   const state = useAppState();
   const dispatch = useAppDispatch();
   const clock = useClock(state.settings.clockFormat);
@@ -144,6 +146,7 @@ function StatusBar(): JSX.Element {
       accountLabel={accountLabel(state, state.activeAccountKey)}
       windows={statusWindows(state)}
       mode={state.mode}
+      pendingMedia={props.pendingMedia}
       onSelectWindow={(number: number) => {
         dispatch({ type: 'windows', action: { type: 'activateNumber', number } });
       }}
@@ -157,7 +160,8 @@ export function Root(): JSX.Element {
   const dispatch = useAppDispatch();
   const active = activeWindow(state.windows);
   const emojis = useCustomEmojis(state.activeAccountKey);
-  const composer = useComposerOverlay();
+  const attachments = useAttachments();
+  const composer = useComposerOverlay(attachments);
   useStartup();
 
   useEffect(() => {
@@ -180,15 +184,17 @@ export function Root(): JSX.Element {
         topic={<Topic win={active} state={state} />}
         scrollback={<WindowBody win={active} state={state} />}
         sidePane={null}
-        statusLine={<StatusBar />}
+        statusLine={<StatusBar pendingMedia={attachments.pending.length} />}
         input={
           <CommandLine
+            attachments={attachments}
             completion={completionProviders(state, emojis)}
             openComposer={composer.openComposer}
           />
         }
       />
       {composer.overlay}
+      {attachments.input}
     </>
   );
 }

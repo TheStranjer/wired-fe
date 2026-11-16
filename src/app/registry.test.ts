@@ -11,11 +11,13 @@ import type { Registry } from '../commands/types';
 /** The names the shipped bundle is expected to answer to. */
 const EXPECTED = [
   'about',
+  'attach',
   'clear',
   'close',
   'compose',
   'connect',
   'copy',
+  'detach',
   'federated',
   'help',
   'home',

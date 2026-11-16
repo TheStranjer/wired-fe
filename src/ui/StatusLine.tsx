@@ -1,7 +1,9 @@
 /**
  * The status line just above the command line, irssi style: the clock, the
- * active account, one clickable entry per window with its unread count, and
- * the hotkey mode. Presentational only; windows and time live in higher layers.
+ * active account, one clickable entry per window with its unread count, the
+ * count of media waiting for the next post (WFE-126) when there is any, and
+ * the hotkey mode. Presentational only; windows, media and time live in higher
+ * layers.
  */
 import { Fragment } from 'react';
 import type { JSX } from 'react';
@@ -32,6 +34,8 @@ export type StatusLineProps = {
   readonly windows: readonly StatusLineWindow[];
   /** Which hotkey mode the keyboard is in (AGENTS.md "Two hotkey modes"). */
   readonly mode: 'insert' | 'navigation';
+  /** Media waiting for the next post; absent or 0 shows no group (WFE-126). */
+  readonly pendingMedia?: number;
   /** Called with the window number when an entry is clicked. */
   readonly onSelectWindow: (number: number) => void;
 };
@@ -78,9 +82,22 @@ function entryClasses(entry: StatusLineWindow): string {
   ].join(' ');
 }
 
-/** One non-wrapping line naming the time, the account, the windows and the mode. */
+/** The pending-media group between the windows and the mode, or nothing (WFE-126). */
+function PendingMedia(props: { readonly count: number }): JSX.Element | null {
+  if (props.count <= 0) {
+    return null;
+  }
+  const group = `[+${String(props.count)} media]`;
+  return (
+    <>
+      <span>{group}</span>{' '}
+    </>
+  );
+}
+
+/** One non-wrapping line naming the time, the account, the windows, waiting media and the mode. */
 export function StatusLine(props: StatusLineProps): JSX.Element {
-  const { clock, accountLabel, windows, mode, onSelectWindow } = props;
+  const { clock, accountLabel, windows, mode, onSelectWindow, pendingMedia = 0 } = props;
 
   return (
     <div className={styles['line']}>
@@ -105,6 +122,7 @@ export function StatusLine(props: StatusLineProps): JSX.Element {
         ))}
         {']'}
       </span>{' '}
+      <PendingMedia count={pendingMedia} />
       <span>{`[${MODE_LABEL[mode]}]`}</span>
     </div>
   );

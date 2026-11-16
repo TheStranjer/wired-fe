@@ -10,6 +10,7 @@
  */
 
 import type { AccountStore } from '../accounts/accountStore';
+import type { MediaAttachment } from '../api/schemas/mediaAttachment';
 import type { WiredConfig } from '../config/schema';
 import type { AppState } from '../state/appState';
 import type { Draft } from '../state/draft';
@@ -37,8 +38,8 @@ export type Registry = {
  * Everything a command may do: talk to the user, read the command list, read
  * and change the window list, read and move the whole app state, post through
  * the active window, rewrite the command line, open the composer overlay,
- * navigate, and reach the persisted stores and the build-time configuration.
- * The app builds one per run.
+ * attach media to the next post (WFE-126), navigate, and reach the persisted
+ * stores and the build-time configuration. The app builds one per run.
  */
 export type CommandContext = {
   /** Print a client message into the active window; no level means `info`. */
@@ -63,6 +64,17 @@ export type CommandContext = {
   readonly setInput: (text: string) => void;
   /** Opens the composer overlay for a long post, filled with {@link initialText} (WFE-125). */
   readonly openComposer: (initialText: string) => void;
+  /**
+   * The media waiting for the next post (WFE-126): {@link pick} opens the
+   * app's file dialog asking for alt text to give whatever is chosen,
+   * {@link clear} drops everything pending, and {@link pending} is what a
+   * post without its own media ids carries.
+   */
+  readonly attachments: {
+    readonly pick: (description: string) => void;
+    readonly clear: () => void;
+    readonly pending: readonly MediaAttachment[];
+  };
   /** Goes to a view by URL, e.g. a hash route (decision 4). */
   readonly navigate: (url: string) => void;
   /** Where the page is right now, for building and comparing URLs. */

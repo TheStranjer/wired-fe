@@ -97,4 +97,18 @@ describe(StatusLine, () => {
     expect(line.textContent).toBe('[23:07] [@lain@wired.example] [4:dm/eop(2)*] [INS]');
     expect(entry).toHaveAttribute('aria-current', 'true');
   });
+
+  it('shows pending media as its own group before the mode', () => {
+    const line = renderStatusLine({ pendingMedia: 2 });
+
+    expect(line.textContent).toBe(
+      '[23:07] [@lain@wired.example] [1:status 2:home(3) 3:dm/bob*] [+2 media] [INS]',
+    );
+  });
+
+  it('shows no media group while nothing waits', () => {
+    const line = renderStatusLine({ pendingMedia: 0 });
+
+    expect(line.textContent).toBe(FULL_LINE);
+  });
 });
