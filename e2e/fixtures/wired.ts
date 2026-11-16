@@ -1,8 +1,9 @@
 /**
  * The fake Wired instance for the end-to-end login flow (decisions 5 and 8):
  * the route handlers `page.route` needs for the same-origin build — NodeInfo,
- * instance documents, OAuth, `verify_credentials`, the home timeline, status
- * creation. Bodies follow Wired's shapes, the ones src/api's fixtures show.
+ * instance documents, OAuth, `verify_credentials`, the home timeline, the
+ * notifications list, status creation. Bodies follow Wired's shapes, the ones
+ * src/api's fixtures show.
  */
 
 import type { Page, Request, Route } from '@playwright/test';
@@ -173,7 +174,7 @@ function routeLogin(page: Page): readonly Promise<unknown>[] {
   ];
 }
 
-/** The session routes: who the token is, the home page, the status echo. */
+/** The session routes: who the token is, the home page, empty notifications, the status echo. */
 function routeSession(page: Page): readonly Promise<unknown>[] {
   return [
     page.route('**/api/v1/accounts/verify_credentials', async (route) => {
@@ -181,6 +182,9 @@ function routeSession(page: Page): readonly Promise<unknown>[] {
     }),
     page.route('**/api/v1/timelines/home*', async (route) => {
       await json(route, homeTimeline());
+    }),
+    page.route('**/api/v1/notifications*', async (route) => {
+      await json(route, []);
     }),
     page.route('**/api/v1/statuses*', async (route) => {
       await postedStatus(route);

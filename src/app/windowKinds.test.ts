@@ -141,4 +141,8 @@ describe(loadWindowKinds, () => {
     expect(keys).toContain('local');
     expect(keys).toContain('federated');
   });
+
+  it('includes the notifications kind /notifications opens a window with', () => {
+    expect([...loaded().keys()]).toContain('notifications');
+  });
 });

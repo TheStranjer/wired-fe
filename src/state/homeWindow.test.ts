@@ -1,13 +1,12 @@
 /**
  * Tests for the home window rules: the open action names the account's own home
  * view, the title is plain `home` while it is the active account's window and
- * `home/<username>` for another account's, and a whole account list turns into
- * one open per account — the others first, the active one last, because opening
- * a window is what makes it the visible one.
+ * `home/<username>` for another account's. The list of windows startup opens
+ * for a whole account list is ./startupWindows's own business.
  */
 import { describe, expect, it } from 'vitest';
 
-import { homeWindowOpen, openHomeWindows } from './homeWindow';
+import { homeWindowOpen } from './homeWindow';
 import { accountKey, type StoredAccount } from '../accounts/accountStore';
 
 const ORIGIN = 'https://wired.example';
@@ -60,26 +59,5 @@ describe(homeWindowOpen, () => {
 
   it('titles every window by username while nobody is active', () => {
     expect(homeWindowOpen(LAIN, null)).toStrictEqual(openFor(LAIN, 'home/lain'));
-  });
-});
-
-describe(openHomeWindows, () => {
-  it('opens one window per account, the active account’s last', () => {
-    expect(openHomeWindows([LAIN, ALI, SAM], ALI.key)).toStrictEqual([
-      openFor(LAIN, 'home/lain'),
-      openFor(SAM, 'home/sam'),
-      openFor(ALI, 'home'),
-    ]);
-  });
-
-  it('keeps the order of the accounts it was given while none is active', () => {
-    expect(openHomeWindows([LAIN, ALI], null)).toStrictEqual([
-      openFor(LAIN, 'home/lain'),
-      openFor(ALI, 'home/ali'),
-    ]);
-  });
-
-  it('opens nothing for no accounts', () => {
-    expect(openHomeWindows([], LAIN.key)).toStrictEqual([]);
   });
 });
