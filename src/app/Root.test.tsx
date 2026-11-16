@@ -147,12 +147,12 @@ describe(Root, () => {
     renderRoot([
       win({
         type: 'open',
-        ref: { kind: 'hashtag', accountKey: null, target: 'cats' },
-        title: '#cats',
+        ref: { kind: 'profile', accountKey: null, target: 'lain' },
+        title: 'lain',
       }),
     ]);
 
-    const log = screen.getByRole('log', { name: '#cats' });
+    const log = screen.getByRole('log', { name: 'lain' });
 
     expect(within(log).getByText('No view for this window')).toBeInTheDocument();
   });
