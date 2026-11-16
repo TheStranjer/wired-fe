@@ -153,4 +153,8 @@ describe(loadWindowKinds, () => {
   it('includes the thread kind /thread opens a window with', () => {
     expect([...loaded().keys()]).toContain('thread');
   });
+
+  it('includes the dm kind /query opens a window with', () => {
+    expect([...loaded().keys()]).toContain('dm');
+  });
 });

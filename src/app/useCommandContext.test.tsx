@@ -31,7 +31,7 @@ import type { WindowsAction } from '../windows/reducer';
 const HOME: WindowRef = { kind: 'home', accountKey: null, target: null };
 
 /** A window whose kind no shipped feature implements, so it takes no posts. */
-const NO_KIND: WindowRef = { kind: 'dm', accountKey: null, target: '7' };
+const NO_KIND: WindowRef = { kind: 'search', accountKey: null, target: '7' };
 
 /** The message a window whose kind takes no posts gets back. */
 const NO_POST = "You can't post in this window. Try /home";
