@@ -85,13 +85,25 @@ function serveEmptyHomeTimeline(): void {
   );
 }
 
+/** The emoji list the shell fetches for the active account, answered empty. */
+function serveNoCustomEmojis(): void {
+  server.use(
+    http.get('https://wired.example/api/v1/custom_emojis', () => {
+      return HttpResponse.json([]);
+    }),
+  );
+}
+
 /** The topic bar, the shell's banner region. */
 function banner(): HTMLElement {
   return screen.getByRole('banner');
 }
 
 describe(Root, () => {
-  beforeEach(serveEmptyHomeTimeline);
+  beforeEach(() => {
+    serveEmptyHomeTimeline();
+    serveNoCustomEmojis();
+  });
 
   it('shows the status window with its kind topic', () => {
     renderRoot([]);
