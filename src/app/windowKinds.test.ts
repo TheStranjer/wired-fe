@@ -145,4 +145,8 @@ describe(loadWindowKinds, () => {
   it('includes the notifications kind /notifications opens a window with', () => {
     expect([...loaded().keys()]).toContain('notifications');
   });
+
+  it('includes the hashtag kind /tag opens a window with', () => {
+    expect([...loaded().keys()]).toContain('hashtag');
+  });
 });

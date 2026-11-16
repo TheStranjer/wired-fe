@@ -23,6 +23,7 @@ const EXPECTED = [
   'notifications',
   'open',
   'select',
+  'tag',
   'win',
 ];
 
