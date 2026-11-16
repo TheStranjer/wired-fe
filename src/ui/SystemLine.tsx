@@ -1,7 +1,9 @@
 /**
  * A client message in the scrollback, IRC style: the clock, a `***` marker
  * and the text, e.g. command output, a warning or an error. The text is
- * always plain text, never HTML. Purely presentational.
+ * always plain text, never HTML. A message that speaks about an account can
+ * lead with that account's handle as a click target (WFE-106), which the
+ * text then must not repeat. Purely presentational.
  */
 import type { JSX } from 'react';
 
@@ -19,6 +21,9 @@ export type SystemLineProps = {
   readonly level: 'info' | 'warn' | 'error';
   /** The message itself, rendered as plain text. */
   readonly text: string;
+  /** The account the message is about: its `@handle` leads {@link text} as a
+   * button, e.g. to open the account's profile. Omitted for plain messages. */
+  readonly actor?: { readonly handle: string; readonly onSelect: () => void } | undefined;
 };
 
 /** The text span's colour class per level. */
@@ -37,7 +42,7 @@ const SR_PREFIX: Record<SystemLineProps['level'], string | undefined> = {
 
 /** One scrollback line of client output: `23:04 *** text`. */
 export function SystemLine(props: SystemLineProps): JSX.Element {
-  const { date, clockFormat, level, text } = props;
+  const { date, clockFormat, level, text, actor } = props;
   const prefix = SR_PREFIX[level];
 
   return (
@@ -49,6 +54,13 @@ export function SystemLine(props: SystemLineProps): JSX.Element {
       <span className={LEVEL_CLASS[level]}>
         {prefix === undefined ? undefined : (
           <span className={styles['visuallyHidden']}>{prefix}</span>
+        )}
+        {actor === undefined ? undefined : (
+          <>
+            <button type="button" className={styles['actor']} onClick={actor.onSelect}>
+              {actor.handle}
+            </button>{' '}
+          </>
         )}
         {text}
       </span>

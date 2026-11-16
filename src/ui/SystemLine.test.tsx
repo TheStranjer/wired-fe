@@ -1,10 +1,11 @@
 /**
  * Tests for the system line: the clock, marker and text as one plain-text
- * line, HTML in the text never becoming markup, and the screen-reader
- * prefixes that mark warn and error lines.
+ * line, HTML in the text never becoming markup, the screen-reader prefixes
+ * that mark warn and error lines, and the actor handle a line can lead with
+ * as a click target.
  */
-import { render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
 
 import { SystemLine } from './SystemLine';
 import type { SystemLineProps } from './SystemLine';
@@ -62,5 +63,23 @@ describe(SystemLine, () => {
     render(<SystemLine {...BASE_PROPS} clockFormat="12h" />);
 
     expect(screen.getByText('11:04pm')).toBeInTheDocument();
+  });
+
+  it('leads the text with a clickable actor handle when one is given', () => {
+    const onSelect = vi.fn<() => void>();
+    const { container } = render(
+      <SystemLine
+        {...BASE_PROPS}
+        level="info"
+        text="followed you"
+        actor={{ handle: '@nine@wired.example', onSelect }}
+      />,
+    );
+
+    expect(container.textContent).toBe('23:04 *** @nine@wired.example followed you');
+
+    fireEvent.click(screen.getByRole('button', { name: '@nine@wired.example' }));
+
+    expect(onSelect).toHaveBeenCalledTimes(1);
   });
 });

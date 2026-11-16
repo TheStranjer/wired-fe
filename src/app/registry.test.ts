@@ -24,6 +24,7 @@ const EXPECTED = [
   'open',
   'select',
   'tag',
+  'whois',
   'win',
 ];
 

@@ -23,6 +23,21 @@
   color: var(--color-error);
 }
 
+/* The account handle that leads a line: a button dressed to read as the
+   plain text it replaces, like the nick in a post row. */
+.actor {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.actor:focus-visible {
+  outline: 1px solid var(--color-dim);
+}
+
 /* The standard clip pattern: invisible on screen, still announced by
    assistive technology. */
 .visuallyHidden {

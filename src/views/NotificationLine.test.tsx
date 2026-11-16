@@ -2,11 +2,14 @@
  * Tests for ./NotificationLine: a mention renders the mentioned post as an
  * ordinary row (a PostRow) with a dim `@` in front of it, while any other kind
  * renders as the `***` client message ./notificationText spells out, on the
- * notification's own clock. Each renders inside AppStateProvider over a
- * notifications window holding that one line, through the real reducer so the
- * buffer's label reaches the sentence.
+ * notification's own clock — led, since WFE-106, by the actor's handle as a
+ * click target that opens their profile window, unless the sentence names no
+ * actor. Each renders inside AppStateProvider over a notifications window
+ * holding that one line, through the real reducer so the buffer's label reaches
+ * the sentence and a click's window ask reaches the window list.
  */
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
+import type { JSX } from 'react';
 import * as v from 'valibot';
 import { describe, expect, it } from 'vitest';
 
@@ -17,7 +20,7 @@ import { type AppState, coreReducer, initialAppState } from '../state/appState';
 import type { NotificationLineData } from '../state/buffer';
 import { appReducer } from '../state/reducer';
 import { bufferFor } from '../state/selectors';
-import { AppStateProvider } from '../state/StateContext';
+import { AppStateProvider, useAppState } from '../state/StateContext';
 import { status, TEST_DATE } from '../test/fixtures';
 import { windowId } from '../windows/model';
 import type { WindowRef } from '../windows/model';
@@ -88,6 +91,18 @@ function renderLine(state: AppState) {
   );
 }
 
+/** The titles of every window the state holds, one span per window. */
+function WindowTitles(): JSX.Element {
+  const state = useAppState();
+  return (
+    <section aria-label="windows">
+      {state.windows.windows.map((win) => (
+        <span key={win.id}>{win.title}</span>
+      ))}
+    </section>
+  );
+}
+
 describe(NotificationLine, () => {
   it('shows a mention as the post itself, in a row the window labelled', () => {
     const { container } = renderLine(seeded(note('mention', status('a'))));
@@ -134,5 +149,28 @@ describe(NotificationLine, () => {
 
     expect(container.textContent).toMatch(/^\d\d:\d\d \*\*\* @lain@wired\.example mention$/u);
     expect(screen.queryByRole('article')).toBeNull();
+  });
+
+  it('leads a follow line with the actor handle and opens their profile when clicked', () => {
+    const state = seeded(note('follow', null));
+    render(
+      <AppStateProvider initial={state}>
+        <NotificationLine line={lineOf(state)} windowId={NOTES} />
+        <WindowTitles />
+      </AppStateProvider>,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: '@lain@wired.example' }));
+
+    expect(screen.getByRole('region', { name: 'windows' })).toHaveTextContent(
+      '@lain@wired.example',
+    );
+  });
+
+  it('keeps a sentence plain when it names no actor', () => {
+    const { container } = renderLine(seeded(note('poll', status('p'))));
+
+    expect(container.textContent).toMatch(/^\d\d:\d\d \*\*\* a poll you voted in ended \[a0\]$/u);
+    expect(container.querySelector('button')).toBeNull();
   });
 });

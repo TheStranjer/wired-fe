@@ -147,7 +147,7 @@ describe(Root, () => {
     renderRoot([
       win({
         type: 'open',
-        ref: { kind: 'profile', accountKey: null, target: 'lain' },
+        ref: { kind: 'search', accountKey: null, target: 'lain' },
         title: 'lain',
       }),
     ]);

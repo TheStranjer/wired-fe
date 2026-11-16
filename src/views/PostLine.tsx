@@ -6,17 +6,21 @@
  * thing. Nothing here holds state: the clock format, the label, the selection and
  * the open content warnings all come from the app state, and a click asks the one
  * reducer for the transition. When the selection moves onto the row, the view
- * keeps that row in view.
+ * keeps that row in view. Clicking the nick opens the author's profile window
+ * (WFE-106) — for a boost, the author of the original it shows.
  */
 import { useEffect, useRef } from 'react';
 import type { JSX } from 'react';
 
 import { postView, type Viewer } from './postView';
+import type { Account } from '../api/schemas/account';
 import type { Status } from '../api/schemas/status';
 import type { AppState } from '../state/appState';
 import { labelForStatus } from '../state/bufferSelection';
+import { profileWindowOpen } from '../state/profileWindow';
 import { accountByKey, bufferFor, windowAccountKey } from '../state/selectors';
 import { useAppDispatch, useAppState } from '../state/StateContext';
+import type { Dispatch } from '../state/StateContext';
 import { PostRow } from '../ui/PostRow';
 
 /** The viewer of a window's lines: the account it belongs to, or nobody. */
@@ -28,9 +32,26 @@ export function viewerFor(state: AppState, windowId: string): Viewer {
   return { origin: account.origin, accountId: account.accountId };
 }
 
-/** Nothing yet: a later ticket opens the author's profile window from here. */
-function selectAuthor(): void {
-  // Opening a window is the window layer's move, which this view does not own.
+/** The account the row shows as its author: the boosted original's, for a boost. */
+function authorOf(status: Status): Account {
+  return (status.reblog ?? status).account;
+}
+
+/**
+ * The nick click's move: a handler asking for {@link status}'s author's
+ * profile window, owned by the window's own account (src/state/profileWindow).
+ */
+function openAuthor(
+  status: Status,
+  acting: { readonly state: AppState; readonly windowId: string },
+  go: Dispatch,
+): () => void {
+  return () => {
+    go({
+      type: 'windows',
+      action: profileWindowOpen(authorOf(status), windowAccountKey(acting.state, acting.windowId)),
+    });
+  };
 }
 
 /**
@@ -88,7 +109,7 @@ export function PostLine(props: PostLineProps): JSX.Element {
       onSelect={() => {
         dispatch({ type: 'select', windowId, key: lineKey });
       }}
-      onSelectAuthor={selectAuthor}
+      onSelectAuthor={openAuthor(status, { state, windowId }, dispatch)}
       onToggleReveal={() => {
         dispatch({ type: 'toggleReveal', windowId, key: lineKey });
       }}
