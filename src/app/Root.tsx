@@ -9,7 +9,9 @@
  * and the command registry are each collected once, when this module loads; a
  * load that failed prints its reason into the status window once, on mount,
  * beside the one startup run (the greeting, the restored accounts and their
- * instances) that boots there.
+ * instances) that boots there. Root is also where Tab's completion providers
+ * meet (WFE-124): the registry's commands, the handles and tags the buffers
+ * have shown, and the active account's instance's custom emoji.
  */
 
 import { useEffect, useState } from 'react';
@@ -21,6 +23,7 @@ import { Shell } from './Shell';
 import { useClock } from './useClock';
 import { useStartup } from './useStartup';
 import { loadWindowKinds } from './windowKinds';
+import { type Provider, commandProvider } from '../commands/complete';
 import type { Result } from '../lib/result';
 import type { ClockFormat } from '../lib/time';
 import type { AppState } from '../state/appState';
@@ -32,6 +35,8 @@ import { StatusLine } from '../ui/StatusLine';
 import type { StatusLineWindow } from '../ui/StatusLine';
 import { SystemLine } from '../ui/SystemLine';
 import { TopicBar } from '../ui/TopicBar';
+import { emojiProvider, handleProvider, tagProvider } from '../views/completionProviders';
+import { useCustomEmojis } from '../views/useCustomEmojis';
 import { STATUS_WINDOW_ID, activeWindow } from '../windows/model';
 import type { WindowKind, WindowState } from '../windows/model';
 
@@ -78,6 +83,20 @@ function statusWindows(state: AppState): readonly StatusLineWindow[] {
   }));
 }
 
+/** The active account's instance's custom emoji list, as ./useCustomEmojis answers it. */
+type EmojiList = ReturnType<typeof useCustomEmojis>;
+
+/**
+ * The words Tab may complete to (decision 6, WFE-124): commands from the one
+ * registry first, then what the buffers have seen and what the account's
+ * instance serves; without a loadable registry there are no commands to
+ * offer, and the rest stands on its own.
+ */
+function completionProviders(state: AppState, emojis: EmojiList): readonly Provider[] {
+  const seen = [handleProvider(state), tagProvider(state), emojiProvider(emojis)];
+  return REGISTRY.ok ? [commandProvider(REGISTRY.value), ...seen] : seen;
+}
+
 /** The topic bar: the window's title, its account and its kind's topic. */
 function Topic(props: RegionProps): JSX.Element {
   const { win, state } = props;
@@ -118,6 +137,7 @@ export function Root(): JSX.Element {
   const dispatch = useAppDispatch();
   const active = activeWindow(state.windows);
   const clock = useClock(state.settings.clockFormat);
+  const emojis = useCustomEmojis(state.activeAccountKey);
   useStartup();
 
   useEffect(() => {
@@ -150,7 +170,7 @@ export function Root(): JSX.Element {
           }}
         />
       }
-      input={<CommandLine />}
+      input={<CommandLine completion={completionProviders(state, emojis)} />}
     />
   );
 }

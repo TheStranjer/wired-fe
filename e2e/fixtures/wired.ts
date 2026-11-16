@@ -2,8 +2,8 @@
  * The fake Wired instance for the end-to-end login flow (decisions 5 and 8):
  * the route handlers `page.route` needs for the same-origin build — NodeInfo,
  * instance documents, OAuth, `verify_credentials`, the home timeline, the
- * notifications list, status creation. Bodies follow Wired's shapes, the ones
- * src/api's fixtures show.
+ * notifications and custom emoji lists, and status creation. Bodies follow
+ * Wired's shapes, the ones src/api's fixtures show.
  */
 
 import type { Page, Request, Route } from '@playwright/test';
@@ -93,11 +93,9 @@ async function json(route: Route, body: unknown, status = 200): Promise<void> {
 /** The `status` text of a posted-status request body; '' when it has none. */
 function postedText(request: Request): string {
   const body: unknown = request.postDataJSON();
-  if (typeof body !== 'object' || body === null || !('status' in body)) {
-    return '';
-  }
-  const text: unknown = body.status;
-  return typeof text === 'string' ? text : '';
+  const sent: unknown =
+    typeof body === 'object' && body !== null && 'status' in body ? body.status : '';
+  return typeof sent === 'string' ? sent : '';
 }
 
 let posts = 0;
@@ -184,6 +182,9 @@ function routeSession(page: Page): readonly Promise<unknown>[] {
       await json(route, homeTimeline());
     }),
     page.route('**/api/v1/notifications*', async (route) => {
+      await json(route, []);
+    }),
+    page.route('**/api/v1/custom_emojis', async (route) => {
       await json(route, []);
     }),
     page.route('**/api/v1/statuses*', async (route) => {

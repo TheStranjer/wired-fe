@@ -79,6 +79,9 @@ function serveEmptyHomeTimeline(): void {
     http.get(HOME_TIMELINE, () => {
       return HttpResponse.json([]);
     }),
+    http.get('https://wired.example/api/v1/custom_emojis', () => {
+      return HttpResponse.json([]);
+    }),
   );
 }
 
