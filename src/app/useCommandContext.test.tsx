@@ -9,7 +9,6 @@
  */
 import { act, renderHook } from '@testing-library/react';
 import type { RenderHookResult } from '@testing-library/react';
-import type { JSX, ReactNode } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
 import { appRegistry } from './registry';
@@ -17,12 +16,13 @@ import { appStores } from './stores';
 import { useCommandContext } from './useCommandContext';
 import type { CommandContext, Registry } from '../commands/types';
 import { buildConfig } from '../config/config';
-import { initialAppState } from '../state/appState';
 import type { AppState } from '../state/appState';
 import type { SystemLineData } from '../state/buffer';
-import { type AppAction, appReducer } from '../state/reducer';
+import type { AppAction } from '../state/reducer';
 import { bufferFor } from '../state/selectors';
-import { AppStateProvider, useAppState } from '../state/StateContext';
+import { useAppState } from '../state/StateContext';
+import { seeded, stateAfter } from '../test/appSessions';
+import { fakeAttachments } from '../test/commandContext';
 import { STATUS_WINDOW_ID, windowId } from '../windows/model';
 import type { WindowKind, WindowRef, WindowState } from '../windows/model';
 import type { WindowsAction } from '../windows/reducer';
@@ -44,24 +44,15 @@ const NO_KIND: WindowRef = {
 /** The message a window whose kind takes no posts gets back. */
 const NO_POST = "You can't post in this window. Try /home";
 
+/** The pending-media stub every context built here carries. */
+const NO_MEDIA = fakeAttachments();
+
 /** The hook's two halves: the context under test and the state it dispatches into. */
 type Hook = { readonly context: CommandContext; readonly state: AppState };
 
 /** One action for the window list. */
 function win(action: WindowsAction): AppAction {
   return { type: 'windows', action };
-}
-
-/** A fresh session moved along by {@link actions}. */
-function stateAfter(actions: readonly AppAction[]): AppState {
-  return actions.reduce(appReducer, initialAppState());
-}
-
-/** The provider wrapper that seeds the hook with {@link actions}. */
-function seeded(actions: readonly AppAction[]) {
-  return function Wrapper({ children }: { readonly children: ReactNode }): JSX.Element {
-    return <AppStateProvider initial={stateAfter(actions)}>{children}</AppStateProvider>;
-  };
 }
 
 /** The system lines of window {@link id}, oldest first. */
@@ -87,7 +78,7 @@ function renderContext(
   openComposer: (initialText: string) => void = () => undefined,
 ): RenderHookResult<Hook, unknown> {
   return renderHook(
-    () => ({ context: useCommandContext(setInput, openComposer), state: useAppState() }),
+    () => ({ context: useCommandContext(setInput, openComposer, NO_MEDIA), state: useAppState() }),
     { wrapper: seeded(actions) },
   );
 }
@@ -215,5 +206,6 @@ describe(useCommandContext, () => {
     expect(context.stores).toBe(appStores());
     expect(context.now()).toBeInstanceOf(Date);
     expect(context.state).toStrictEqual(stateAfter([]));
+    expect(context.attachments).toBe(NO_MEDIA);
   });
 });

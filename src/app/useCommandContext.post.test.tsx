@@ -1,8 +1,10 @@
 /**
  * How a post reaches the window kind that does answer: the context looks the
  * active window's kind up and calls its `onPost` with the draft, the window and
- * a post context, and hands back whatever that handler said. The shipped bundle
- * has no such kind yet, so these kinds are a test double.
+ * a post context, and hands back whatever that handler said. Pending media
+ * (WFE-126) rides on drafts that name none of their own, and a send that
+ * worked takes the pending list with it. The shipped bundle has no such kind
+ * yet, so these kinds are a test double.
  */
 import { renderHook } from '@testing-library/react';
 import type { JSX, ReactNode } from 'react';
@@ -14,8 +16,28 @@ import { initialAppState } from '../state/appState';
 import { type AppAction, appReducer } from '../state/reducer';
 import { AppStateProvider } from '../state/StateContext';
 import type { WindowKindDefinition } from '../state/windowKind';
+import { fakeAttachments } from '../test/commandContext';
 import { windowId } from '../windows/model';
 import type { WindowKind, WindowRef } from '../windows/model';
+
+/** The media list no test in this file cares about. */
+const NO_MEDIA = fakeAttachments();
+
+/** One pending attachment's shape, without reaching into api (AGENTS.md "Layout"). */
+type Pending = CommandContext['attachments']['pending'][number];
+
+/** One finished attachment, only its id matters here. */
+function attachment(id: string): Pending {
+  return {
+    id,
+    type: 'image',
+    url: `https://wired.example/m/${id}`,
+    preview_url: null,
+    remote_url: null,
+    description: null,
+    blurhash: null,
+  };
+}
 
 /** A window of the kind whose post handler records what it was asked for. */
 const HOME: WindowRef = { kind: 'home', accountKey: null, target: null };
@@ -28,7 +50,7 @@ const REFUSAL = 'Nothing to reply to';
 
 /** The fake kinds and what the home one was asked to post. */
 const KIND_STUBS = vi.hoisted(() => {
-  const posts: { text: string; windowId: string; ready: boolean }[] = [];
+  const posts: { text: string; windowId: string; ready: boolean; mediaIds: string[] }[] = [];
   const blank = (): null => null;
   const kinds = new Map<WindowKind, WindowKindDefinition>([
     [
@@ -42,6 +64,7 @@ const KIND_STUBS = vi.hoisted(() => {
             text: draft.text,
             windowId: window.id,
             ready: typeof postContext.dispatch === 'function' && postContext.now() instanceof Date,
+            mediaIds: [...(draft.mediaIds ?? [])],
           });
           return await Promise.resolve(null);
         },
@@ -75,8 +98,11 @@ function showing(ref: WindowRef) {
 }
 
 /** The context of a session whose active window is the one {@link ref} names. */
-function contextShowing(ref: WindowRef): CommandContext {
-  const { result } = renderHook(() => useCommandContext(vi.fn(), vi.fn()), {
+function contextShowing(
+  ref: WindowRef,
+  attachments: CommandContext['attachments'] = NO_MEDIA,
+): CommandContext {
+  const { result } = renderHook(() => useCommandContext(vi.fn(), vi.fn(), attachments), {
     wrapper: showing(ref),
   });
 
@@ -94,7 +120,7 @@ describe('useCommandContext through a window kind that posts', () => {
     await expect(context.post({ text: 'hello lain' })).resolves.toBeNull();
 
     expect(KIND_STUBS.posts).toStrictEqual([
-      { text: 'hello lain', windowId: windowId(HOME), ready: true },
+      { text: 'hello lain', windowId: windowId(HOME), ready: true, mediaIds: [] },
     ]);
   });
 
@@ -102,5 +128,41 @@ describe('useCommandContext through a window kind that posts', () => {
     const context = contextShowing(THREAD);
 
     await expect(context.post({ text: 'hello' })).resolves.toBe(REFUSAL);
+  });
+
+  it('gives the kind the pending media ids when the draft names none', async () => {
+    const attachments = fakeAttachments({ pending: [attachment('12'), attachment('13')] });
+    const context = contextShowing(HOME, attachments);
+
+    await expect(context.post({ text: 'look' })).resolves.toBeNull();
+
+    expect(KIND_STUBS.posts[0]?.mediaIds).toStrictEqual(['12', '13']);
+  });
+
+  it('keeps the media ids a draft carries by itself', async () => {
+    const attachments = fakeAttachments({ pending: [attachment('12')] });
+    const context = contextShowing(HOME, attachments);
+
+    await expect(context.post({ text: 'look', mediaIds: ['own'] })).resolves.toBeNull();
+
+    expect(KIND_STUBS.posts[0]?.mediaIds).toStrictEqual(['own']);
+  });
+
+  it('clears the pending list once a post is up', async () => {
+    const attachments = fakeAttachments({ pending: [attachment('12')] });
+    const context = contextShowing(HOME, attachments);
+
+    await context.post({ text: 'look' });
+
+    expect(attachments.clear).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps the pending list when the window refuses the post', async () => {
+    const attachments = fakeAttachments({ pending: [attachment('12')] });
+    const context = contextShowing(THREAD, attachments);
+
+    await expect(context.post({ text: 'look' })).resolves.toBe(REFUSAL);
+
+    expect(attachments.clear).not.toHaveBeenCalled();
   });
 });

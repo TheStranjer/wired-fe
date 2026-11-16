@@ -3,8 +3,9 @@
  * Root renders what the hook hands back. `/compose` and its chords ask for it
  * through the command context, and the box sends through the very post handler
  * plain text uses — a long post means whatever the active window says a post
- * means. The active account's instance sets the length limit and decides
- * whether the local audience is offered (decision 5).
+ * means, pending media and all (WFE-126). The active account's instance sets
+ * the length limit and decides whether the local audience is offered
+ * (decision 5).
  */
 
 import { useState } from 'react';
@@ -12,6 +13,7 @@ import type { JSX } from 'react';
 
 import { useCommandContext } from './useCommandContext';
 import { type Capabilities, hasFeature } from '../capabilities/capabilities';
+import type { CommandContext } from '../commands/types';
 import { capabilitiesFor } from '../state/selectors';
 import { useAppState } from '../state/StateContext';
 import { Overlay } from '../ui/Overlay';
@@ -48,7 +50,7 @@ export type ComposerOverlay = {
 };
 
 /** The composer overlay of this render: its open state, its opener, its element. */
-export function useComposerOverlay(): ComposerOverlay {
+export function useComposerOverlay(attachments: CommandContext['attachments']): ComposerOverlay {
   const state = useAppState();
   const [composer, setComposer] = useState<ComposerState>(NOT_OPEN);
   const openComposer = (initialText: string): void => {
@@ -57,7 +59,7 @@ export function useComposerOverlay(): ComposerOverlay {
   const closeComposer = (): void => {
     setComposer(NOT_OPEN);
   };
-  const { post } = useCommandContext(ignoreInput, openComposer);
+  const { post } = useCommandContext(ignoreInput, openComposer, attachments);
   const capabilities = capabilitiesFor(state, state.activeAccountKey);
   if (!composer.open) {
     return { openComposer, overlay: null };

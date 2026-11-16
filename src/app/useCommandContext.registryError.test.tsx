@@ -9,6 +9,7 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { useCommandContext } from './useCommandContext';
 import { AppStateProvider } from '../state/StateContext';
+import { fakeAttachments } from '../test/commandContext';
 
 vi.mock(import('./registry'), () => ({
   appRegistry: () => ({ ok: false, error: './defs/x.ts does not export a command' }),
@@ -16,7 +17,7 @@ vi.mock(import('./registry'), () => ({
 
 describe(useCommandContext, () => {
   it('builds a context with no commands in it when the registry failed', () => {
-    const { result } = renderHook(() => useCommandContext(vi.fn(), vi.fn()), {
+    const { result } = renderHook(() => useCommandContext(vi.fn(), vi.fn(), fakeAttachments()), {
       wrapper: AppStateProvider,
     });
 
