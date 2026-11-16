@@ -1,0 +1,16 @@
+/* The drop highlight: a dashed accent frame over the whole viewport with the
+   call to action centred in it. The background stays translucent, from tokens
+   only, so the live UI shows through, and pointer-events: none lets the drag
+   land on the window underneath. */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  border: 2px dashed var(--color-accent);
+  background: color-mix(in srgb, var(--color-bg) 85%, transparent);
+  color: var(--color-accent);
+  pointer-events: none;
+}
