@@ -2,8 +2,8 @@
  * Tests for the shell wired to real state: the status window with its kind's
  * topic, the account handles in the topic bar and the status line, the status
  * line's clock, mode and window entries, switching a window by clicking its
- * entry, the notice for a window kind no feature implements, and the command
- * line handing every line to the dispatcher — /help printing the command list,
+ * entry, and the command line handing every line to the dispatcher — /help
+ * printing the command list,
  * an unknown command printing its error, plain text in the status window
  * printing the refusal to post, /clear emptying the buffer, and the line
  * clearing itself once the command is done with.
@@ -153,20 +153,6 @@ describe(Root, () => {
     expect(screen.getByRole('log', { name: 'home' })).toBeInTheDocument();
     expect(screen.queryByRole('log', { name: 'status' })).toBeNull();
     expect(within(banner()).getByText('home')).toBeInTheDocument();
-  });
-
-  it('shows a notice when the window kind has no view', () => {
-    renderRoot([
-      win({
-        type: 'open',
-        ref: { kind: 'search', accountKey: null, target: 'lain' },
-        title: 'lain',
-      }),
-    ]);
-
-    const log = screen.getByRole('log', { name: 'lain' });
-
-    expect(within(log).getByText('No view for this window')).toBeInTheDocument();
   });
 
   it('prints the command list into the active window when /help runs', async () => {
