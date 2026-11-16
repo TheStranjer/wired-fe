@@ -57,17 +57,29 @@ function splitHandleAndText(args: string): readonly [word: string, text: string]
   return HANDLE.test(word) ? [word, trimmed.slice(gap).trim()] : null;
 }
 
-/** The form the message mentions and a dm window is keyed by: always `@user@host`. */
+/** The form the message mentions: always `@user@host`; dm windows drop the `@`. */
 function mentionOf(word: string): string {
   return word.startsWith('@') ? word : `@${word}`;
 }
 
-/** The open `dm` window whose target is {@link mention} (any case); null when none is. */
+/** {@link word} without its leading `@`: the form /query keys a dm window by. */
+function bareHandle(word: string): string {
+  return word.startsWith('@') ? word.slice(1) : word;
+}
+
+/**
+ * The open `dm` window whose target is {@link mention} (any case, with or
+ * without the leading `@` — /query keys its windows without one); null when
+ * none is.
+ */
 function dmWindow(context: CommandContext, mention: string): WindowState | null {
-  const wanted = mention.toLowerCase();
+  const wanted = bareHandle(mention).toLowerCase();
   return (
     context.windows.windows.find(
-      (win) => win.ref.kind === 'dm' && win.ref.target?.toLowerCase() === wanted,
+      (win) =>
+        win.ref.kind === 'dm' &&
+        win.ref.target !== null &&
+        bareHandle(win.ref.target).toLowerCase() === wanted,
     ) ?? null
   );
 }

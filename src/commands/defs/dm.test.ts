@@ -156,6 +156,21 @@ describe('/dm', () => {
     });
   });
 
+  it('adds the answer to the dm window /query opened, keyed without the @', async () => {
+    const created = status('new');
+    serveCreate(created);
+    const context = withDmWindow(signedIn([LAIN]), 'alice@other.example');
+
+    await expect(command.run(`${ALICE} hi`, context)).resolves.toStrictEqual({ ok: true });
+
+    expect(context.dispatch).toHaveBeenCalledWith({
+      type: 'statuses',
+      windowId: windowId(dmRef('alice@other.example')),
+      statuses: [created],
+      where: 'newer',
+    });
+  });
+
   it('leaves the window list alone when no dm window is open', async () => {
     serveCreate(status('new'));
     const context = signedIn([LAIN]);

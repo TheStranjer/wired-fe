@@ -22,6 +22,7 @@ const EXPECTED = [
   'more',
   'notifications',
   'open',
+  'query',
   'select',
   'tag',
   'thread',

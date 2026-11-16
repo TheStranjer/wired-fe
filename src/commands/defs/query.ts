@@ -1,0 +1,75 @@
+/**
+ * `/query <@handle>` (alias `/q`; decision 6, AGENTS.md "Windows, like IRC
+ * buffers"): open a private conversation as its own window, the way IRC's
+ * `/query nick` opens a dialog buffer. The word has to look like a handle —
+ * `@user@host`, `user@host`, or `@user`/`user` for the acting instance's own
+ * people — and it is normalized without its leading `@` and lowercased,
+ * because the window is keyed by that form: querying somebody twice activates
+ * the window that already shows the conversation, and ./useDirect matches the
+ * same form against the `acct` each conversation reports. The window is owned
+ * by the active account, titled `dm/<handle>`, and plain text typed into it
+ * posts direct to that handle (src/features/dm). Without an account there is
+ * nobody to be in a conversation with, so after the handle is checked the
+ * command says what to type instead.
+ */
+
+import { activeAccount } from '../../state/selectors';
+import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
+
+/** The command's grammar: /help shows it, a bare argument echoes it. */
+const USAGE = '/query <@handle>';
+
+/** The window is open, or was already and is active now. */
+const OK: CommandOutcome = { ok: true };
+
+/** Shown when nobody is signed in: there is no account to hold a conversation. */
+const NOT_LOGGED_IN: CommandOutcome = {
+  ok: false,
+  message: 'Not logged in. Type /connect',
+};
+
+/** A normalized handle: `user`, or `user@host`; letters, digits, `.`, `_`, `-`, `~`. */
+const HANDLE = /^[\w.~-]+(?:@[\w.~-]+)?$/u;
+
+/** A failure saying {@link message}. */
+function fail(message: string): CommandOutcome {
+  return { ok: false, message };
+}
+
+/**
+ * The argument as the window keys its target: trimmed, minus one leading `@`
+ * if it has one, lowercased — or null when nothing is left to name or what
+ * is left does not look like a handle.
+ */
+function normalizeHandle(args: string): string | null {
+  const trimmed = args.trim();
+  const word = trimmed.startsWith('@') ? trimmed.slice(1) : trimmed;
+  return HANDLE.test(word) ? word.toLowerCase() : null;
+}
+
+/** Normalize the handle, then ask the window list for the active account's DM window. */
+function handle(args: string, context: CommandContext): CommandOutcome {
+  const target = normalizeHandle(args);
+  if (target === null) {
+    return fail(`Usage: ${USAGE}`);
+  }
+  const account = activeAccount(context.state);
+  if (account === null) {
+    return NOT_LOGGED_IN;
+  }
+  context.dispatchWindows({
+    type: 'open',
+    ref: { kind: 'dm', accountKey: account.key, target },
+    title: `dm/${target}`,
+  });
+  return OK;
+}
+
+/** The `/query` (alias `/q`) definition. */
+export const command: CommandDefinition = {
+  name: 'query',
+  aliases: ['q'],
+  usage: USAGE,
+  summary: 'Open a private conversation window',
+  run: async (args, context) => await Promise.resolve(handle(args, context)),
+};
