@@ -2,10 +2,11 @@
  * Tests for the shared line views: a client message as stored, a post row seen
  * through its window's account, and a notification as the client message it is
  * until its own view lands. Each renders inside AppStateProvider over a state
- * holding one window and one buffer with a line of every kind, and the reader's
- * own moves — selection, content-warning reveal, and keeping a new selection
- * in view (asserted in ./LineView.scroll.test.tsx) — are asserted on the
- * rendered row, since the real reducer is what the view dispatches to.
+ * holding one window and one buffer with a line of every kind, and the
+ * reader's own moves — selection, content-warning reveal, keeping a new
+ * selection in view (./LineView.scroll.test.tsx) and the nick click that opens
+ * a profile window (./LineView.profile.test.tsx) — are asserted on the rendered
+ * row, since the real reducer is what the view dispatches to.
  */
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
@@ -175,16 +176,6 @@ describe(LineView, () => {
     renderLine(chosen, lineOf(chosen, 'post'));
 
     expect(screen.getByRole('article')).toHaveAttribute('aria-current', 'true');
-  });
-
-  it('leaves the nick click to the ticket that opens profiles', () => {
-    const state = seeded();
-
-    renderLine(state, lineOf(state, 'post'));
-
-    fireEvent.click(screen.getByRole('button', { name: '@lain@wired.example' }));
-
-    expect(screen.getByRole('article')).not.toHaveAttribute('aria-current');
   });
 
   it('prints a notification as the sentence naming what the actor did', () => {
