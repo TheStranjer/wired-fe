@@ -9,6 +9,7 @@
 
 import type { Capabilities } from '../../capabilities/capabilities';
 import type { InstanceProfile } from '../../capabilities/detect';
+import { formatDuration } from '../../lib/duration';
 import { activeAccount } from '../../state/selectors';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
@@ -20,26 +21,6 @@ const NOT_CONNECTED: CommandOutcome = {
   ok: false,
   message: 'Not connected. Type /connect',
 };
-
-/** The duration units from largest to smallest: seconds per unit, and suffix. */
-const DURATION_UNITS: readonly (readonly [number, string])[] = [
-  [86_400, 'd'],
-  [3_600, 'h'],
-  [60, 'm'],
-];
-
-/**
- * Format {@link seconds} as a whole number of the largest unit it reaches:
- * `5m`, `1h`, `30d`. Anything shorter than a minute counts in seconds.
- */
-function formatDuration(seconds: number): string {
-  const unit = DURATION_UNITS.find(([size]) => seconds >= size);
-  if (unit === undefined) {
-    return `${String(seconds)}s`;
-  }
-  const [size, suffix] = unit;
-  return `${String(Math.floor(seconds / size))}${suffix}`;
-}
 
 /** The `features:` line: the advertised flags in order, or none at all. */
 function featuresLine(capabilities: Capabilities): string {
