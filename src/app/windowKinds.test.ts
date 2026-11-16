@@ -149,4 +149,8 @@ describe(loadWindowKinds, () => {
   it('includes the hashtag kind /tag opens a window with', () => {
     expect([...loaded().keys()]).toContain('hashtag');
   });
+
+  it('includes the thread kind /thread opens a window with', () => {
+    expect([...loaded().keys()]).toContain('thread');
+  });
 });

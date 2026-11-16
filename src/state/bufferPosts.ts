@@ -17,8 +17,12 @@ import { assignLabel, type LabelBook } from '../windows/labels';
 /** Which end of the scrollback a fetched page of statuses joins. */
 export type Where = 'newer' | 'older';
 
-/** The key of the post line carrying status `id`, stable for the buffer's life. */
-function postKey(id: string): string {
+/**
+ * The key of the post line carrying status `id`, stable for the buffer's
+ * life. Exported so a loader that must select one status's line (a thread's
+ * target, src/features/thread) names the very key the buffer grew for it.
+ */
+export function postKey(id: string): string {
   return `post:${id}`;
 }
 
