@@ -20,6 +20,7 @@ const EXPECTED = [
   'home',
   'local',
   'more',
+  'notifications',
   'open',
   'select',
   'win',

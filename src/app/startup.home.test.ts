@@ -1,10 +1,12 @@
 /**
- * Startup opening a home window for every restored account: the asks come after
- * the accounts are in the state, one per account, each titled the way /home
- * titles it — plain `home` for the active account, `home/<username>` for the
- * others — and the active account's window opened last, because opening a window
- * is what makes it the one the reader is looking at. A build with no accounts
- * opens nothing, and none of this prints a line.
+ * Startup opening a home window and a notifications window for every restored
+ * account: the asks come after the accounts are in the state, each account's
+ * notifications right after its home, every window titled the way its command
+ * titles it — plain `home` and `notifs` for the active account,
+ * `home/<username>` and `notifs/<username>` for the others — and the active
+ * account's pair opened last, because opening a window is what makes it the one
+ * the reader is looking at. A build with no accounts opens nothing, and none of
+ * this prints a line.
  */
 import { describe, expect, it, vi, type Mock } from 'vitest';
 
@@ -44,6 +46,19 @@ const ACCOUNT_B: StoredAccount = {
 /** The home view of {@link account}, as the window list names it. */
 function homeOf(account: StoredAccount): WindowRef {
   return { kind: 'home', accountKey: account.key, target: null };
+}
+
+/** The notifications view of {@link account}, as the window list names it. */
+function notifsOf(account: StoredAccount): WindowRef {
+  return { kind: 'notifications', accountKey: account.key, target: null };
+}
+
+/** The home-then-notifications pair {@link account} is opened with, titled as given. */
+function pairOf(account: StoredAccount, homeTitle: string, notifsTitle: string) {
+  return [
+    { type: 'open' as const, ref: homeOf(account), title: homeTitle },
+    { type: 'open' as const, ref: notifsOf(account), title: notifsTitle },
+  ];
 }
 
 /** The Wired lounge at {@link origin}. */
@@ -117,35 +132,41 @@ function windowsAfter(asks: readonly WindowsAction[]): WindowsState {
   return asks.reduce(windowsReducer, initialWindowsState());
 }
 
-describe('startup opening home windows', () => {
-  it('opens each account’s home window, the active one last and titled plain', async () => {
+describe('startup opening account windows', () => {
+  it('opens each account’s home and notifications pair, the active account’s last', async () => {
     const asks = windowAsks(await start([ACCOUNT_A, ACCOUNT_B], ACCOUNT_A.key));
 
     expect(asks).toStrictEqual([
-      { type: 'open', ref: homeOf(ACCOUNT_B), title: 'home/sam' },
-      { type: 'open', ref: homeOf(ACCOUNT_A), title: 'home' },
+      ...pairOf(ACCOUNT_B, 'home/sam', 'notifs/sam'),
+      ...pairOf(ACCOUNT_A, 'home', 'notifs'),
     ]);
   });
 
-  it('lands the reader on the active account’s home window', async () => {
+  it('lands the reader on the active account’s notifications window', async () => {
     const windows = windowsAfter(windowAsks(await start([ACCOUNT_A, ACCOUNT_B], ACCOUNT_A.key)));
 
-    expect(windows.activeId).toBe(windowId(homeOf(ACCOUNT_A)));
-    expect(windows.windows.map((win) => win.title)).toStrictEqual(['status', 'home/sam', 'home']);
+    expect(windows.activeId).toBe(windowId(notifsOf(ACCOUNT_A)));
+    expect(windows.windows.map((win) => win.title)).toStrictEqual([
+      'status',
+      'home/sam',
+      'notifs/sam',
+      'home',
+      'notifs',
+    ]);
   });
 
-  it('opens one plain home window for the only account', async () => {
-    expect(windowAsks(await start([ACCOUNT_A], ACCOUNT_A.key))).toStrictEqual([
-      { type: 'open', ref: homeOf(ACCOUNT_A), title: 'home' },
-    ]);
+  it('opens one plain pair for the only account', async () => {
+    expect(windowAsks(await start([ACCOUNT_A], ACCOUNT_A.key))).toStrictEqual(
+      pairOf(ACCOUNT_A, 'home', 'notifs'),
+    );
   });
 
   it('titles every window by username while no account is active', async () => {
     const asks = windowAsks(await start([ACCOUNT_A, ACCOUNT_B], null));
 
     expect(asks).toStrictEqual([
-      { type: 'open', ref: homeOf(ACCOUNT_A), title: 'home/lain' },
-      { type: 'open', ref: homeOf(ACCOUNT_B), title: 'home/sam' },
+      ...pairOf(ACCOUNT_A, 'home/lain', 'notifs/lain'),
+      ...pairOf(ACCOUNT_B, 'home/sam', 'notifs/sam'),
     ]);
   });
 

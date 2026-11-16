@@ -1,12 +1,14 @@
 /**
  * The windows one account owns (AGENTS.md "Windows, like IRC buffers"): the
  * transition that opens an account's view of a window kind and the title the
- * status line lists it with. Home, local and federated windows differ only in
- * which kind they show, so the naming rule lives here in the pure state layer —
- * the lowest one the command layer and the app share; a window kind is a
- * feature, and commands may not import features (AGENTS.md "Layout"). Your own
- * window is titled with its kind, `home` or `local`; another account's takes
- * the username the way `dm/bob` names a second buffer (src/ui/StatusLine.tsx).
+ * status line lists it with. Home, local, federated and notifications windows
+ * differ in which kind they show and what they are titled with — `notifs`,
+ * not `notifications` (src/state/notificationsWindow) — so the naming rule
+ * lives here in the pure state layer, the lowest one the command layer and the
+ * app share; a window kind is a feature, and commands may not import features
+ * (AGENTS.md "Layout"). Your own window is titled plain, `home` or `local`;
+ * another account's takes the username the way `dm/bob` names a second buffer
+ * (src/ui/StatusLine.tsx).
  */
 
 import type { StoredAccount } from '../accounts/accountStore';
@@ -20,17 +22,20 @@ function usernameOf(handle: string): string {
 }
 
 /** The view of {@link kind} that {@link account} owns, with nothing to target. */
-function accountWindowRef(kind: WindowKind, account: StoredAccount): WindowRef {
+export function accountWindowRef(kind: WindowKind, account: StoredAccount): WindowRef {
   return { kind, accountKey: account.key, target: null };
 }
 
-/** The title of {@link account}'s {@link kind} window: plain while it is the active account's own. */
-function accountWindowTitle(
-  kind: WindowKind,
+/**
+ * The title of {@link account}'s window shown under {@link label}: plain while
+ * it is the active account's own, `label/<username>` for another's.
+ */
+export function accountWindowTitle(
+  label: string,
   account: StoredAccount,
   activeKey: string | null,
 ): string {
-  return account.key === activeKey ? kind : `${kind}/${usernameOf(account.handle)}`;
+  return account.key === activeKey ? label : `${label}/${usernameOf(account.handle)}`;
 }
 
 /**

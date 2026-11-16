@@ -1,9 +1,10 @@
 /**
  * The whole first session against the fake Wired instance (decisions 3, 5, 6
  * and 8, e2e/fixtures/wired): `/connect` walks the OAuth redirect back, the
- * status window reports the login, the home window shows the fixture posts,
- * and plain text on the command line becomes a post at the bottom of home —
- * all of it with the console as silent as in ./boot.spec.
+ * status window reports the login, startup has opened a home and a
+ * notifications window for the account and the home window shows the fixture
+ * posts, and plain text on the command line becomes a post at the bottom of
+ * home — all of it with the console as silent as in ./boot.spec.
  */
 
 import { expect, test, type Locator, type Page } from '@playwright/test';
@@ -63,8 +64,14 @@ async function connect(page: Page): Promise<void> {
   await submit(page, '/connect');
 }
 
-/** Reads the loaded home window, then the login line in the status window. */
+/**
+ * Reads the loaded home window — opened second, but startup lands the reader
+ * on the notifications window third — then the login line in the status
+ * window, then returns to home for the post.
+ */
 async function readWindows(page: Page): Promise<void> {
+  await expect(windowEntry(page, 'Window 3: notifs')).toBeVisible();
+  await windowEntry(page, 'Window 2: home').click();
   const home = homeLog(page);
   await expect(home.getByText('She is here.')).toBeVisible();
   await expect(home.getByText('the LAN is all one network')).toBeVisible();
