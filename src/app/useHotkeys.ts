@@ -8,9 +8,10 @@
  * same dispatcher and the same text handler the command line itself uses, so
  * the hotkey and the typed command are one path. A prefill chord instead
  * fills its line into the command line for the user to finish, `{label}`
- * standing for the selected post's label. Bindings the keymap refused to
- * install are printed into the status window as `warn` lines once, on mount:
- * the shell boots and says what is missing.
+ * standing for the selected post's label. Keys pressed inside an open modal
+ * dialog never reach the keymap: the dialog owns them (WFE-125). Bindings the
+ * keymap refused to install are printed into the status window as `warn`
+ * lines once, on mount: the shell boots and says what is missing.
  */
 
 import { useEffect, useMemo, useRef } from 'react';
@@ -158,7 +159,9 @@ function placeCaret(input: HTMLInputElement, text: string): void {
  * prefill line, which fills the command line, switches to insert mode and
  * carries the caret behind the new text (true); or nothing, which leaves the
  * key to type, focus and scroll as usual (false). {@link inputRef} is the
- * command line, so the modes and prefills can move the caret in it.
+ * command line, so the modes and prefills can move the caret in it. A chord
+ * pressed inside an open modal dialog is always left alone: the dialog owns
+ * its keys (WFE-125).
  */
 export function useHotkeys(
   inputRef: RefObject<HTMLInputElement | null>,

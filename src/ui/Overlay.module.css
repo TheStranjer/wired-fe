@@ -1,0 +1,21 @@
+/* The modal box: a full-screen backdrop with the dialog framed in the
+   middle of it. */
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: var(--color-bg);
+}
+
+.box {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space);
+  width: min(72ch, calc(100% - var(--space) * 2));
+  padding: calc(var(--space) * 2);
+  border: 1px solid var(--color-accent);
+  background: var(--color-bar-bg);
+  color: var(--color-bar-fg);
+}

@@ -76,7 +76,9 @@ function showing(ref: WindowRef) {
 
 /** The context of a session whose active window is the one {@link ref} names. */
 function contextShowing(ref: WindowRef): CommandContext {
-  const { result } = renderHook(() => useCommandContext(vi.fn()), { wrapper: showing(ref) });
+  const { result } = renderHook(() => useCommandContext(vi.fn(), vi.fn()), {
+    wrapper: showing(ref),
+  });
 
   return result.current;
 }

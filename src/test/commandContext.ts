@@ -74,6 +74,7 @@ export function fakeCommandContext(overrides: Partial<CommandContext> = {}): Com
     now: vi.fn<CommandContext['now']>().mockReturnValue(FIXED_NOW),
     post: vi.fn<CommandContext['post']>().mockResolvedValue(null),
     setInput: vi.fn(),
+    openComposer: vi.fn(),
     navigate: vi.fn(),
     page: EXAMPLE_PAGE,
     config: EXAMPLE_CONFIG,

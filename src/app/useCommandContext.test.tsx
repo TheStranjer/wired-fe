@@ -2,10 +2,10 @@
  * Tests for the context the app builds for one render: printing into the active
  * window at the asked level, the window list and the actions commands ask it
  * for, clearing the active window, refusing to post where no shipped window
- * kind takes posts, and the page, configuration, registry, stores and clock
- * every command reads. The kinds here are the real ones: the status window and
- * the home window, and only that second one posts. How posting reaches a kind
- * that does answer is in useCommandContext.post.test.tsx.
+ * kind takes posts, opening the composer, and the page, config, registry,
+ * stores and clock commands read. The kinds are the real ones: status and home,
+ * and only that second one posts. How posting reaches a kind that does
+ * answer is in useCommandContext.post.test.tsx.
  */
 import { act, renderHook } from '@testing-library/react';
 import type { RenderHookResult } from '@testing-library/react';
@@ -84,10 +84,12 @@ function registry(): Registry {
 function renderContext(
   actions: readonly AppAction[],
   setInput: (text: string) => void,
+  openComposer: (initialText: string) => void = () => undefined,
 ): RenderHookResult<Hook, unknown> {
-  return renderHook(() => ({ context: useCommandContext(setInput), state: useAppState() }), {
-    wrapper: seeded(actions),
-  });
+  return renderHook(
+    () => ({ context: useCommandContext(setInput, openComposer), state: useAppState() }),
+    { wrapper: seeded(actions) },
+  );
 }
 
 describe(useCommandContext, () => {
@@ -174,6 +176,15 @@ describe(useCommandContext, () => {
     context.setInput('/dm @lain@wired.example hi');
 
     expect(setInput).toHaveBeenCalledWith('/dm @lain@wired.example hi');
+  });
+
+  it('opens the composer through the callback it was handed', () => {
+    const openComposer = vi.fn();
+    const { context } = renderContext([], vi.fn(), openComposer).result.current;
+
+    context.openComposer('a long draft');
+
+    expect(openComposer).toHaveBeenCalledWith('a long draft');
   });
 
   it('navigates by giving the page a new address', () => {

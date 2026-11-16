@@ -2,12 +2,13 @@
  * Shape test for the command context (decision 6): the shared stub builder
  * compiles only while CommandContext is exactly what src/test/commandContext
  * assembles — print, the registry and the windows widened with the app state,
- * the one dispatch, posting, the command line, navigation, the page, the
- * config and the stores — and these assertions pin what the builder leaves in
- * every field by default, so widening or renaming one shows up here too.
+ * the one dispatch, posting, the command line, the composer overlay,
+ * navigation, the page, the config and the stores — and these assertions pin
+ * what the builder leaves in every field by default, so widening or renaming
+ * one shows up here too.
  */
 import * as v from 'valibot';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import type { CommandContext, PrintLevel } from './types';
 import { fakeCommandContext } from '../test/commandContext';
@@ -73,5 +74,18 @@ describe('CommandContext', () => {
     expect(context.print).toBe(print);
     expect(context.registry.commands).toStrictEqual([]);
     expect(context.windows.activeId).toBe('status');
+  });
+
+  it('opens the composer through a stub, or through whatever overrides it', () => {
+    const context: CommandContext = fakeCommandContext();
+
+    context.openComposer('draft');
+
+    expect(context.openComposer).toHaveBeenCalledWith('draft');
+
+    const openComposer = vi.fn();
+    fakeCommandContext({ openComposer }).openComposer('again');
+
+    expect(openComposer).toHaveBeenCalledWith('again');
   });
 });

@@ -1,0 +1,75 @@
+/* The composer box: the post text filling the top, its options in one row
+   below, and a failed send under them. */
+
+.composer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space);
+}
+
+.text {
+  min-height: calc(var(--line-height) * 8em);
+  padding: var(--space);
+  border: 1px solid var(--color-dim);
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font: inherit;
+  resize: vertical;
+}
+
+.options {
+  display: flex;
+  align-items: center;
+  gap: var(--space);
+}
+
+.warning {
+  flex: 1;
+  min-width: 0;
+  padding: 0 var(--space);
+  border: 1px solid var(--color-dim);
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font: inherit;
+}
+
+.select {
+  border: 1px solid var(--color-dim);
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font: inherit;
+}
+
+.count {
+  color: var(--color-dim);
+}
+
+.countOver {
+  color: var(--color-error);
+}
+
+.send {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--color-accent);
+  font: inherit;
+  cursor: pointer;
+}
+
+.send:disabled {
+  color: var(--color-dim);
+  cursor: default;
+}
+
+.error {
+  margin: 0;
+  color: var(--color-error);
+}
+
+.text:focus-visible,
+.warning:focus-visible,
+.select:focus-visible,
+.send:focus-visible {
+  outline: 1px solid var(--color-accent);
+}
