@@ -9,8 +9,9 @@
  * load prints its reason into the status window on mount, beside the startup
  * run that boots there. Tab's completion providers meet here (WFE-124), the
  * composer overlay for long posts (WFE-125) opens through
- * ./useComposerOverlay, ./useAttachments holds pending media (WFE-126), and
- * ./useDropAndPaste feeds it pasted and dropped files (WFE-127).
+ * ./useComposerOverlay, ./useAttachments holds pending media (WFE-126),
+ * ./useDropAndPaste feeds it pasted and dropped files (WFE-127), and
+ * ./useSettingsPersistence writes changed settings back to storage (WFE-129).
  */
 
 import { useEffect, useState } from 'react';
@@ -19,10 +20,12 @@ import type { JSX } from 'react';
 import { CommandLine } from './CommandLine';
 import { appRegistry } from './registry';
 import { Shell } from './Shell';
+import { appStores } from './stores';
 import { useAttachments } from './useAttachments';
 import { useClock } from './useClock';
 import { useComposerOverlay } from './useComposerOverlay';
 import { useDropAndPaste } from './useDropAndPaste';
+import { useSettingsPersistence } from './useSettingsPersistence';
 import { useStartup } from './useStartup';
 import { loadWindowKinds } from './windowKinds';
 import { type Provider, commandProvider } from '../commands/complete';
@@ -162,6 +165,7 @@ export function Root(): JSX.Element {
   const drop = useDropAndPaste(attachments);
   const composer = useComposerOverlay(attachments);
   useStartup();
+  useSettingsPersistence(state.settings, appStores().settings);
 
   useEffect(() => {
     for (const reason of [failure(KINDS), failure(REGISTRY)]) {

@@ -1,13 +1,13 @@
 /**
  * Startup: what the shell does the moment it mounts (AGENTS.md "Windows, like
- * IRC buffers"). It greets, completes an OAuth login the redirect may have
- * left in the address bar (decision 8), restores the persisted accounts into
- * the app state, opens a home window and a notifications window for each of
- * them, and asks every instance an account lives on what it turned out to be
- * (decision 5) — all through
- * injected dependencies, so the whole flow runs in a test without React,
- * storage or the network. Everything it says goes into the status window,
- * window 1, which is where every session begins.
+ * IRC buffers"). It restores the stored settings, greets, completes an OAuth
+ * login the redirect may have left in the address bar (decision 8), restores
+ * the persisted accounts into the app state, opens a home window and a
+ * notifications window for each of them, and asks every instance an account
+ * lives on what it turned out to be (decision 5) — all through injected
+ * dependencies, so the whole flow runs in a test without React, storage or
+ * the network. Everything it says goes into the status window, window 1,
+ * which is where every session begins.
  */
 
 import type { AppStores } from './stores';
@@ -22,6 +22,7 @@ import {
 import type { InstancesConfig, WiredConfig } from '../config/schema';
 import type { Result } from '../lib/result';
 import type { LineLevel } from '../state/buffer';
+import { DEFAULT_SETTINGS, SettingsSchema } from '../state/settings';
 import { openStartupWindows } from '../state/startupWindows';
 import type { Dispatch } from '../state/StateContext';
 import { STATUS_WINDOW_ID } from '../windows/model';
@@ -45,7 +46,7 @@ export type StartupLocation = {
 export type StartupDeps = {
   /** Asks the application's one reducer for a transition. */
   readonly dispatch: Dispatch;
-  /** The persisted stores; startup uses all but the settings one. */
+  /** The persisted stores; startup reads accounts and settings from them. */
   readonly stores: AppStores;
   /** The build-time configuration of this bundle (decision 3). */
   readonly config: WiredConfig;
@@ -66,6 +67,12 @@ function printStatus(deps: StartupDeps, text: string, level: LineLevel): void {
 function greet(deps: StartupDeps): void {
   printStatus(deps, `WIRED // ${deps.config.appName}`, 'info');
   printStatus(deps, 'Present day. Present time.', 'info');
+}
+
+/** The stored settings, or the defaults, restored before anything prints. */
+function loadSettings(deps: StartupDeps): void {
+  const stored = deps.stores.settings.get('settings', SettingsSchema);
+  deps.dispatch({ type: 'settings', settings: stored ?? DEFAULT_SETTINGS });
 }
 
 /** What a build with no accounts says about `/connect`, by instance mode (decision 3). */
@@ -158,13 +165,15 @@ async function finishPendingLogin(deps: StartupDeps): Promise<void> {
 }
 
 /**
- * Boot the session into the status window: greet, finish a login left in the
- * URL, then restore the stored accounts into the app state and open each one's
- * home and notifications window, and either hint at `/connect` (no accounts,
- * by instance mode) or detect each account's instance once — concurrently, one
- * report per origin — and announce every account, the active one marked.
+ * Boot the session into the status window: load the stored settings, greet,
+ * finish a login left in the URL, then restore the stored accounts into the
+ * app state and open each one's home and notifications window, and either
+ * hint at `/connect` (no accounts, by instance mode) or detect each account's
+ * instance once — concurrently, one report per origin — and announce every
+ * account, the active one marked.
  */
 export async function runStartup(deps: StartupDeps): Promise<void> {
+  loadSettings(deps);
   greet(deps);
   await finishPendingLogin(deps);
   const accounts = deps.stores.accounts.list();

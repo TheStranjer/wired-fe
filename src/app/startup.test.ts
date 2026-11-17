@@ -179,7 +179,7 @@ describe(runStartup, () => {
 
   it('prints into the status window, stamped at the injected moment', async () => {
     const dispatch = await start({});
-    const [greeting] = actionsOf(dispatch);
+    const greeting = actionsOf(dispatch).find((action) => action.type === 'print');
 
     expect(greeting).toStrictEqual({
       type: 'print',
