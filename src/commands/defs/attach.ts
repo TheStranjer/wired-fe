@@ -6,6 +6,7 @@
  * app's (src/app/useAttachments), reachable by mouse through the very dialog.
  */
 
+import { syncRun } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** The dialog is opening. */
@@ -23,5 +24,5 @@ export const command: CommandDefinition = {
   aliases: ['att'],
   usage: '/attach [alt text]',
   summary: 'Attach media to your next post',
-  run: async (args, context) => await Promise.resolve(handle(args, context)),
+  run: syncRun(handle),
 };

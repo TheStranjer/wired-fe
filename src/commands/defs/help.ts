@@ -7,6 +7,7 @@
  * default keys. Words beyond the first are ignored.
  */
 
+import { syncRun } from '../outcome';
 import { lookupCommand } from '../registry';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
@@ -89,6 +90,6 @@ export const command: CommandDefinition = {
   aliases: ['h'],
   usage: '/help [command]',
   summary: 'List commands, or show help for one',
-  run: async (args, context) => await Promise.resolve(handle(args, context)),
+  run: syncRun(handle),
   bindings: [{ mode: 'navigation', chord: '?', args: '' }],
 };

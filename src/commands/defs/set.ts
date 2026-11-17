@@ -17,7 +17,7 @@ import {
   type Settings,
   VISIBILITIES,
 } from '../../state/settings';
-import { fail } from '../outcome';
+import { fail, syncRun } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** The command's one form. */
@@ -118,5 +118,5 @@ export const command: CommandDefinition = {
   aliases: ['settings'],
   usage: USAGE,
   summary: 'Show or change your settings',
-  run: async (args, context) => await Promise.resolve(handle(args, context)),
+  run: syncRun(handle),
 };

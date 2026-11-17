@@ -1,9 +1,10 @@
 /**
- * Chord strings: from keyboard events, and from binding text a user writes.
+ * Chord strings: from keyboard events, from binding text a user writes, and
+ * the one rule the keymap and `/bind` share over a finished chord.
  */
 import { describe, expect, it } from 'vitest';
 
-import { chordFromEvent, parseChord } from './chord';
+import { blocksTyping, chordFromEvent, parseChord } from './chord';
 import type { KeyLike } from './chord';
 
 /** A keyboard event whose modifiers default to off. */
@@ -140,4 +141,17 @@ describe(parseChord, () => {
   it.each(EVENT_CASES)('parses the chord written for $label', ({ chord }) => {
     expect(parseChord(chord)).toBe(chord);
   });
+});
+
+describe(blocksTyping, () => {
+  it.each(['a', 'k', '?', '+', 'Shift+a', 'Shift+/'])('blocks typing for %s', (chord) => {
+    expect(blocksTyping(chord)).toBe(true);
+  });
+
+  it.each(['Alt+3', 'Ctrl+e', 'Meta+k', 'Shift+F1', 'Space', 'Enter', 'PageUp', 'F12'])(
+    'leaves typing alone for %s',
+    (chord) => {
+      expect(blocksTyping(chord)).toBe(false);
+    },
+  );
 });

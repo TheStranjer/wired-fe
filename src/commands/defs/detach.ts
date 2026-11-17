@@ -5,6 +5,7 @@
  * is the only target. Already-uploaded posts are untouched.
  */
 
+import { contextRun } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** The list is empty now, as it was before. */
@@ -23,5 +24,5 @@ export const command: CommandDefinition = {
   aliases: [],
   usage: '/detach',
   summary: 'Drop every attachment waiting for the next post',
-  run: async (_args, context) => await Promise.resolve(handle(context)),
+  run: contextRun(handle),
 };

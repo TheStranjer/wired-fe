@@ -14,7 +14,7 @@
 import type { Visibility } from '../../api/schemas/status';
 import { type Capabilities, hasFeature } from '../../capabilities/capabilities';
 import { capabilitiesFor } from '../../state/selectors';
-import { fail } from '../outcome';
+import { fail, syncRun } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** The command's one form; a refused argument echoes it. */
@@ -77,5 +77,5 @@ export const command: CommandDefinition = {
   aliases: ['visibility'],
   usage: USAGE,
   summary: 'Show or set the default audience for new posts',
-  run: async (args, context) => await Promise.resolve(handle(args, context)),
+  run: syncRun(handle),
 };

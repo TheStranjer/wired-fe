@@ -82,5 +82,5 @@ export const command: CommandDefinition = {
   aliases: [],
   usage: USAGE,
   summary: 'Post one line as another account',
-  run: async (args, context) => await handle(args, context),
+  run: handle,
 };

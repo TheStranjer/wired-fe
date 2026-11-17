@@ -38,7 +38,8 @@ export type Registry = {
  * Everything a command may do: talk to the user, read the command list, read
  * and change the window list, read and move the whole app state, post through
  * the active window, rewrite the command line, open the composer overlay,
- * attach media to the next post (WFE-126), navigate, and reach the persisted
+ * attach media to the next post (WFE-126), read the effective key bindings and
+ * canonicalize chords (WFE-130), navigate, and reach the persisted
  * stores and the build-time configuration. The app builds one per run.
  */
 export type CommandContext = {
@@ -75,6 +76,18 @@ export type CommandContext = {
     readonly clear: () => void;
     readonly pending: readonly MediaAttachment[];
   };
+  /**
+   * What the keys layer lends to commands (WFE-130), wired up by src/app:
+   * `parseChord` turns binding text the reader types into a canonical chord
+   * or null, `blocksTyping` is the keymap's insert-mode guard, and `keymap`
+   * is the effective keymap — the registry's defaults with the reader's
+   * overrides applied — as `/binds` prints it.
+   */
+  readonly keys: {
+    readonly parseChord: (text: string) => string | null;
+    readonly blocksTyping: (chord: string) => boolean;
+    readonly keymap: Keymap;
+  };
   /** Goes to a view by URL, e.g. a hash route (decision 4). */
   readonly navigate: (url: string) => void;
   /** Where the page is right now, for building and comparing URLs. */
@@ -92,6 +105,28 @@ export type CommandContext = {
 
 /** Which keyboard mode a default binding is active in (decision 6). */
 export type BindingMode = 'insert' | 'navigation';
+
+/** One keymap entry: a chord's command line, run or filled into the input. */
+export type KeymapEntry = {
+  /** The command line the chord carries, e.g. `/win 3` or `/reply {label}`. */
+  readonly line: string;
+  /** True fills the line into the command line (a prefill binding), false runs it. */
+  readonly prefill: boolean;
+};
+
+/**
+ * The two hotkey maps and what went wrong building them (src/keys/keymap.ts
+ * generates one): declared here so the command context can hand the effective
+ * keymap — the reader's bindings as they now stand — to `/binds` (WFE-130).
+ */
+export type Keymap = {
+  /** Chord -> entry while typing in the command line, e.g. `Alt+3` -> `/win 3`. */
+  readonly insert: ReadonlyMap<string, KeymapEntry>;
+  /** Chord -> entry while navigating. */
+  readonly navigation: ReadonlyMap<string, KeymapEntry>;
+  /** Human-readable reasons a binding was refused, in registry order. */
+  readonly problems: readonly string[];
+};
 
 /**
  * One default key binding of a command: in {@link mode}, pressing

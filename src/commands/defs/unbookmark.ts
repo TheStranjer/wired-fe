@@ -6,7 +6,7 @@
  * `Shift+b` on a bookmarked post and this help entry reach it.
  */
 
-import { runStatusToggle } from '../statusToggle';
+import { toggleRun } from '../statusToggle';
 import type { CommandDefinition } from '../types';
 
 /** The `/unbookmark` definition. */
@@ -15,5 +15,5 @@ export const command: CommandDefinition = {
   aliases: [],
   usage: '/unbookmark [label]',
   summary: 'Remove your bookmark of a post',
-  run: async (args, context) => await runStatusToggle(args, context, 'unbookmark'),
+  run: toggleRun('unbookmark'),
 };

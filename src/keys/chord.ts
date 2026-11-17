@@ -7,8 +7,14 @@
  * (`?`, not `Shift+/`); named keys keep the casing of `KeyboardEvent.key`, and
  * the space bar is `Space`. The keymap compares these strings.
  *
- * Pure: no listeners and no keymap here, only the two conversions.
+ * The forgiving grammar of the binding text itself lives in ./bindingText.
+ * `blocksTyping` is the one rule over a finished chord the keymap and the
+ * `/bind` commands share: a plain character cannot be bound in insert mode.
+ *
+ * Pure: no listeners and no keymap here, only these conversions and that rule.
  */
+
+import { bindingParts } from './bindingText';
 
 /** The fields of a KeyboardEvent this module reads. */
 export type KeyLike = {
@@ -20,7 +26,7 @@ export type KeyLike = {
 };
 
 /** A modifier, spelled as a canonical chord spells it. */
-type Modifier = 'Ctrl' | 'Alt' | 'Shift' | 'Meta';
+export type Modifier = 'Ctrl' | 'Alt' | 'Shift' | 'Meta';
 
 /** The key of a chord: how it is spelled, and whether Shift is written with it. */
 type KeyPart = {
@@ -29,26 +35,8 @@ type KeyPart = {
   readonly shiftMatters: boolean;
 };
 
-/** A binding split into its modifier tokens and its key token. */
-type ChordTokens = {
-  readonly modifiers: readonly string[];
-  readonly key: string;
-};
-
 /** The modifiers, in the order a canonical chord writes them. */
 const MODIFIERS: readonly Modifier[] = ['Ctrl', 'Alt', 'Shift', 'Meta'];
-
-/** Names a user may write for a modifier, lowercased. */
-const MODIFIER_ALIASES: Record<string, Modifier> = {
-  ctrl: 'Ctrl',
-  control: 'Ctrl',
-  alt: 'Alt',
-  option: 'Alt',
-  shift: 'Shift',
-  meta: 'Meta',
-  cmd: 'Meta',
-  super: 'Meta',
-};
 
 /** Bindable named keys, spelled as `KeyboardEvent.key` spells them, plus Space. */
 const NAMED_KEYS: readonly string[] = [
@@ -81,6 +69,9 @@ const LETTER = /^[a-z]$/iu;
 /** A control character, which is never a printable key. */
 const CONTROL_CHARACTER = /\p{Cc}/u;
 
+/** The `Shift+` a canonical chord may carry in front of its key. */
+const SHIFT_PREFIX = 'Shift+';
+
 /**
  * Turns a keyboard event into the canonical chord it names, or `null` when it is
  * a bare modifier, `Dead`, `Unidentified` or a named key that cannot be bound.
@@ -99,19 +90,34 @@ export function chordFromEvent(event: KeyLike): string | null {
  * unknown key, repeats a modifier, or holds modifiers without a key.
  */
 export function parseChord(text: string): string | null {
-  const tokens = splitChordTokens(text);
-  if (tokens === null) {
+  const parts = bindingParts(text);
+  if (parts === null) {
     return null;
   }
-  const part = keyPart(tokens.key);
+  const part = keyPart(parts.key);
   if (part === null) {
     return null;
   }
-  const modifiers = parseModifierTokens(tokens.modifiers);
-  if (modifiers === null) {
-    return null;
-  }
-  return formatChord(modifiers, part);
+  return formatChord(parts.modifiers, part);
+}
+
+/**
+ * The key of a canonical chord with a leading `Shift+` set aside. Printable
+ * keys are single characters and named keys are not, and a canonical chord
+ * carrying Ctrl, Alt or Meta always keeps one of their `+` joiners and a
+ * length above one here, so a one-letter result is exactly a plain printable
+ * character or `Shift+<letter>`.
+ */
+/**
+ * Whether the canonical {@link chord} swallows typing: its plain key is a
+ * single character, so binding it in insert mode would eat the very keystroke
+ * the reader meant to type. Named keys and chords carrying Ctrl, Alt or Meta
+ * never do. The keymap refuses such bindings, and `/bind` refuses to make one
+ * (AGENTS.md "Two hotkey modes", WFE-130).
+ */
+export function blocksTyping(chord: string): boolean {
+  const plain = chord.startsWith(SHIFT_PREFIX) ? chord.slice(SHIFT_PREFIX.length) : chord;
+  return plain.length === 1;
 }
 
 /**
@@ -150,37 +156,6 @@ function modifiersFromEvent(event: KeyLike): ReadonlySet<Modifier> {
   }
   if (event.metaKey) {
     held.add('Meta');
-  }
-  return held;
-}
-
-/**
- * Splits binding text on `+`, trimming every part. The joiner and the `+` key
- * are the same character, so `ctrl++` is Ctrl with the `+` key, while one
- * trailing `+` (`ctrl+`) leaves a chord without a key and is refused.
- */
-function splitChordTokens(text: string): ChordTokens | null {
-  const parts = text.split('+').map((part) => part.trim());
-  const key = parts.pop();
-  if (key === '' && parts.at(-1) === '') {
-    parts.pop();
-    return { modifiers: parts, key: '+' };
-  }
-  if (key === undefined || key === '') {
-    return null;
-  }
-  return { modifiers: parts, key };
-}
-
-/** The modifiers named by binding tokens, or `null` if one is unknown or twice. */
-function parseModifierTokens(tokens: readonly string[]): ReadonlySet<Modifier> | null {
-  const held = new Set<Modifier>();
-  for (const token of tokens) {
-    const modifier = MODIFIER_ALIASES[token.toLowerCase()];
-    if (modifier === undefined || held.has(modifier)) {
-      return null;
-    }
-    held.add(modifier);
   }
   return held;
 }

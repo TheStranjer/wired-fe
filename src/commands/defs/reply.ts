@@ -94,6 +94,6 @@ export const command: CommandDefinition = {
   aliases: ['r'],
   usage: USAGE,
   summary: 'Reply to a post in one line',
-  run: async (args, context) => await handle(args, context),
+  run: handle,
   bindings: [{ mode: 'navigation', chord: 'r', args: '{label}', prefill: true }],
 };

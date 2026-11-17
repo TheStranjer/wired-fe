@@ -4,18 +4,25 @@
  * React context, the registry and the stores from their one lazy load, the
  * configuration from the build (decision 3), `page` and `navigate` from
  * `window.location`, the command line's text back through the `setInput` the
- * caller passes in, the composer overlay through its `openComposer`, and the
+ * caller passes in, the composer overlay through its `openComposer`, the
  * pending media (WFE-126) through the `attachments` Root's useAttachments
- * hands down. Posting is the active window's kind's decision (AGENTS.md "The
- * command line is the composer"): plain text means whatever that window says it
- * means, and a window whose kind cannot post says so.
+ * hands down, and the key-binding helpers (WFE-130) from src/keys: the
+ * effective keymap — the registry's defaults under the reader's overrides —
+ * flattened into the bindings `/binds` prints. Posting is the active window's
+ * kind's decision (AGENTS.md "The command line is the composer"): plain text
+ * means whatever that window says it means, and a window whose kind cannot
+ * post says so.
  */
+
+import { useMemo } from 'react';
 
 import { appRegistry } from './registry';
 import { appStores } from './stores';
 import { loadWindowKinds } from './windowKinds';
 import type { CommandContext, PrintLevel, Registry } from '../commands/types';
 import { buildConfig } from '../config/config';
+import { blocksTyping, parseChord } from '../keys/chord';
+import { buildKeymap } from '../keys/keymap';
 import { printAction } from '../state/appState';
 import type { Draft } from '../state/draft';
 import { useAppDispatch, useAppState } from '../state/StateContext';
@@ -106,12 +113,15 @@ export function useCommandContext(
   const dispatch = useAppDispatch();
   const active = activeWindow(state.windows);
   const now = (): Date => new Date();
+  const registry = loadedRegistry();
+  const overrides = state.settings.keyOverrides;
+  const keymap = useMemo(() => buildKeymap(registry, overrides), [registry, overrides]);
 
   return {
     print: (text: string, level?: PrintLevel) => {
       dispatch(printAction(null, level ?? 'info', text));
     },
-    registry: loadedRegistry(),
+    registry,
     windows: state.windows,
     dispatchWindows: (action) => {
       dispatch({ type: 'windows', action });
@@ -126,6 +136,7 @@ export function useCommandContext(
     setInput,
     openComposer,
     attachments,
+    keys: { parseChord, blocksTyping, keymap },
     navigate: (url: string) => {
       window.location.assign(url);
     },

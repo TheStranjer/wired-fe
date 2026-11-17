@@ -18,6 +18,7 @@ import { redirectUriFor } from '../../accounts/callback';
 import { findAccount } from '../../accounts/findAccount';
 import { describeApiError } from '../../api/errors';
 import { revokeToken } from '../../api/oauth';
+import { wordsOf } from '../../lib/words';
 import { NOT_LOGGED_IN, fail } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
@@ -33,12 +34,6 @@ const NO_ACCOUNTS: CommandOutcome = NOT_LOGGED_IN;
 
 /** The argument text matched none of the command's forms. */
 const USAGE_ERROR: CommandOutcome = { ok: false, message: `Usage: ${USAGE}` };
-
-/** The trimmed argument text split on whitespace; no arguments, no words. */
-function wordsOf(args: string): readonly string[] {
-  const trimmed = args.trim();
-  return trimmed === '' ? [] : trimmed.split(/\s+/u);
-}
 
 /** The refusal naming the query nothing matched. */
 function noAccount(query: string | undefined): CommandOutcome {
@@ -181,7 +176,7 @@ export const command: CommandDefinition = {
   aliases: ['acc'],
   usage: USAGE,
   summary: 'List, switch between and log out of accounts',
-  run: async (args, context) => await handle(args, context),
+  run: handle,
   bindings: [
     { mode: 'insert', chord: 'Alt+a', args: 'next' },
     { mode: 'navigation', chord: 'a', args: 'next' },

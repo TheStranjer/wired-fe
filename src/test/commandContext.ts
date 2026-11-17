@@ -30,6 +30,17 @@ const EXAMPLE_PAGE = { origin: 'https://wired.example', pathname: '/' };
 const EMPTY_REGISTRY: Registry = { commands: [], byName: new Map() };
 
 /**
+ * The key-binding stub a context carries by default (WFE-130): nothing bound,
+ * chords taken as typed unless blank. Command tests that care about chord
+ * rules hand in their own; the real ones are wired in src/app.
+ */
+const INERT_KEYS: CommandContext['keys'] = {
+  parseChord: (text: string): string | null => (text === '' ? null : text),
+  blocksTyping: (): boolean => false,
+  keymap: { insert: new Map(), navigation: new Map(), problems: [] },
+};
+
+/**
  * The pending-media stub a context carries: recorded pick and clear, nothing
  * waiting (WFE-126). {@link overrides} replaces the entries it names.
  */
@@ -86,6 +97,7 @@ export function fakeCommandContext(overrides: Partial<CommandContext> = {}): Com
     setInput: vi.fn(),
     openComposer: vi.fn(),
     attachments: fakeAttachments(),
+    keys: INERT_KEYS,
     navigate: vi.fn(),
     page: EXAMPLE_PAGE,
     config: EXAMPLE_CONFIG,

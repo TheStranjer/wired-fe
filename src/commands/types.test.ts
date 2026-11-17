@@ -2,8 +2,8 @@
  * Shape test for the command context (decision 6): the shared stub builder
  * compiles only while CommandContext is exactly what src/test/commandContext
  * assembles — print, the registry and the windows widened with the app state,
- * the one dispatch, posting, the command line, the composer overlay,
- * navigation, the page, the config and the stores — and these assertions pin
+ * the one dispatch, posting, the command line, the composer overlay, the
+ * key-binding helpers, navigation, the page, the config and the stores — and these assertions pin
  * what the builder leaves in every field by default, so widening or renaming
  * one shows up here too.
  */
@@ -65,6 +65,19 @@ describe('CommandContext', () => {
 
     expect(context.stores.settings.get('stored', NUMBER)).toBe(7);
     expect(context.stores.login.get('stored', NUMBER)).toBeUndefined();
+  });
+
+  it('ships the key-binding helpers inert: nothing bound, blank chords refused', () => {
+    const context: CommandContext = fakeCommandContext();
+
+    expect(context.keys.keymap).toStrictEqual({
+      insert: new Map(),
+      navigation: new Map(),
+      problems: [],
+    });
+    expect(context.keys.parseChord('Alt+3')).toBe('Alt+3');
+    expect(context.keys.parseChord('')).toBeNull();
+    expect(context.keys.blocksTyping('x')).toBe(false);
   });
 
   it('lets overrides replace single fields', () => {

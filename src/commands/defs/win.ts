@@ -7,8 +7,9 @@
  * command only reads the list and hands the matching action over.
  */
 
+import { wordsOf } from '../../lib/words';
 import { STATUS_WINDOW_ID, activeWindow, type WindowState } from '../../windows/model';
-import { fail } from '../outcome';
+import { fail, syncRun } from '../outcome';
 import type { CommandBinding, CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** Every form of the command: /help shows it, a bad argument echoes it. */
@@ -50,12 +51,6 @@ function positiveInteger(text: string | undefined): number | null {
   }
   const value = Number(text);
   return value >= 1 ? value : null;
-}
-
-/** The trimmed argument text split on whitespace; no arguments, no words. */
-function wordsOf(args: string): readonly string[] {
-  const trimmed = args.trim();
-  return trimmed === '' ? [] : trimmed.split(/\s+/u);
 }
 
 /** Jump to window `number`; a list too short to have it is the refusal. */
@@ -132,6 +127,6 @@ export const command: CommandDefinition = {
   aliases: ['w', 'window'],
   usage: USAGE,
   summary: 'Switch, cycle, reorder or list windows',
-  run: async (args, context) => await Promise.resolve(handle(args, context)),
+  run: syncRun(handle),
   bindings: BINDINGS,
 };

@@ -64,6 +64,6 @@ export const command: CommandDefinition = {
   aliases: [],
   usage: USAGE,
   summary: 'Quote a post with a new one',
-  run: async (args, context) => await handle(args, context),
+  run: handle,
   bindings: [{ mode: 'navigation', chord: 'Shift+r', args: '{label}', prefill: true }],
 };

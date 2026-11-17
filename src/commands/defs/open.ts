@@ -10,6 +10,7 @@
  */
 
 import type { Status } from '../../api/schemas/status';
+import { syncRun } from '../outcome';
 import { resolveStatusTarget } from '../targets';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
@@ -65,6 +66,6 @@ export const command: CommandDefinition = {
   aliases: [],
   usage: '/open [label | url]',
   summary: 'Open a post or URL in a new browser tab',
-  run: async (args, context) => await Promise.resolve(handle(args, context)),
+  run: syncRun(handle),
   bindings: [{ mode: 'navigation', chord: 'o', args: '' }],
 };

@@ -92,5 +92,5 @@ export const command: CommandDefinition = {
   aliases: [],
   usage: '/cw <warning> <text>',
   summary: 'Post to the active window behind a content warning',
-  run: async (args, context) => await handle(args, context),
+  run: handle,
 };

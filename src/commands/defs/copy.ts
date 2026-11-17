@@ -48,6 +48,6 @@ export const command: CommandDefinition = {
   aliases: ['yank'],
   usage: '/copy [label]',
   summary: 'Copy a post link to the clipboard',
-  run: async (args, context) => await handle(args, context),
+  run: handle,
   bindings: [{ mode: 'navigation', chord: 'y', args: '' }],
 };

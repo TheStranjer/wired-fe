@@ -7,7 +7,7 @@
  * the selected post. `/unbookmark` always takes it back.
  */
 
-import { runStatusToggle } from '../statusToggle';
+import { toggleRun } from '../statusToggle';
 import type { CommandDefinition } from '../types';
 
 /** The `/bookmark` definition. */
@@ -16,6 +16,6 @@ export const command: CommandDefinition = {
   aliases: [],
   usage: '/bookmark [label]',
   summary: 'Bookmark a post, or remove the bookmark',
-  run: async (args, context) => await runStatusToggle(args, context, 'bookmark'),
+  run: toggleRun('bookmark'),
   bindings: [{ mode: 'navigation', chord: 'Shift+b', args: '' }],
 };

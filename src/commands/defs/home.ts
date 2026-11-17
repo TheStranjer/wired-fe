@@ -11,7 +11,7 @@
 
 import { homeWindowOpen } from '../../state/homeWindow';
 import { activeAccount } from '../../state/selectors';
-import { NOT_LOGGED_IN } from '../outcome';
+import { NOT_LOGGED_IN, contextRun } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** The home window is open, or was already and is active now. */
@@ -33,5 +33,5 @@ export const command: CommandDefinition = {
   aliases: [],
   usage: '/home',
   summary: 'Open your home timeline',
-  run: async (_args, context) => await Promise.resolve(handle(context)),
+  run: contextRun(handle),
 };

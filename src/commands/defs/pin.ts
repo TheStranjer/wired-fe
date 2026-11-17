@@ -7,7 +7,7 @@
  * `/unpin` always takes it back.
  */
 
-import { runStatusToggle } from '../statusToggle';
+import { toggleRun } from '../statusToggle';
 import type { CommandDefinition } from '../types';
 
 /** The `/pin` definition. */
@@ -16,6 +16,6 @@ export const command: CommandDefinition = {
   aliases: [],
   usage: '/pin [label]',
   summary: 'Pin one of your own posts, or unpin it',
-  run: async (args, context) => await runStatusToggle(args, context, 'pin'),
+  run: toggleRun('pin'),
   bindings: [{ mode: 'navigation', chord: 'Shift+p', args: '' }],
 };

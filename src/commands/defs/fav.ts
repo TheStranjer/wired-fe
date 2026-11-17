@@ -6,7 +6,7 @@
  * selected post. `/unfav` always takes it back.
  */
 
-import { runStatusToggle } from '../statusToggle';
+import { toggleRun } from '../statusToggle';
 import type { CommandDefinition } from '../types';
 
 /** The `/fav` (alias `/f`, `/like`) definition. */
@@ -15,6 +15,6 @@ export const command: CommandDefinition = {
   aliases: ['f', 'like'],
   usage: '/fav [label]',
   summary: 'Favourite a post, or take the favourite back',
-  run: async (args, context) => await runStatusToggle(args, context, 'fav'),
+  run: toggleRun('fav'),
   bindings: [{ mode: 'navigation', chord: 'f', args: '' }],
 };

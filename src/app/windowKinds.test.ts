@@ -41,10 +41,10 @@ describe(collectWindowKinds, () => {
     expect(collectWindowKinds({})).toStrictEqual(ok(new Map()));
   });
 
-  it('collects the windowKind export of every module, ordered by path', () => {
+  it('collects every globbed windowKind export, ordered by path', () => {
     const modules = {
-      '../features/thread/windowKind.tsx': { windowKind: thread },
-      '../features/home/windowKind.tsx': { windowKind: home },
+      '../features/thread/windowKind.tsx': thread,
+      '../features/home/windowKind.tsx': home,
     };
 
     expect(collectWindowKinds(modules)).toStrictEqual(
@@ -58,12 +58,12 @@ describe(collectWindowKinds, () => {
   });
 
   it('names the path of a module without a windowKind export', () => {
-    expect(
-      collectWindowKinds({ '../features/x/windowKind.tsx': { notWindowKind: 1 } }),
-    ).toStrictEqual(err('../features/x/windowKind.tsx does not export a windowKind'));
+    expect(collectWindowKinds({ '../features/x/windowKind.tsx': undefined })).toStrictEqual(
+      err('../features/x/windowKind.tsx does not export a windowKind'),
+    );
   });
 
-  it('rejects modules that are not objects', () => {
+  it('rejects entries that are not definitions', () => {
     const rejected = err('./f.tsx does not export a windowKind');
 
     expect(collectWindowKinds({ './f.tsx': undefined })).toStrictEqual(rejected);
@@ -72,36 +72,29 @@ describe(collectWindowKinds, () => {
     expect(collectWindowKinds({ './f.tsx': 'text' })).toStrictEqual(rejected);
   });
 
-  it('rejects windowKind exports that are not objects', () => {
+  it('rejects entries shaped like nothing a module exports', () => {
     const rejected = err('./f.tsx does not export a windowKind');
 
-    expect(collectWindowKinds({ './f.tsx': { windowKind: undefined } })).toStrictEqual(rejected);
-    expect(collectWindowKinds({ './f.tsx': { windowKind: null } })).toStrictEqual(rejected);
-    expect(collectWindowKinds({ './f.tsx': { windowKind: 42 } })).toStrictEqual(rejected);
-    expect(collectWindowKinds({ './f.tsx': { windowKind: 'text' } })).toStrictEqual(rejected);
-    expect(collectWindowKinds({ './f.tsx': { windowKind: () => undefined } })).toStrictEqual(
-      rejected,
-    );
+    expect(collectWindowKinds({ './f.tsx': {} })).toStrictEqual(rejected);
+    expect(collectWindowKinds({ './f.tsx': () => undefined })).toStrictEqual(rejected);
   });
 
   it('requires a string kind and a function Component', () => {
     const rejected = err('./f.tsx does not export a windowKind');
 
-    expect(
-      collectWindowKinds({ './f.tsx': { windowKind: { kind: 7, Component: StubWindow } } }),
-    ).toStrictEqual(rejected);
-    expect(collectWindowKinds({ './f.tsx': { windowKind: { kind: 'home' } } })).toStrictEqual(
+    expect(collectWindowKinds({ './f.tsx': { kind: 7, Component: StubWindow } })).toStrictEqual(
       rejected,
     );
-    expect(
-      collectWindowKinds({ './f.tsx': { windowKind: { kind: 'home', Component: 'no' } } }),
-    ).toStrictEqual(rejected);
+    expect(collectWindowKinds({ './f.tsx': { kind: 'home' } })).toStrictEqual(rejected);
+    expect(collectWindowKinds({ './f.tsx': { kind: 'home', Component: 'no' } })).toStrictEqual(
+      rejected,
+    );
   });
 
   it('rejects two modules exporting the same kind', () => {
     const modules = {
-      '../features/b/windowKind.tsx': { windowKind: home },
-      '../features/a/windowKind.tsx': { windowKind: { ...home, topic: () => 'other' } },
+      '../features/b/windowKind.tsx': home,
+      '../features/a/windowKind.tsx': { ...home, topic: () => 'other' },
     };
 
     expect(collectWindowKinds(modules)).toStrictEqual(
@@ -114,8 +107,8 @@ describe(collectWindowKinds, () => {
 
   it('stops at the first bad path when several modules are given', () => {
     const modules = {
-      './b.tsx': {},
-      './a.tsx': { windowKind: 'nope' },
+      './b.tsx': undefined,
+      './a.tsx': 'nope',
     };
 
     expect(collectWindowKinds(modules)).toStrictEqual(err('./a.tsx does not export a windowKind'));

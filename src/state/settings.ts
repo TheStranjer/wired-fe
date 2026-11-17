@@ -6,12 +6,16 @@
  * record, the valibot schema that reads them back from storage (every field
  * optional on input, every default filled in), and {@link SETTING_KEYS}: the
  * per-knob metadata the `/set` command lists and checks itself against.
- * Getting them in and out of storage is the storage module's business.
+ * Getting them in and out of storage is the storage module's business. The
+ * reader's key overrides (WFE-130) ride along here too — stored and defaulted
+ * like every knob, but deliberately absent from SETTING_KEYS: `/set` does not
+ * list them, the `/bind` commands own them.
  */
 
 import * as v from 'valibot';
 
 import type { Visibility } from '../api/schemas/status';
+import type { KeyOverride } from '../lib/keyOverride';
 import type { ClockFormat } from '../lib/time';
 
 /** What the reader can change, one value per knob. */
@@ -24,6 +28,8 @@ export type Settings = {
   readonly effects: boolean;
   /** Whether media behind a content warning is shown without asking. */
   readonly expandMedia: boolean;
+  /** The reader's own key bindings over the defaults (WFE-130, `/bind`). */
+  readonly keyOverrides: readonly KeyOverride[];
 };
 
 /** A session that has changed nothing: a 24-hour clock, public posts, no effects. */
@@ -32,6 +38,7 @@ export const DEFAULT_SETTINGS: Settings = {
   defaultVisibility: 'public',
   effects: false,
   expandMedia: false,
+  keyOverrides: [],
 };
 
 /** The two ways the scrollback prints a moment (src/lib/time). */
@@ -46,18 +53,29 @@ export const VISIBILITIES = [
   'local',
 ] as const satisfies readonly Visibility[];
 
+/** One stored key override, as the reader's own bindings come back from storage. */
+const KeyOverrideSchema = v.object({
+  mode: v.picklist(['insert', 'navigation']),
+  chord: v.string(),
+  line: v.nullable(v.string()),
+});
+
 /** Stored settings: every field optional on input, every default filled on read. */
 export const SettingsSchema: v.GenericSchema<unknown, Settings> = v.object({
   clockFormat: v.optional(v.picklist(CLOCK_FORMATS), DEFAULT_SETTINGS.clockFormat),
   defaultVisibility: v.optional(v.picklist(VISIBILITIES), DEFAULT_SETTINGS.defaultVisibility),
   effects: v.optional(v.boolean(), DEFAULT_SETTINGS.effects),
   expandMedia: v.optional(v.boolean(), DEFAULT_SETTINGS.expandMedia),
+  keyOverrides: v.optional(v.array(KeyOverrideSchema), DEFAULT_SETTINGS.keyOverrides),
 });
+
+/** The knobs `/set` lists and turns: every setting except the hidden key overrides. */
+type ListedSettingKey = Exclude<keyof Settings, 'keyOverrides'>;
 
 /** One knob the reader can set, as the `/set` command lists and checks it. */
 export type SettingKey = {
-  /** Which field of {@link Settings} it turns. */
-  readonly key: keyof Settings;
+  /** Which field of {@link Settings} it turns — a listed one; the key overrides are not a knob. */
+  readonly key: ListedSettingKey;
   /** Whether the knob takes one of {@link values} or an on/off word. */
   readonly kind: 'enum' | 'boolean';
   /** The words an enum knob takes; absent for a boolean one. */
