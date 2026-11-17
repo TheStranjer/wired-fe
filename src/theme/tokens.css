@@ -1,8 +1,11 @@
 /*
  * Theme tokens: the only place colors and font stacks are written.
  * Every other stylesheet uses var(--...). Stylelint enforces this.
- * Green on black. Warnings and errors stay amber and red so they read as
- * different from ordinary text.
+ * Three themes, chosen by `/theme` (WFE-131) and set as `data-theme` on the
+ * root element by src/app/useTheme; the bare `:root` is the `wired` default:
+ * green on black. `lain` is the pink-and-dark Wicked-Lain palette, `bnet` the
+ * Battle.net blue-and-gold one. Warnings and errors stay amber and red (kept
+ * readable in each theme) so they read as different from ordinary text.
  */
 :root {
   --color-bg: #000;
@@ -18,4 +21,30 @@
   --font-size: 14px;
   --line-height: 1.4;
   --space: 0.5rem;
+}
+
+/* lain: near-black behind soft rose text, the accent a hot pink. */
+:root[data-theme='lain'] {
+  --color-bg: #0b0a0c;
+  --color-fg: #d7c6cc;
+  --color-dim: #6e5a63;
+  --color-accent: #e0507a;
+  --color-bar-bg: #2a1119;
+  --color-bar-fg: #f0a0b8;
+  --color-ok: #6fdc8c;
+  --color-warn: #e8b04a;
+  --color-error: #ff6b6b;
+}
+
+/* bnet: black behind pale grey text, the accent Battle.net gold. */
+:root[data-theme='bnet'] {
+  --color-bg: #000;
+  --color-fg: #e8e8e8;
+  --color-dim: #8a8a8a;
+  --color-accent: #f2d34b;
+  --color-bar-bg: #1b2a44;
+  --color-bar-fg: #cfd8e8;
+  --color-ok: #52d452;
+  --color-warn: #ff9d3b;
+  --color-error: #ff4b4b;
 }

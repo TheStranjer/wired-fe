@@ -108,12 +108,14 @@ describe(mergedSettings, () => {
       effects: true,
       expandMedia: false,
       keyOverrides: [],
+      theme: 'wired',
     });
   });
 
   it('hands back the very same record for a patch that asks for nothing new', () => {
     expect(mergedSettings(DEFAULT_SETTINGS, {})).toBe(DEFAULT_SETTINGS);
     expect(mergedSettings(DEFAULT_SETTINGS, { expandMedia: false })).toBe(DEFAULT_SETTINGS);
+    expect(mergedSettings(DEFAULT_SETTINGS, { theme: 'wired' })).toBe(DEFAULT_SETTINGS);
     expect(mergedSettings(DEFAULT_SETTINGS, { keyOverrides: [] })).not.toBe(DEFAULT_SETTINGS);
     expect(mergedSettings(DEFAULT_SETTINGS, { keyOverrides: DEFAULT_SETTINGS.keyOverrides })).toBe(
       DEFAULT_SETTINGS,
@@ -128,5 +130,12 @@ describe(mergedSettings, () => {
     expect(mergedSettings(DEFAULT_SETTINGS, { keyOverrides }).keyOverrides).toStrictEqual(
       keyOverrides,
     );
+  });
+
+  it('takes a new theme, turning no other knob', () => {
+    expect(mergedSettings(DEFAULT_SETTINGS, { theme: 'lain' })).toStrictEqual({
+      ...DEFAULT_SETTINGS,
+      theme: 'lain',
+    });
   });
 });

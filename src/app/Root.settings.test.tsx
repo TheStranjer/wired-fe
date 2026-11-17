@@ -56,6 +56,7 @@ describe('the shell persisting settings', () => {
       effects: true,
       expandMedia: false,
       keyOverrides: [],
+      theme: 'wired',
     });
   });
 

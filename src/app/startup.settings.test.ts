@@ -25,6 +25,7 @@ const CHOSEN: Settings = {
   effects: true,
   expandMedia: false,
   keyOverrides: [{ mode: 'navigation', chord: 'Ctrl+e', line: '/fav' }],
+  theme: 'bnet',
 };
 
 /** An in-memory storage backend, for a store that really stores. */

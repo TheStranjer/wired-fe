@@ -5,6 +5,7 @@
  * dispatches the settings action and prints `key = value` back — booleans
  * normalize on/off/true/false/yes/no to on and off; and a refused word lists
  * the words that would have passed. Nothing a refusal touches reaches state.
+ * The theme knob's own turning and listing lives in ./set.theme.test.ts.
  */
 import { describe, expect, it, vi, type Mock } from 'vitest';
 
@@ -20,6 +21,7 @@ const LINES = [
   '  defaultVisibility = public  — The audience new posts aim at by default',
   '  effects = off  — The CRT/glitch effects (they never flash)',
   '  expandMedia = off  — Media behind a content warning starts open',
+  '  theme = wired  — The colors the shell is painted in',
 ];
 
 /** A context over a session whose settings are {@link settings}, print recorded. */
@@ -53,6 +55,7 @@ describe('/set', () => {
       ...DEFAULT_SETTINGS,
       clockFormat: '12h',
       effects: true,
+      theme: 'lain',
     });
 
     await command.run('', context);
@@ -62,6 +65,7 @@ describe('/set', () => {
       [LINES[1]],
       ['  effects = on  — The CRT/glitch effects (they never flash)'],
       [LINES[3]],
+      ['  theme = lain  — The colors the shell is painted in'],
     ]);
   });
 

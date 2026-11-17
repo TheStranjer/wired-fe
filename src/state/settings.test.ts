@@ -1,6 +1,7 @@
 /**
- * Tests for settings: the one default record a session starts from, the
- * SettingsSchema that reads them back from storage — every field optional on
+ * Tests for settings: the one default record a session starts from (including
+ * the wired theme), the SettingsSchema that reads them back from storage —
+ * every field optional on
  * input, every default filled in, junk refused so the reader of storage can
  * fall back (the reader's key overrides included) — and the SETTING_KEYS
  * metadata /set lists and checks itself against: every visible knob the type
@@ -18,6 +19,7 @@ import {
   SETTING_KEYS,
   SettingsSchema,
   type Settings,
+  THEMES,
   VISIBILITIES,
 } from './settings';
 import type { KeyOverride } from '../lib/keyOverride';
@@ -35,6 +37,7 @@ const CHOSEN: Settings = {
   effects: true,
   expandMedia: true,
   keyOverrides: OVERRIDES,
+  theme: 'lain',
 };
 
 /** Parse {@link input} with SettingsSchema, throwing through to the test on failure. */
@@ -50,6 +53,7 @@ describe('the settings a session starts from', () => {
       effects: false,
       expandMedia: false,
       keyOverrides: [],
+      theme: 'wired',
     });
   });
 
@@ -60,6 +64,7 @@ describe('the settings a session starts from', () => {
       'effects',
       'expandMedia',
       'keyOverrides',
+      'theme',
     ]);
   });
 
@@ -83,7 +88,15 @@ describe('the stored settings schema', () => {
   });
 
   it('drops keys the settings do not have', () => {
-    expect(parse({ ...DEFAULT_SETTINGS, theme: 'blue' })).toStrictEqual(DEFAULT_SETTINGS);
+    expect(parse({ ...DEFAULT_SETTINGS, volume: 11 })).toStrictEqual(DEFAULT_SETTINGS);
+  });
+
+  it('defaults the theme to wired and reads a chosen one back', () => {
+    expect(parse({}).theme).toBe('wired');
+
+    for (const theme of THEMES) {
+      expect(parse({ theme }).theme).toBe(theme);
+    }
   });
 
   it('reads the reader’s own key overrides back, bound and unbound', () => {
@@ -97,6 +110,7 @@ describe('the stored settings schema', () => {
   it.each([
     ['a bad enum word', { clockFormat: '25h' }],
     ['another bad enum word', { defaultVisibility: 'everyone' }],
+    ['a theme it does not list', { theme: 'blue' }],
     ['a boolean that is a word', { effects: 'yes' }],
     [
       'an override naming neither mode',
@@ -132,6 +146,7 @@ describe('the setting metadata /set reads', () => {
       'defaultVisibility',
       'effects',
       'expandMedia',
+      'theme',
     ];
 
     expect([...keys].sort()).toStrictEqual(listed.sort());
@@ -145,11 +160,11 @@ describe('the setting metadata /set reads', () => {
     expect(keys).not.toContain('keyOverrides');
   });
 
-  it('gives the two enum knobs their values', () => {
+  it('gives the three enum knobs their values', () => {
     const enums = SETTING_KEYS.filter((meta) => meta.kind === 'enum');
     const keys = enums.map((meta) => meta.key);
 
-    expect(keys).toStrictEqual(['clockFormat', 'defaultVisibility']);
+    expect(keys).toStrictEqual(['clockFormat', 'defaultVisibility', 'theme']);
 
     for (const meta of enums) {
       expect(meta.values?.length).toBeGreaterThan(0);
@@ -176,5 +191,6 @@ describe('the setting metadata /set reads', () => {
     expect(byKey.get('defaultVisibility')).toStrictEqual(VISIBILITIES);
     expect(byKey.get('effects')).toBeUndefined();
     expect(byKey.get('expandMedia')).toBeUndefined();
+    expect(byKey.get('theme')).toStrictEqual(THEMES);
   });
 });
