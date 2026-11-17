@@ -25,6 +25,9 @@ export type SystemLineData = {
   readonly date: Date;
   readonly level: LineLevel;
   readonly text: string;
+  /** The text is decorative ASCII art (WFE-135): assistive technology skips
+   * the whole line. Omitted for ordinary client messages. */
+  readonly decorative?: boolean;
 };
 
 /** One post in the scrollback, as a timeline or thread line. */
@@ -102,7 +105,12 @@ export function capLines(lines: readonly LineData[]): readonly LineData[] {
  */
 export function appendSystem(
   buffer: Buffer,
-  line: { readonly date: Date; readonly level: LineLevel; readonly text: string },
+  line: {
+    readonly date: Date;
+    readonly level: LineLevel;
+    readonly text: string;
+    readonly decorative?: boolean;
+  },
   seq: number,
 ): Buffer {
   const entry: SystemLineData = { kind: 'system', key: `sys:${String(seq)}`, ...line };

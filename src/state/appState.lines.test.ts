@@ -114,6 +114,29 @@ describe('a printed line', () => {
     expect(bufferOf(next, STATUS_WINDOW_ID).lines).toHaveLength(1);
     expect(next.seq).toBe(1);
   });
+
+  it('keeps the decorative flag of a banner line, and no flag without one', () => {
+    const state = coreReducer(initialAppState(), {
+      type: 'print',
+      windowId: STATUS_WINDOW_ID,
+      date: DATE,
+      level: 'info',
+      text: '█▀▄',
+      decorative: true,
+    });
+
+    expect(bufferOf(state, STATUS_WINDOW_ID).lines[0]).toStrictEqual({
+      kind: 'system',
+      key: 'sys:0',
+      date: DATE,
+      level: 'info',
+      text: '█▀▄',
+      decorative: true,
+    });
+    expect(
+      bufferOf(coreReducer(initialAppState(), printLine('plain')), STATUS_WINDOW_ID).lines[0],
+    ).not.toHaveProperty('decorative');
+  });
 });
 
 describe('a cleared window', () => {

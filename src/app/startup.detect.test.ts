@@ -7,6 +7,7 @@
 import { HttpResponse, http } from 'msw';
 import { describe, expect, it, vi, type Mock } from 'vitest';
 
+import { BANNER } from './banner';
 import { type Detect, type StartupDeps, runStartup } from './startup';
 import type { AppStores } from './stores';
 import { accountKey, type StoredAccount } from '../accounts/accountStore';
@@ -22,6 +23,9 @@ import { STATUS_WINDOW_ID } from '../windows/model';
 
 /** The moment every printed line is stamped with. */
 const NOW = new Date('2026-11-15T09:00:00.000Z');
+
+/** What every run prints first. */
+const GREETING = [...BANNER, 'WIRED // WIRED', 'Present day. Present time.'];
 
 const ORIGIN_A = 'https://a.example';
 const ORIGIN_B = 'https://b.example';
@@ -169,8 +173,7 @@ describe(runStartup, () => {
 
     expect(detect).toHaveBeenCalledTimes(1);
     expect(printedTexts(dispatch)).toStrictEqual([
-      'WIRED // WIRED',
-      'Present day. Present time.',
+      ...GREETING,
       `Connected to A Lounge (mastodon) at ${ORIGIN_A}`,
       'Logged in as @lain@a.example',
       'Logged in as @ali@a.example',
@@ -208,8 +211,7 @@ describe(runStartup, () => {
     ]);
     expect(profilesOf(dispatch)).toStrictEqual([PROFILE_B]);
     expect(printedTexts(dispatch)).toStrictEqual([
-      'WIRED // WIRED',
-      'Present day. Present time.',
+      ...GREETING,
       `Could not reach ${ORIGIN_A}: Network error: no ${ORIGIN_A}`,
       `Connected to B Lounge (mastodon) at ${ORIGIN_B}`,
       'Logged in as @lain@a.example',
@@ -228,8 +230,7 @@ describe(runStartup, () => {
     const dispatch = await start({ accounts: [ACCOUNT_A] });
 
     expect(printedTexts(dispatch)).toStrictEqual([
-      'WIRED // WIRED',
-      'Present day. Present time.',
+      ...GREETING,
       `Could not reach ${ORIGIN_A}: HTTP 503: gone`,
       'Logged in as @lain@a.example',
     ]);

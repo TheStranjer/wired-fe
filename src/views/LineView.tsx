@@ -26,7 +26,13 @@ function SystemLineView(props: { readonly line: SystemLineData }): JSX.Element {
   const { line } = props;
   const { clockFormat } = useAppState().settings;
   return (
-    <SystemLine clockFormat={clockFormat} date={line.date} level={line.level} text={line.text} />
+    <SystemLine
+      clockFormat={clockFormat}
+      date={line.date}
+      decorative={line.decorative}
+      level={line.level}
+      text={line.text}
+    />
   );
 }
 
