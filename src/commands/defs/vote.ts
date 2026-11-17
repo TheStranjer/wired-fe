@@ -17,6 +17,7 @@ import type { Poll } from '../../api/schemas/poll';
 import type { Status } from '../../api/schemas/status';
 import type { ApiSession } from '../../api/session';
 import { type Result, err, ok } from '../../lib/result';
+import { wordsOf } from '../../lib/words';
 import { type StatusTarget, resolveStatusTarget, targetLabel } from '../targets';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
@@ -25,12 +26,6 @@ const OK: CommandOutcome = { ok: true };
 
 /** One choice as typed: the option's one-based number, digits only. */
 const CHOICE = /^[0-9]+$/u;
-
-/** The trimmed {@link text} split at whitespace; none is the empty list. */
-function words(text: string): readonly string[] {
-  const trimmed = text.trim();
-  return trimmed === '' ? [] : trimmed.split(/\s+/u);
-}
 
 /** The word as a zero-based option index; NaN when it is no plain number. */
 function indexOf(word: string): number {
@@ -90,7 +85,7 @@ function prepare(target: StatusTarget, context: CommandContext): Result<Ballot, 
   if (!poll.ok) {
     return poll;
   }
-  const choices = parseChoices(words(rest), poll.value);
+  const choices = parseChoices(wordsOf(rest), poll.value);
   return choices.ok
     ? ok({ status, session, poll: poll.value, choices: choices.value, label })
     : choices;
@@ -123,5 +118,5 @@ export const command: CommandDefinition = {
   aliases: [],
   usage: '/vote [label] <n> [n…]',
   summary: 'Vote on the poll of a post',
-  run: async (args, context) => await handle(args, context),
+  run: handle,
 };

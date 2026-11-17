@@ -58,5 +58,5 @@ export const command: CommandDefinition = {
   aliases: ['server', 'login'],
   usage: '/connect [instance]',
   summary: 'Log in to an instance',
-  run: async (args, context) => await handle(args, context),
+  run: handle,
 };

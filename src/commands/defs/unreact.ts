@@ -7,7 +7,7 @@
  * command and this help entry reach it.
  */
 
-import { runReaction } from '../reactions';
+import { reactionRun } from '../reactions';
 import type { CommandDefinition } from '../types';
 
 /** The `/unreact` definition. */
@@ -16,5 +16,5 @@ export const command: CommandDefinition = {
   aliases: [],
   usage: '/unreact [label] <emoji>',
   summary: 'Remove your emoji reaction from a post',
-  run: async (args, context) => await runReaction(args, context, 'unreact'),
+  run: reactionRun('unreact'),
 };

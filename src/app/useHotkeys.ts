@@ -1,8 +1,9 @@
 /**
  * The global hotkeys wired to the app (decision 6, AGENTS.md "Two hotkey
- * modes"): the keymap is built once from the command registry, and the one
- * global keydown listener (src/keys) asks it what every chord means in the
- * keyboard's current mode. A mode chord moves the keyboard between insert and
+ * modes"): the keymap is built from the command registry and rebuilt whenever
+ * the reader rebinds a key (`/bind`, WFE-130), and the one global keydown
+ * listener (src/keys) asks it what every chord means in the keyboard's current
+ * mode. A mode chord moves the keyboard between insert and
  * navigation and carries the caret with it — navigation blurs the command
  * line, insert focuses it. A bound chord runs its command line through the
  * same dispatcher and the same text handler the command line itself uses, so
@@ -18,9 +19,9 @@ import { useEffect, useMemo, useRef } from 'react';
 import type { RefObject } from 'react';
 
 import { type TextHandler, dispatchInput } from '../commands/dispatch';
-import type { CommandContext } from '../commands/types';
+import type { CommandContext, Keymap } from '../commands/types';
 import { decideKey } from '../keys/decide';
-import { type Keymap, buildKeymap } from '../keys/keymap';
+import { buildKeymap } from '../keys/keymap';
 import type { InputMode } from '../keys/mode';
 import { useGlobalKeys } from '../keys/useGlobalKeys';
 import { type AppState, printAction } from '../state/appState';
@@ -48,9 +49,13 @@ export function textHandler(context: CommandContext): TextHandler {
   };
 }
 
-/** The {@link context}'s keymap, built once; refused bindings warn in the status window on mount. */
+/** The {@link context}'s keymap: registry defaults with the reader's overrides; refused bindings warn in the status window on mount. */
 function useKeymap(context: CommandContext): Keymap {
-  const keymap = useMemo(() => buildKeymap(context.registry), [context.registry]);
+  const overrides = context.state.settings.keyOverrides;
+  const keymap = useMemo(
+    () => buildKeymap(context.registry, overrides),
+    [context.registry, overrides],
+  );
   const dispatch = context.dispatch;
 
   useEffect(() => {

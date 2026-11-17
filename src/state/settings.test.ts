@@ -2,9 +2,11 @@
  * Tests for settings: the one default record a session starts from, the
  * SettingsSchema that reads them back from storage — every field optional on
  * input, every default filled in, junk refused so the reader of storage can
- * fall back — and the SETTING_KEYS metadata /set lists and checks itself
- * against: every knob the type names, exactly once, with the values and the
- * description it prints. A new knob has to be defaulted, schema'd and keyed here.
+ * fall back (the reader's key overrides included) — and the SETTING_KEYS
+ * metadata /set lists and checks itself against: every visible knob the type
+ * names, exactly once, with the values and the description it prints, and
+ * keyOverrides deliberately among none of them. A new knob has to be
+ * defaulted, schema'd and keyed here, or hidden like the overrides.
  */
 
 import * as v from 'valibot';
@@ -18,6 +20,13 @@ import {
   type Settings,
   VISIBILITIES,
 } from './settings';
+import type { KeyOverride } from '../lib/keyOverride';
+
+/** One bound and one unbound override, as a reader who rebound keys would keep them. */
+const OVERRIDES: readonly KeyOverride[] = [
+  { mode: 'insert', chord: 'Ctrl+e', line: '/compose' },
+  { mode: 'navigation', chord: 'f', line: null },
+];
 
 /** A session that has turned every knob. */
 const CHOSEN: Settings = {
@@ -25,6 +34,7 @@ const CHOSEN: Settings = {
   defaultVisibility: 'local',
   effects: true,
   expandMedia: true,
+  keyOverrides: OVERRIDES,
 };
 
 /** Parse {@link input} with SettingsSchema, throwing through to the test on failure. */
@@ -39,6 +49,7 @@ describe('the settings a session starts from', () => {
       defaultVisibility: 'public',
       effects: false,
       expandMedia: false,
+      keyOverrides: [],
     });
   });
 
@@ -48,6 +59,7 @@ describe('the settings a session starts from', () => {
       'defaultVisibility',
       'effects',
       'expandMedia',
+      'keyOverrides',
     ]);
   });
 
@@ -74,10 +86,27 @@ describe('the stored settings schema', () => {
     expect(parse({ ...DEFAULT_SETTINGS, theme: 'blue' })).toStrictEqual(DEFAULT_SETTINGS);
   });
 
+  it('reads the reader’s own key overrides back, bound and unbound', () => {
+    expect(parse({ keyOverrides: OVERRIDES }).keyOverrides).toStrictEqual(OVERRIDES);
+  });
+
+  it('defaults the overrides to none', () => {
+    expect(parse({}).keyOverrides).toStrictEqual([]);
+  });
+
   it.each([
     ['a bad enum word', { clockFormat: '25h' }],
     ['another bad enum word', { defaultVisibility: 'everyone' }],
     ['a boolean that is a word', { effects: 'yes' }],
+    [
+      'an override naming neither mode',
+      { keyOverrides: [{ mode: 'both', chord: 'x', line: null }] },
+    ],
+    [
+      'an override whose line is a number',
+      { keyOverrides: [{ mode: 'insert', chord: 'x', line: 3 }] },
+    ],
+    ['overrides that are not a list', { keyOverrides: 'Ctrl+e' }],
     ['junk altogether', 'not a record'],
     ['nothing at all', null],
     ['a number', 42],
@@ -96,11 +125,24 @@ describe('the stored settings schema', () => {
 });
 
 describe('the setting metadata /set reads', () => {
-  it('names every knob of the type exactly once, in a stable order', () => {
+  it('names every listed knob of the type exactly once, in a stable order', () => {
+    const keys = SETTING_KEYS.map((meta) => meta.key);
+    const listed: (keyof Settings)[] = [
+      'clockFormat',
+      'defaultVisibility',
+      'effects',
+      'expandMedia',
+    ];
+
+    expect([...keys].sort()).toStrictEqual(listed.sort());
+    expect(new Set(keys).size).toBe(keys.length);
+  });
+
+  it('keeps the key overrides out of the listing — /bind owns them', () => {
     const keys = SETTING_KEYS.map((meta) => meta.key);
 
-    expect([...keys].sort()).toStrictEqual(Object.keys(DEFAULT_SETTINGS).sort());
-    expect(new Set(keys).size).toBe(keys.length);
+    expect(Object.hasOwn(DEFAULT_SETTINGS, 'keyOverrides')).toBe(true);
+    expect(keys).not.toContain('keyOverrides');
   });
 
   it('gives the two enum knobs their values', () => {

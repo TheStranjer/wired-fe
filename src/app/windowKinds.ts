@@ -29,20 +29,12 @@ function isDefinition(value: unknown): value is WindowKindDefinition {
   return typeof value['kind'] === 'string' && typeof value['Component'] === 'function';
 }
 
-/** The `windowKind` export of a globbed module, when it has the definition shape. */
-function definitionOf(module: unknown): WindowKindDefinition | undefined {
-  if (!isRecord(module)) {
-    return undefined;
-  }
-  const definition = module['windowKind'];
-  return isDefinition(definition) ? definition : undefined;
-}
-
 /**
- * Collect the `windowKind` export of every module into one map keyed by kind,
- * in path order. A module without a usable export is a programming error:
- * returns err naming the path. So is a kind two modules both claim. No
- * modules at all — no features built yet — is an empty map.
+ * Collect the globbed window kind exports into one map keyed by kind, in path
+ * order. An entry without a usable definition (a module that exports no
+ * `windowKind`) is a programming error: returns err naming the path. So is a
+ * kind two modules both claim. No modules at all — no features built yet — is
+ * an empty map.
  */
 export function collectWindowKinds(
   modules: Readonly<Record<string, unknown>>,
@@ -50,8 +42,8 @@ export function collectWindowKinds(
   const kinds = new Map<WindowKind, WindowKindDefinition>();
   const owners = new Map<WindowKind, string>();
   for (const path of Object.keys(modules).sort((a, b) => a.localeCompare(b))) {
-    const definition = definitionOf(modules[path]);
-    if (definition === undefined) {
+    const definition = modules[path];
+    if (!isDefinition(definition)) {
       return err(`${path} does not export a windowKind`);
     }
     const owner = owners.get(definition.kind);
@@ -69,6 +61,9 @@ export function collectWindowKinds(
  * itself: only `windowKind.tsx` matches, and it must export the definition.
  */
 export function loadWindowKinds(): Result<ReadonlyMap<WindowKind, WindowKindDefinition>, string> {
-  const modules = import.meta.glob(['../features/*/windowKind.tsx'], { eager: true });
-  return collectWindowKinds(modules);
+  const kinds = import.meta.glob(['../features/*/windowKind.tsx'], {
+    eager: true,
+    import: 'windowKind',
+  });
+  return collectWindowKinds(kinds);
 }

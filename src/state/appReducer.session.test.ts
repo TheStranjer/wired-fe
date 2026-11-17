@@ -11,6 +11,7 @@ import { DEFAULT_SETTINGS, type Settings } from './settings';
 import type { StoredAccount } from '../accounts/accountStore';
 import { type Capabilities, DEFAULT_POLL_LIMITS } from '../capabilities/capabilities';
 import type { InstanceProfile } from '../capabilities/detect';
+import type { KeyOverride } from '../lib/keyOverride';
 
 const WIRED = 'https://wired.example';
 
@@ -106,11 +107,26 @@ describe(mergedSettings, () => {
       defaultVisibility: 'public',
       effects: true,
       expandMedia: false,
+      keyOverrides: [],
     });
   });
 
   it('hands back the very same record for a patch that asks for nothing new', () => {
     expect(mergedSettings(DEFAULT_SETTINGS, {})).toBe(DEFAULT_SETTINGS);
     expect(mergedSettings(DEFAULT_SETTINGS, { expandMedia: false })).toBe(DEFAULT_SETTINGS);
+    expect(mergedSettings(DEFAULT_SETTINGS, { keyOverrides: [] })).not.toBe(DEFAULT_SETTINGS);
+    expect(mergedSettings(DEFAULT_SETTINGS, { keyOverrides: DEFAULT_SETTINGS.keyOverrides })).toBe(
+      DEFAULT_SETTINGS,
+    );
+  });
+
+  it('takes a fresh list of key overrides', () => {
+    const keyOverrides: readonly KeyOverride[] = [
+      { mode: 'navigation', chord: 'Ctrl+e', line: '/fav' },
+    ];
+
+    expect(mergedSettings(DEFAULT_SETTINGS, { keyOverrides }).keyOverrides).toStrictEqual(
+      keyOverrides,
+    );
   });
 });

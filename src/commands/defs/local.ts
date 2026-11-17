@@ -12,7 +12,7 @@
 
 import { accountWindowOpen } from '../../state/accountWindow';
 import { activeAccount } from '../../state/selectors';
-import { NOT_LOGGED_IN } from '../outcome';
+import { NOT_LOGGED_IN, contextRun } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** The local window is open, or was already and is active now. */
@@ -34,5 +34,5 @@ export const command: CommandDefinition = {
   aliases: [],
   usage: '/local',
   summary: 'Open the local timeline',
-  run: async (_args, context) => await Promise.resolve(handle(context)),
+  run: contextRun(handle),
 };

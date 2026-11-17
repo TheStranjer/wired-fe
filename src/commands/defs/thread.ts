@@ -14,7 +14,7 @@
  */
 
 import type { Status } from '../../api/schemas/status';
-import { fail } from '../outcome';
+import { fail, syncRun } from '../outcome';
 import { resolveStatusTarget, targetLabel } from '../targets';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
@@ -47,6 +47,6 @@ export const command: CommandDefinition = {
   aliases: [],
   usage: '/thread [label]',
   summary: "Open a post's thread window",
-  run: async (args, context) => await Promise.resolve(handle(args, context)),
+  run: syncRun(handle),
   bindings: [{ mode: 'navigation', chord: 't', args: '' }],
 };

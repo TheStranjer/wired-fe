@@ -7,7 +7,7 @@
  * post and this help entry reach it.
  */
 
-import { runStatusToggle } from '../statusToggle';
+import { toggleRun } from '../statusToggle';
 import type { CommandDefinition } from '../types';
 
 /** The `/unpin` definition. */
@@ -16,5 +16,5 @@ export const command: CommandDefinition = {
   aliases: [],
   usage: '/unpin [label]',
   summary: 'Unpin one of your own posts',
-  run: async (args, context) => await runStatusToggle(args, context, 'unpin'),
+  run: toggleRun('unpin'),
 };

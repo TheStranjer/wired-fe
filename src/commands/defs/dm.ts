@@ -118,5 +118,5 @@ export const command: CommandDefinition = {
   aliases: ['msg'],
   usage: USAGE,
   summary: 'Send a direct message in one line',
-  run: async (args, context) => await handle(args, context),
+  run: handle,
 };

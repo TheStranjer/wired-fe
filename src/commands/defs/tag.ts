@@ -13,7 +13,7 @@
  */
 
 import { activeAccount } from '../../state/selectors';
-import { NOT_LOGGED_IN, fail } from '../outcome';
+import { NOT_LOGGED_IN, fail, syncRun } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** A hashtag name once its optional `#` is off: letters, digits, underscores. */
@@ -53,5 +53,5 @@ export const command: CommandDefinition = {
   aliases: ['join', 't'],
   usage: '/tag <name>',
   summary: 'Open a hashtag timeline',
-  run: async (args, context) => await Promise.resolve(handle(args, context)),
+  run: syncRun(handle),
 };

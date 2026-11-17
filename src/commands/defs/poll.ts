@@ -171,5 +171,5 @@ export const command: CommandDefinition = {
   aliases: [],
   usage: USAGE,
   summary: 'Post a poll to the active window',
-  run: async (args, context) => await handle(args, context),
+  run: handle,
 };

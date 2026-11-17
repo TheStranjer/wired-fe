@@ -6,7 +6,7 @@
  * on a boosted post and this help entry reach it.
  */
 
-import { runStatusToggle } from '../statusToggle';
+import { toggleRun } from '../statusToggle';
 import type { CommandDefinition } from '../types';
 
 /** The `/unboost` definition. */
@@ -15,5 +15,5 @@ export const command: CommandDefinition = {
   aliases: [],
   usage: '/unboost [label]',
   summary: 'Take your boost of a post back',
-  run: async (args, context) => await runStatusToggle(args, context, 'unboost'),
+  run: toggleRun('unboost'),
 };

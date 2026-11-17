@@ -18,6 +18,14 @@ export default defineConfig({
   // Relative asset URLs, so the build can be hosted under any path.
   base: './',
   plugins: [react(), cspPlugin(wiredConfig.instances), defaultImagesPlugin()],
+  css: {
+    modules: {
+      // The class names are opaque (tests query by role, not by class), and
+      // every character of them ships twice — once in the CSS, once in the
+      // JS map — where the bytes are mostly incompressible hash.
+      generateScopedName: '_[local]_[hash:base64:3]',
+    },
+  },
   build: {
     target: 'es2024',
     // The deliverable is index.html plus one JS and one CSS file.

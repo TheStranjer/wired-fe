@@ -37,6 +37,6 @@ export const command: CommandDefinition = {
   aliases: ['wi', 'profile'],
   usage: '/whois [label | @user@host]',
   summary: "Open an account's profile window",
-  run: async (args, context) => await handle(args, context),
+  run: handle,
   bindings: [{ mode: 'navigation', chord: 'w', args: '' }],
 };

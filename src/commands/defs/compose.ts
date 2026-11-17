@@ -7,6 +7,7 @@
  * it (insert `Ctrl+e`, navigation `c`).
  */
 
+import { syncRun } from '../outcome';
 import type { CommandBinding, CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** The one outcome: the box is open, whatever it was filled with. */
@@ -30,6 +31,6 @@ export const command: CommandDefinition = {
   aliases: ['c'],
   usage: '/compose [text]',
   summary: 'Open the composer for a long post',
-  run: async (args, context) => await Promise.resolve(handle(args, context)),
+  run: syncRun(handle),
   bindings: BINDINGS,
 };

@@ -11,6 +11,7 @@
 
 import { bufferFor } from '../../state/selectors';
 import { activeWindow } from '../../windows/model';
+import { contextRun } from '../outcome';
 import type { CommandBinding, CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** The command ran; what it asked for is on its way to the reducer. */
@@ -39,6 +40,6 @@ export const command: CommandDefinition = {
   aliases: ['older'],
   usage: '/more',
   summary: 'Load the next page of older posts',
-  run: async (_args, context) => await Promise.resolve(handle(context)),
+  run: contextRun(handle),
   bindings: BINDINGS,
 };

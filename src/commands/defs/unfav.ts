@@ -6,7 +6,7 @@
  * the typed command, `f` on a favourited post and this help entry reach it.
  */
 
-import { runStatusToggle } from '../statusToggle';
+import { toggleRun } from '../statusToggle';
 import type { CommandDefinition } from '../types';
 
 /** The `/unfav` definition. */
@@ -15,5 +15,5 @@ export const command: CommandDefinition = {
   aliases: [],
   usage: '/unfav [label]',
   summary: 'Take your favourite of a post back',
-  run: async (args, context) => await runStatusToggle(args, context, 'unfav'),
+  run: toggleRun('unfav'),
 };

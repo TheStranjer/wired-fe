@@ -41,22 +41,22 @@ describe(collectDefinitions, () => {
     expect(collectDefinitions({})).toStrictEqual(ok([]));
   });
 
-  it('collects the command export of every module, ordered by path', () => {
+  it('collects every globbed command export, ordered by path', () => {
     const modules = {
-      './defs/win.ts': { command: win },
-      './defs/help.ts': { command: help },
+      './defs/win.ts': win,
+      './defs/help.ts': help,
     };
 
     expect(collectDefinitions(modules)).toStrictEqual(ok([help, win]));
   });
 
   it('names the path of a module without a command export', () => {
-    expect(collectDefinitions({ './defs/broken.ts': { notCommand: 1 } })).toStrictEqual(
+    expect(collectDefinitions({ './defs/broken.ts': undefined })).toStrictEqual(
       err('./defs/broken.ts does not export a command'),
     );
   });
 
-  it('rejects modules that are not objects', () => {
+  it('rejects entries that are not definitions', () => {
     const rejected = err('./defs/bad.ts does not export a command');
 
     expect(collectDefinitions({ './defs/bad.ts': undefined })).toStrictEqual(rejected);
@@ -65,36 +65,27 @@ describe(collectDefinitions, () => {
     expect(collectDefinitions({ './defs/bad.ts': 'text' })).toStrictEqual(rejected);
   });
 
-  it('rejects command exports that are not objects', () => {
+  it('rejects entries shaped like nothing a module exports', () => {
     const rejected = err('./defs/bad.ts does not export a command');
 
-    expect(collectDefinitions({ './defs/bad.ts': { command: undefined } })).toStrictEqual(rejected);
-    expect(collectDefinitions({ './defs/bad.ts': { command: null } })).toStrictEqual(rejected);
-    expect(collectDefinitions({ './defs/bad.ts': { command: 42 } })).toStrictEqual(rejected);
-    expect(collectDefinitions({ './defs/bad.ts': { command: 'text' } })).toStrictEqual(rejected);
-    expect(collectDefinitions({ './defs/bad.ts': { command: () => undefined } })).toStrictEqual(
-      rejected,
-    );
+    expect(collectDefinitions({ './defs/bad.ts': {} })).toStrictEqual(rejected);
+    expect(collectDefinitions({ './defs/bad.ts': () => undefined })).toStrictEqual(rejected);
   });
 
   it('requires a string name and a function run', () => {
     const rejected = err('./defs/x.ts does not export a command');
 
-    expect(
-      collectDefinitions({ './defs/x.ts': { command: { name: 7, run: () => undefined } } }),
-    ).toStrictEqual(rejected);
-    expect(collectDefinitions({ './defs/x.ts': { command: { name: 'x' } } })).toStrictEqual(
+    expect(collectDefinitions({ './defs/x.ts': { name: 7, run: () => undefined } })).toStrictEqual(
       rejected,
     );
-    expect(
-      collectDefinitions({ './defs/x.ts': { command: { name: 'x', run: 'no' } } }),
-    ).toStrictEqual(rejected);
+    expect(collectDefinitions({ './defs/x.ts': { name: 'x' } })).toStrictEqual(rejected);
+    expect(collectDefinitions({ './defs/x.ts': { name: 'x', run: 'no' } })).toStrictEqual(rejected);
   });
 
   it('stops at the first bad path when several modules are given', () => {
     const modules = {
-      './defs/b.ts': {},
-      './defs/a.ts': { command: 'nope' },
+      './defs/b.ts': undefined,
+      './defs/a.ts': 'nope',
     };
 
     expect(collectDefinitions(modules)).toStrictEqual(err('./defs/a.ts does not export a command'));

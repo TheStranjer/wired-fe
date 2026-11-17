@@ -55,6 +55,7 @@ describe('the shell persisting settings', () => {
       defaultVisibility: 'public',
       effects: true,
       expandMedia: false,
+      keyOverrides: [],
     });
   });
 

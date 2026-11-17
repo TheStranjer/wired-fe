@@ -5,7 +5,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { decideKey } from './decide';
-import type { Keymap } from './keymap';
+import type { Keymap } from '../commands/types';
 
 /** A keymap with an Alt chord and even an Escape entry in insert mode. */
 const KEYMAP: Keymap = {

@@ -10,7 +10,7 @@
  */
 
 import { type StatusTarget, resolveStatusTarget, targetLabel } from './targets';
-import type { CommandContext, CommandOutcome } from './types';
+import type { CommandContext, CommandDefinition, CommandOutcome } from './types';
 import { react, unreact } from '../api/endpoints/reactions';
 import { type ApiError, describeApiError } from '../api/errors';
 import type { Status } from '../api/schemas/status';
@@ -110,7 +110,7 @@ async function apply(reaction: Reaction, context: CommandContext): Promise<Comma
  * the emoji left over, refuse it when the instance cannot serve it, and send
  * it; on success every scrollback shows the answered status.
  */
-export async function runReaction(
+async function runReaction(
   args: string,
   context: CommandContext,
   kind: ReactionKind,
@@ -128,4 +128,9 @@ export async function runReaction(
     return fail(problem);
   }
   return await apply({ target: target.value, emoji: emoji.value, kind }, context);
+}
+
+/** {@link runReaction} for {@link kind}, in the shape a definition's run wants. */
+export function reactionRun(kind: ReactionKind): CommandDefinition['run'] {
+  return async (args, context) => await runReaction(args, context, kind);
 }

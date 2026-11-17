@@ -12,7 +12,7 @@ import type { Buffer, LineData } from '../../state/buffer';
 import { statusForLabel, statusOfLine } from '../../state/bufferSelection';
 import { activeBuffer } from '../../state/selectors';
 import { activeWindow } from '../../windows/model';
-import { fail } from '../outcome';
+import { fail, syncRun } from '../outcome';
 import type { CommandBinding, CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** Every form of the command: /help shows it, a bad argument echoes it. */
@@ -100,6 +100,6 @@ export const command: CommandDefinition = {
   aliases: ['sel'],
   usage: USAGE,
   summary: 'Move or set the selected post',
-  run: async (args, context) => await Promise.resolve(handle(args, context)),
+  run: syncRun(handle),
   bindings: BINDINGS,
 };

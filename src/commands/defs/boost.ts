@@ -6,7 +6,7 @@
  * runs it on the selected post. `/unboost` always takes it back.
  */
 
-import { runStatusToggle } from '../statusToggle';
+import { toggleRun } from '../statusToggle';
 import type { CommandDefinition } from '../types';
 
 /** The `/boost` (alias `/rt`, `/reblog`) definition. */
@@ -15,6 +15,6 @@ export const command: CommandDefinition = {
   aliases: ['rt', 'reblog'],
   usage: '/boost [label]',
   summary: 'Boost a post, or take the boost back',
-  run: async (args, context) => await runStatusToggle(args, context, 'boost'),
+  run: toggleRun('boost'),
   bindings: [{ mode: 'navigation', chord: 'b', args: '' }],
 };

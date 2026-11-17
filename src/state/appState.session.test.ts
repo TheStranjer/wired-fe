@@ -179,6 +179,7 @@ describe('the settings', () => {
       defaultVisibility: 'public',
       effects: false,
       expandMedia: true,
+      keyOverrides: [],
     });
   });
 

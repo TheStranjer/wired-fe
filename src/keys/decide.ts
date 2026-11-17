@@ -8,8 +8,8 @@
  * entry can never shadow the chords that switch between the two modes.
  */
 
-import type { Keymap } from './keymap';
 import { type InputMode, nextMode } from './mode';
+import type { Keymap } from '../commands/types';
 
 /** What pressing a chord in a mode achieves. */
 export type KeyDecision =

@@ -14,7 +14,7 @@
  */
 
 import { activeAccount } from '../../state/selectors';
-import { NOT_LOGGED_IN, fail } from '../outcome';
+import { NOT_LOGGED_IN, fail, syncRun } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** The command's grammar: /help shows it, a bare argument echoes it. */
@@ -55,5 +55,5 @@ export const command: CommandDefinition = {
   aliases: ['s'],
   usage: USAGE,
   summary: 'Search accounts, posts and tags',
-  run: async (args, context) => await Promise.resolve(handle(args, context)),
+  run: syncRun(handle),
 };

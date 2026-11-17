@@ -26,38 +26,34 @@ function isDefinition(value: unknown): value is CommandDefinition {
   return typeof value['name'] === 'string' && typeof value['run'] === 'function';
 }
 
-/** The `command` export of a globbed module, when it has the definition shape. */
-function commandOf(module: unknown): CommandDefinition | undefined {
-  if (!isRecord(module)) {
-    return undefined;
-  }
-  const command = module['command'];
-  return isDefinition(command) ? command : undefined;
-}
-
 /**
- * Collect the `command` export of every module, ordered by path. A module
- * without one is a programming error: returns err naming the path.
+ * Collect the globbed command exports, ordered by path. An entry without the
+ * definition shape (a module that exports no `command`) is a programming
+ * error: returns err naming the path.
  */
 export function collectDefinitions(
   modules: Readonly<Record<string, unknown>>,
 ): Result<readonly CommandDefinition[], string> {
   const definitions: CommandDefinition[] = [];
   for (const path of Object.keys(modules).sort((a, b) => a.localeCompare(b))) {
-    const command = commandOf(modules[path]);
-    if (command === undefined) {
+    const definition = modules[path];
+    if (!isDefinition(definition)) {
       return err(`${path} does not export a command`);
     }
-    definitions.push(command);
+    definitions.push(definition);
   }
   return ok(definitions);
 }
 
 /**
- * The definitions in `src/commands/defs`. Test files are excluded from the
- * glob: they export no `command` and would otherwise fail collection.
+ * The definitions in `src/commands/defs`, each module's `command` export.
+ * Test files are excluded from the glob: they export no `command` and would
+ * otherwise fail collection.
  */
 export function loadDefinitions(): Result<readonly CommandDefinition[], string> {
-  const modules = import.meta.glob(['./defs/*.ts', '!./defs/*.test.ts'], { eager: true });
-  return collectDefinitions(modules);
+  const commands = import.meta.glob(['./defs/*.ts', '!./defs/*.test.ts'], {
+    eager: true,
+    import: 'command',
+  });
+  return collectDefinitions(commands);
 }

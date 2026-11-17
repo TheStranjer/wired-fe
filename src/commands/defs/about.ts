@@ -11,6 +11,7 @@ import type { Capabilities } from '../../capabilities/capabilities';
 import type { InstanceProfile } from '../../capabilities/detect';
 import { formatDuration } from '../../lib/duration';
 import { activeAccount } from '../../state/selectors';
+import { contextRun } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** The report was printed; there is nothing else to say. */
@@ -60,5 +61,5 @@ export const command: CommandDefinition = {
   aliases: ['info'],
   usage: '/about',
   summary: 'Show what this instance is and can do',
-  run: async (_args, context) => await Promise.resolve(handle(context)),
+  run: contextRun(handle),
 };

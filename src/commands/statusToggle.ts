@@ -15,7 +15,7 @@
  */
 
 import { type StatusTarget, resolveStatusTarget, targetLabel } from './targets';
-import type { CommandContext, CommandOutcome } from './types';
+import type { CommandContext, CommandDefinition, CommandOutcome } from './types';
 import { type StatusAction, statusAction } from '../api/endpoints/statusActions';
 import { describeApiError } from '../api/errors';
 import type { ApiSession } from '../api/session';
@@ -191,4 +191,9 @@ export async function runStatusToggle(
   }
   const move = prepare(command, target.value, context);
   return move.ok ? await apply(move.value, context) : fail(move.error);
+}
+
+/** {@link runStatusToggle} for {@link command}, in the shape a definition's run wants. */
+export function toggleRun(command: ToggleCommand): CommandDefinition['run'] {
+  return async (args, context) => await runStatusToggle(args, context, command);
 }
