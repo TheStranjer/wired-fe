@@ -28,4 +28,4 @@ Numbered decisions. Tickets and code comments cite them as "decision N". To chan
 
 10. **Security posture**: strict CSP written into `index.html` at build time; no third-party origins at runtime; remote HTML rendered only through one sanitizing component; network and storage access confined to their owning modules (ESLint enforces it).
 
-11. **Testing**: Vitest + Testing Library for units (jsdom), recorded per-backend fixtures for API adapters, Playwright against the production build for flows. No test waits on real time.
+11. **Testing**: Vitest + Testing Library for units (jsdom), recorded per-backend fixtures for API adapters, Playwright against the production build for flows. No test waits on real time. The end-to-end suite also runs axe-core over every main screen — a `serious` or `critical` violation fails the gate (AGENTS.md "Accessibility is not optional") — and writes one review PNG per screen per theme to `test-results/screens/`; those images are for human review, never compared against a baseline.
