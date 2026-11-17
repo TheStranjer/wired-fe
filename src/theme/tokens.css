@@ -6,11 +6,16 @@
  * green on black. `lain` is the pink-and-dark Wicked-Lain palette, `bnet` the
  * Battle.net blue-and-gold one. Warnings and errors stay amber and red (kept
  * readable in each theme) so they read as different from ordinary text.
+ *
+ * Every color here is text on `--color-bg` or on `--color-bar-bg` somewhere in
+ * the shell, so every one of them clears 4.5:1 against both (WCAG 2.1 AA at the
+ * 14px body size); `--color-dim` is the floor of the ladder, and the axe-core
+ * pass in e2e/screens.spec.ts is what keeps it there.
  */
 :root {
   --color-bg: #000;
   --color-fg: #3d6;
-  --color-dim: #1d7a3c;
+  --color-dim: #34ab58;
   --color-accent: #8dffaa;
   --color-bar-bg: #0c2a16;
   --color-bar-fg: #8dffaa;
@@ -27,7 +32,7 @@
 :root[data-theme='lain'] {
   --color-bg: #0b0a0c;
   --color-fg: #d7c6cc;
-  --color-dim: #6e5a63;
+  --color-dim: #a3868f;
   --color-accent: #e0507a;
   --color-bar-bg: #2a1119;
   --color-bar-fg: #f0a0b8;
@@ -40,11 +45,11 @@
 :root[data-theme='bnet'] {
   --color-bg: #000;
   --color-fg: #e8e8e8;
-  --color-dim: #8a8a8a;
+  --color-dim: #9a9a9a;
   --color-accent: #f2d34b;
   --color-bar-bg: #1b2a44;
   --color-bar-fg: #cfd8e8;
   --color-ok: #52d452;
   --color-warn: #ff9d3b;
-  --color-error: #ff4b4b;
+  --color-error: #ff6b6b;
 }

@@ -1,94 +1,26 @@
 /**
- * The fake Wired instance for the end-to-end login flow (decisions 5 and 8):
- * the route handlers `page.route` needs for the same-origin build — NodeInfo,
+ * The fake Wired instance the end-to-end specs run against (decisions 5 and 8):
+ * the route handlers `page.route` needs for a same-origin build — NodeInfo, the
  * instance documents, OAuth, `verify_credentials`, the home timeline, the
- * notifications and custom emoji lists, and status creation. Bodies follow
- * Wired's shapes, the ones src/api's fixtures show.
+ * notifications and custom emoji lists, one status and its context, and status
+ * creation. ./content is what those routes answer with; this module is the
+ * wiring, and {@link routeWired} the one entry point a spec calls.
  */
 
 import type { Page, Request, Route } from '@playwright/test';
 
-/** The preview server's origin: the instance a same-origin build connects to. */
-export const ORIGIN = 'http://127.0.0.1:4173';
-
-/** The handle `verify_credentials` proves, as Wired' fqn reports it. */
-export const HANDLE = `lain@${new URL(ORIGIN).host}`;
-
-/** The plain text the spec posts, so typing and asserting share one string. */
-export const POSTED_TEXT = 'present day, present time';
+import {
+  contextById,
+  homeTimeline,
+  notifications,
+  postedStatusJson,
+  statusById,
+  SELF,
+} from './content';
+import { ORIGIN, json } from './wire';
 
 /** The feature strings Wired advertises in NodeInfo and its v1 document. */
 const FEATURES = ['pleroma_api', 'chat', 'pleroma_emoji_reactions', 'quote_posting'];
-
-/** Wired' HTML-escapes the post's text; these three entities cover the test. */
-const ENTITIES: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;' };
-
-/** A Wired-shaped local account, the form verify_credentials and rows carry. */
-function accountJson(id: string, name: string, displayName: string): Record<string, unknown> {
-  return {
-    id,
-    username: name,
-    acct: name,
-    fqn: `${name}@${new URL(ORIGIN).host}`,
-    display_name: displayName,
-    created_at: '1998-07-06T00:00:00.000Z',
-    note: `<p>${name}</p>`,
-    url: `${ORIGIN}/users/${name}`,
-    avatar: `${ORIGIN}/images/avi.png`,
-    header: `${ORIGIN}/images/banner.png`,
-    followers_count: 1,
-    following_count: 1,
-    statuses_count: 9,
-  };
-}
-
-const LAIN = accountJson('AhZlainAcc00000000000001', 'lain', 'Lain Iwakura');
-const ALICE = accountJson('AhZalic3Acc00000000000001', 'alice', 'Alice');
-
-/** One Wired-shaped status: `content` is the HTML body the backend renders. */
-function statusJson(fields: {
-  readonly id: string;
-  readonly account: 'lain' | 'alice';
-  readonly content: string;
-  readonly created: string;
-}): unknown {
-  const { id, content, created } = fields;
-  return {
-    id,
-    uri: `${ORIGIN}/posts/${id}`,
-    created_at: created,
-    account: fields.account === 'lain' ? LAIN : ALICE,
-    content,
-    visibility: 'public',
-    replies_count: 0,
-    reblogs_count: 0,
-    favourites_count: 0,
-    pleroma: { local: true, conversation_id: `AhZconv${id}` },
-  };
-}
-
-/** The two posts the home timeline answers, newest first as Wired serves them. */
-function homeTimeline(): unknown[] {
-  return [
-    statusJson({
-      id: 'AhZst4tus00000000000000002',
-      account: 'alice',
-      content: '<p>the LAN is all one network</p>',
-      created: '2026-11-15T09:00:00.000Z',
-    }),
-    statusJson({
-      id: 'AhZst4tus00000000000000001',
-      account: 'alice',
-      content: '<p>She is here.</p>',
-      created: '2026-11-15T08:58:00.000Z',
-    }),
-  ];
-}
-
-/** Serves `body` as JSON with `status`; the strings src/api reads survive it all. */
-async function json(route: Route, body: unknown, status = 200): Promise<void> {
-  await route.fulfill({ status, contentType: 'application/json', body: JSON.stringify(body) });
-}
 
 /** The `status` text of a posted-status request body; '' when it has none. */
 function postedText(request: Request): string {
@@ -98,21 +30,31 @@ function postedText(request: Request): string {
   return typeof sent === 'string' ? sent : '';
 }
 
+/** How many statuses the session has posted, so every echo gets its own id. */
 let posts = 0;
 
-/** POST /api/v1/statuses: answers the posted text back as a new status of lain. */
-async function postedStatus(route: Route): Promise<void> {
-  posts += 1;
-  const text = postedText(route.request()).replace(/[&<>]/gu, (c) => ENTITIES[c] ?? c);
-  await json(
-    route,
-    statusJson({
-      id: String(900000000000000000 + posts),
-      account: 'lain',
-      content: `<p>${text}</p>`,
-      created: new Date().toISOString(),
-    }),
-  );
+/** The id a statuses URL names, and whether it asks for that status's context. */
+function statusTarget(url: string): { readonly id: string; readonly context: boolean } {
+  const segments = new URL(url).pathname.split('/').filter((segment) => segment !== '');
+  const context = segments.at(-1) === 'context';
+  return { id: segments.at(context ? -2 : -1) ?? '', context };
+}
+
+/** `/api/v1/statuses`: a POST creates one status, a GET reads one or its context. */
+async function statuses(route: Route): Promise<void> {
+  const request = route.request();
+  if (request.method() === 'POST') {
+    posts += 1;
+    await json(route, postedStatusJson(postedText(request), posts));
+    return;
+  }
+  const target = statusTarget(request.url());
+  if (target.context) {
+    await json(route, contextById(target.id));
+    return;
+  }
+  const found = statusById(target.id);
+  await json(route, found ?? { error: 'Record not found.' }, found === null ? 404 : 200);
 }
 
 /** The routes that describe the instance to the capability builder (decision 5). */
@@ -172,24 +114,22 @@ function routeLogin(page: Page): readonly Promise<unknown>[] {
   ];
 }
 
-/** The session routes: who the token is, the home page, empty notifications, the status echo. */
+/** The session routes: who the token is, and what the windows read and write. */
 function routeSession(page: Page): readonly Promise<unknown>[] {
   return [
     page.route('**/api/v1/accounts/verify_credentials', async (route) => {
-      await json(route, LAIN);
+      await json(route, SELF);
     }),
     page.route('**/api/v1/timelines/home*', async (route) => {
       await json(route, homeTimeline());
     }),
     page.route('**/api/v1/notifications*', async (route) => {
-      await json(route, []);
+      await json(route, notifications());
     }),
     page.route('**/api/v1/custom_emojis', async (route) => {
       await json(route, []);
     }),
-    page.route('**/api/v1/statuses*', async (route) => {
-      await postedStatus(route);
-    }),
+    page.route(/\/api\/v1\/statuses/, statuses),
   ];
 }
 

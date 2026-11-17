@@ -20,6 +20,8 @@ scripts/ci.sh                      # the whole gate: must exit 0 before a change
 
 Other scripts: `pnpm build`, `pnpm preview`, `pnpm test`, `pnpm e2e`, `pnpm lint`, `pnpm typecheck`, `pnpm format`.
 
+`pnpm e2e` runs the flows, the axe-core accessibility checks and the review screenshots against `dist/`; the PNGs land in `test-results/screens/<theme>-<screen>.png` (gitignored) for a human to look at.
+
 ## Configuration
 
 The build reads one JSON configuration file (decision 3): the `WIRED_CONFIG` environment variable names it if set, otherwise `wired.config.json` if it exists (deployments keep their own; it is gitignored), otherwise `wired.config.example.json`. It is validated at build time and injected into the bundle as a constant; there is no runtime config fetch.
