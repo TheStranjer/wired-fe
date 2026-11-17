@@ -1,19 +1,36 @@
 /**
- * The session every end-to-end spec starts from: the fake Wired instance of
- * ./wired under the built bundle, `/connect` walked through the OAuth redirect
- * (decision 8), and the locators the specs share — the command line, the status
- * line's window entries, a window's log region — over the two hotkey modes
- * (AGENTS.md "Two hotkey modes"). The assertions stay in the specs; this module
- * only gets the reader logged in and moves them between windows.
+ * The session every end-to-end spec starts from: a fake instance of ./wired,
+ * ./mastodon or ./pleroma under the built bundle, `/connect` walked through the
+ * OAuth redirect (decision 8), and the locators the specs share — the command
+ * line, the status line's window entries, a window's log region — over the two
+ * hotkey modes (AGENTS.md "Two hotkey modes"). The assertions stay in the
+ * specs; this module only gets the reader logged in and moves them between
+ * windows.
  */
 
 import { expect, type Locator, type Page } from '@playwright/test';
 
 import { HANDLE } from './content';
-import { ORIGIN } from './wire';
+import { routeMastodon } from './mastodon';
+import { routePleroma } from './pleroma';
+import { HOST, ORIGIN } from './wire';
 import { routeWired } from './wired';
 
-/** The path decision 5 probes and Wired answers 404: the absent v2 document. */
+/** One fake instance to sign in to: its routes, and the handle it proves. */
+export type Instance = {
+  readonly route: (page: Page) => Promise<void>;
+  readonly handle: string;
+};
+
+/** The three backends the specs run the same flow against (decision 5). */
+export const WIRED: Instance = { route: routeWired, handle: HANDLE };
+export const MASTODON: Instance = {
+  route: routeMastodon,
+  handle: `lain@${new URL(ORIGIN).hostname}`,
+};
+export const PLEROMA: Instance = { route: routePleroma, handle: `lain@${HOST}` };
+
+/** The path decision 5 probes and Wired and Pleroma answer 404: the absent v2 document. */
 const V2_PROBE = '/api/v2/instance';
 
 /** The text that says a logged-out shell is ready for `/connect`. */
@@ -21,9 +38,9 @@ const NOT_CONNECTED = 'Not connected. Type /connect to log in.';
 
 /**
  * Console errors and page exceptions, collected as ./boot.spec does, except the
- * one 404 the flow must produce: connect probes `/api/v2/instance` and Wired has
- * no v2 document (decision 5 treats the 404 as its absence), which the browser
- * logs as a failed resource load.
+ * one 404 the flow can produce: connect probes `/api/v2/instance` and Wired and
+ * Pleroma have no v2 document (decision 5 treats the 404 as its absence), which
+ * the browser logs as a failed resource load.
  */
 export function watchErrors(page: Page): string[] {
   const errors: string[] = [];
@@ -88,16 +105,19 @@ async function connect(page: Page): Promise<void> {
 }
 
 /**
- * Logs in through the fixture flow and waits for what startup opens: the status
- * line's three windows, the login line in window 1, and the fixture posts in
- * home — the reader ends up looking at home, ready to move.
+ * Logs in through the fixture flow of {@link instance} (the fake Wired one by
+ * default) and waits for what startup opens: the status line's windows, the
+ * login line in window 1 and the fixture posts in home — the reader ends up
+ * looking at home, ready to move.
  */
-export async function signIn(page: Page): Promise<void> {
-  await routeWired(page);
+export async function signIn(page: Page, instance: Instance = WIRED): Promise<void> {
+  await instance.route(page);
   await connect(page);
   await expect(windowEntry(page, 'notifs')).toBeVisible();
   await showWindow(page, 'status');
-  await expect(logRegion(page, 'status')).toContainText(`Logged in to ${ORIGIN} as @${HANDLE}`);
+  await expect(logRegion(page, 'status')).toContainText(
+    `Logged in to ${ORIGIN} as @${instance.handle}`,
+  );
   await showWindow(page, 'home');
-  await expect(logRegion(page, 'home').locator('article')).toHaveCount(2);
+  await expect(logRegion(page, 'home').locator('article').first()).toBeVisible();
 }
