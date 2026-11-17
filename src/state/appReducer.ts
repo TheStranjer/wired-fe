@@ -111,7 +111,8 @@ export function mergedSettings(current: Settings, patch: Partial<Settings>): Set
     merged.defaultVisibility === current.defaultVisibility &&
     merged.effects === current.effects &&
     merged.expandMedia === current.expandMedia &&
-    merged.keyOverrides === current.keyOverrides
+    merged.keyOverrides === current.keyOverrides &&
+    merged.theme === current.theme
   ) {
     return current;
   }

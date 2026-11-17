@@ -11,7 +11,7 @@
  * composer overlay for long posts (WFE-125) opens through
  * ./useComposerOverlay, ./useAttachments holds pending media (WFE-126),
  * ./useDropAndPaste feeds it pasted and dropped files (WFE-127), and
- * ./useSettingsPersistence writes changed settings back to storage (WFE-129).
+ * ./useSettingsPersistence persists settings (WFE-129) and ./useTheme paints them (WFE-131).
  */
 
 import { useEffect, useState } from 'react';
@@ -27,6 +27,7 @@ import { useComposerOverlay } from './useComposerOverlay';
 import { useDropAndPaste } from './useDropAndPaste';
 import { useSettingsPersistence } from './useSettingsPersistence';
 import { useStartup } from './useStartup';
+import { useTheme } from './useTheme';
 import { loadWindowKinds } from './windowKinds';
 import { type Provider, commandProvider } from '../commands/complete';
 import type { Result } from '../lib/result';
@@ -166,6 +167,7 @@ export function Root(): JSX.Element {
   const composer = useComposerOverlay(attachments);
   useStartup();
   useSettingsPersistence(state.settings, appStores().settings);
+  useTheme(state.settings.theme);
 
   useEffect(() => {
     for (const reason of [failure(KINDS), failure(REGISTRY)]) {

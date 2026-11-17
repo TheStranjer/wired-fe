@@ -15,6 +15,7 @@ import {
   SETTING_KEYS,
   type SettingKey,
   type Settings,
+  THEMES,
   VISIBILITIES,
 } from '../../state/settings';
 import { fail, syncRun } from '../outcome';
@@ -58,6 +59,21 @@ function listed(context: CommandContext, meta: SettingKey): string {
   return `  ${meta.key} = ${shown(context.state.settings[meta.key])}  — ${meta.description}`;
 }
 
+/** The listed keys whose value is a word, and the ones whose value is a switch. */
+type BooleanKey = 'effects' | 'expandMedia';
+
+/** Turn a boolean knob: the word's meaning becomes the patch, printed as on or off. */
+function booleanTurn(key: BooleanKey, raw: string): Turn | null {
+  const value = MEANINGS.get(raw);
+  if (value === undefined) {
+    return null;
+  }
+  return {
+    patch: key === 'effects' ? { effects: value } : { expandMedia: value },
+    word: shown(value),
+  };
+}
+
 /** Turn {@link meta} to {@link raw}: the patch and print word, or null to refuse. */
 function turnOf(meta: SettingKey, raw: string): Turn | null {
   switch (meta.key) {
@@ -65,14 +81,11 @@ function turnOf(meta: SettingKey, raw: string): Turn | null {
       return isOneOf(CLOCK_FORMATS, raw) ? { patch: { clockFormat: raw }, word: raw } : null;
     case 'defaultVisibility':
       return isOneOf(VISIBILITIES, raw) ? { patch: { defaultVisibility: raw }, word: raw } : null;
-    case 'effects': {
-      const value = MEANINGS.get(raw);
-      return value === undefined ? null : { patch: { effects: value }, word: shown(value) };
-    }
-    case 'expandMedia': {
-      const value = MEANINGS.get(raw);
-      return value === undefined ? null : { patch: { expandMedia: value }, word: shown(value) };
-    }
+    case 'theme':
+      return isOneOf(THEMES, raw) ? { patch: { theme: raw }, word: raw } : null;
+    case 'effects':
+    case 'expandMedia':
+      return booleanTurn(meta.key, raw);
   }
 }
 

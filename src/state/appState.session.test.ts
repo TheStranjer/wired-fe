@@ -180,6 +180,7 @@ describe('the settings', () => {
       effects: false,
       expandMedia: true,
       keyOverrides: [],
+      theme: 'wired',
     });
   });
 

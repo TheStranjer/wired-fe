@@ -3,7 +3,7 @@
     "name": "JavaScript bundle",
     "path": "dist/wired.*.js",
     "gzip": true,
-    "limit": "121 kB"
+    "limit": "122 kB"
   },
   {
     "name": "Stylesheet",

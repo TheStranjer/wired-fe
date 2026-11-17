@@ -1,8 +1,9 @@
 /**
  * The settings a reader chooses for themselves (AGENTS.md "Layout": src/state
  * holds the pure app state, settings among it): how the scrollback prints a
- * moment, who a new post is aimed at by default, and whether the CRT effects
- * and media behind a content warning start open. Plain data with one default
+ * moment, who a new post is aimed at by default, which theme paints the shell
+ * (WFE-131, `/theme`), and whether the CRT effects and media behind a content
+ * warning start open. Plain data with one default
  * record, the valibot schema that reads them back from storage (every field
  * optional on input, every default filled in), and {@link SETTING_KEYS}: the
  * per-knob metadata the `/set` command lists and checks itself against.
@@ -18,6 +19,9 @@ import type { Visibility } from '../api/schemas/status';
 import type { KeyOverride } from '../lib/keyOverride';
 import type { ClockFormat } from '../lib/time';
 
+/** The three themes src/theme/tokens.css paints (`/theme`, WFE-131). */
+export type Theme = 'wired' | 'lain' | 'bnet';
+
 /** What the reader can change, one value per knob. */
 export type Settings = {
   /** How every timestamp in the scrollback is rendered (src/lib/time). */
@@ -30,6 +34,8 @@ export type Settings = {
   readonly expandMedia: boolean;
   /** The reader's own key bindings over the defaults (WFE-130, `/bind`). */
   readonly keyOverrides: readonly KeyOverride[];
+  /** Which theme paints the shell (src/theme/tokens.css, `/theme`). */
+  readonly theme: Theme;
 };
 
 /** A session that has changed nothing: a 24-hour clock, public posts, no effects. */
@@ -39,6 +45,7 @@ export const DEFAULT_SETTINGS: Settings = {
   effects: false,
   expandMedia: false,
   keyOverrides: [],
+  theme: 'wired',
 };
 
 /** The two ways the scrollback prints a moment (src/lib/time). */
@@ -52,6 +59,9 @@ export const VISIBILITIES = [
   'direct',
   'local',
 ] as const satisfies readonly Visibility[];
+
+/** The themes a reader can choose, the default first (src/theme/tokens.css). */
+export const THEMES = ['wired', 'lain', 'bnet'] as const satisfies readonly Theme[];
 
 /** One stored key override, as the reader's own bindings come back from storage. */
 const KeyOverrideSchema = v.object({
@@ -67,6 +77,7 @@ export const SettingsSchema: v.GenericSchema<unknown, Settings> = v.object({
   effects: v.optional(v.boolean(), DEFAULT_SETTINGS.effects),
   expandMedia: v.optional(v.boolean(), DEFAULT_SETTINGS.expandMedia),
   keyOverrides: v.optional(v.array(KeyOverrideSchema), DEFAULT_SETTINGS.keyOverrides),
+  theme: v.optional(v.picklist(THEMES), DEFAULT_SETTINGS.theme),
 });
 
 /** The knobs `/set` lists and turns: every setting except the hidden key overrides. */
@@ -107,5 +118,11 @@ export const SETTING_KEYS: readonly SettingKey[] = [
     key: 'expandMedia',
     kind: 'boolean',
     description: 'Media behind a content warning starts open',
+  },
+  {
+    key: 'theme',
+    kind: 'enum',
+    values: THEMES,
+    description: 'The colors the shell is painted in',
   },
 ];
