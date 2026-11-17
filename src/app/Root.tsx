@@ -8,10 +8,8 @@
  * dispatcher (decision 6), which runs a command or posts through the window's
  * kind. The kinds and the registry load once when this module loads; a failed
  * load prints its reason into the status window on mount, beside the startup
- * run that boots there. Tab's completion providers meet here (WFE-124), the
- * composer overlay for long posts (WFE-125) opens through ./useComposerOverlay,
- * ./useAttachments holds pending media (WFE-126), ./useDropAndPaste feeds it
- * files (WFE-127), ./useSettingsPersistence persists settings (WFE-129) and ./useTheme paints them (WFE-131).
+ * run that boots there. The ./use* hooks mounted below own every flow past
+ * these five regions, WFE-134's tab title (./useDocumentTitle) among them.
  */
 
 import { useEffect, useState } from 'react';
@@ -25,6 +23,7 @@ import { appStores } from './stores';
 import { useAttachments } from './useAttachments';
 import { useClock } from './useClock';
 import { useComposerOverlay } from './useComposerOverlay';
+import { useDocumentTitle } from './useDocumentTitle';
 import { useDropAndPaste } from './useDropAndPaste';
 import { useSettingsPersistence } from './useSettingsPersistence';
 import { useStartup } from './useStartup';
@@ -47,8 +46,7 @@ import { useCustomEmojis } from '../views/useCustomEmojis';
 import { STATUS_WINDOW_ID, activeWindow } from '../windows/model';
 import type { WindowKind, WindowState } from '../windows/model';
 
-/** The one loads shared by every mount: the self-registered kinds, and the
- * command registry (decision 6). */
+/** The one loads every mount shares: the window kinds and the command registry. */
 const KINDS = loadWindowKinds();
 const REGISTRY = appRegistry();
 
@@ -168,6 +166,7 @@ export function Root(): JSX.Element {
   useStartup();
   useSettingsPersistence(state.settings, appStores().settings);
   useTheme(state.settings.theme, state.settings.effects);
+  useDocumentTitle(state.windows);
 
   useEffect(() => {
     for (const reason of [failure(KINDS), failure(REGISTRY)]) {
