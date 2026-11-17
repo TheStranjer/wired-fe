@@ -1,0 +1,17 @@
+/* The side pane's nick list: the heading dimmed above, one bracketed nick per
+   line with no bullets, so the pane reads like an IRC user list. */
+
+.pane {
+  padding: 0 var(--space);
+}
+
+.heading {
+  margin: 0;
+  color: var(--color-dim);
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
