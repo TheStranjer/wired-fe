@@ -10,7 +10,11 @@
  * Every color here is text on `--color-bg` or on `--color-bar-bg` somewhere in
  * the shell, so every one of them clears 4.5:1 against both (WCAG 2.1 AA at the
  * 14px body size); `--color-dim` is the floor of the ladder, and the axe-core
- * pass in e2e/screens.spec.ts is what keeps it there.
+ * pass in e2e/screens.spec.ts is what keeps it there. The one exception is the
+ * two `--effect-*` tokens (WFE-132): they are not text, they tint the optional
+ * CRT overlay src/theme/effects.css paints under `data-effects='on'`, and the
+ * scanline alpha stays at or below 0.15 so the overlay never costs a theme its
+ * readable contrast.
  */
 :root {
   --color-bg: #000;
@@ -22,6 +26,8 @@
   --color-ok: #3d6;
   --color-warn: #e0b040;
   --color-error: #ff5050;
+  --effect-glow: #33dd6659;
+  --effect-scanline: #00000026;
   --font-mono: ui-monospace, 'DejaVu Sans Mono', 'Liberation Mono', monospace;
   --font-size: 14px;
   --line-height: 1.4;
@@ -39,6 +45,8 @@
   --color-ok: #6fdc8c;
   --color-warn: #e8b04a;
   --color-error: #ff6b6b;
+  --effect-glow: #e0507a4d;
+  --effect-scanline: #00000026;
 }
 
 /* bnet: black behind pale grey text, the accent Battle.net gold. */
@@ -52,4 +60,6 @@
   --color-ok: #52d452;
   --color-warn: #ff9d3b;
   --color-error: #ff6b6b;
+  --effect-glow: #e8e8e84d;
+  --effect-scanline: #00000026;
 }
