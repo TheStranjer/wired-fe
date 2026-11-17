@@ -167,7 +167,7 @@ export function Root(): JSX.Element {
   const composer = useComposerOverlay(attachments);
   useStartup();
   useSettingsPersistence(state.settings, appStores().settings);
-  useTheme(state.settings.theme);
+  useTheme(state.settings.theme, state.settings.effects);
 
   useEffect(() => {
     for (const reason of [failure(KINDS), failure(REGISTRY)]) {

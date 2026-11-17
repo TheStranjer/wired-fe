@@ -1,0 +1,45 @@
+/*
+ * Optional CRT effects (WFE-132, AGENTS.md "Monospace grid, theme tokens,
+ * optional effects"): painted only while src/app/useTheme keeps
+ * `data-effects='on'` on the root element, which the `effects` setting turns.
+ * A static scanline overlay with a radial vignette, and a soft text glow.
+ * Every color is an --effect-* token from tokens.css; the overlay's alpha is
+ * 0.15 at worst, so text keeps the theme's readable contrast. Nothing here
+ * blinks or flickers, and the one animation — a scanline drift that takes 10 s
+ * per 3-line row — is switched off under prefers-reduced-motion.
+ */
+:root[data-effects='on'] body {
+  text-shadow: 0 0 2px var(--effect-glow);
+}
+
+:root[data-effects='on'] body::after {
+  animation: scanline-drift 10s linear infinite;
+  background:
+    radial-gradient(ellipse at center, transparent 60%, var(--effect-scanline) 100%),
+    repeating-linear-gradient(to bottom, var(--effect-scanline) 0 1px, transparent 1px 3px);
+  content: '';
+  inset: 0;
+  pointer-events: none;
+  position: fixed;
+}
+
+/* The vignette layer (first background) holds still; only the scanlines drift. */
+@keyframes scanline-drift {
+  from {
+    background-position:
+      0 0,
+      0 0;
+  }
+
+  to {
+    background-position:
+      0 0,
+      0 3px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root[data-effects='on'] body::after {
+    animation: none;
+  }
+}
