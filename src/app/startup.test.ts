@@ -1,11 +1,13 @@
 /**
- * Tests for startup's greeting and its report of who is signed in: the two
- * opening lines, the `/connect` hint of a build with no accounts in every
- * instance mode (decision 3), and one line per account — the active one
- * marked — under the reports of the instances they live on.
+ * Tests for startup's opening and its report of who is signed in: the
+ * decorative banner and its text alternative, the `/connect` hint of a build
+ * with no accounts in every instance mode (decision 3), and one line per
+ * account — the active one marked — under the reports of the instances they
+ * live on.
  */
 import { describe, expect, it, vi, type Mock } from 'vitest';
 
+import { BANNER } from './banner';
 import { type Detect, type StartupDeps, runStartup } from './startup';
 import type { AppStores } from './stores';
 import { accountKey, type StoredAccount } from '../accounts/accountStore';
@@ -40,8 +42,11 @@ const ACCOUNT_B: StoredAccount = {
   token: 'token-b',
 };
 
-/** The two lines every run opens with. */
-const GREETING = ['WIRED // WIRED', 'Present day. Present time.'];
+/** The banner art, its text alternative and the tagline: every run's opening. */
+const GREETING: readonly string[] = [...BANNER, 'WIRED // WIRED', 'Present day. Present time.'];
+
+/** The `print` member of {@link AppAction}, the shape of every startup line. */
+type PrintAction = Extract<AppAction, { readonly type: 'print' }>;
 
 /** The lounge each origin answers with. */
 const TITLES: ReadonlyMap<string, string> = new Map([
@@ -116,6 +121,11 @@ function printedTexts(dispatch: Mock<Dispatch>): readonly string[] {
   return actionsOf(dispatch).flatMap((action) => (action.type === 'print' ? [action.text] : []));
 }
 
+/** The print actions, in order. */
+function printedActions(dispatch: Mock<Dispatch>): readonly PrintAction[] {
+  return actionsOf(dispatch).filter((action): action is PrintAction => action.type === 'print');
+}
+
 describe(runStartup, () => {
   it('greets and hints at /connect on a same-origin build with no accounts', async () => {
     const detect = vi.fn<Detect>();
@@ -132,13 +142,13 @@ describe(runStartup, () => {
   it('hints the same way on a fixed build', async () => {
     const dispatch = await start({ instances: { mode: 'fixed', origin: ORIGIN_A } });
 
-    expect(printedTexts(dispatch)[2]).toBe('Not connected. Type /connect to log in.');
+    expect(printedTexts(dispatch)[GREETING.length]).toBe('Not connected. Type /connect to log in.');
   });
 
   it('lists the available origins on a list build', async () => {
     const dispatch = await start({ instances: { mode: 'list', origins: [ORIGIN_A, ORIGIN_B] } });
 
-    expect(printedTexts(dispatch)[2]).toBe(
+    expect(printedTexts(dispatch)[GREETING.length]).toBe(
       `Not connected. Type /connect <instance>. Available: ${ORIGIN_A}, ${ORIGIN_B}`,
     );
   });
@@ -146,7 +156,7 @@ describe(runStartup, () => {
   it('names an example origin on an open build', async () => {
     const dispatch = await start({ instances: { mode: 'open' } });
 
-    expect(printedTexts(dispatch)[2]).toBe(
+    expect(printedTexts(dispatch)[GREETING.length]).toBe(
       'Not connected. Type /connect <instance>, e.g. /connect wired.example',
     );
   });
@@ -177,6 +187,29 @@ describe(runStartup, () => {
     });
   });
 
+  it('prints the banner first: five decorative lines, then the text alternative', async () => {
+    const dispatch = await start({});
+    const prints = printedActions(dispatch);
+
+    expect(prints.slice(0, BANNER.length)).toStrictEqual(
+      BANNER.map((text) => ({
+        type: 'print',
+        windowId: STATUS_WINDOW_ID,
+        date: NOW,
+        level: 'info',
+        text,
+        decorative: true,
+      })),
+    );
+    expect(prints[BANNER.length]).toStrictEqual({
+      type: 'print',
+      windowId: STATUS_WINDOW_ID,
+      date: NOW,
+      level: 'info',
+      text: 'WIRED // WIRED',
+    });
+  });
+
   it('prints into the status window, stamped at the injected moment', async () => {
     const dispatch = await start({});
     const greeting = actionsOf(dispatch).find((action) => action.type === 'print');
@@ -186,7 +219,8 @@ describe(runStartup, () => {
       windowId: STATUS_WINDOW_ID,
       date: NOW,
       level: 'info',
-      text: 'WIRED // WIRED',
+      text: BANNER[0],
+      decorative: true,
     });
   });
 });

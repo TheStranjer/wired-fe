@@ -1,6 +1,7 @@
 /**
  * Startup: what the shell does the moment it mounts (AGENTS.md "Windows, like
- * IRC buffers"). It restores the stored settings, greets, completes an OAuth
+ * IRC buffers"). It restores the stored settings, opens with the decorative
+ * banner and its text alternative (WFE-135), completes an OAuth
  * login the redirect may have left in the address bar (decision 8), restores
  * the persisted accounts into the app state, opens a home window and a
  * notifications window for each of them, and asks every instance an account
@@ -10,6 +11,8 @@
  * which is where every session begins.
  */
 
+import { BANNER } from './banner';
+import { connectHint } from './connectHint';
 import type { AppStores } from './stores';
 import type { StoredAccount } from '../accounts/accountStore';
 import { completeLogin } from '../accounts/completeLogin';
@@ -19,7 +22,7 @@ import {
   detectInstance,
   describeApiError,
 } from '../capabilities/detect';
-import type { InstancesConfig, WiredConfig } from '../config/schema';
+import type { WiredConfig } from '../config/schema';
 import type { Result } from '../lib/result';
 import type { LineLevel } from '../state/buffer';
 import { DEFAULT_SETTINGS, SettingsSchema } from '../state/settings';
@@ -63,8 +66,19 @@ function printStatus(deps: StartupDeps, text: string, level: LineLevel): void {
   deps.dispatch({ type: 'print', windowId: STATUS_WINDOW_ID, date: deps.now(), level, text });
 }
 
-/** The two lines every session opens with. */
+/** How every session opens: the decorative banner, its text alternative
+ * (WFE-135) and the tagline. */
 function greet(deps: StartupDeps): void {
+  for (const text of BANNER) {
+    deps.dispatch({
+      type: 'print',
+      windowId: STATUS_WINDOW_ID,
+      date: deps.now(),
+      level: 'info',
+      text,
+      decorative: true,
+    });
+  }
   printStatus(deps, `WIRED // ${deps.config.appName}`, 'info');
   printStatus(deps, 'Present day. Present time.', 'info');
 }
@@ -73,19 +87,6 @@ function greet(deps: StartupDeps): void {
 function loadSettings(deps: StartupDeps): void {
   const stored = deps.stores.settings.get('settings', SettingsSchema);
   deps.dispatch({ type: 'settings', settings: stored ?? DEFAULT_SETTINGS });
-}
-
-/** What a build with no accounts says about `/connect`, by instance mode (decision 3). */
-function notConnected(instances: InstancesConfig): string {
-  switch (instances.mode) {
-    case 'same-origin':
-    case 'fixed':
-      return 'Not connected. Type /connect to log in.';
-    case 'list':
-      return `Not connected. Type /connect <instance>. Available: ${instances.origins.join(', ')}`;
-    case 'open':
-      return 'Not connected. Type /connect <instance>, e.g. /connect wired.example';
-  }
 }
 
 /** The origins the accounts live on, distinct, in the order they were added. */
@@ -183,7 +184,7 @@ export async function runStartup(deps: StartupDeps): Promise<void> {
     deps.dispatch({ type: 'windows', action });
   }
   if (accounts.length === 0) {
-    printStatus(deps, notConnected(deps.config.instances), 'info');
+    printStatus(deps, connectHint(deps.config.instances), 'info');
     return;
   }
   await detectOrigins(deps, originsOf(accounts));

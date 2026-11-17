@@ -10,6 +10,7 @@
  */
 import { describe, expect, it, vi, type Mock } from 'vitest';
 
+import { BANNER } from './banner';
 import { type Detect, type StartupDeps, runStartup } from './startup';
 import type { AppStores } from './stores';
 import { accountKey, type StoredAccount } from '../accounts/accountStore';
@@ -186,6 +187,7 @@ describe('startup opening account windows', () => {
       .map((action) => action.text);
 
     expect(texts).toStrictEqual([
+      ...BANNER,
       'WIRED // WIRED',
       'Present day. Present time.',
       `Connected to ${ORIGIN_A} Lounge (wired) at ${ORIGIN_A}`,

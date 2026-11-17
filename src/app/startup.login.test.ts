@@ -9,6 +9,7 @@
 import { HttpResponse, http } from 'msw';
 import { describe, expect, it, vi, type Mock } from 'vitest';
 
+import { BANNER } from './banner';
 import { type Detect, type StartupDeps, runStartup } from './startup';
 import type { AppStores } from './stores';
 import { createAccountStore } from '../accounts/accountStore';
@@ -26,8 +27,8 @@ import { STATUS_WINDOW_ID } from '../windows/model';
 /** The moment every printed line is stamped with. */
 const NOW = new Date('2026-11-15T09:00:00.000Z');
 
-/** The two lines every run opens with. */
-const GREETING = ['WIRED // WIRED', 'Present day. Present time.'];
+/** The banner art, its text alternative and the tagline: every run's opening. */
+const GREETING: readonly string[] = [...BANNER, 'WIRED // WIRED', 'Present day. Present time.'];
 
 /** The address bar startup is handed, and the URL stripping a callback gives. */
 const PATHNAME = '/wiredfe/index.html';

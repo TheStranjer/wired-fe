@@ -65,6 +65,9 @@ export type CoreAction =
       readonly date: Date;
       readonly level: LineLevel;
       readonly text: string;
+      /** The line is decorative ASCII art (WFE-135): stored on the line so
+       * the view can hide it from assistive technology. Omitted otherwise. */
+      readonly decorative?: boolean;
     }
   | { readonly type: 'clear'; readonly windowId: string }
   | {
@@ -140,8 +143,12 @@ function applyWindows(state: AppState, action: WindowsAction): AppState {
 /** One client message at the bottom of the window that takes it, keyed by `seq`. */
 function applyPrint(state: AppState, action: PrintAction): AppState {
   const id = printTarget(state.windows, action.windowId);
-  const line = { date: action.date, level: action.level, text: action.text };
-  const buffer = appendSystem(state.buffers.get(id) ?? EMPTY_BUFFER, line, state.seq);
+  const { date, level, text, decorative } = action;
+  const buffer = appendSystem(
+    state.buffers.get(id) ?? EMPTY_BUFFER,
+    { date, level, text, ...(decorative === true ? { decorative } : {}) },
+    state.seq,
+  );
   return { ...state, buffers: putBuffer(state.buffers, id, buffer), seq: state.seq + 1 };
 }
 

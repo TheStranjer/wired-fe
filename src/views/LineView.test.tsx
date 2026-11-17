@@ -110,6 +110,19 @@ describe(LineView, () => {
     expect(container.textContent).toBe('23:04 *** Warning: no more history');
   });
 
+  it('hides a decorative line from assistive technology', () => {
+    const { container } = renderLine(seeded(), {
+      kind: 'system',
+      key: 'a',
+      date: DATE,
+      level: 'info',
+      text: '█',
+      decorative: true,
+    });
+
+    expect(container.firstElementChild).toHaveAttribute('aria-hidden', 'true');
+  });
+
   it('follows the clock format the reader has set', () => {
     const state = appReducer(seeded(), { type: 'settings', settings: { clockFormat: '12h' } });
 

@@ -147,6 +147,26 @@ describe(appendSystem, () => {
     expect(before.lines).toBe(lines);
     expect(before.lines).toHaveLength(3);
   });
+
+  it('keeps a decorative line flagged, and an ordinary one unflagged', () => {
+    const buffer = appendSystem(
+      EMPTY_BUFFER,
+      { date: DATE, level: 'info', text: '█▀▄', decorative: true },
+      7,
+    );
+
+    expect(buffer.lines[0]).toStrictEqual({
+      kind: 'system',
+      key: 'sys:7',
+      date: DATE,
+      level: 'info',
+      text: '█▀▄',
+      decorative: true,
+    } satisfies SystemLineData);
+    expect(
+      appendSystem(EMPTY_BUFFER, { date: DATE, level: 'info', text: 'plain' }, 0).lines[0],
+    ).not.toHaveProperty('decorative');
+  });
 });
 
 describe(capLines, () => {

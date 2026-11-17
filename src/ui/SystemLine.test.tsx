@@ -82,4 +82,16 @@ describe(SystemLine, () => {
 
     expect(onSelect).toHaveBeenCalledTimes(1);
   });
+
+  it('hides a decorative line whole from assistive technology', () => {
+    const { container } = render(<SystemLine {...BASE_PROPS} decorative text="█▀▀▀▀▄" />);
+
+    expect(container.firstElementChild).toHaveAttribute('aria-hidden', 'true');
+  });
+
+  it('leaves an ordinary line visible to assistive technology', () => {
+    const { container } = render(<SystemLine {...BASE_PROPS} text="done" />);
+
+    expect(container.firstElementChild).not.toHaveAttribute('aria-hidden');
+  });
 });

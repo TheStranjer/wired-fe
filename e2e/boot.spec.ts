@@ -20,5 +20,9 @@ test('boots the built bundle under its CSP without console errors', async ({ pag
   await expect(
     page.getByText('Not connected. Type /connect to log in.', { exact: true }),
   ).toBeVisible();
+  // WFE-135: the ASCII banner shows as art that never reaches the reader.
+  const bannerArt = page.locator('div[aria-hidden="true"]', { hasText: '██  ███' }).first();
+  await expect(bannerArt).toHaveCount(1);
+  await expect(bannerArt).toHaveCSS('white-space', 'pre');
   expect(errors).toStrictEqual([]);
 });

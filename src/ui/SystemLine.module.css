@@ -7,6 +7,13 @@
   overflow-wrap: anywhere;
 }
 
+/* A decorative line (WFE-135): the ASCII art is hidden from assistive
+   technology, so it keeps its shape and runs unwrapped. */
+.decorative {
+  white-space: pre;
+  overflow: visible;
+}
+
 .marker {
   color: var(--color-accent);
 }
