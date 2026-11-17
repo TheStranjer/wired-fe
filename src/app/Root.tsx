@@ -1,17 +1,17 @@
 /**
  * The shell wired to real state (AGENTS.md "Windows, like IRC buffers"): every
  * region is drawn from the app state the AppStateProvider above holds. The
- * active window's kind decides its topic and scrollback; the window list, the
- * active account, the clock and the hotkey mode fill the status line; the
- * command line (./CommandLine) hands every typed or chord-bound line to the
+ * active window's kind decides its topic, its scrollback and its side pane of
+ * who is in the window (./SidePane, WFE-133); the window list, the active
+ * account, the clock and the hotkey mode fill the status line; the command
+ * line (./CommandLine) hands every typed or chord-bound line to the
  * dispatcher (decision 6), which runs a command or posts through the window's
  * kind. The kinds and the registry load once when this module loads; a failed
  * load prints its reason into the status window on mount, beside the startup
  * run that boots there. Tab's completion providers meet here (WFE-124), the
- * composer overlay for long posts (WFE-125) opens through
- * ./useComposerOverlay, ./useAttachments holds pending media (WFE-126),
- * ./useDropAndPaste feeds it pasted and dropped files (WFE-127), and
- * ./useSettingsPersistence persists settings (WFE-129) and ./useTheme paints them (WFE-131).
+ * composer overlay for long posts (WFE-125) opens through ./useComposerOverlay,
+ * ./useAttachments holds pending media (WFE-126), ./useDropAndPaste feeds it
+ * files (WFE-127), ./useSettingsPersistence persists settings (WFE-129) and ./useTheme paints them (WFE-131).
  */
 
 import { useEffect, useState } from 'react';
@@ -20,6 +20,7 @@ import type { JSX } from 'react';
 import { CommandLine } from './CommandLine';
 import { appRegistry } from './registry';
 import { Shell } from './Shell';
+import { SidePane } from './SidePane';
 import { appStores } from './stores';
 import { useAttachments } from './useAttachments';
 import { useClock } from './useClock';
@@ -46,10 +47,9 @@ import { useCustomEmojis } from '../views/useCustomEmojis';
 import { STATUS_WINDOW_ID, activeWindow } from '../windows/model';
 import type { WindowKind, WindowState } from '../windows/model';
 
-/** The one load of the self-registered kinds, shared by every mount. */
+/** The one loads shared by every mount: the self-registered kinds, and the
+ * command registry (decision 6). */
 const KINDS = loadWindowKinds();
-
-/** The one command registry, shared by every mount. */
 const REGISTRY = appRegistry();
 
 /** The kind map the shell draws from; empty when the load failed. */
@@ -182,7 +182,7 @@ export function Root(): JSX.Element {
       <Shell
         topic={<Topic win={active} state={state} />}
         scrollback={<WindowBody win={active} state={state} />}
-        sidePane={null}
+        sidePane={<SidePane win={active} />}
         statusLine={<StatusBar pendingMedia={attachments.pending.length} />}
         input={
           <CommandLine
