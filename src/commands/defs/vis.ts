@@ -7,8 +7,8 @@
  * action and prints the new default back. `followers` reads as `private`, the
  * Mastodon name for the same audience. `local` is Wired's instance-only
  * audience and needs the active account's `localOnlyPosts` capability
- * (decision 5); without one the command refuses. Moving settings in and out of
- * storage is the later persistence ticket.
+ * (decision 5); without one the command refuses. The dispatch reaches storage
+ * through the app's settings persistence (WFE-129).
  */
 
 import type { Visibility } from '../../api/schemas/status';
