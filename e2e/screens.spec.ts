@@ -7,6 +7,12 @@
  * a human to review. The screenshots are the review; there is no baseline image
  * to compare them with. The default theme gets the axe pass; `lain` and `bnet`
  * are shot again for their colors alone.
+ *
+ * One test per screen, not one test for the whole walk: seven axe passes over
+ * seven screens do not fit inside a single Playwright timeout once the machine
+ * is busy, and a screen's own test names the screen that failed. Each of them
+ * walks the reader through the screens before its own, because the later
+ * screens are states of the earlier ones.
  */
 
 import { AxeBuilder } from '@axe-core/playwright';
@@ -19,6 +25,9 @@ type AxeResult = Awaited<ReturnType<AxeBuilder['analyze']>>;
 
 /** The impacts that fail a screen; anything lighter is a note, not a gate. */
 const BLOCKING: readonly string[] = ['serious', 'critical'];
+
+/** The theme axe checks the shell in, and the name its PNGs are filed under. */
+const DEFAULT_THEME = 'wired';
 
 /** The themes that are only shot for review, `/theme` choosing each in turn. */
 const EXTRA_THEMES: readonly string[] = ['lain', 'bnet'];
@@ -136,29 +145,41 @@ async function shoot(page: Page, theme: string, screen: string): Promise<void> {
   await page.screenshot({ path: `test-results/screens/${theme}-${screen}.png` });
 }
 
-/** Walks every screen in {@link theme}, running axe only while {@link checked}. */
-async function walk(page: Page, theme: string, checked: boolean): Promise<void> {
+/**
+ * Brings the shell to screen {@link index} by walking it through every screen
+ * before that one, shooting nothing on the way: the review PNG for a screen
+ * comes from the test that axe-checks it.
+ */
+async function walkTo(page: Page, index: number): Promise<void> {
+  for (const screen of SCREENS.slice(0, index + 1)) {
+    await screen.show(page);
+  }
+}
+
+/** Every screen in {@link theme}, shot for review and left unchecked. */
+async function shootAll(page: Page, theme: string): Promise<void> {
   for (const screen of SCREENS) {
     await screen.show(page);
-    if (checked) {
-      await checkAccessibility(page, screen.name);
-    }
     await shoot(page, theme, screen.name);
   }
 }
 
-test('every main screen passes axe, in the wired theme', async ({ page }) => {
-  const errors = watchErrors(page);
-  await signIn(page);
-  await walk(page, 'wired', true);
-  expect(errors).toStrictEqual([]);
-});
+for (const [index, screen] of SCREENS.entries()) {
+  test(`the ${screen.name} screen passes axe, in the ${DEFAULT_THEME} theme`, async ({ page }) => {
+    const errors = watchErrors(page);
+    await signIn(page);
+    await walkTo(page, index);
+    await checkAccessibility(page, screen.name);
+    await shoot(page, DEFAULT_THEME, screen.name);
+    expect(errors).toStrictEqual([]);
+  });
+}
 
 for (const theme of EXTRA_THEMES) {
   test(`every main screen is shot in the ${theme} theme`, async ({ page }) => {
     await signIn(page);
     await submit(page, `/theme ${theme}`);
     await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
-    await walk(page, theme, false);
+    await shootAll(page, theme);
   });
 }
