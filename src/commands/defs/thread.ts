@@ -14,16 +14,12 @@
  */
 
 import type { Status } from '../../api/schemas/status';
+import { fail } from '../outcome';
 import { resolveStatusTarget, targetLabel } from '../targets';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** The thread window is open, or was already and is active now. */
 const OK: CommandOutcome = { ok: true };
-
-/** A failure saying {@link message}. */
-function fail(message: string): CommandOutcome {
-  return { ok: false, message };
-}
 
 /** The window's title: `thread/` and the target's label, or its id alone. */
 function threadTitle(context: CommandContext, status: Status): string {

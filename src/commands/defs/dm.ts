@@ -16,8 +16,10 @@
 import { createStatus } from '../../api/endpoints/statusWrite';
 import { describeApiError } from '../../api/errors';
 import type { Status } from '../../api/schemas/status';
+import { statusesAction } from '../../state/pageActions';
 import { sessionFor } from '../../state/selectors';
 import type { WindowState } from '../../windows/model';
+import { NOT_LOGGED_IN, fail } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** The command's grammar: /help shows it, a bad argument echoes it. */
@@ -29,16 +31,8 @@ const OK: CommandOutcome = { ok: true };
 /** The argument text was not a handle and a message. */
 const USAGE_ERROR: CommandOutcome = { ok: false, message: `Usage: ${USAGE}` };
 
-/** What every posting path says when asked to post with nobody signed in. */
-const NOT_LOGGED_IN: CommandOutcome = { ok: false, message: 'Not logged in. Type /connect' };
-
 /** A handle word: `@user@host`, `user@host`, or `@user` for the local instance. */
 const HANDLE = /^@[\w.~-]+(?:@[\w.~-]+)?$|^[\w.~-]+@[\w.~-]+$/u;
-
-/** A failure saying {@link message}. */
-function fail(message: string): CommandOutcome {
-  return { ok: false, message };
-}
 
 /**
  * The handle word and the message word: {@link args} trimmed and split at its
@@ -90,12 +84,7 @@ function addToDmWindow(context: CommandContext, mention: string, status: Status)
   if (window === null) {
     return;
   }
-  context.dispatch({
-    type: 'statuses',
-    windowId: window.id,
-    statuses: [status],
-    where: 'newer',
-  });
+  context.dispatch(statusesAction(window.id, [status], 'newer'));
 }
 
 /** Send one direct mention as the active account, echo it, report failures. */

@@ -11,13 +11,12 @@
  */
 
 import { type Draft, draftToNewStatus } from './draft';
+import { statusesAction } from './pageActions';
 import { sessionFor } from './selectors';
 import type { PostContext } from './windowKind';
 import { createStatus } from '../api/endpoints/statusWrite';
 import { describeApiError } from '../api/errors';
-
-/** What every window says when it is asked to post with nobody signed in. */
-const NOT_LOGGED_IN = 'Not logged in. Type /connect';
+import { NOT_LOGGED_IN_MESSAGE } from '../lib/refusal';
 
 /**
  * Creates the status for {@link params.accountKey} through the session that
@@ -36,7 +35,7 @@ export async function postStatus(
   const { state, dispatch } = context;
   const session = sessionFor(state, params.accountKey);
   if (session === null) {
-    return NOT_LOGGED_IN;
+    return NOT_LOGGED_IN_MESSAGE;
   }
   const created = await createStatus(
     session,
@@ -46,11 +45,6 @@ export async function postStatus(
   if (!created.ok) {
     return describeApiError(created.error);
   }
-  dispatch({
-    type: 'statuses',
-    windowId: params.windowId,
-    statuses: [created.value],
-    where: 'newer',
-  });
+  dispatch(statusesAction(params.windowId, [created.value], 'newer'));
   return null;
 }

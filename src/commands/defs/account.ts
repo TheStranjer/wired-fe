@@ -18,6 +18,7 @@ import { redirectUriFor } from '../../accounts/callback';
 import { findAccount } from '../../accounts/findAccount';
 import { describeApiError } from '../../api/errors';
 import { revokeToken } from '../../api/oauth';
+import { NOT_LOGGED_IN, fail } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** Every form of the command: /help shows it, a bad argument echoes it. */
@@ -28,15 +29,10 @@ const USAGE =
 const OK: CommandOutcome = { ok: true };
 
 /** The refusal shared by every form with nothing to act on. */
-const NO_ACCOUNTS: CommandOutcome = { ok: false, message: 'Not logged in. Type /connect' };
+const NO_ACCOUNTS: CommandOutcome = NOT_LOGGED_IN;
 
 /** The argument text matched none of the command's forms. */
 const USAGE_ERROR: CommandOutcome = { ok: false, message: `Usage: ${USAGE}` };
-
-/** A failure saying {@link message}. */
-function fail(message: string): CommandOutcome {
-  return { ok: false, message };
-}
 
 /** The trimmed argument text split on whitespace; no arguments, no words. */
 function wordsOf(args: string): readonly string[] {

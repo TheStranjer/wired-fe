@@ -12,15 +12,14 @@
  * whose window closed while the instance was thinking reports nothing at all.
  */
 
-import { useEffect, useRef } from 'react';
-
 import { getContext, getStatus } from '../../api/endpoints/statusRead';
 import { type ApiError, describeApiError } from '../../api/errors';
 import type { ApiSession } from '../../api/session';
+import { printAction } from '../../state/appState';
 import { postKey } from '../../state/bufferPosts';
-import { accountByKey, bufferFor, windowAccountKey } from '../../state/selectors';
+import { loadAction, statusesAction } from '../../state/pageActions';
 import type { Dispatch } from '../../state/StateContext';
-import { useAppDispatch, useAppState } from '../../state/StateContext';
+import { useOneShotLoad, type OneShotJob } from '../../views/useOneShotLoad';
 
 /** The signed-in account's session, target id and cancel signal, with a dispatch. */
 export type ThreadJob = {
@@ -33,14 +32,8 @@ export type ThreadJob = {
 
 /** Print why the thread never arrived, once, into the window's scrollback. */
 function printFailure(job: ThreadJob, error: ApiError): void {
-  job.dispatch({
-    type: 'print',
-    windowId: job.windowId,
-    date: new Date(),
-    level: 'error',
-    text: describeApiError(error),
-  });
-  job.dispatch({ type: 'load', windowId: job.windowId, load: 'error' });
+  job.dispatch(printAction(job.windowId, 'error', describeApiError(error)));
+  job.dispatch(loadAction(job.windowId, 'error'));
 }
 
 /**
@@ -66,46 +59,22 @@ export async function fetchThread(job: ThreadJob): Promise<void> {
     return;
   }
   const thread = [...around.value.ancestors, found.value, ...around.value.descendants];
-  job.dispatch({
-    type: 'statuses',
-    windowId: job.windowId,
-    statuses: thread.toReversed(),
-    where: 'newer',
-  });
+  job.dispatch(statusesAction(job.windowId, thread.toReversed(), 'newer'));
   job.dispatch({ type: 'select', windowId: job.windowId, key: postKey(job.id) });
-  job.dispatch({ type: 'load', windowId: job.windowId, load: 'loaded', exhausted: true });
+  job.dispatch(loadAction(job.windowId, 'loaded', { exhausted: true }));
+}
+
+/** The thread window answers its target id with one {@link fetchThread}. */
+async function runThread(job: OneShotJob): Promise<void> {
+  await fetchThread({ ...job, id: job.target });
 }
 
 /**
  * Fill the thread window {@link windowId} once: while its buffer is idle and
- * its account can sign the fetch, load its target's conversation through the
- * application's reducer and abort with the window. A window with no target
- * and no signed-in owner ask for nothing at all.
+ * its account can sign the fetch, load its target's conversation through
+ * the application's reducer and abort with the window. A window with no
+ * target and no signed-in owner asks for nothing at all.
  */
 export function useThread(windowId: string): void {
-  const state = useAppState();
-  const dispatch = useAppDispatch();
-  const target = state.windows.windows.find((win) => win.id === windowId)?.ref.target ?? null;
-  const owner = accountByKey(state, windowAccountKey(state, windowId));
-  const origin = owner?.origin ?? '';
-  const token = owner?.token ?? null;
-  const { load } = bufferFor(state, windowId);
-  const inflightRef = useRef<AbortController | null>(null);
-
-  useEffect(() => () => inflightRef.current?.abort(), []);
-  useEffect(() => {
-    if (target === null || token === null || load !== 'idle') {
-      return;
-    }
-    const controller = new AbortController();
-    inflightRef.current = controller;
-    dispatch({ type: 'load', windowId, load: 'loading' });
-    void fetchThread({
-      session: { origin, token },
-      id: target,
-      windowId,
-      signal: controller.signal,
-      dispatch,
-    });
-  }, [load, target, origin, token, windowId, dispatch]);
+  useOneShotLoad(windowId, runThread);
 }

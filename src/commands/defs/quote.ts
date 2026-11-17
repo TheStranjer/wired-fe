@@ -15,6 +15,7 @@
 
 import { hasFeature } from '../../capabilities/capabilities';
 import { capabilitiesFor } from '../../state/selectors';
+import { fail } from '../outcome';
 import { resolveStatusTarget, targetLabel } from '../targets';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
@@ -29,11 +30,6 @@ const NO_QUOTE: CommandOutcome = {
 
 /** The draft was left for the active window's post handler. */
 const OK: CommandOutcome = { ok: true };
-
-/** A failure reporting {@link message}. */
-function fail(message: string): CommandOutcome {
-  return { ok: false, message };
-}
 
 /** Whether the {@link accountKey}'s instance advertises quote posts (decision 5). */
 function canQuote(context: CommandContext, accountKey: string | null): boolean {

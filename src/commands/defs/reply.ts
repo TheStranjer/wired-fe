@@ -20,9 +20,11 @@ import { type NewStatus, createStatus } from '../../api/endpoints/statusWrite';
 import { describeApiError } from '../../api/errors';
 import type { Status } from '../../api/schemas/status';
 import { draftToNewStatus } from '../../state/draft';
+import { statusesAction } from '../../state/pageActions';
 import { replyDraft } from '../../state/replyDraft';
 import { accountByKey } from '../../state/selectors';
 import { type WindowKind, activeWindow } from '../../windows/model';
+import { fail } from '../outcome';
 import { type StatusTarget, resolveStatusTarget, targetLabel } from '../targets';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
@@ -42,11 +44,6 @@ const FEED_KINDS: ReadonlySet<WindowKind> = new Set<WindowKind>([
   'dm',
 ]);
 
-/** A failure saying {@link message}. */
-function fail(message: string): CommandOutcome {
-  return { ok: false, message };
-}
-
 /** The handle the {@link accountKey} account replies under; none while unknown. */
 function ownHandle(context: CommandContext, accountKey: string | null): string {
   return accountByKey(context.state, accountKey)?.handle ?? '';
@@ -64,12 +61,7 @@ function addToActiveWindow(context: CommandContext, created: Status): void {
   if (!FEED_KINDS.has(win.ref.kind)) {
     return;
   }
-  context.dispatch({
-    type: 'statuses',
-    windowId: win.id,
-    statuses: [created],
-    where: 'newer',
-  });
+  context.dispatch(statusesAction(win.id, [created], 'newer'));
 }
 
 /** Resolve the post, create the answer as its window's account, echo, report. */

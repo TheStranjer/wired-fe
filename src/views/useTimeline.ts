@@ -8,6 +8,7 @@
 
 import { type FetchPageOf, usePagedBuffer } from './usePagedBuffer';
 import type { Status } from '../api/schemas/status';
+import { statusesAction } from '../state/pageActions';
 
 /** One page of a timeline, fetched through an ApiSession or cancelled. */
 export type FetchPage = FetchPageOf<Status>;
@@ -22,7 +23,7 @@ export const TIMELINE_PAGE_SIZE = 40;
  */
 export function useTimeline(windowId: string, fetchPage: FetchPage): void {
   usePagedBuffer(windowId, {
-    deliver: (items, where, at) => ({ statuses: items, type: 'statuses', where, windowId: at }),
+    deliver: (items, where, at) => statusesAction(at, items, where),
     fetchPage,
     pageSize: TIMELINE_PAGE_SIZE,
   });

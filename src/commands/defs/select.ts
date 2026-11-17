@@ -12,6 +12,7 @@ import type { Buffer, LineData } from '../../state/buffer';
 import { statusForLabel, statusOfLine } from '../../state/bufferSelection';
 import { activeBuffer } from '../../state/selectors';
 import { activeWindow } from '../../windows/model';
+import { fail } from '../outcome';
 import type { CommandBinding, CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** Every form of the command: /help shows it, a bad argument echoes it. */
@@ -42,11 +43,6 @@ const BINDINGS: readonly CommandBinding[] = [
   { mode: 'navigation', chord: 'End', args: 'last' },
   { mode: 'navigation', chord: 'Escape', args: 'none' },
 ];
-
-/** A failure saying {@link message}. */
-function fail(message: string): CommandOutcome {
-  return { ok: false, message };
-}
 
 /** The line of {@link buffer} showing status `id`: its own or the notification line holding it. */
 function lineShowing(buffer: Buffer, id: string): LineData | undefined {

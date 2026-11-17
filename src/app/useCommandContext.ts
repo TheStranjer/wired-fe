@@ -16,6 +16,7 @@ import { appStores } from './stores';
 import { loadWindowKinds } from './windowKinds';
 import type { CommandContext, PrintLevel, Registry } from '../commands/types';
 import { buildConfig } from '../config/config';
+import { printAction } from '../state/appState';
 import type { Draft } from '../state/draft';
 import { useAppDispatch, useAppState } from '../state/StateContext';
 import type { PostContext, WindowKindDefinition } from '../state/windowKind';
@@ -108,7 +109,7 @@ export function useCommandContext(
 
   return {
     print: (text: string, level?: PrintLevel) => {
-      dispatch({ type: 'print', windowId: null, date: now(), level: level ?? 'info', text });
+      dispatch(printAction(null, level ?? 'info', text));
     },
     registry: loadedRegistry(),
     windows: state.windows,

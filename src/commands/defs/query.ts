@@ -14,6 +14,7 @@
  */
 
 import { activeAccount } from '../../state/selectors';
+import { NOT_LOGGED_IN, fail } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** The command's grammar: /help shows it, a bare argument echoes it. */
@@ -22,19 +23,8 @@ const USAGE = '/query <@handle>';
 /** The window is open, or was already and is active now. */
 const OK: CommandOutcome = { ok: true };
 
-/** Shown when nobody is signed in: there is no account to hold a conversation. */
-const NOT_LOGGED_IN: CommandOutcome = {
-  ok: false,
-  message: 'Not logged in. Type /connect',
-};
-
 /** A normalized handle: `user`, or `user@host`; letters, digits, `.`, `_`, `-`, `~`. */
 const HANDLE = /^[\w.~-]+(?:@[\w.~-]+)?$/u;
-
-/** A failure saying {@link message}. */
-function fail(message: string): CommandOutcome {
-  return { ok: false, message };
-}
 
 /**
  * The argument as the window keys its target: trimmed, minus one leading `@`

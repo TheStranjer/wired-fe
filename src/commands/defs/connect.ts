@@ -14,15 +14,11 @@ import { beginLogin } from '../../accounts/beginLogin';
 import { redirectUriFor } from '../../accounts/callback';
 import { resolveInstanceOrigin } from '../../accounts/origin';
 import { describeApiError } from '../../api/errors';
+import { fail } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** The login is under way: the browser is on its way to the instance. */
 const OK: CommandOutcome = { ok: true };
-
-/** A failure saying {@link message}. */
-function fail(message: string): CommandOutcome {
-  return { ok: false, message };
-}
 
 /**
  * Resolve the instance {@link args} names for this build, begin its login and

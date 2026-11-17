@@ -14,6 +14,7 @@
 import type { Visibility } from '../../api/schemas/status';
 import { type Capabilities, hasFeature } from '../../capabilities/capabilities';
 import { capabilitiesFor } from '../../state/selectors';
+import { fail } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** The command's one form; a refused argument echoes it. */
@@ -34,11 +35,6 @@ const AUDIENCES: ReadonlyMap<string, Visibility> = new Map([
   ['direct', 'direct'],
   ['local', 'local'],
 ]);
-
-/** A failure reporting {@link message}. */
-function fail(message: string): CommandOutcome {
-  return { ok: false, message };
-}
 
 /** The line that answers both showing and setting: what new posts now are. */
 function report(context: CommandContext, visibility: Visibility): void {

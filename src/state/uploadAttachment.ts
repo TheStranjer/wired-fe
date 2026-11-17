@@ -14,12 +14,10 @@ import { sessionFor } from './selectors';
 import { uploadAndWait } from '../api/endpoints/media';
 import { describeApiError } from '../api/errors';
 import type { MediaAttachment } from '../api/schemas/mediaAttachment';
+import { NOT_LOGGED_IN_MESSAGE } from '../lib/refusal';
 import { type Result, err, ok } from '../lib/result';
 
 export type { MediaAttachment };
-
-/** What every media path says when asked to upload with nobody signed in. */
-const NOT_LOGGED_IN = 'Not logged in. Type /connect';
 
 /**
  * Uploads {@link params.file} as the account behind {@link params.accountKey},
@@ -36,7 +34,7 @@ export async function uploadAttachment(params: {
 }): Promise<Result<MediaAttachment, string>> {
   const session = sessionFor(params.state, params.accountKey);
   if (session === null) {
-    return err(NOT_LOGGED_IN);
+    return err(NOT_LOGGED_IN_MESSAGE);
   }
   const outcome = await uploadAndWait(session, params.file, {
     filename: params.file.name,

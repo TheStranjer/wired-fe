@@ -14,26 +14,16 @@ import { useEffect, useRef, useState } from 'react';
 import type { JSX } from 'react';
 
 import type { Attachments } from './useAttachments';
-import { useAppDispatch } from '../state/StateContext';
+import { printAction } from '../state/appState';
+import { type Dispatch, useAppDispatch } from '../state/StateContext';
 import { DropHighlight } from '../ui/DropHighlight';
 
-/** The media prefixes the seam takes an upload for. */
-const MEDIA_PREFIXES = ['image/', 'video/', 'audio/'];
-
-/** The warning line printed for one file outside those prefixes. */
-function refusal(file: File): string {
-  return `Can't attach ${file.name}: not an image, video or audio file`;
-}
-
-/** Whether {@link file} is media the seam takes: an image, a video or audio. */
-function isAttachable(file: File): boolean {
-  return MEDIA_PREFIXES.some((prefix) => file.type.startsWith(prefix));
-}
+/** The mime types the seam takes an upload for: an image, a video or audio. */
+const MEDIA_TYPE = /^(image|video|audio)\//;
 
 /** The files a clipboard or drop carried; none when it carried nothing. */
 function carriedFiles(data: DataTransfer | null | undefined): readonly File[] {
-  const files = data?.files;
-  return files === undefined ? [] : [...files];
+  return [...(data?.files ?? [])];
 }
 
 /** Whether {@link event}'s drag carries files — the drags this hook reacts to. */
@@ -41,63 +31,21 @@ function carriesFiles(event: DragEvent): boolean {
   return event.dataTransfer?.types.includes('Files') ?? false;
 }
 
-/** The four window listeners {@link useDropAndPaste} mounts, and what they do. */
-type WindowHandlers = {
-  readonly onPaste: (event: ClipboardEvent) => void;
-  readonly onDragOver: (event: DragEvent) => void;
-  readonly onDragLeave: () => void;
-  readonly onDrop: (event: DragEvent) => void;
-};
-
 /**
- * Build the window handlers over {@link add}, {@link print} and
- * {@link setDragging}: every carried file goes to the seam when it is media
- * and is refused through {@link print} when it is not. A text paste — or a
- * drag carrying no files — is never consumed: no preventDefault, nothing
- * printed, only a file-carrying dragover raises the highlight.
+ * Run {@link files} onto the seam: each media file goes to {@link
+ * Attachments.add}, each other file comes back as a refusal in the active
+ * window, printed the way a command prints.
  */
-function makeHandlers(
-  add: (file: File) => void,
-  print: (text: string) => void,
-  setDragging: (up: boolean) => void,
-): WindowHandlers {
-  function accept(files: readonly File[]): void {
-    for (const file of files) {
-      if (isAttachable(file)) {
-        add(file);
-      } else {
-        print(refusal(file));
-      }
+function accept(files: readonly File[], seam: Attachments, dispatch: Dispatch): void {
+  for (const file of files) {
+    if (MEDIA_TYPE.test(file.type)) {
+      seam.add(file);
+    } else {
+      dispatch(
+        printAction(null, 'warn', `Can't attach ${file.name}: not an image, video or audio file`),
+      );
     }
   }
-  return {
-    onPaste: (event) => {
-      const files = carriedFiles(event.clipboardData);
-      if (files.length === 0) {
-        return;
-      }
-      event.preventDefault();
-      accept(files);
-    },
-    onDragOver: (event) => {
-      if (!carriesFiles(event)) {
-        return;
-      }
-      event.preventDefault();
-      setDragging(true);
-    },
-    onDragLeave: () => {
-      setDragging(false);
-    },
-    onDrop: (event) => {
-      if (!carriesFiles(event)) {
-        return;
-      }
-      event.preventDefault();
-      accept(carriedFiles(event.dataTransfer));
-      setDragging(false);
-    },
-  };
 }
 
 /**
@@ -116,25 +64,38 @@ export function useDropAndPaste(attachments: Attachments): JSX.Element | null {
   }, [attachments]);
 
   useEffect(() => {
-    function print(text: string): void {
-      dispatch({ type: 'print', windowId: null, date: new Date(), level: 'warn', text });
+    function onPaste(event: ClipboardEvent): void {
+      const files = carriedFiles(event.clipboardData);
+      if (files.length > 0) {
+        event.preventDefault();
+        accept(files, seamRef.current, dispatch);
+      }
     }
-    const handlers = makeHandlers(
-      (file) => {
-        seamRef.current.add(file);
-      },
-      print,
-      setDragging,
-    );
-    window.addEventListener('paste', handlers.onPaste);
-    window.addEventListener('dragover', handlers.onDragOver);
-    window.addEventListener('dragleave', handlers.onDragLeave);
-    window.addEventListener('drop', handlers.onDrop);
+    function onDragOver(event: DragEvent): void {
+      if (carriesFiles(event)) {
+        event.preventDefault();
+        setDragging(true);
+      }
+    }
+    function onDragLeave(): void {
+      setDragging(false);
+    }
+    function onDrop(event: DragEvent): void {
+      if (carriesFiles(event)) {
+        event.preventDefault();
+        accept(carriedFiles(event.dataTransfer), seamRef.current, dispatch);
+        setDragging(false);
+      }
+    }
+    window.addEventListener('paste', onPaste);
+    window.addEventListener('dragover', onDragOver);
+    window.addEventListener('dragleave', onDragLeave);
+    window.addEventListener('drop', onDrop);
     return () => {
-      window.removeEventListener('paste', handlers.onPaste);
-      window.removeEventListener('dragover', handlers.onDragOver);
-      window.removeEventListener('dragleave', handlers.onDragLeave);
-      window.removeEventListener('drop', handlers.onDrop);
+      window.removeEventListener('paste', onPaste);
+      window.removeEventListener('dragover', onDragOver);
+      window.removeEventListener('dragleave', onDragLeave);
+      window.removeEventListener('drop', onDrop);
     };
   }, [dispatch]);
 

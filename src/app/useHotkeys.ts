@@ -23,7 +23,7 @@ import { decideKey } from '../keys/decide';
 import { type Keymap, buildKeymap } from '../keys/keymap';
 import type { InputMode } from '../keys/mode';
 import { useGlobalKeys } from '../keys/useGlobalKeys';
-import type { AppState } from '../state/appState';
+import { type AppState, printAction } from '../state/appState';
 import { labelForStatus, selectedStatus } from '../state/bufferSelection';
 import { activeBuffer } from '../state/selectors';
 import { STATUS_WINDOW_ID } from '../windows/model';
@@ -55,13 +55,7 @@ function useKeymap(context: CommandContext): Keymap {
 
   useEffect(() => {
     for (const problem of keymap.problems) {
-      dispatch({
-        type: 'print',
-        windowId: STATUS_WINDOW_ID,
-        date: new Date(),
-        level: 'warn',
-        text: problem,
-      });
+      dispatch(printAction(STATUS_WINDOW_ID, 'warn', problem));
     }
   }, [dispatch, keymap]);
 

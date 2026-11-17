@@ -18,6 +18,7 @@ import { describeApiError } from '../api/errors';
 import type { Account } from '../api/schemas/account';
 import type { Status } from '../api/schemas/status';
 import type { ApiSession } from '../api/session';
+import { NOT_LOGGED_IN_MESSAGE } from '../lib/refusal';
 import { type Result, err, ok } from '../lib/result';
 import {
   labelForStatus,
@@ -66,7 +67,7 @@ function actingAs(context: CommandContext): Result<Acting, string> {
   const { state } = context;
   const accountKey = windowAccountKey(state, activeWindow(state.windows).id);
   const session = sessionFor(state, accountKey);
-  return session === null ? err('Not logged in. Type /connect') : ok({ accountKey, session });
+  return session === null ? err(NOT_LOGGED_IN_MESSAGE) : ok({ accountKey, session });
 }
 
 /** args, trimmed, split at the first whitespace into its leading word and what follows it. */

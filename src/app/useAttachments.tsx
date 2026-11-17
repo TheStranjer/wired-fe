@@ -18,7 +18,7 @@ import type { ChangeEvent, JSX, Ref } from 'react';
 
 import { DEFAULT_MAX_MEDIA_ATTACHMENTS, type Capabilities } from '../capabilities/capabilities';
 import type { CommandContext, PrintLevel } from '../commands/types';
-import type { AppState } from '../state/appState';
+import { type AppState, printAction } from '../state/appState';
 import { capabilitiesFor } from '../state/selectors';
 import { useAppDispatch, useAppState } from '../state/StateContext';
 import { type MediaAttachment, uploadAttachment } from '../state/uploadAttachment';
@@ -129,7 +129,7 @@ export function useAttachments(): Attachments {
 
   /** Say one line in the active window, the way a command would. */
   function print(text: string, level: PrintLevel): void {
-    dispatch({ type: 'print', windowId: null, date: new Date(), level, text });
+    dispatch(printAction(null, level, text));
   }
 
   /** Put one accepted attachment at the end of the list. */
