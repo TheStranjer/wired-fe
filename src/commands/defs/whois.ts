@@ -13,16 +13,12 @@
  */
 
 import { profileWindowOpen } from '../../state/profileWindow';
+import { fail } from '../outcome';
 import { resolveAccountTarget } from '../targets';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** The profile window is open, or was already and is active now. */
 const OK: CommandOutcome = { ok: true };
-
-/** A failure saying {@link message}. */
-function fail(message: string): CommandOutcome {
-  return { ok: false, message };
-}
 
 /** Resolve the account, then ask the window list for its profile window. */
 async function handle(args: string, context: CommandContext): Promise<CommandOutcome> {

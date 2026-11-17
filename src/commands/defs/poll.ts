@@ -19,6 +19,7 @@ import type { PollLimits } from '../../api/schemas/pollLimits';
 import { formatDuration } from '../../lib/duration';
 import { type Result, err, ok } from '../../lib/result';
 import { capabilitiesFor } from '../../state/selectors';
+import { fail } from '../outcome';
 import { tokenize } from '../tokenize';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
@@ -48,11 +49,6 @@ const HOURS_FLAG = '--hours';
 
 /** The draft was left for the active window's post handler. */
 const OK: CommandOutcome = { ok: true };
-
-/** A failure reporting {@link message}. */
-function fail(message: string): CommandOutcome {
-  return { ok: false, message };
-}
 
 /** The settled poll: the post text, its options, the run and its kind. */
 type PollPlan = {

@@ -12,16 +12,11 @@
 
 import { notificationsWindowOpen } from '../../state/notificationsWindow';
 import { activeAccount } from '../../state/selectors';
+import { NOT_LOGGED_IN } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** The notifications window is open, or was already and is active now. */
 const OK: CommandOutcome = { ok: true };
-
-/** Shown when nobody is signed in: there is no notification list to show. */
-const NOT_LOGGED_IN: CommandOutcome = {
-  ok: false,
-  message: 'Not logged in. Type /connect',
-};
 
 /** Ask for the active account's notifications window, or report why there is none. */
 function handle(context: CommandContext): CommandOutcome {

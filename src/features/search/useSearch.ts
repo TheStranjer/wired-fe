@@ -14,17 +14,16 @@
  * instance was thinking reports nothing at all.
  */
 
-import { useEffect, useRef } from 'react';
-
 import { type SearchResults, search, shouldResolve } from '../../api/endpoints/search';
 import { type ApiError, describeApiError } from '../../api/errors';
 import type { Account } from '../../api/schemas/account';
 import type { Tag } from '../../api/schemas/tag';
 import type { ApiSession } from '../../api/session';
+import { printAction } from '../../state/appState';
 import type { LineLevel } from '../../state/buffer';
-import { accountByKey, bufferFor, windowAccountKey } from '../../state/selectors';
+import { loadAction, statusesAction } from '../../state/pageActions';
 import type { Dispatch } from '../../state/StateContext';
-import { useAppDispatch, useAppState } from '../../state/StateContext';
+import { type OneShotJob, useOneShotLoad } from '../../views/useOneShotLoad';
 
 /** How many of each resource one search asks the instance for. */
 const SEARCH_LIMIT = 20;
@@ -41,13 +40,13 @@ export type SearchJob = {
 
 /** Print {@link text} at {@link level} into the window's scrollback. */
 function printText(job: SearchJob, level: LineLevel, text: string): void {
-  job.dispatch({ type: 'print', windowId: job.windowId, date: new Date(), level, text });
+  job.dispatch(printAction(job.windowId, level, text));
 }
 
 /** Print why the search never answered, once, and fail the load. */
 function printFailure(job: SearchJob, error: ApiError): void {
   printText(job, 'error', describeApiError(error));
-  job.dispatch({ type: 'load', windowId: job.windowId, load: 'error' });
+  job.dispatch(loadAction(job.windowId, 'error'));
 }
 
 /** The account's name as the line shows it: its display name, or its username. */
@@ -106,15 +105,10 @@ function report(job: SearchJob, results: SearchResults): void {
     printAccounts(job, results.accounts);
     printTags(job, results.hashtags);
     if (results.statuses.length !== 0) {
-      job.dispatch({
-        type: 'statuses',
-        windowId: job.windowId,
-        statuses: results.statuses,
-        where: 'newer',
-      });
+      job.dispatch(statusesAction(job.windowId, results.statuses, 'newer'));
     }
   }
-  job.dispatch({ type: 'load', windowId: job.windowId, load: 'loaded', exhausted: true });
+  job.dispatch(loadAction(job.windowId, 'loaded', { exhausted: true }));
 }
 
 /**
@@ -139,6 +133,11 @@ export async function fetchSearch(job: SearchJob): Promise<void> {
   printFailure(job, found.error);
 }
 
+/** The search window answers its target with one {@link fetchSearch}. */
+async function runSearch(job: OneShotJob): Promise<void> {
+  await fetchSearch({ ...job, query: job.target });
+}
+
 /**
  * Fill the search window {@link windowId} once: while its buffer is idle and
  * its account can sign the search, run the search for its target through the
@@ -146,29 +145,5 @@ export async function fetchSearch(job: SearchJob): Promise<void> {
  * and no signed-in owner asks for nothing at all.
  */
 export function useSearch(windowId: string): void {
-  const state = useAppState();
-  const dispatch = useAppDispatch();
-  const target = state.windows.windows.find((win) => win.id === windowId)?.ref.target ?? null;
-  const owner = accountByKey(state, windowAccountKey(state, windowId));
-  const origin = owner?.origin ?? '';
-  const token = owner?.token ?? null;
-  const { load } = bufferFor(state, windowId);
-  const inflightRef = useRef<AbortController | null>(null);
-
-  useEffect(() => () => inflightRef.current?.abort(), []);
-  useEffect(() => {
-    if (target === null || token === null || load !== 'idle') {
-      return;
-    }
-    const controller = new AbortController();
-    inflightRef.current = controller;
-    dispatch({ type: 'load', windowId, load: 'loading' });
-    void fetchSearch({
-      session: { origin, token },
-      query: target,
-      windowId,
-      signal: controller.signal,
-      dispatch,
-    });
-  }, [load, target, origin, token, windowId, dispatch]);
+  useOneShotLoad(windowId, runSearch);
 }

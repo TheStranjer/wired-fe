@@ -8,6 +8,7 @@
  * and an error string from it comes back as the command's failure.
  */
 
+import { fail } from '../outcome';
 import { tokenize } from '../tokenize';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
@@ -22,11 +23,6 @@ const WHITESPACE = /\s/;
 
 /** An escape pair inside a quoted section: `\"` or `\\`, as the tokenizer reads it. */
 const ESCAPE = /^\\(["\\])/;
-
-/** A failure reporting {@link message}. */
-function fail(message: string): CommandOutcome {
-  return { ok: false, message };
-}
 
 /**
  * The index just past the quoted section that opens on the `"` at {@link start},

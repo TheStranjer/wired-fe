@@ -77,7 +77,16 @@ export type CoreAction =
   | { readonly type: 'settings'; readonly settings: Partial<Settings> };
 
 /** The print action, named so its fields can be passed around as one. */
-type PrintAction = Extract<CoreAction, { readonly type: 'print' }>;
+export type PrintAction = Extract<CoreAction, { readonly type: 'print' }>;
+
+/**
+ * The action that prints one client line into a window's scrollback — the
+ * active window for a null id — stamped with the real clock, at the given
+ * level. (The startup path stamps itself: its clock is injected.)
+ */
+export function printAction(windowId: string | null, level: LineLevel, text: string): PrintAction {
+  return { type: 'print', windowId, date: new Date(), level, text };
+}
 
 /**
  * The state a session starts in: window 1 with its empty buffer, nobody signed

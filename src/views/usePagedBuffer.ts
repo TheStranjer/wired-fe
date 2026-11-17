@@ -16,9 +16,11 @@ import type { Page, PageRequest } from '../api/page';
 import type { PageCursor } from '../api/pagination';
 import type { ApiSession } from '../api/session';
 import type { Result } from '../lib/result';
+import { printAction } from '../state/appState';
 import type { BufferLoad } from '../state/buffer';
 import type { BufferAction } from '../state/bufferActions';
 import type { Where } from '../state/bufferPosts';
+import { loadAction } from '../state/pageActions';
 import { bufferFor, sessionFor, windowAccountKey } from '../state/selectors';
 import { type Dispatch, useAppDispatch, useAppState } from '../state/StateContext';
 
@@ -90,26 +92,16 @@ async function runFetch<T>(ready: Ready<T>, signal: AbortSignal, job: PageJob): 
   if (outcome.ok) {
     const { items, links } = outcome.value;
     ready.dispatch(ready.loader.deliver(items, job.where, windowId));
-    ready.dispatch({
-      exhausted: links.next === null,
-      load: 'loaded',
-      olderCursor: links.next,
-      type: 'load',
-      windowId,
-    });
+    ready.dispatch(
+      loadAction(windowId, 'loaded', { exhausted: links.next === null, olderCursor: links.next }),
+    );
     return;
   }
   if (outcome.error.kind === 'aborted') {
     return;
   }
-  ready.dispatch({
-    date: new Date(),
-    level: 'error',
-    text: describeApiError(outcome.error),
-    type: 'print',
-    windowId,
-  });
-  ready.dispatch({ load: 'error', type: 'load', windowId });
+  ready.dispatch(printAction(windowId, 'error', describeApiError(outcome.error)));
+  ready.dispatch(loadAction(windowId, 'error'));
 }
 
 /** Tell a window with no account once, in its own scrollback, and stop. */
@@ -121,7 +113,7 @@ function useNoAccountNotice(windowId: string, session: ApiSession | null): void 
       return;
     }
     printedRef.current = true;
-    dispatch({ type: 'print', windowId, date: new Date(), level: 'error', text: NO_ACCOUNT });
+    dispatch(printAction(windowId, 'error', NO_ACCOUNT));
   }, [session, windowId, dispatch]);
 }
 
@@ -135,7 +127,7 @@ function useFirstPage<T>(windowId: string, load: BufferLoad, liveRef: RefObject<
     if (load !== 'idle' || session === null) {
       return;
     }
-    live.dispatch({ load: 'loading', type: 'load', windowId });
+    live.dispatch(loadAction(windowId, 'loading'));
     const controller = new AbortController();
     inflightRef.current = controller;
     void runFetch({ ...live, session }, controller.signal, {

@@ -1,19 +1,16 @@
 /**
- * The shell wired to real state (AGENTS.md "Windows, like IRC buffers"):
- * every region is drawn from the app state the AppStateProvider above holds.
- * The active window's kind decides its topic and scrollback; the window list,
- * the active account, the clock and the hotkey mode fill the status line; the
- * command line (./CommandLine) is the shell's input region, handing every line
- * — typed or bound to a chord — to the dispatcher (decision 6), which runs a
- * command or posts the text through the active window's kind. The window kinds
- * and the command registry are each collected once, when this module loads; a
- * load that failed prints its reason into the status window once, on mount,
- * beside the one startup run (the greeting, the restored accounts and their
- * instances) that boots there. Root is also where Tab's completion providers
- * meet (WFE-124): the registry's commands, the handles and tags the buffers
- * have shown, and the active account's instance's custom emoji; the composer
- * overlay for long posts (WFE-125) opens above it all through ./useComposerOverlay,
- * and ./useAttachments holds the media waiting for the next post (WFE-126).
+ * The shell wired to real state (AGENTS.md "Windows, like IRC buffers"): every
+ * region is drawn from the app state the AppStateProvider above holds. The
+ * active window's kind decides its topic and scrollback; the window list, the
+ * active account, the clock and the hotkey mode fill the status line; the
+ * command line (./CommandLine) hands every typed or chord-bound line to the
+ * dispatcher (decision 6), which runs a command or posts through the window's
+ * kind. The kinds and the registry load once when this module loads; a failed
+ * load prints its reason into the status window on mount, beside the startup
+ * run that boots there. Tab's completion providers meet here (WFE-124), the
+ * composer overlay for long posts (WFE-125) opens through
+ * ./useComposerOverlay, ./useAttachments holds pending media (WFE-126), and
+ * ./useDropAndPaste feeds it pasted and dropped files (WFE-127).
  */
 
 import { useEffect, useState } from 'react';
@@ -25,12 +22,13 @@ import { Shell } from './Shell';
 import { useAttachments } from './useAttachments';
 import { useClock } from './useClock';
 import { useComposerOverlay } from './useComposerOverlay';
+import { useDropAndPaste } from './useDropAndPaste';
 import { useStartup } from './useStartup';
 import { loadWindowKinds } from './windowKinds';
 import { type Provider, commandProvider } from '../commands/complete';
 import type { Result } from '../lib/result';
 import type { ClockFormat } from '../lib/time';
-import type { AppState } from '../state/appState';
+import { type AppState, printAction } from '../state/appState';
 import { accountByKey } from '../state/selectors';
 import { useAppDispatch, useAppState } from '../state/StateContext';
 import type { WindowKindDefinition } from '../state/windowKind';
@@ -161,19 +159,14 @@ export function Root(): JSX.Element {
   const active = activeWindow(state.windows);
   const emojis = useCustomEmojis(state.activeAccountKey);
   const attachments = useAttachments();
+  const drop = useDropAndPaste(attachments);
   const composer = useComposerOverlay(attachments);
   useStartup();
 
   useEffect(() => {
     for (const reason of [failure(KINDS), failure(REGISTRY)]) {
       if (reason !== null) {
-        dispatch({
-          type: 'print',
-          windowId: STATUS_WINDOW_ID,
-          date: new Date(),
-          level: 'error',
-          text: reason,
-        });
+        dispatch(printAction(STATUS_WINDOW_ID, 'error', reason));
       }
     }
   }, [dispatch]);
@@ -194,6 +187,7 @@ export function Root(): JSX.Element {
         }
       />
       {composer.overlay}
+      {drop}
       {attachments.input}
     </>
   );

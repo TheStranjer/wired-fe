@@ -8,6 +8,7 @@
  */
 
 import { STATUS_WINDOW_ID, activeWindow, type WindowState } from '../../windows/model';
+import { fail } from '../outcome';
 import type { CommandBinding, CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** Every form of the command: /help shows it, a bad argument echoes it. */
@@ -41,11 +42,6 @@ const BINDINGS: readonly CommandBinding[] = [
   { mode: 'navigation', chord: 'h', args: 'prev' },
   { mode: 'navigation', chord: 'l', args: 'next' },
 ];
-
-/** A failure saying {@link message}. */
-function fail(message: string): CommandOutcome {
-  return { ok: false, message };
-}
 
 /** The positive integer `text` spells, or null when it spells none. */
 function positiveInteger(text: string | undefined): number | null {

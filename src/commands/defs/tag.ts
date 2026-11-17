@@ -13,6 +13,7 @@
  */
 
 import { activeAccount } from '../../state/selectors';
+import { NOT_LOGGED_IN, fail } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** A hashtag name once its optional `#` is off: letters, digits, underscores. */
@@ -20,17 +21,6 @@ const TAG = /^[\p{L}\p{N}_]+$/u;
 
 /** The window is open, or was already and is active now. */
 const OK: CommandOutcome = { ok: true };
-
-/** Shown when nobody is signed in: there is no session to ask for a timeline. */
-const NOT_LOGGED_IN: CommandOutcome = {
-  ok: false,
-  message: 'Not logged in. Type /connect',
-};
-
-/** A failure saying {@link message}. */
-function fail(message: string): CommandOutcome {
-  return { ok: false, message };
-}
 
 /** The argument trimmed, minus one leading `#` if it has one. */
 function tagName(args: string): string {

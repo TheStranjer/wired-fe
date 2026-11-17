@@ -11,16 +11,11 @@
 
 import { homeWindowOpen } from '../../state/homeWindow';
 import { activeAccount } from '../../state/selectors';
+import { NOT_LOGGED_IN } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** The home window is open, or was already and is active now. */
 const OK: CommandOutcome = { ok: true };
-
-/** Shown when nobody is signed in: there is no home timeline to show. */
-const NOT_LOGGED_IN: CommandOutcome = {
-  ok: false,
-  message: 'Not logged in. Type /connect',
-};
 
 /** Ask for the active account's home window, or report why there is none. */
 function handle(context: CommandContext): CommandOutcome {

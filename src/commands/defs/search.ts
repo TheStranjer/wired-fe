@@ -14,6 +14,7 @@
  */
 
 import { activeAccount } from '../../state/selectors';
+import { NOT_LOGGED_IN, fail } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** The command's grammar: /help shows it, a bare argument echoes it. */
@@ -24,17 +25,6 @@ const TITLE_QUERY_LENGTH = 20;
 
 /** The search window is open, or was already and is active now. */
 const OK: CommandOutcome = { ok: true };
-
-/** Shown when nobody is signed in: there is no instance to search. */
-const NOT_LOGGED_IN: CommandOutcome = {
-  ok: false,
-  message: 'Not logged in. Type /connect',
-};
-
-/** A failure saying {@link message}. */
-function fail(message: string): CommandOutcome {
-  return { ok: false, message };
-}
 
 /** The window's title: `search/` and the query cut off at {@link TITLE_QUERY_LENGTH}. */
 function searchTitle(query: string): string {

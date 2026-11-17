@@ -14,6 +14,7 @@ import type { StoredAccount } from '../../accounts/accountStore';
 import { findAccount } from '../../accounts/findAccount';
 import { createStatus } from '../../api/endpoints/statusWrite';
 import { describeApiError } from '../../api/errors';
+import { fail } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** The command's grammar: /help shows it, a bad argument echoes it. */
@@ -24,11 +25,6 @@ const OK: CommandOutcome = { ok: true };
 
 /** The argument text was not an account and a message. */
 const USAGE_ERROR: CommandOutcome = { ok: false, message: `Usage: ${USAGE}` };
-
-/** A failure saying {@link message}. */
-function fail(message: string): CommandOutcome {
-  return { ok: false, message };
-}
 
 /**
  * The account word and the text word: {@link args} trimmed and split at its

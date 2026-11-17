@@ -16,8 +16,6 @@
  * thinking reports nothing at all.
  */
 
-import { useEffect, useRef } from 'react';
-
 import { listConversations, markConversationRead } from '../../api/endpoints/conversations';
 import { getContext } from '../../api/endpoints/statusRead';
 import { type ApiError, describeApiError } from '../../api/errors';
@@ -26,10 +24,11 @@ import type { Conversation } from '../../api/schemas/conversation';
 import type { Status } from '../../api/schemas/status';
 import type { ApiSession } from '../../api/session';
 import { type Result, ok } from '../../lib/result';
+import { printAction } from '../../state/appState';
 import type { LineLevel } from '../../state/buffer';
-import { accountByKey, bufferFor, windowAccountKey } from '../../state/selectors';
+import { loadAction, statusesAction } from '../../state/pageActions';
 import type { Dispatch } from '../../state/StateContext';
-import { useAppDispatch, useAppState } from '../../state/StateContext';
+import { useOneShotLoad } from '../../views/useOneShotLoad';
 
 /** How many conversation pages one load reads, and how many each one holds. */
 const MAX_PAGES = 3;
@@ -47,19 +46,19 @@ export type DirectJob = {
 
 /** Print {@link text} at {@link level} into the window's scrollback. */
 function printText(job: DirectJob, level: LineLevel, text: string): void {
-  job.dispatch({ type: 'print', windowId: job.windowId, date: new Date(), level, text });
+  job.dispatch(printAction(job.windowId, level, text));
 }
 
 /** Print why the conversation never arrived, once, and fail the load. */
 function printFailure(job: DirectJob, error: ApiError): void {
   printText(job, 'error', describeApiError(error));
-  job.dispatch({ type: 'load', windowId: job.windowId, load: 'error' });
+  job.dispatch(loadAction(job.windowId, 'error'));
 }
 
 /** Say nothing has been said with the window's target yet, and close the load. */
 function printNothing(job: DirectJob): void {
   printText(job, 'info', `No messages with @${job.target} yet. Type to start one.`);
-  job.dispatch({ type: 'load', windowId: job.windowId, load: 'loaded', exhausted: true });
+  job.dispatch(loadAction(job.windowId, 'loaded', { exhausted: true }));
 }
 
 /** Whether {@link conversation} is the one-on-one with {@link wanted} that can show a word. */
@@ -125,13 +124,8 @@ async function showConversation(
     return;
   }
   const thread = [...around.value.ancestors, last, ...around.value.descendants];
-  job.dispatch({
-    type: 'statuses',
-    windowId: job.windowId,
-    statuses: thread.toReversed(),
-    where: 'newer',
-  });
-  job.dispatch({ type: 'load', windowId: job.windowId, load: 'loaded', exhausted: true });
+  job.dispatch(statusesAction(job.windowId, thread.toReversed(), 'newer'));
+  job.dispatch(loadAction(job.windowId, 'loaded', { exhausted: true }));
   await markConversationRead(job.session, conversation.id);
 }
 
@@ -166,29 +160,5 @@ export async function fetchDirect(job: DirectJob): Promise<void> {
  * target and no signed-in owner asks for nothing at all.
  */
 export function useDirect(windowId: string): void {
-  const state = useAppState();
-  const dispatch = useAppDispatch();
-  const target = state.windows.windows.find((win) => win.id === windowId)?.ref.target ?? null;
-  const owner = accountByKey(state, windowAccountKey(state, windowId));
-  const origin = owner?.origin ?? '';
-  const token = owner?.token ?? null;
-  const { load } = bufferFor(state, windowId);
-  const inflightRef = useRef<AbortController | null>(null);
-
-  useEffect(() => () => inflightRef.current?.abort(), []);
-  useEffect(() => {
-    if (target === null || token === null || load !== 'idle') {
-      return;
-    }
-    const controller = new AbortController();
-    inflightRef.current = controller;
-    dispatch({ type: 'load', windowId, load: 'loading' });
-    void fetchDirect({
-      session: { origin, token },
-      target,
-      windowId,
-      signal: controller.signal,
-      dispatch,
-    });
-  }, [load, target, origin, token, windowId, dispatch]);
+  useOneShotLoad(windowId, fetchDirect);
 }

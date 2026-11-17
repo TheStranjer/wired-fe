@@ -18,6 +18,7 @@ import type { Account } from '../../api/schemas/account';
 import type { Relationship } from '../../api/schemas/relationship';
 import type { ApiSession } from '../../api/session';
 import type { Result } from '../../lib/result';
+import { printAction } from '../../state/appState';
 import { accountByKey, windowAccountKey } from '../../state/selectors';
 import type { Dispatch } from '../../state/StateContext';
 import { useAppDispatch, useAppState } from '../../state/StateContext';
@@ -71,13 +72,7 @@ function whoisView(
 
 /** Print why the account never arrived, once, into the window's scrollback. */
 function printFailure(job: WhoisJob, error: ApiError): void {
-  job.dispatch({
-    type: 'print',
-    windowId: job.windowId,
-    date: new Date(),
-    level: 'error',
-    text: describeApiError(error),
-  });
+  job.dispatch(printAction(job.windowId, 'error', describeApiError(error)));
 }
 
 /** The viewer's side of it from the relationship answer; none for no answer. */

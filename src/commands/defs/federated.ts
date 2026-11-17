@@ -12,16 +12,11 @@
 
 import { accountWindowOpen } from '../../state/accountWindow';
 import { activeAccount } from '../../state/selectors';
+import { NOT_LOGGED_IN } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** The federated window is open, or was already and is active now. */
 const OK: CommandOutcome = { ok: true };
-
-/** Shown when nobody is signed in: there is no session to ask for a timeline. */
-const NOT_LOGGED_IN: CommandOutcome = {
-  ok: false,
-  message: 'Not logged in. Type /connect',
-};
 
 /** Ask for the active account's federated window, or report why there is none. */
 function handle(context: CommandContext): CommandOutcome {
