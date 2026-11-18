@@ -9,7 +9,8 @@
  * prints the emoji, the verb and the label of the line that showed the post.
  */
 
-import { type StatusTarget, resolveStatusTarget, targetLabel } from './targets';
+import { printedLabel } from './statusLabel';
+import { type StatusTarget, resolveStatusTarget } from './targets';
 import type { CommandContext, CommandDefinition, CommandOutcome } from './types';
 import { react, unreact } from '../api/endpoints/reactions';
 import { type ApiError, describeApiError } from '../api/errors';
@@ -99,9 +100,8 @@ async function apply(reaction: Reaction, context: CommandContext): Promise<Comma
   }
   context.dispatch({ type: 'statusUpdated', status: answered.value });
   const verb = reaction.kind === 'react' ? 'reacted' : 'unreacted';
-  context.print(
-    `${reaction.emoji.typed} ${verb} to ${targetLabel(context, reaction.target.status)}`,
-  );
+  const label = `[${printedLabel(context, reaction.target.status)}]`;
+  context.print(`${reaction.emoji.typed} ${verb} to ${label}`);
   return OK;
 }
 

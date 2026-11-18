@@ -18,7 +18,8 @@ import type { Status } from '../../api/schemas/status';
 import type { ApiSession } from '../../api/session';
 import { type Result, err, ok } from '../../lib/result';
 import { wordsOf } from '../../lib/words';
-import { type StatusTarget, resolveStatusTarget, targetLabel } from '../targets';
+import { printedLabel } from '../statusLabel';
+import { type StatusTarget, resolveStatusTarget } from '../targets';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** The ballot is cast and every scrollback knows the new tally. */
@@ -80,7 +81,7 @@ type Ballot = {
 /** Guard the poll and the choices of a resolved target, and settle the ballot. */
 function prepare(target: StatusTarget, context: CommandContext): Result<Ballot, string> {
   const { status, rest, session } = target;
-  const label = targetLabel(context, status);
+  const label = `[${printedLabel(context, status)}]`;
   const poll = openPoll(status, label);
   if (!poll.ok) {
     return poll;
