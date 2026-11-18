@@ -9,6 +9,7 @@
  * prints the emoji, the verb and the label of the line that showed the post.
  */
 
+import { printedLabel } from './statusLabel';
 import { type StatusTarget, resolveStatusTarget } from './targets';
 import type { CommandContext, CommandOutcome } from './types';
 import { react, unreact } from '../api/endpoints/reactions';
@@ -16,8 +17,7 @@ import { type ApiError, describeApiError } from '../api/errors';
 import type { Status } from '../api/schemas/status';
 import { type Capabilities, type FeatureFlag, hasFeature } from '../capabilities/capabilities';
 import { type Result, err, ok } from '../lib/result';
-import { labelForStatus, statusOfLine } from '../state/bufferSelection';
-import { activeBuffer, capabilitiesFor } from '../state/selectors';
+import { capabilitiesFor } from '../state/selectors';
 
 /** Which of the two commands is running: attach the emoji, or detach it. */
 export type ReactionKind = 'react' | 'unreact';
@@ -80,18 +80,6 @@ function refusal(capabilities: Capabilities | null, emoji: Emoji): string | null
   return missing === undefined ? null : `Instance lacks ${missing}`;
 }
 
-/** The bracketed label of the active window's line showing {@link status}. */
-function targetLabel(context: CommandContext, status: Status): string {
-  const buffer = activeBuffer(context.state);
-  for (const line of buffer.lines) {
-    const shown = statusOfLine(line);
-    if (shown !== null && (shown === status || shown.reblog === status)) {
-      return `[${labelForStatus(buffer, shown.id) ?? status.id}]`;
-    }
-  }
-  return `[${status.id}]`;
-}
-
 /** Attach or detach {@link reaction}'s emoji on its post. */
 async function sendReaction(reaction: Reaction): Promise<Result<Status, ApiError>> {
   const { session } = reaction.target;
@@ -112,9 +100,8 @@ async function apply(reaction: Reaction, context: CommandContext): Promise<Comma
   }
   context.dispatch({ type: 'statusUpdated', status: answered.value });
   const verb = reaction.kind === 'react' ? 'reacted' : 'unreacted';
-  context.print(
-    `${reaction.emoji.typed} ${verb} to ${targetLabel(context, reaction.target.status)}`,
-  );
+  const label = `[${printedLabel(context, reaction.target.status)}]`;
+  context.print(`${reaction.emoji.typed} ${verb} to ${label}`);
   return OK;
 }
 

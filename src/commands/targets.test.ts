@@ -1,12 +1,15 @@
 /**
- * Tests for the shared post-target resolver: a label finding its post in the
+ * Tests for the shared post-target resolvers: a label finding its post in the
  * active window, an unknown label refused, the selection fallback with all of
  * args kept as rest, nothing selected refused, a boost resolved to the
  * original status, and the refusal while the window's account has no session.
+ * The own-post resolver on top: the same target when this account wrote the
+ * post, the verb's refusal when somebody else did, and the resolver's own
+ * refusal carried through.
  */
 import { describe, expect, it } from 'vitest';
 
-import { resolveStatusTarget } from './targets';
+import { resolveOwnStatusTarget, resolveStatusTarget } from './targets';
 import type { CommandContext } from './types';
 import type { StoredAccount } from '../accounts/accountStore';
 import type { Status } from '../api/schemas/status';
@@ -43,6 +46,27 @@ const BRAVO = status('b');
 
 /** A boost by lain of BRAVO, for the unwrap. */
 const BOOST = status('boost', { reblog: BRAVO });
+
+/** The twelve wire fields of an account this client did not sign in as. */
+const ALICE = {
+  id: '2',
+  username: 'alice',
+  acct: 'alice@wired.example',
+  display_name: 'Alice',
+  created_at: '2026-11-01T00:00:00.000Z',
+  note: '',
+  url: 'https://wired.example/@alice',
+  avatar: 'https://wired.example/avi.png',
+  header: 'https://wired.example/banner.png',
+  followers_count: 0,
+  following_count: 0,
+  statuses_count: 0,
+};
+
+/** A post alice wrote, and lain's boost of it, for the own-post resolver. */
+const HERS = status('hers', { account: ALICE });
+
+const HER_BOOST = status('her-boost', { reblog: HERS });
 
 /**
  * The signed-in state with lain's home window open, showing {@link posts}
@@ -140,6 +164,41 @@ describe(resolveStatusTarget, () => {
   it('refuses while nobody is signed in', () => {
     expect(resolveStatusTarget('a0', fakeCommandContext())).toStrictEqual(
       err('Not logged in. Type /connect'),
+    );
+  });
+});
+
+describe(resolveOwnStatusTarget, () => {
+  it('hands the target over untouched when this account wrote the post', () => {
+    const context = homeContext();
+
+    expect(resolveOwnStatusTarget('a0', context, 'delete')).toStrictEqual(
+      resolveStatusTarget('a0', context),
+    );
+  });
+
+  it('refuses a post of somebody else in the wording of the verb', () => {
+    const context = homeContext([HERS]);
+
+    expect(resolveOwnStatusTarget('a0', context, 'edit')).toStrictEqual(
+      err('You can only edit your own posts'),
+    );
+    expect(resolveOwnStatusTarget('a0', context, 'delete')).toStrictEqual(
+      err('You can only delete your own posts'),
+    );
+  });
+
+  it('refuses the original of a boost of somebody else post', () => {
+    const context = homeContext([HER_BOOST]);
+
+    expect(resolveOwnStatusTarget('a0', context, 'delete')).toStrictEqual(
+      err('You can only delete your own posts'),
+    );
+  });
+
+  it('keeps the resolver refusal when no post can be resolved', () => {
+    expect(resolveOwnStatusTarget('z9', homeContext(), 'edit')).toStrictEqual(
+      err('No post z9 here'),
     );
   });
 });

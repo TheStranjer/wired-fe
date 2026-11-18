@@ -8,7 +8,8 @@
  * a word that is neither — or no word at all — leaves the post the
  * navigation mode selected to stand. A boost resolves to the original status
  * and to its author: the booster showed the post, it is not what the post
- * is about.
+ * is about. {@link resolveOwnStatusTarget} puts this account's authorship on
+ * top of that resolution, for the commands that may change only its own posts.
  */
 
 import type { CommandContext } from './types';
@@ -19,7 +20,7 @@ import type { Status } from '../api/schemas/status';
 import type { ApiSession } from '../api/session';
 import { type Result, err, ok } from '../lib/result';
 import { selectedStatus, statusForLabel } from '../state/bufferSelection';
-import { activeBuffer, sessionFor, windowAccountKey } from '../state/selectors';
+import { accountByKey, activeBuffer, sessionFor, windowAccountKey } from '../state/selectors';
 import { activeWindow } from '../windows/model';
 
 /** A first argument word that could be a post label: letters, then digits. */
@@ -111,6 +112,33 @@ export function resolveStatusTarget(
     rest: byLabel ? rest : args.trim(),
     ...acting.value,
   });
+}
+
+/** Which verb the own-post commands refuse with: the one the reader typed. */
+export type OwnCommand = 'delete' | 'edit';
+
+/**
+ * The post {@link args} names, kept only when the acting account authored it:
+ * {@link resolveStatusTarget}'s resolution — a leading label, else the
+ * navigation selection, a boost unwrapped to its original — with the author
+ * check on top. A boost is the boosted author's post and not the booster's to
+ * change, and a status of an account no longer in the store is nobody's here;
+ * either refuses in the wording of {@link verb}, which is what a status window
+ * line has to say on its own.
+ */
+export function resolveOwnStatusTarget(
+  args: string,
+  context: CommandContext,
+  verb: OwnCommand,
+): Result<StatusTarget, string> {
+  const target = resolveStatusTarget(args, context);
+  if (!target.ok) {
+    return target;
+  }
+  const accountId = accountByKey(context.state, target.value.accountKey)?.accountId;
+  return target.value.status.account.id === accountId
+    ? target
+    : err(`You can only ${verb} your own posts`);
 }
 
 /** The account named by {@link handle}, or the refusal quoting why the lookup failed. */
