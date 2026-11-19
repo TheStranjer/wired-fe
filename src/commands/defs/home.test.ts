@@ -102,7 +102,7 @@ describe('/home', () => {
   });
 
   it('has no aliases and one word of usage', () => {
-    expect(command.aliases).toStrictEqual([]);
+    expect(command.aliases).toBeUndefined();
     expect(command.usage).toBe('/home');
   });
 });

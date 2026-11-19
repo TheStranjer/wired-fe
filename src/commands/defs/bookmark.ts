@@ -13,7 +13,6 @@ import type { CommandDefinition } from '../types';
 /** The `/bookmark` definition. */
 export const command: CommandDefinition = {
   name: 'bookmark',
-  aliases: [],
   usage: '/bookmark [label]',
   summary: 'Bookmark a post, or remove the bookmark',
   run: toggleRun('bookmark'),

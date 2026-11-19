@@ -16,7 +16,7 @@ const POST = status('p', { bookmarked: true });
 describe('/unbookmark', () => {
   it('declares its name and grammar and binds no key', () => {
     expect(command.name).toBe('unbookmark');
-    expect(command.aliases).toStrictEqual([]);
+    expect(command.aliases).toBeUndefined();
     expect(command.usage).toBe('/unbookmark [label]');
     expect(command.summary).toBe('Remove your bookmark of a post');
     expect(command.bindings).toBeUndefined();

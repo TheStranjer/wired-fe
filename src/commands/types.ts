@@ -152,8 +152,8 @@ export type CommandBinding = {
 export type CommandDefinition = {
   /** The name without its slash: a letter, then letters, digits, hyphens. */
   readonly name: string;
-  /** Alternative names, each matching the same pattern as {@link name}. */
-  readonly aliases: readonly string[];
+  /** Alternative names, each matching the same pattern as {@link name}; none when omitted. */
+  readonly aliases?: readonly string[];
   /** How to call it, one line, e.g. `/win <number>`. */
   readonly usage: string;
   /** One line for /help. */

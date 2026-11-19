@@ -19,7 +19,7 @@ const FOREIGN = status('q', { account: FOREIGN_WIRE });
 describe('/pin', () => {
   it('declares its name, grammar and hotkey and nothing else', () => {
     expect(command.name).toBe('pin');
-    expect(command.aliases).toStrictEqual([]);
+    expect(command.aliases).toBeUndefined();
     expect(command.usage).toBe('/pin [label]');
     expect(command.summary).toBe('Pin one of your own posts, or unpin it');
     expect(command.bindings).toStrictEqual([{ mode: 'navigation', chord: 'Shift+p', args: '' }]);

@@ -13,7 +13,6 @@ import type { CommandDefinition } from '../types';
 /** The `/unreact` definition. */
 export const command: CommandDefinition = {
   name: 'unreact',
-  aliases: [],
   usage: '/unreact [label] <emoji>',
   summary: 'Remove your emoji reaction from a post',
   run: reactionRun('unreact'),

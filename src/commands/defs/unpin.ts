@@ -13,7 +13,6 @@ import type { CommandDefinition } from '../types';
 /** The `/unpin` definition. */
 export const command: CommandDefinition = {
   name: 'unpin',
-  aliases: [],
   usage: '/unpin [label]',
   summary: 'Unpin one of your own posts',
   run: toggleRun('unpin'),

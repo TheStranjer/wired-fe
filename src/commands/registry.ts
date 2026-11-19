@@ -48,7 +48,7 @@ export function buildRegistry(definitions: readonly CommandDefinition[]): Result
     if (bindingError !== null) {
       return err(bindingError);
     }
-    for (const label of [definition.name, ...definition.aliases]) {
+    for (const label of [definition.name, ...(definition.aliases ?? [])]) {
       if (!NAME_PATTERN.test(label)) {
         const kind = label === definition.name ? 'name' : 'alias';
         return err(`Invalid ${kind}: /${label} (in command /${definition.name})`);

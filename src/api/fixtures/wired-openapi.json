@@ -1,0 +1,7119 @@
+{
+  "components": {
+    "securitySchemes": {
+      "oAuth2": {
+        "flows": {
+          "authorizationCode": {
+            "authorizationUrl": "https://wired.example/oauth/authorize",
+            "scopes": {
+              "admin:read": "Read administrative data",
+              "admin:write": "Write administrative data",
+              "follow": "Manage relationships",
+              "push": "Web Push API subscriptions",
+              "read": "Read everything",
+              "write": "Write everything"
+            },
+            "tokenUrl": "https://wired.example/oauth/token"
+          }
+        },
+        "type": "oauth2"
+      }
+    }
+  },
+  "info": {
+    "title": "Wired API",
+    "version": "0.1.0"
+  },
+  "openapi": "3.0.3",
+  "paths": {
+    "/.well-known/host-meta": {
+      "get": {
+        "operationId": "GET___well_known_host_meta",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/.well-known/nodeinfo": {
+      "get": {
+        "operationId": "GET___well_known_nodeinfo",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/.well-known/webfinger": {
+      "get": {
+        "operationId": "GET___well_known_webfinger",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/activities/{uuid}": {
+      "get": {
+        "operationId": "GET__activities__uuid",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "uuid",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/account/confirm_email/{user_id}/{token}": {
+      "get": {
+        "operationId": "GET__api_account_confirm_email__user_id__token",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "user_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "token",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/ap/upload_media": {
+      "post": {
+        "operationId": "POST__api_ap_upload_media",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/ap/whoami": {
+      "get": {
+        "operationId": "GET__api_ap_whoami",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/oauth_tokens": {
+      "get": {
+        "operationId": "GET__api_oauth_tokens",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/oauth_tokens/{id}": {
+      "delete": {
+        "operationId": "DELETE__api_oauth_tokens__id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/openapi": {
+      "get": {
+        "operationId": "GET__api_openapi",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/pleroma/accounts/mfa": {
+      "get": {
+        "operationId": "GET__api_pleroma_accounts_mfa",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/pleroma/accounts/mfa/backup_codes": {
+      "get": {
+        "operationId": "GET__api_pleroma_accounts_mfa_backup_codes",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/pleroma/accounts/mfa/confirm/{method}": {
+      "post": {
+        "operationId": "POST__api_pleroma_accounts_mfa_confirm__method",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "method",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/pleroma/accounts/mfa/setup/{method}": {
+      "get": {
+        "operationId": "GET__api_pleroma_accounts_mfa_setup__method",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "method",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/pleroma/accounts/mfa/{method}": {
+      "delete": {
+        "operationId": "DELETE__api_pleroma_accounts_mfa__method",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "method",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/pleroma/aliases": {
+      "delete": {
+        "operationId": "DELETE__api_pleroma_aliases",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      },
+      "get": {
+        "operationId": "GET__api_pleroma_aliases",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      },
+      "put": {
+        "operationId": "PUT__api_pleroma_aliases",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/pleroma/blocks_import": {
+      "post": {
+        "operationId": "POST__api_pleroma_blocks_import",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/pleroma/change_email": {
+      "post": {
+        "operationId": "POST__api_pleroma_change_email",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/pleroma/change_password": {
+      "post": {
+        "operationId": "POST__api_pleroma_change_password",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/pleroma/delete_account": {
+      "post": {
+        "operationId": "POST__api_pleroma_delete_account",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/pleroma/disable_account": {
+      "post": {
+        "operationId": "POST__api_pleroma_disable_account",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/pleroma/follow_import": {
+      "post": {
+        "operationId": "POST__api_pleroma_follow_import",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/pleroma/frontend_configurations": {
+      "get": {
+        "operationId": "GET__api_pleroma_frontend_configurations",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/pleroma/move_account": {
+      "post": {
+        "operationId": "POST__api_pleroma_move_account",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/pleroma/mutes_import": {
+      "post": {
+        "operationId": "POST__api_pleroma_mutes_import",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/pleroma/notification_settings": {
+      "put": {
+        "operationId": "PUT__api_pleroma_notification_settings",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/pleroma/notifications/read": {
+      "post": {
+        "operationId": "POST__api_pleroma_notifications_read",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v0/pleroma/reports": {
+      "get": {
+        "operationId": "GET__api_v0_pleroma_reports",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v0/pleroma/reports/{id}": {
+      "get": {
+        "operationId": "GET__api_v0_pleroma_reports__id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/accounts": {
+      "post": {
+        "operationId": "POST__api_v1_accounts",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/accounts/familiar_followers": {
+      "get": {
+        "operationId": "GET__api_v1_accounts_familiar_followers",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/accounts/lookup": {
+      "get": {
+        "operationId": "GET__api_v1_accounts_lookup",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/relationships": {
+      "get": {
+        "operationId": "GET__api_v1_accounts_relationships",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/accounts/search": {
+      "get": {
+        "operationId": "GET__api_v1_accounts_search",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/update_credentials": {
+      "patch": {
+        "operationId": "PATCH__api_v1_accounts_update_credentials",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/accounts/verify_credentials": {
+      "get": {
+        "operationId": "GET__api_v1_accounts_verify_credentials",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/accounts/{id}": {
+      "get": {
+        "operationId": "GET__api_v1_accounts__id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/{id}/block": {
+      "post": {
+        "operationId": "POST__api_v1_accounts__id_block",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/accounts/{id}/endorse": {
+      "post": {
+        "operationId": "POST__api_v1_accounts__id_endorse",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/accounts/{id}/endorsements": {
+      "get": {
+        "operationId": "GET__api_v1_accounts__id_endorsements",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/{id}/follow": {
+      "post": {
+        "operationId": "POST__api_v1_accounts__id_follow",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/accounts/{id}/followers": {
+      "get": {
+        "operationId": "GET__api_v1_accounts__id_followers",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/{id}/following": {
+      "get": {
+        "operationId": "GET__api_v1_accounts__id_following",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/{id}/lists": {
+      "get": {
+        "operationId": "GET__api_v1_accounts__id_lists",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/accounts/{id}/mute": {
+      "post": {
+        "operationId": "POST__api_v1_accounts__id_mute",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/accounts/{id}/note": {
+      "post": {
+        "operationId": "POST__api_v1_accounts__id_note",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/accounts/{id}/pin": {
+      "post": {
+        "operationId": "POST__api_v1_accounts__id_pin",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/accounts/{id}/remove_from_followers": {
+      "post": {
+        "operationId": "POST__api_v1_accounts__id_remove_from_followers",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/accounts/{id}/statuses": {
+      "get": {
+        "operationId": "GET__api_v1_accounts__id_statuses",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/{id}/unblock": {
+      "post": {
+        "operationId": "POST__api_v1_accounts__id_unblock",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/accounts/{id}/unendorse": {
+      "post": {
+        "operationId": "POST__api_v1_accounts__id_unendorse",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/accounts/{id}/unfollow": {
+      "post": {
+        "operationId": "POST__api_v1_accounts__id_unfollow",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/accounts/{id}/unmute": {
+      "post": {
+        "operationId": "POST__api_v1_accounts__id_unmute",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/accounts/{id}/unpin": {
+      "post": {
+        "operationId": "POST__api_v1_accounts__id_unpin",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/accounts": {
+      "get": {
+        "operationId": "GET__api_v1_admin_accounts",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/accounts/{id}": {
+      "delete": {
+        "operationId": "DELETE__api_v1_admin_accounts__id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      },
+      "get": {
+        "operationId": "GET__api_v1_admin_accounts__id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/accounts/{id}/action": {
+      "post": {
+        "operationId": "POST__api_v1_admin_accounts__id_action",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/accounts/{id}/approve": {
+      "post": {
+        "operationId": "POST__api_v1_admin_accounts__id_approve",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/accounts/{id}/enable": {
+      "post": {
+        "operationId": "POST__api_v1_admin_accounts__id_enable",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/accounts/{id}/reject": {
+      "post": {
+        "operationId": "POST__api_v1_admin_accounts__id_reject",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/reports": {
+      "get": {
+        "operationId": "GET__api_v1_admin_reports",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/reports/{id}": {
+      "get": {
+        "operationId": "GET__api_v1_admin_reports__id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/reports/{id}/assign_to_self": {
+      "post": {
+        "operationId": "POST__api_v1_admin_reports__id_assign_to_self",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/reports/{id}/reopen": {
+      "post": {
+        "operationId": "POST__api_v1_admin_reports__id_reopen",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/reports/{id}/resolve": {
+      "post": {
+        "operationId": "POST__api_v1_admin_reports__id_resolve",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/reports/{id}/unassign": {
+      "post": {
+        "operationId": "POST__api_v1_admin_reports__id_unassign",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/announcements": {
+      "get": {
+        "operationId": "GET__api_v1_announcements",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/announcements/{id}/dismiss": {
+      "post": {
+        "operationId": "POST__api_v1_announcements__id_dismiss",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/apps": {
+      "post": {
+        "operationId": "POST__api_v1_apps",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/apps/verify_credentials": {
+      "get": {
+        "operationId": "GET__api_v1_apps_verify_credentials",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/blocks": {
+      "get": {
+        "operationId": "GET__api_v1_blocks",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/bookmarks": {
+      "get": {
+        "operationId": "GET__api_v1_bookmarks",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/conversations": {
+      "get": {
+        "operationId": "GET__api_v1_conversations",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/conversations/{id}": {
+      "delete": {
+        "operationId": "DELETE__api_v1_conversations__id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/conversations/{id}/read": {
+      "post": {
+        "operationId": "POST__api_v1_conversations__id_read",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/custom_emojis": {
+      "get": {
+        "operationId": "GET__api_v1_custom_emojis",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/directory": {
+      "get": {
+        "operationId": "GET__api_v1_directory",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/domain_blocks": {
+      "delete": {
+        "operationId": "DELETE__api_v1_domain_blocks",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      },
+      "get": {
+        "operationId": "GET__api_v1_domain_blocks",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "POST__api_v1_domain_blocks",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/endorsements": {
+      "get": {
+        "operationId": "GET__api_v1_endorsements",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/favourites": {
+      "get": {
+        "operationId": "GET__api_v1_favourites",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/filters": {
+      "get": {
+        "operationId": "GET__api_v1_filters",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "POST__api_v1_filters",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/filters/{id}": {
+      "delete": {
+        "operationId": "DELETE__api_v1_filters__id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      },
+      "get": {
+        "operationId": "GET__api_v1_filters__id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      },
+      "put": {
+        "operationId": "PUT__api_v1_filters__id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/follow_requests": {
+      "get": {
+        "operationId": "GET__api_v1_follow_requests",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/follow_requests/{id}/authorize": {
+      "post": {
+        "operationId": "POST__api_v1_follow_requests__id_authorize",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/follow_requests/{id}/reject": {
+      "post": {
+        "operationId": "POST__api_v1_follow_requests__id_reject",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/followed_tags": {
+      "get": {
+        "operationId": "GET__api_v1_followed_tags",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/follows": {
+      "post": {
+        "operationId": "POST__api_v1_follows",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/instance": {
+      "get": {
+        "operationId": "GET__api_v1_instance",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/instance/domain_blocks": {
+      "get": {
+        "operationId": "GET__api_v1_instance_domain_blocks",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/instance/peers": {
+      "get": {
+        "operationId": "GET__api_v1_instance_peers",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/instance/rules": {
+      "get": {
+        "operationId": "GET__api_v1_instance_rules",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/instance/translation_languages": {
+      "get": {
+        "operationId": "GET__api_v1_instance_translation_languages",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/lists": {
+      "get": {
+        "operationId": "GET__api_v1_lists",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "POST__api_v1_lists",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/lists/{id}": {
+      "delete": {
+        "operationId": "DELETE__api_v1_lists__id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      },
+      "get": {
+        "operationId": "GET__api_v1_lists__id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      },
+      "put": {
+        "operationId": "PUT__api_v1_lists__id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/lists/{id}/accounts": {
+      "delete": {
+        "operationId": "DELETE__api_v1_lists__id_accounts",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      },
+      "get": {
+        "operationId": "GET__api_v1_lists__id_accounts",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "POST__api_v1_lists__id_accounts",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/markers": {
+      "get": {
+        "operationId": "GET__api_v1_markers",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "POST__api_v1_markers",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/media": {
+      "post": {
+        "operationId": "POST__api_v1_media",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/media/{id}": {
+      "get": {
+        "operationId": "GET__api_v1_media__id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      },
+      "put": {
+        "operationId": "PUT__api_v1_media__id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/mutes": {
+      "get": {
+        "operationId": "GET__api_v1_mutes",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/notifications": {
+      "get": {
+        "operationId": "GET__api_v1_notifications",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/notifications/clear": {
+      "post": {
+        "operationId": "POST__api_v1_notifications_clear",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/notifications/destroy_multiple": {
+      "delete": {
+        "operationId": "DELETE__api_v1_notifications_destroy_multiple",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/notifications/dismiss": {
+      "post": {
+        "operationId": "POST__api_v1_notifications_dismiss",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/notifications/{id}": {
+      "get": {
+        "operationId": "GET__api_v1_notifications__id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/notifications/{id}/dismiss": {
+      "post": {
+        "operationId": "POST__api_v1_notifications__id_dismiss",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/accounts/confirmation_resend": {
+      "post": {
+        "operationId": "POST__api_v1_pleroma_accounts_confirmation_resend",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/pleroma/accounts/{id}/endorsements": {
+      "get": {
+        "operationId": "GET__api_v1_pleroma_accounts__id_endorsements",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/pleroma/accounts/{id}/favourites": {
+      "get": {
+        "operationId": "GET__api_v1_pleroma_accounts__id_favourites",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/pleroma/accounts/{id}/scrobbles": {
+      "get": {
+        "operationId": "GET__api_v1_pleroma_accounts__id_scrobbles",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/pleroma/accounts/{id}/subscribe": {
+      "post": {
+        "operationId": "POST__api_v1_pleroma_accounts__id_subscribe",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/accounts/{id}/unsubscribe": {
+      "post": {
+        "operationId": "POST__api_v1_pleroma_accounts__id_unsubscribe",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/announcements": {
+      "get": {
+        "operationId": "GET__api_v1_pleroma_admin_announcements",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "POST__api_v1_pleroma_admin_announcements",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/announcements/{id}": {
+      "delete": {
+        "operationId": "DELETE__api_v1_pleroma_admin_announcements__id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      },
+      "get": {
+        "operationId": "GET__api_v1_pleroma_admin_announcements__id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      },
+      "patch": {
+        "operationId": "PATCH__api_v1_pleroma_admin_announcements__id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/backups": {
+      "post": {
+        "operationId": "POST__api_v1_pleroma_admin_backups",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/chats/{id}": {
+      "get": {
+        "operationId": "GET__api_v1_pleroma_admin_chats__id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/chats/{id}/messages": {
+      "get": {
+        "operationId": "GET__api_v1_pleroma_admin_chats__id_messages",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/chats/{id}/messages/{message_id}": {
+      "delete": {
+        "operationId": "DELETE__api_v1_pleroma_admin_chats__id_messages__message_id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "message_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/config": {
+      "get": {
+        "operationId": "GET__api_v1_pleroma_admin_config",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "POST__api_v1_pleroma_admin_config",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/config/descriptions": {
+      "get": {
+        "operationId": "GET__api_v1_pleroma_admin_config_descriptions",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/frontends": {
+      "get": {
+        "operationId": "GET__api_v1_pleroma_admin_frontends",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/frontends/install": {
+      "post": {
+        "operationId": "POST__api_v1_pleroma_admin_frontends_install",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/instance_document/{name}": {
+      "delete": {
+        "operationId": "DELETE__api_v1_pleroma_admin_instance_document__name",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      },
+      "get": {
+        "operationId": "GET__api_v1_pleroma_admin_instance_document__name",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      },
+      "patch": {
+        "operationId": "PATCH__api_v1_pleroma_admin_instance_document__name",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/instances/{instance}": {
+      "delete": {
+        "operationId": "DELETE__api_v1_pleroma_admin_instances__instance",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "instance",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/instances/{instance}/statuses": {
+      "get": {
+        "operationId": "GET__api_v1_pleroma_admin_instances__instance_statuses",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "instance",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/media_proxy_caches": {
+      "get": {
+        "operationId": "GET__api_v1_pleroma_admin_media_proxy_caches",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/media_proxy_caches/delete": {
+      "post": {
+        "operationId": "POST__api_v1_pleroma_admin_media_proxy_caches_delete",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/media_proxy_caches/purge": {
+      "post": {
+        "operationId": "POST__api_v1_pleroma_admin_media_proxy_caches_purge",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/moderation_log": {
+      "get": {
+        "operationId": "GET__api_v1_pleroma_admin_moderation_log",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/need_reboot": {
+      "get": {
+        "operationId": "GET__api_v1_pleroma_admin_need_reboot",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/oauth_app": {
+      "get": {
+        "operationId": "GET__api_v1_pleroma_admin_oauth_app",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "POST__api_v1_pleroma_admin_oauth_app",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/oauth_app/{id}": {
+      "delete": {
+        "operationId": "DELETE__api_v1_pleroma_admin_oauth_app__id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      },
+      "patch": {
+        "operationId": "PATCH__api_v1_pleroma_admin_oauth_app__id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/relay": {
+      "delete": {
+        "operationId": "DELETE__api_v1_pleroma_admin_relay",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      },
+      "get": {
+        "operationId": "GET__api_v1_pleroma_admin_relay",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "POST__api_v1_pleroma_admin_relay",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/reload_emoji": {
+      "post": {
+        "operationId": "POST__api_v1_pleroma_admin_reload_emoji",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/reports": {
+      "get": {
+        "operationId": "GET__api_v1_pleroma_admin_reports",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      },
+      "patch": {
+        "operationId": "PATCH__api_v1_pleroma_admin_reports",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/reports/assign_account": {
+      "post": {
+        "operationId": "POST__api_v1_pleroma_admin_reports_assign_account",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/reports/{id}": {
+      "get": {
+        "operationId": "GET__api_v1_pleroma_admin_reports__id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/reports/{id}/notes": {
+      "post": {
+        "operationId": "POST__api_v1_pleroma_admin_reports__id_notes",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/reports/{report_id}/notes/{id}": {
+      "delete": {
+        "operationId": "DELETE__api_v1_pleroma_admin_reports__report_id_notes__id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "report_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/restart": {
+      "get": {
+        "operationId": "GET__api_v1_pleroma_admin_restart",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/rules": {
+      "get": {
+        "operationId": "GET__api_v1_pleroma_admin_rules",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "POST__api_v1_pleroma_admin_rules",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/rules/{id}": {
+      "delete": {
+        "operationId": "DELETE__api_v1_pleroma_admin_rules__id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      },
+      "patch": {
+        "operationId": "PATCH__api_v1_pleroma_admin_rules__id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/stats": {
+      "get": {
+        "operationId": "GET__api_v1_pleroma_admin_stats",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/statuses": {
+      "get": {
+        "operationId": "GET__api_v1_pleroma_admin_statuses",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/statuses/{id}": {
+      "delete": {
+        "operationId": "DELETE__api_v1_pleroma_admin_statuses__id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      },
+      "get": {
+        "operationId": "GET__api_v1_pleroma_admin_statuses__id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      },
+      "put": {
+        "operationId": "PUT__api_v1_pleroma_admin_statuses__id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/users": {
+      "delete": {
+        "operationId": "DELETE__api_v1_pleroma_admin_users",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      },
+      "get": {
+        "operationId": "GET__api_v1_pleroma_admin_users",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "POST__api_v1_pleroma_admin_users",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/users/activate": {
+      "patch": {
+        "operationId": "PATCH__api_v1_pleroma_admin_users_activate",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/users/approve": {
+      "patch": {
+        "operationId": "PATCH__api_v1_pleroma_admin_users_approve",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/users/confirm_email": {
+      "patch": {
+        "operationId": "PATCH__api_v1_pleroma_admin_users_confirm_email",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/users/deactivate": {
+      "patch": {
+        "operationId": "PATCH__api_v1_pleroma_admin_users_deactivate",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/users/disable_mfa": {
+      "put": {
+        "operationId": "PUT__api_v1_pleroma_admin_users_disable_mfa",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/users/email_invite": {
+      "post": {
+        "operationId": "POST__api_v1_pleroma_admin_users_email_invite",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/users/follow": {
+      "post": {
+        "operationId": "POST__api_v1_pleroma_admin_users_follow",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/users/force_password_reset": {
+      "patch": {
+        "operationId": "PATCH__api_v1_pleroma_admin_users_force_password_reset",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/users/invite_token": {
+      "post": {
+        "operationId": "POST__api_v1_pleroma_admin_users_invite_token",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/users/invites": {
+      "get": {
+        "operationId": "GET__api_v1_pleroma_admin_users_invites",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/users/permission_group/{permission_group}": {
+      "delete": {
+        "operationId": "DELETE__api_v1_pleroma_admin_users_permission_group__permission_group",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "permission_group",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "POST__api_v1_pleroma_admin_users_permission_group__permission_group",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "permission_group",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/users/resend_confirmation_email": {
+      "patch": {
+        "operationId": "PATCH__api_v1_pleroma_admin_users_resend_confirmation_email",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/users/revoke_invite": {
+      "post": {
+        "operationId": "POST__api_v1_pleroma_admin_users_revoke_invite",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/users/suggest": {
+      "patch": {
+        "operationId": "PATCH__api_v1_pleroma_admin_users_suggest",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/users/tag": {
+      "delete": {
+        "operationId": "DELETE__api_v1_pleroma_admin_users_tag",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      },
+      "put": {
+        "operationId": "PUT__api_v1_pleroma_admin_users_tag",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/users/unfollow": {
+      "post": {
+        "operationId": "POST__api_v1_pleroma_admin_users_unfollow",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/users/unsuggest": {
+      "patch": {
+        "operationId": "PATCH__api_v1_pleroma_admin_users_unsuggest",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/users/{nickname}": {
+      "get": {
+        "operationId": "GET__api_v1_pleroma_admin_users__nickname",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "nickname",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/users/{nickname}/chats": {
+      "get": {
+        "operationId": "GET__api_v1_pleroma_admin_users__nickname_chats",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "nickname",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/users/{nickname}/credentials": {
+      "get": {
+        "operationId": "GET__api_v1_pleroma_admin_users__nickname_credentials",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "nickname",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      },
+      "patch": {
+        "operationId": "PATCH__api_v1_pleroma_admin_users__nickname_credentials",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "nickname",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/users/{nickname}/password_reset": {
+      "get": {
+        "operationId": "GET__api_v1_pleroma_admin_users__nickname_password_reset",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "nickname",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/users/{nickname}/permission_group": {
+      "get": {
+        "operationId": "GET__api_v1_pleroma_admin_users__nickname_permission_group",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "nickname",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/users/{nickname}/permission_group/{permission_group}": {
+      "delete": {
+        "operationId": "DELETE__api_v1_pleroma_admin_users__nickname_permission_group__permission_group",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "nickname",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "permission_group",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      },
+      "get": {
+        "operationId": "GET__api_v1_pleroma_admin_users__nickname_permission_group__permission_group",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "nickname",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "permission_group",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "POST__api_v1_pleroma_admin_users__nickname_permission_group__permission_group",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "nickname",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "permission_group",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/users/{nickname}/statuses": {
+      "get": {
+        "operationId": "GET__api_v1_pleroma_admin_users__nickname_statuses",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "nickname",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/users/{nickname}/toggle_activation": {
+      "patch": {
+        "operationId": "PATCH__api_v1_pleroma_admin_users__nickname_toggle_activation",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "nickname",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/webhooks": {
+      "get": {
+        "operationId": "GET__api_v1_pleroma_admin_webhooks",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "POST__api_v1_pleroma_admin_webhooks",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/webhooks/{id}": {
+      "delete": {
+        "operationId": "DELETE__api_v1_pleroma_admin_webhooks__id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      },
+      "get": {
+        "operationId": "GET__api_v1_pleroma_admin_webhooks__id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      },
+      "patch": {
+        "operationId": "PATCH__api_v1_pleroma_admin_webhooks__id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/webhooks/{id}/disable": {
+      "post": {
+        "operationId": "POST__api_v1_pleroma_admin_webhooks__id_disable",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/webhooks/{id}/enable": {
+      "post": {
+        "operationId": "POST__api_v1_pleroma_admin_webhooks__id_enable",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/admin/webhooks/{id}/rotate_secret": {
+      "post": {
+        "operationId": "POST__api_v1_pleroma_admin_webhooks__id_rotate_secret",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/apps": {
+      "get": {
+        "operationId": "GET__api_v1_pleroma_apps",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/backups": {
+      "get": {
+        "operationId": "GET__api_v1_pleroma_backups",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "POST__api_v1_pleroma_backups",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/birthdays": {
+      "get": {
+        "operationId": "GET__api_v1_pleroma_birthdays",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/bookmark_folders": {
+      "get": {
+        "operationId": "GET__api_v1_pleroma_bookmark_folders",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "POST__api_v1_pleroma_bookmark_folders",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/bookmark_folders/{id}": {
+      "delete": {
+        "operationId": "DELETE__api_v1_pleroma_bookmark_folders__id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      },
+      "patch": {
+        "operationId": "PATCH__api_v1_pleroma_bookmark_folders__id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/captcha": {
+      "get": {
+        "operationId": "GET__api_v1_pleroma_captcha",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/pleroma/chats": {
+      "get": {
+        "operationId": "GET__api_v1_pleroma_chats",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/chats/by-account-id/{id}": {
+      "post": {
+        "operationId": "POST__api_v1_pleroma_chats_by_account_id__id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/chats/{id}": {
+      "get": {
+        "operationId": "GET__api_v1_pleroma_chats__id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/chats/{id}/messages": {
+      "get": {
+        "operationId": "GET__api_v1_pleroma_chats__id_messages",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "POST__api_v1_pleroma_chats__id_messages",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/chats/{id}/messages/{message_id}": {
+      "delete": {
+        "operationId": "DELETE__api_v1_pleroma_chats__id_messages__message_id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "message_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/chats/{id}/messages/{message_id}/read": {
+      "post": {
+        "operationId": "POST__api_v1_pleroma_chats__id_messages__message_id_read",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "message_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/chats/{id}/pin": {
+      "post": {
+        "operationId": "POST__api_v1_pleroma_chats__id_pin",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/chats/{id}/read": {
+      "post": {
+        "operationId": "POST__api_v1_pleroma_chats__id_read",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/chats/{id}/unpin": {
+      "post": {
+        "operationId": "POST__api_v1_pleroma_chats__id_unpin",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/conversations/read": {
+      "post": {
+        "operationId": "POST__api_v1_pleroma_conversations_read",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/conversations/{id}": {
+      "get": {
+        "operationId": "GET__api_v1_pleroma_conversations__id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      },
+      "patch": {
+        "operationId": "PATCH__api_v1_pleroma_conversations__id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/conversations/{id}/statuses": {
+      "get": {
+        "operationId": "GET__api_v1_pleroma_conversations__id_statuses",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/emoji": {
+      "get": {
+        "operationId": "GET__api_v1_pleroma_emoji",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/pleroma/emoji/pack": {
+      "delete": {
+        "operationId": "DELETE__api_v1_pleroma_emoji_pack",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      },
+      "get": {
+        "operationId": "GET__api_v1_pleroma_emoji_pack",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "patch": {
+        "operationId": "PATCH__api_v1_pleroma_emoji_pack",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "POST__api_v1_pleroma_emoji_pack",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/emoji/packs": {
+      "get": {
+        "operationId": "GET__api_v1_pleroma_emoji_packs",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/pleroma/emoji/packs/archive": {
+      "get": {
+        "operationId": "GET__api_v1_pleroma_emoji_packs_archive",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/pleroma/emoji/packs/download": {
+      "post": {
+        "operationId": "POST__api_v1_pleroma_emoji_packs_download",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/emoji/packs/download_zip": {
+      "post": {
+        "operationId": "POST__api_v1_pleroma_emoji_packs_download_zip",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/emoji/packs/files": {
+      "delete": {
+        "operationId": "DELETE__api_v1_pleroma_emoji_packs_files",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      },
+      "patch": {
+        "operationId": "PATCH__api_v1_pleroma_emoji_packs_files",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "POST__api_v1_pleroma_emoji_packs_files",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/emoji/packs/import": {
+      "get": {
+        "operationId": "GET__api_v1_pleroma_emoji_packs_import",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/emoji/packs/remote": {
+      "get": {
+        "operationId": "GET__api_v1_pleroma_emoji_packs_remote",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/federation_status": {
+      "get": {
+        "operationId": "GET__api_v1_pleroma_federation_status",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/pleroma/healthcheck": {
+      "get": {
+        "operationId": "GET__api_v1_pleroma_healthcheck",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/pleroma/mascot": {
+      "get": {
+        "operationId": "GET__api_v1_pleroma_mascot",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      },
+      "put": {
+        "operationId": "PUT__api_v1_pleroma_mascot",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/outgoing_follow_requests": {
+      "get": {
+        "operationId": "GET__api_v1_pleroma_outgoing_follow_requests",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/password_reset": {
+      "post": {
+        "operationId": "POST__api_v1_pleroma_password_reset",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/pleroma/password_reset/{token}": {
+      "get": {
+        "operationId": "GET__api_v1_pleroma_password_reset__token",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "token",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/pleroma/preferred_frontend": {
+      "put": {
+        "operationId": "PUT__api_v1_pleroma_preferred_frontend",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/preferred_frontend/available": {
+      "get": {
+        "operationId": "GET__api_v1_pleroma_preferred_frontend_available",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/remote_interaction": {
+      "post": {
+        "operationId": "POST__api_v1_pleroma_remote_interaction",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/pleroma/scrobble": {
+      "post": {
+        "operationId": "POST__api_v1_pleroma_scrobble",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/settings/{app}": {
+      "get": {
+        "operationId": "GET__api_v1_pleroma_settings__app",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "app",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      },
+      "patch": {
+        "operationId": "PATCH__api_v1_pleroma_settings__app",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "app",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pleroma/statuses/{id}/quotes": {
+      "get": {
+        "operationId": "GET__api_v1_pleroma_statuses__id_quotes",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/pleroma/statuses/{id}/reactions": {
+      "get": {
+        "operationId": "GET__api_v1_pleroma_statuses__id_reactions",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/pleroma/statuses/{id}/reactions/{emoji}": {
+      "delete": {
+        "operationId": "DELETE__api_v1_pleroma_statuses__id_reactions__emoji",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "emoji",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      },
+      "get": {
+        "operationId": "GET__api_v1_pleroma_statuses__id_reactions__emoji",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "emoji",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "put": {
+        "operationId": "PUT__api_v1_pleroma_statuses__id_reactions__emoji",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "emoji",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/polls/{id}": {
+      "get": {
+        "operationId": "GET__api_v1_polls__id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/polls/{id}/votes": {
+      "post": {
+        "operationId": "POST__api_v1_polls__id_votes",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/push/subscription": {
+      "delete": {
+        "operationId": "DELETE__api_v1_push_subscription",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      },
+      "get": {
+        "operationId": "GET__api_v1_push_subscription",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "POST__api_v1_push_subscription",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      },
+      "put": {
+        "operationId": "PUT__api_v1_push_subscription",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/reports": {
+      "post": {
+        "operationId": "POST__api_v1_reports",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/scheduled_statuses": {
+      "get": {
+        "operationId": "GET__api_v1_scheduled_statuses",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/scheduled_statuses/{id}": {
+      "delete": {
+        "operationId": "DELETE__api_v1_scheduled_statuses__id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      },
+      "get": {
+        "operationId": "GET__api_v1_scheduled_statuses__id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      },
+      "put": {
+        "operationId": "PUT__api_v1_scheduled_statuses__id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/search": {
+      "get": {
+        "operationId": "GET__api_v1_search",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/statuses": {
+      "get": {
+        "operationId": "GET__api_v1_statuses",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "operationId": "POST__api_v1_statuses",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/statuses/{id}": {
+      "delete": {
+        "operationId": "DELETE__api_v1_statuses__id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      },
+      "get": {
+        "operationId": "GET__api_v1_statuses__id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "put": {
+        "operationId": "PUT__api_v1_statuses__id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/statuses/{id}/bookmark": {
+      "post": {
+        "operationId": "POST__api_v1_statuses__id_bookmark",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/statuses/{id}/context": {
+      "get": {
+        "operationId": "GET__api_v1_statuses__id_context",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/statuses/{id}/favourite": {
+      "post": {
+        "operationId": "POST__api_v1_statuses__id_favourite",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/statuses/{id}/favourited_by": {
+      "get": {
+        "operationId": "GET__api_v1_statuses__id_favourited_by",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/statuses/{id}/history": {
+      "get": {
+        "operationId": "GET__api_v1_statuses__id_history",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/statuses/{id}/mute": {
+      "post": {
+        "operationId": "POST__api_v1_statuses__id_mute",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/statuses/{id}/pin": {
+      "post": {
+        "operationId": "POST__api_v1_statuses__id_pin",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/statuses/{id}/quotes": {
+      "get": {
+        "operationId": "GET__api_v1_statuses__id_quotes",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/statuses/{id}/reblog": {
+      "post": {
+        "operationId": "POST__api_v1_statuses__id_reblog",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/statuses/{id}/reblogged_by": {
+      "get": {
+        "operationId": "GET__api_v1_statuses__id_reblogged_by",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/statuses/{id}/source": {
+      "get": {
+        "operationId": "GET__api_v1_statuses__id_source",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/statuses/{id}/translate": {
+      "post": {
+        "operationId": "POST__api_v1_statuses__id_translate",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/statuses/{id}/unbookmark": {
+      "post": {
+        "operationId": "POST__api_v1_statuses__id_unbookmark",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/statuses/{id}/unfavourite": {
+      "post": {
+        "operationId": "POST__api_v1_statuses__id_unfavourite",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/statuses/{id}/unmute": {
+      "post": {
+        "operationId": "POST__api_v1_statuses__id_unmute",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/statuses/{id}/unpin": {
+      "post": {
+        "operationId": "POST__api_v1_statuses__id_unpin",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/statuses/{id}/unreblog": {
+      "post": {
+        "operationId": "POST__api_v1_statuses__id_unreblog",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/streaming/health": {
+      "get": {
+        "operationId": "GET__api_v1_streaming_health",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/suggestions": {
+      "get": {
+        "operationId": "GET__api_v1_suggestions",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/suggestions/{account_id}": {
+      "delete": {
+        "operationId": "DELETE__api_v1_suggestions__account_id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "account_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tags/{id}": {
+      "get": {
+        "operationId": "GET__api_v1_tags__id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/tags/{id}/follow": {
+      "post": {
+        "operationId": "POST__api_v1_tags__id_follow",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tags/{id}/unfollow": {
+      "post": {
+        "operationId": "POST__api_v1_tags__id_unfollow",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/timelines/direct": {
+      "get": {
+        "operationId": "GET__api_v1_timelines_direct",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/timelines/home": {
+      "get": {
+        "operationId": "GET__api_v1_timelines_home",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/timelines/list/{list_id}": {
+      "get": {
+        "operationId": "GET__api_v1_timelines_list__list_id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "list_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/timelines/public": {
+      "get": {
+        "operationId": "GET__api_v1_timelines_public",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/timelines/tag/{tag}": {
+      "get": {
+        "operationId": "GET__api_v1_timelines_tag__tag",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tag",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/trends": {
+      "get": {
+        "operationId": "GET__api_v1_trends",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v2/admin/accounts": {
+      "get": {
+        "operationId": "GET__api_v2_admin_accounts",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v2/instance": {
+      "get": {
+        "operationId": "GET__api_v2_instance",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v2/media": {
+      "post": {
+        "operationId": "POST__api_v2_media",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v2/notifications": {
+      "get": {
+        "operationId": "GET__api_v2_notifications",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v2/notifications/unread_count": {
+      "get": {
+        "operationId": "GET__api_v2_notifications_unread_count",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v2/notifications/{group_key}": {
+      "get": {
+        "operationId": "GET__api_v2_notifications__group_key",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v2/notifications/{group_key}/accounts": {
+      "get": {
+        "operationId": "GET__api_v2_notifications__group_key_accounts",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v2/notifications/{group_key}/dismiss": {
+      "post": {
+        "operationId": "POST__api_v2_notifications__group_key_dismiss",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v2/pleroma/chats": {
+      "get": {
+        "operationId": "GET__api_v2_pleroma_chats",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/v2/search": {
+      "get": {
+        "operationId": "GET__api_v2_search",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v2/suggestions": {
+      "get": {
+        "operationId": "GET__api_v2_suggestions",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/auth/password": {
+      "post": {
+        "operationId": "POST__auth_password",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/authorize_interaction": {
+      "get": {
+        "operationId": "GET__authorize_interaction",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/check_password": {
+      "get": {
+        "operationId": "GET__check_password",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/embed/{id}": {
+      "get": {
+        "operationId": "GET__embed__id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/emoji/{pack}/{file}": {
+      "get": {
+        "operationId": "GET__emoji__pack__file",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "pack",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "file",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/frontend_switcher": {
+      "get": {
+        "operationId": "GET__frontend_switcher",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "operationId": "POST__frontend_switcher",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "operationId": "GET__health",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/inbox": {
+      "post": {
+        "operationId": "POST__inbox",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/instance/{name}.html": {
+      "get": {
+        "operationId": "GET__instance__name_html",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/internal/fetch": {
+      "get": {
+        "operationId": "GET__internal_fetch",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/internal/fetch/inbox": {
+      "post": {
+        "operationId": "POST__internal_fetch_inbox",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/mailer/unsubscribe/{token}": {
+      "get": {
+        "operationId": "GET__mailer_unsubscribe__token",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "token",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/main/ostatus": {
+      "get": {
+        "operationId": "GET__main_ostatus",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "operationId": "POST__main_ostatus",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/manifest.json": {
+      "get": {
+        "operationId": "GET__manifest_json",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/media/{key}": {
+      "get": {
+        "operationId": "GET__media__key",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/nodeinfo/{version}": {
+      "get": {
+        "operationId": "GET__nodeinfo__version",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "version",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/notice/{id}": {
+      "get": {
+        "operationId": "GET__notice__id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/notice/{id}/embed_player": {
+      "get": {
+        "operationId": "GET__notice__id_embed_player",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/oauth/authorize": {
+      "get": {
+        "operationId": "GET__oauth_authorize",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "operationId": "POST__oauth_authorize",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/oauth/mfa": {
+      "get": {
+        "operationId": "GET__oauth_mfa",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/oauth/mfa/challenge": {
+      "post": {
+        "operationId": "POST__oauth_mfa_challenge",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/oauth/mfa/verify": {
+      "post": {
+        "operationId": "POST__oauth_mfa_verify",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/oauth/prepare_request": {
+      "get": {
+        "operationId": "GET__oauth_prepare_request",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/oauth/register": {
+      "post": {
+        "operationId": "POST__oauth_register",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/oauth/registration_details": {
+      "get": {
+        "operationId": "GET__oauth_registration_details",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/oauth/revoke": {
+      "post": {
+        "operationId": "POST__oauth_revoke",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/oauth/token": {
+      "post": {
+        "operationId": "POST__oauth_token",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/oauth/{provider}": {
+      "get": {
+        "operationId": "GET__oauth__provider",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "provider",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/oauth/{provider}/callback": {
+      "get": {
+        "operationId": "GET__oauth__provider_callback",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "provider",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/objects/{uuid}": {
+      "get": {
+        "operationId": "GET__objects__uuid",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "uuid",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/objects/{uuid}/replies": {
+      "get": {
+        "operationId": "GET__objects__uuid_replies",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "uuid",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/ostatus_subscribe": {
+      "get": {
+        "operationId": "GET__ostatus_subscribe",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "operationId": "POST__ostatus_subscribe",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/proxy/preview/{sig}/{url}": {
+      "get": {
+        "operationId": "GET__proxy_preview__sig__url",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "sig",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "url",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/proxy/preview/{sig}/{url}/{filename}": {
+      "get": {
+        "operationId": "GET__proxy_preview__sig__url__filename",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "sig",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "url",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "filename",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/proxy/{sig}/{url}": {
+      "get": {
+        "operationId": "GET__proxy__sig__url",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "sig",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "url",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/proxy/{sig}/{url}/{filename}": {
+      "get": {
+        "operationId": "GET__proxy__sig__url__filename",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "sig",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "url",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "filename",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/registration/{token}": {
+      "get": {
+        "operationId": "GET__registration__token",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "token",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/relay": {
+      "get": {
+        "operationId": "GET__relay",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/relay/followers": {
+      "get": {
+        "operationId": "GET__relay_followers",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/relay/following": {
+      "get": {
+        "operationId": "GET__relay_following",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/relay/inbox": {
+      "post": {
+        "operationId": "POST__relay_inbox",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/tags/{tag}": {
+      "get": {
+        "operationId": "GET__tags__tag",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tag",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/user_exists": {
+      "get": {
+        "operationId": "GET__user_exists",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/users/{nickname}": {
+      "get": {
+        "operationId": "GET__users__nickname",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "nickname",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/users/{nickname}/collections/featured": {
+      "get": {
+        "operationId": "GET__users__nickname_collections_featured",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "nickname",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/users/{nickname}/feed": {
+      "get": {
+        "operationId": "GET__users__nickname_feed",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "nickname",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/users/{nickname}/followers": {
+      "get": {
+        "operationId": "GET__users__nickname_followers",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "nickname",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/users/{nickname}/following": {
+      "get": {
+        "operationId": "GET__users__nickname_following",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "nickname",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/users/{nickname}/inbox": {
+      "get": {
+        "operationId": "GET__users__nickname_inbox",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "nickname",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "POST__users__nickname_inbox",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "nickname",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/users/{nickname}/outbox": {
+      "get": {
+        "operationId": "GET__users__nickname_outbox",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "nickname",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "operationId": "POST__users__nickname_outbox",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "nickname",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oAuth2": []
+          }
+        ]
+      }
+    },
+    "/users/{nickname}/statuses/{id}": {
+      "get": {
+        "operationId": "GET__users__nickname_statuses__id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "nickname",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/users/{nickname}/statuses/{id}/activity": {
+      "get": {
+        "operationId": "GET__users__nickname_statuses__id_activity",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "nickname",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "https://wired.example"
+    }
+  ]
+}

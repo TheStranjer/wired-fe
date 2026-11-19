@@ -149,7 +149,7 @@ function commandWords(registry: Registry): string[] {
   const words: string[] = [];
   for (const definition of registry.commands) {
     words.push(`/${definition.name}`);
-    for (const alias of definition.aliases) {
+    for (const alias of definition.aliases ?? []) {
       words.push(`/${alias}`);
     }
   }

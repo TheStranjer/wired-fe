@@ -63,7 +63,6 @@ function handle(args: string, context: CommandContext): CommandOutcome {
 /** The `/open` definition. */
 export const command: CommandDefinition = {
   name: 'open',
-  aliases: [],
   usage: '/open [label | url]',
   summary: 'Open a post or URL in a new browser tab',
   run: syncRun(handle),

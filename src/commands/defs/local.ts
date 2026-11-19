@@ -31,7 +31,6 @@ function handle(context: CommandContext): CommandOutcome {
 /** The `/local` definition. */
 export const command: CommandDefinition = {
   name: 'local',
-  aliases: [],
   usage: '/local',
   summary: 'Open the local timeline',
   run: contextRun(handle),

@@ -84,7 +84,6 @@ async function handle(args: string, context: CommandContext): Promise<CommandOut
 /** The `/edit` definition. */
 export const command: CommandDefinition = {
   name: 'edit',
-  aliases: [],
   usage: '/edit [label] [text]',
   summary: 'Edit one of your own posts',
   run: async (args, context) => await handle(args, context),

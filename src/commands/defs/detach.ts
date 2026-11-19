@@ -21,7 +21,6 @@ function handle(context: CommandContext): CommandOutcome {
 /** The `/detach` definition. */
 export const command: CommandDefinition = {
   name: 'detach',
-  aliases: [],
   usage: '/detach',
   summary: 'Drop every attachment waiting for the next post',
   run: contextRun(handle),

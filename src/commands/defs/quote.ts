@@ -16,7 +16,8 @@
 import { hasFeature } from '../../capabilities/capabilities';
 import { capabilitiesFor } from '../../state/selectors';
 import { fail } from '../outcome';
-import { resolveStatusTarget, targetLabel } from '../targets';
+import { targetLabel } from '../statusLabel';
+import { resolveStatusTarget } from '../targets';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** How to call the command; echoed when there is no text to post. */
@@ -61,7 +62,6 @@ async function handle(args: string, context: CommandContext): Promise<CommandOut
 /** The `/quote` definition. */
 export const command: CommandDefinition = {
   name: 'quote',
-  aliases: [],
   usage: USAGE,
   summary: 'Quote a post with a new one',
   run: handle,

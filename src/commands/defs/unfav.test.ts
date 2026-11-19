@@ -16,7 +16,7 @@ const POST = status('p');
 describe('/unfav', () => {
   it('declares its name and grammar and binds no key', () => {
     expect(command.name).toBe('unfav');
-    expect(command.aliases).toStrictEqual([]);
+    expect(command.aliases).toBeUndefined();
     expect(command.usage).toBe('/unfav [label]');
     expect(command.summary).toBe('Take your favourite of a post back');
     expect(command.bindings).toBeUndefined();

@@ -168,7 +168,6 @@ async function handle(args: string, context: CommandContext): Promise<CommandOut
 /** The `/poll` definition. */
 export const command: CommandDefinition = {
   name: 'poll',
-  aliases: [],
   usage: USAGE,
   summary: 'Post a poll to the active window',
   run: handle,

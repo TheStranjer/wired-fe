@@ -15,7 +15,8 @@
 
 import type { Status } from '../../api/schemas/status';
 import { fail, syncRun } from '../outcome';
-import { resolveStatusTarget, targetLabel } from '../targets';
+import { targetLabel } from '../statusLabel';
+import { resolveStatusTarget } from '../targets';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** The thread window is open, or was already and is active now. */
@@ -44,7 +45,6 @@ function handle(args: string, context: CommandContext): CommandOutcome {
 /** The `/thread` definition. */
 export const command: CommandDefinition = {
   name: 'thread',
-  aliases: [],
   usage: '/thread [label]',
   summary: "Open a post's thread window",
   run: syncRun(handle),

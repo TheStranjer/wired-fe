@@ -12,7 +12,6 @@ import type { CommandDefinition } from '../types';
 /** The `/unbookmark` definition. */
 export const command: CommandDefinition = {
   name: 'unbookmark',
-  aliases: [],
   usage: '/unbookmark [label]',
   summary: 'Remove your bookmark of a post',
   run: toggleRun('unbookmark'),

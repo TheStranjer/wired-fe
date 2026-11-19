@@ -23,7 +23,7 @@ function detacher(): {
 describe('/detach', () => {
   it('declares its name and grammar', () => {
     expect(command.name).toBe('detach');
-    expect(command.aliases).toStrictEqual([]);
+    expect(command.aliases).toBeUndefined();
     expect(command.usage).toBe('/detach');
     expect(command.summary).toBe('Drop every attachment waiting for the next post');
   });

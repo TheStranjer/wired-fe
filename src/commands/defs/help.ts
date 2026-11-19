@@ -43,10 +43,11 @@ function listAll(context: CommandContext): CommandOutcome {
 
 /** The `Aliases:` line of {@link definition}, or undefined when it has none. */
 function aliasLine(definition: CommandDefinition): string | undefined {
-  if (definition.aliases.length === 0) {
+  const aliases = definition.aliases ?? [];
+  if (aliases.length === 0) {
     return undefined;
   }
-  return `  Aliases: ${definition.aliases.map((alias) => `/${alias}`).join(', ')}`;
+  return `  Aliases: ${aliases.map((alias) => `/${alias}`).join(', ')}`;
 }
 
 /** The `Keys:` line of {@link definition}, or undefined when it binds none. */
