@@ -12,7 +12,6 @@ import type { CommandDefinition } from '../types';
 /** The `/unfav` definition. */
 export const command: CommandDefinition = {
   name: 'unfav',
-  aliases: [],
   usage: '/unfav [label]',
   summary: 'Take your favourite of a post back',
   run: toggleRun('unfav'),

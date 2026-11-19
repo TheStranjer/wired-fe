@@ -14,7 +14,8 @@
  * refuse a post of anybody else before the request leaves.
  */
 
-import { type StatusTarget, resolveStatusTarget, targetLabel } from './targets';
+import { targetLabel } from './statusLabel';
+import { type StatusTarget, resolveStatusTarget } from './targets';
 import type { CommandContext, CommandDefinition, CommandOutcome } from './types';
 import { type StatusAction, statusAction } from '../api/endpoints/statusActions';
 import { describeApiError } from '../api/errors';

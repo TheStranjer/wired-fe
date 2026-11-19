@@ -27,7 +27,7 @@ function contextWith(settings: Settings = DEFAULT_SETTINGS): {
 describe('/theme', () => {
   it('is /theme with no aliases', () => {
     expect(command.name).toBe('theme');
-    expect(command.aliases).toStrictEqual([]);
+    expect(command.aliases).toBeUndefined();
   });
 
   it('lists every theme and marks the default current when given nothing', async () => {

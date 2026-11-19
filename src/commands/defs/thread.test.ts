@@ -102,7 +102,7 @@ describe('/thread', () => {
 
   it('is /thread, bound to navigation t', () => {
     expect(command.name).toBe('thread');
-    expect(command.aliases).toStrictEqual([]);
+    expect(command.aliases).toBeUndefined();
     expect(command.usage).toBe('/thread [label]');
     expect(command.summary).toBe("Open a post's thread window");
     expect(command.bindings).toStrictEqual([{ mode: 'navigation', chord: 't', args: '' }]);

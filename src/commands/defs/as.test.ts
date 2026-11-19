@@ -68,7 +68,7 @@ const IDEMPOTENCY_KEY: unknown = expect.stringMatching(/^[0-9a-f-]{36}$/u);
 describe('/as', () => {
   it('declares its name, grammar and summary, and no hotkeys', () => {
     expect(command.name).toBe('as');
-    expect(command.aliases).toStrictEqual([]);
+    expect(command.aliases).toBeUndefined();
     expect(command.usage).toBe('/as <handle|n> <text>');
     expect(command.summary).toBe('Post one line as another account');
     expect(command.bindings).toBeUndefined();

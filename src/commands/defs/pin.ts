@@ -13,7 +13,6 @@ import type { CommandDefinition } from '../types';
 /** The `/pin` definition. */
 export const command: CommandDefinition = {
   name: 'pin',
-  aliases: [],
   usage: '/pin [label]',
   summary: 'Pin one of your own posts, or unpin it',
   run: toggleRun('pin'),

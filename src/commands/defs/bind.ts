@@ -49,7 +49,6 @@ function handle(args: string, context: CommandContext): CommandOutcome {
 /** The `/bind` definition. */
 export const command: CommandDefinition = {
   name: 'bind',
-  aliases: [],
   usage: USAGE,
   summary: 'Bind a key to a command line',
   run: syncRun(handle),

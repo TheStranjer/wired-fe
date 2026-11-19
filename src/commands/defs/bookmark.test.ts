@@ -16,7 +16,7 @@ const POST = status('p');
 describe('/bookmark', () => {
   it('declares its name, grammar and hotkey and nothing else', () => {
     expect(command.name).toBe('bookmark');
-    expect(command.aliases).toStrictEqual([]);
+    expect(command.aliases).toBeUndefined();
     expect(command.usage).toBe('/bookmark [label]');
     expect(command.summary).toBe('Bookmark a post, or remove the bookmark');
     expect(command.bindings).toStrictEqual([{ mode: 'navigation', chord: 'Shift+b', args: '' }]);

@@ -25,7 +25,8 @@ import { replyDraft } from '../../state/replyDraft';
 import { accountByKey } from '../../state/selectors';
 import { type WindowKind, activeWindow } from '../../windows/model';
 import { fail } from '../outcome';
-import { type StatusTarget, resolveStatusTarget, targetLabel } from '../targets';
+import { targetLabel } from '../statusLabel';
+import { type StatusTarget, resolveStatusTarget } from '../targets';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** The command's grammar: /help shows it, a bare label echoes it. */

@@ -57,7 +57,6 @@ function handle(args: string, context: CommandContext): CommandOutcome {
 /** The `/theme` definition. */
 export const command: CommandDefinition = {
   name: 'theme',
-  aliases: [],
   usage: USAGE,
   summary: 'List or choose the color theme',
   run: syncRun(handle),

@@ -31,7 +31,7 @@ function command(name: string, aliases: readonly string[] = []): CommandDefiniti
 function registryWith(definitions: readonly CommandDefinition[]): Registry {
   const byName = new Map<string, CommandDefinition>();
   for (const definition of definitions) {
-    for (const label of [definition.name, ...definition.aliases]) {
+    for (const label of [definition.name, ...(definition.aliases ?? [])]) {
       byName.set(label, definition);
     }
   }

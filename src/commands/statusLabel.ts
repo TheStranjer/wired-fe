@@ -7,7 +7,8 @@
  * the `[a3]` a command prints and the `a3` it fills into `/edit a3 …` are the
  * very label the reader sees. A status no line of this window shows — one that
  * never came through it, or one that has scrolled out while its label stayed in
- * the book — answers with its bare id.
+ * the book — answers with its bare id. The bracketed {@link targetLabel} is the
+ * same lookup as the commands print it.
  */
 
 import type { CommandContext } from './types';
@@ -25,4 +26,14 @@ export function printedLabel(context: CommandContext, status: Status): string {
     }
   }
   return status.id;
+}
+
+/**
+ * The bracketed label of the active window's line that shows {@link status},
+ * directly or as the original it boosts: the `[a3]` the post commands print, so
+ * what they name is the line the user is looking at. The bare id for a status no
+ * line carries, or for a window that never labelled it.
+ */
+export function targetLabel(context: CommandContext, status: Status): string {
+  return `[${printedLabel(context, status)}]`;
 }

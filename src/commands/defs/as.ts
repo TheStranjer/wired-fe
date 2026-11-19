@@ -79,7 +79,6 @@ async function handle(args: string, context: CommandContext): Promise<CommandOut
 /** The `/as` definition. */
 export const command: CommandDefinition = {
   name: 'as',
-  aliases: [],
   usage: USAGE,
   summary: 'Post one line as another account',
   run: handle,

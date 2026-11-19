@@ -63,7 +63,7 @@ function dispatchedOverrides(context: CommandContext): readonly KeyOverride[] | 
 describe('/bind', () => {
   it('is /bind with no aliases', () => {
     expect(command.name).toBe('bind');
-    expect(command.aliases).toStrictEqual([]);
+    expect(command.aliases).toBeUndefined();
   });
 
   it('binds a navigation-mode chord and prints it back', async () => {

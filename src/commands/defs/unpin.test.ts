@@ -16,7 +16,7 @@ const POST = status('p', { pinned: true });
 describe('/unpin', () => {
   it('declares its name and grammar and binds no key', () => {
     expect(command.name).toBe('unpin');
-    expect(command.aliases).toStrictEqual([]);
+    expect(command.aliases).toBeUndefined();
     expect(command.usage).toBe('/unpin [label]');
     expect(command.summary).toBe('Unpin one of your own posts');
     expect(command.bindings).toBeUndefined();

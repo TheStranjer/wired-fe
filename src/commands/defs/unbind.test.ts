@@ -59,7 +59,7 @@ function dispatchedOverrides(context: CommandContext): readonly KeyOverride[] | 
 describe('/unbind', () => {
   it('is /unbind with no aliases', () => {
     expect(command.name).toBe('unbind');
-    expect(command.aliases).toStrictEqual([]);
+    expect(command.aliases).toBeUndefined();
   });
 
   it('drops the reader’s own override, letting the default stand again', async () => {

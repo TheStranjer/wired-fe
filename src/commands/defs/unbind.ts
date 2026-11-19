@@ -39,7 +39,6 @@ function handle(args: string, context: CommandContext): CommandOutcome {
 /** The `/unbind` definition. */
 export const command: CommandDefinition = {
   name: 'unbind',
-  aliases: [],
   usage: USAGE,
   summary: 'Unbind a key',
   run: syncRun(handle),

@@ -12,7 +12,6 @@ import type { CommandDefinition } from '../types';
 /** The `/unboost` definition. */
 export const command: CommandDefinition = {
   name: 'unboost',
-  aliases: [],
   usage: '/unboost [label]',
   summary: 'Take your boost of a post back',
   run: toggleRun('unboost'),

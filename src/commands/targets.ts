@@ -10,11 +10,8 @@
  * and to its author: the booster showed the post, it is not what the post
  * is about. {@link resolveOwnStatusTarget} puts this account's authorship on
  * top of that resolution, for the commands that may change only its own posts.
- * The module also answers the label a command prints for a resolved post: the
- * one of the line the window shows, boost wrapper included.
  */
 
-import { printedLabel } from './statusLabel';
 import type { CommandContext } from './types';
 import { lookupAccount } from '../api/endpoints/accountRead';
 import { describeApiError } from '../api/errors';
@@ -116,16 +113,6 @@ export function resolveStatusTarget(
     rest: byLabel ? rest : args.trim(),
     ...acting.value,
   });
-}
-
-/**
- * The bracketed label of the active window's line that shows {@link status},
- * directly or as the original it boosts: the `[a3]` the post commands print, so
- * what they name is the line the user is looking at. The bare id for a status no
- * line carries, or for a window that never labelled it.
- */
-export function targetLabel(context: CommandContext, status: Status): string {
-  return `[${printedLabel(context, status)}]`;
 }
 
 /** Which verb the own-post commands refuse with: the one the reader typed. */

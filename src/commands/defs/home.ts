@@ -30,7 +30,6 @@ function handle(context: CommandContext): CommandOutcome {
 /** The `/home` definition. */
 export const command: CommandDefinition = {
   name: 'home',
-  aliases: [],
   usage: '/home',
   summary: 'Open your home timeline',
   run: contextRun(handle),

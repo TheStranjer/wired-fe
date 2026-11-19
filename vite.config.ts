@@ -28,6 +28,10 @@ export default defineConfig({
   },
   build: {
     target: 'es2024',
+    // Terser, not the default minifier: its multi-pass compression gives a
+    // smaller gzipped deliverable inside the same bundle budget (.size-limit.json).
+    minify: 'terser',
+    terserOptions: { compress: { passes: 4 } },
     // The deliverable is index.html plus one JS and one CSS file.
     cssCodeSplit: false,
     modulePreload: false,

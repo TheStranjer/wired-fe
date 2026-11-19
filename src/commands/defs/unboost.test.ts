@@ -19,7 +19,7 @@ const BOOST = status('b', { reblog: POST });
 describe('/unboost', () => {
   it('declares its name and grammar and binds no key', () => {
     expect(command.name).toBe('unboost');
-    expect(command.aliases).toStrictEqual([]);
+    expect(command.aliases).toBeUndefined();
     expect(command.usage).toBe('/unboost [label]');
     expect(command.summary).toBe('Take your boost of a post back');
     expect(command.bindings).toBeUndefined();

@@ -116,7 +116,6 @@ async function handle(args: string, context: CommandContext): Promise<CommandOut
 /** The `/vote` definition. */
 export const command: CommandDefinition = {
   name: 'vote',
-  aliases: [],
   usage: '/vote [label] <n> [n…]',
   summary: 'Vote on the poll of a post',
   run: handle,

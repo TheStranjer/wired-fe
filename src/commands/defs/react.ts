@@ -13,7 +13,6 @@ import type { CommandDefinition } from '../types';
 /** The `/react` definition. */
 export const command: CommandDefinition = {
   name: 'react',
-  aliases: [],
   usage: '/react [label] <emoji>',
   summary: 'React to a post with an emoji',
   run: reactionRun('react'),
