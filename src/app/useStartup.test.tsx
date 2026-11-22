@@ -5,7 +5,7 @@
  * the live address bar and a fresh clock, injecting no detector of its own,
  * even under StrictMode.
  */
-import { renderHook } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
 import { StrictMode, type JSX, type ReactNode } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -125,5 +125,27 @@ describe(useStartup, () => {
     );
 
     expect(started).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('useStartup readiness', () => {
+  it('answers false until startup has finished, then true', async () => {
+    let finish: () => void = () => undefined;
+    started.mockImplementationOnce(async () => {
+      await new Promise<void>((resolve) => {
+        finish = resolve;
+      });
+    });
+
+    const { result } = renderHook(() => useStartup(), { wrapper: withProvider });
+
+    expect(result.current).toBe(false);
+
+    await act(async () => {
+      finish();
+      await Promise.resolve();
+    });
+
+    expect(result.current).toBe(true);
   });
 });

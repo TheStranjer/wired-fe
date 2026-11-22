@@ -5,7 +5,7 @@
  * window's own account and lands it in that same window — or says to log in when
  * the window has no account to post as.
  */
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { describe, expect, it, vi, type Mock } from 'vitest';
 
@@ -111,7 +111,9 @@ describe('the home window kind', () => {
 
     const log = await screen.findByRole('log', { name: 'home' });
 
-    expect(log).toHaveTextContent('present day');
+    const line = await within(log).findByText('present day');
+
+    expect(line).toBeInTheDocument();
   });
 
   it('creates the post as its window’s account and adds it to that window', async () => {

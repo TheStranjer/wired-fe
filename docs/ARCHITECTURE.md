@@ -14,7 +14,7 @@ Numbered decisions. Tickets and code comments cite them as "decision N". To chan
 
    The CSP `connect-src` is derived from the mode.
 
-4. **Routing**: hash routing (`/#/@lain@wired.example`). WiredFE's URLs can never collide with the backend's content-negotiated ActivityPub URLs (`/users/...`, `/objects/...`, `/notice/...`), and any static host works without rewrite rules.
+4. **Routing**: hash routing (`/#/@lain@wired.example`). WiredFE's URLs can never collide with the backend's content-negotiated ActivityPub URLs (`/users/...`, `/objects/...`, `/notice/...`), and any static host works without rewrite rules for WiredFE's own links. The routes are `#/notice/<id>`, `#/@<user>[@<host>]`, `#/users/<id>`, and `#/tag/<name>` (`src/lib/route.ts`), opened by `src/app/useHashRoute.ts`. wired-be's redirects arrive as paths; one startup step (`pathToHash`, `src/lib/pathRoute.ts`) rewrites them to the hash routes, which needs a host that serves `index.html` for unknown paths (README).
 
 5. **Backends: capabilities, not brands.** WiredFE talks to Wired, Mastodon and Pleroma/Akkoma. On connect it reads NodeInfo (`software.name`, `metadata.features`), `/api/v1/instance` and `/api/v2/instance` once, and builds one typed `Capabilities` object. UI and commands check capabilities (`caps.emojiReactions`), never the backend's name; only `src/capabilities` reads the brand. A capability that is advertised but answers 404/501 is treated as absent.
 

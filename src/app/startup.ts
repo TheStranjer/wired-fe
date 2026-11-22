@@ -13,6 +13,7 @@
 
 import { BANNER } from './banner';
 import { connectHint } from './connectHint';
+import { routeFromPath } from './routeFromPath';
 import type { AppStores } from './stores';
 import type { StoredAccount } from '../accounts/accountStore';
 import { completeLogin } from '../accounts/completeLogin';
@@ -144,9 +145,8 @@ function loggedInLine(account: StoredAccount): string {
 /**
  * Complete an OAuth login the redirect may have left in the URL: hand the
  * query to {@link completeLogin} before anything is restored, print what came
- * of it, and rewrite the address bar to the same page without its query so
- * `code` and `state` disappear and a reload never replays them. A URL that
- * carries no callback prints nothing and is left alone.
+ * of it, and rewrite the address bar without its query so a reload never
+ * replays `code` and `state`. A URL with no callback is left alone.
  */
 async function finishPendingLogin(deps: StartupDeps): Promise<void> {
   const { apps, login, accounts } = deps.stores;
@@ -167,7 +167,8 @@ async function finishPendingLogin(deps: StartupDeps): Promise<void> {
 
 /**
  * Boot the session into the status window: load the stored settings, greet,
- * finish a login left in the URL, then restore the stored accounts into the
+ * finish a login left in the URL, turn a path route into its hash route
+ * (./routeFromPath), then restore the stored accounts into the
  * app state and open each one's home and notifications window, and either
  * hint at `/connect` (no accounts, by instance mode) or detect each account's
  * instance once — concurrently, one report per origin — and announce every
@@ -177,6 +178,7 @@ export async function runStartup(deps: StartupDeps): Promise<void> {
   loadSettings(deps);
   greet(deps);
   await finishPendingLogin(deps);
+  routeFromPath(deps.location);
   const accounts = deps.stores.accounts.list();
   const activeKey = deps.stores.accounts.activeKey();
   deps.dispatch({ type: 'accounts', accounts, activeKey });
