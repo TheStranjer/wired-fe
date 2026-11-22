@@ -22,8 +22,10 @@ export default defineConfig({
     modules: {
       // The class names are opaque (tests query by role, not by class), and
       // every character of them ships twice — once in the CSS, once in the
-      // JS map — where the bytes are mostly incompressible hash.
-      generateScopedName: '_[local]_[hash:base64:3]',
+      // JS map — where the bytes are mostly incompressible hash. The hash
+      // covers the file and the local name, so the local name is left out of
+      // the result: four characters keep every class distinct and ship less.
+      generateScopedName: '_[hash:base64:4]',
     },
   },
   build: {
