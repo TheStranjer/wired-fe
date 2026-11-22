@@ -21,6 +21,7 @@ import * as v from 'valibot';
 
 import type { Account } from './account';
 import { AccountSchema } from './account';
+import { CountSchema } from './common';
 import type { CustomEmoji } from './customEmoji';
 import { CustomEmojiSchema } from './customEmoji';
 import type { MediaAttachment } from './mediaAttachment';
@@ -72,9 +73,6 @@ export type Status = {
   readonly local_only: boolean;
   readonly conversation_id: string | null;
 };
-
-/** A post counter: a whole number that is never negative. */
-const CountSchema = v.pipe(v.number(), v.integer(), v.minValue(0));
 
 /** The five audiences WiredFE models. */
 const KnownVisibilitySchema = v.picklist(['public', 'unlisted', 'private', 'direct', 'local']);

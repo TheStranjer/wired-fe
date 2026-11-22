@@ -8,6 +8,8 @@
 
 import * as v from 'valibot';
 
+import { CountSchema } from './common';
+
 /** One emoji reaction: its emoji, how many accounts sent it, and whether this account did. */
 export type Reaction = {
   readonly name: string;
@@ -19,7 +21,7 @@ export type Reaction = {
 /** Parses a backend's emoji reaction entry into the internal {@link Reaction}. */
 export const ReactionSchema: v.GenericSchema<unknown, Reaction> = v.object({
   name: v.string(),
-  count: v.pipe(v.number(), v.integer(), v.minValue(0)),
+  count: CountSchema,
   me: v.optional(v.boolean(), false),
   url: v.optional(v.nullable(v.string()), null),
 });

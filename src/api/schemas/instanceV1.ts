@@ -9,6 +9,7 @@
 
 import * as v from 'valibot';
 
+import { stringList } from './common';
 import { extractPollLimits, nonNegativeInt, readKey } from './pollLimits';
 import type { PollLimits } from './pollLimits';
 
@@ -32,13 +33,6 @@ const InstanceV1WireSchema = v.looseObject({
   pleroma: v.optional(v.unknown()),
 });
 
-/** Pleroma's advertised features: the strings of the list, [] if not an array. */
-function featureList(value: unknown): readonly string[] {
-  return Array.isArray(value)
-    ? value.filter((item): item is string => typeof item === 'string')
-    : [];
-}
-
 /** Parses any backend's `/api/v1/instance` into the internal {@link InstanceV1}. */
 export const InstanceV1Schema: v.GenericSchema<unknown, InstanceV1> = v.pipe(
   InstanceV1WireSchema,
@@ -53,7 +47,7 @@ export const InstanceV1Schema: v.GenericSchema<unknown, InstanceV1> = v.pipe(
       pollLimits:
         extractPollLimits(readKey(doc.configuration, 'polls'), 'max_characters_per_option') ??
         extractPollLimits(doc.poll_limits, 'max_option_chars'),
-      features: featureList(readKey(readKey(doc.pleroma, 'metadata'), 'features')),
+      features: stringList(readKey(readKey(doc.pleroma, 'metadata'), 'features')),
     };
   }),
 );

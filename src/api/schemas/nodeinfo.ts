@@ -11,6 +11,7 @@
 
 import * as v from 'valibot';
 
+import { stringList } from './common';
 import { readKey } from './pollLimits';
 
 /** The discovery answer: one rel-and-href entry per advertised NodeInfo version. */
@@ -43,14 +44,6 @@ const NodeInfoWireSchema = v.object({
   metadata: v.optional(v.unknown()),
 });
 
-/** The strings of an unknown `metadata.features`; an absent, foreign or mixed value yields []. */
-function stringFeatures(value: unknown): readonly string[] {
-  if (!Array.isArray(value)) {
-    return [];
-  }
-  return value.filter((item): item is string => typeof item === 'string');
-}
-
 /** The string of an unknown value; null when it is absent or not a string. */
 function stringOrNull(value: unknown): string | null {
   return typeof value === 'string' ? value : null;
@@ -63,7 +56,7 @@ export const NodeInfoSchema: v.GenericSchema<unknown, NodeInfo> = v.pipe(
     version: doc.version,
     software: { name: doc.software.name.toLowerCase(), version: doc.software.version },
     openRegistrations: doc.openRegistrations,
-    features: stringFeatures(readKey(doc.metadata, 'features')),
+    features: stringList(readKey(doc.metadata, 'features')),
     nodeName: stringOrNull(readKey(doc.metadata, 'nodeName')),
   })),
 );

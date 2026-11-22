@@ -30,7 +30,7 @@ export type Token = {
 };
 
 /** A registered app's answer: the two credential strings; every other key dropped. */
-const AppCredentialsSchema: v.GenericSchema<unknown, AppCredentials> = v.object({
+export const AppCredentialsSchema: v.GenericSchema<unknown, AppCredentials> = v.object({
   client_id: v.string(),
   client_secret: v.string(),
 });

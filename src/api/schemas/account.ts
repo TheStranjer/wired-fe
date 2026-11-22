@@ -16,6 +16,7 @@
 
 import * as v from 'valibot';
 
+import { CountSchema } from './common';
 import { CustomEmojiSchema } from './customEmoji';
 import type { CustomEmoji } from './customEmoji';
 import { FieldSchema } from './field';
@@ -58,9 +59,6 @@ export type Account = {
   readonly moved: Account | null;
   readonly pleroma: AccountPleroma | null;
 };
-
-/** A profile counter: a whole number that is never negative. */
-const CountSchema = v.pipe(v.number(), v.integer(), v.minValue(0));
 
 /** The account `pleroma` block: every key optional, the rest of it dropped. */
 const PleromaSchema: v.GenericSchema<unknown, AccountPleroma> = v.object({

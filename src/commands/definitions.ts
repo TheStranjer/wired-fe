@@ -7,12 +7,9 @@
  */
 
 import type { CommandDefinition } from './types';
-import { type Result, err, ok } from '../lib/result';
-
-/** Whether a value is a string-keyed object, e.g. a module namespace. */
-function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
-  return typeof value === 'object' && value !== null;
-}
+import { isRecord } from '../lib/guards';
+import { collectModules } from '../lib/registry';
+import { type Result, ok } from '../lib/result';
 
 /**
  * Whether a value is a command definition: an object with a string `name`
@@ -34,15 +31,8 @@ function isDefinition(value: unknown): value is CommandDefinition {
 export function collectDefinitions(
   modules: Readonly<Record<string, unknown>>,
 ): Result<readonly CommandDefinition[], string> {
-  const definitions: CommandDefinition[] = [];
-  for (const path of Object.keys(modules).sort((a, b) => a.localeCompare(b))) {
-    const definition = modules[path];
-    if (!isDefinition(definition)) {
-      return err(`${path} does not export a command`);
-    }
-    definitions.push(definition);
-  }
-  return ok(definitions);
+  const collected = collectModules(modules, isDefinition, 'a command');
+  return collected.ok ? ok(collected.value.map(([, definition]) => definition)) : collected;
 }
 
 /**

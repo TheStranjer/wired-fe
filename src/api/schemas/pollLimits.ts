@@ -8,6 +8,8 @@
  * whole document.
  */
 
+import { isRecord } from '../../lib/guards';
+
 /** How far a poll may reach on an instance: options, characters, seconds. */
 export type PollLimits = {
   readonly maxOptions: number;
@@ -15,11 +17,6 @@ export type PollLimits = {
   readonly minExpiration: number; // seconds
   readonly maxExpiration: number; // seconds
 };
-
-/** Whether a value is a string-keyed object that can be indexed. */
-function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
-  return typeof value === 'object' && value !== null;
-}
 
 /** Reads `key` from an unknown value: undefined unless it is an object. */
 export function readKey(source: unknown, key: string): unknown {
