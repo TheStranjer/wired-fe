@@ -26,7 +26,7 @@ export async function getStatus(
   return sessionRequestData(session, {
     path: `/api/v1/statuses/${encodeURIComponent(id)}`,
     schema: StatusSchema,
-    ...(signal === undefined ? {} : { signal }),
+    signal,
   });
 }
 
@@ -45,6 +45,6 @@ export async function getContext(
   return sessionRequestData(session, {
     path: `/api/v1/statuses/${encodeURIComponent(id)}/context`,
     schema: ContextSchema,
-    ...(signal === undefined ? {} : { signal }),
+    signal,
   });
 }

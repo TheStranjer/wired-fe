@@ -26,6 +26,6 @@ export async function listCustomEmojis(
   return sessionRequestData(session, {
     path: '/api/v1/custom_emojis',
     schema: EmojiListSchema,
-    ...(signal === undefined ? {} : { signal }),
+    signal,
   });
 }

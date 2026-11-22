@@ -8,11 +8,11 @@
  */
 import * as v from 'valibot';
 
-import { type Result, ok } from '../../lib/result';
+import type { Result } from '../../lib/result';
 import type { ApiError } from '../errors';
-import { type Page, type PageRequest, pageQuery, toPage } from '../page';
+import { type Page, type PageRequest, pageQuery } from '../page';
 import { type Status, StatusSchema } from '../schemas/status';
-import { type ApiSession, sessionRequest } from '../session';
+import { type ApiSession, sessionRequestPage } from '../session';
 import type { QueryValue } from '../url';
 
 /** The list body all three timelines answer: an array of posts. */
@@ -38,13 +38,7 @@ async function getTimeline(
   path: string,
   ...[query, signal]: [query: Readonly<Record<string, QueryValue>>, signal?: AbortSignal]
 ): Promise<Result<Page<Status>, ApiError>> {
-  const response = await sessionRequest(session, {
-    path,
-    query,
-    schema: StatusListSchema,
-    ...(signal === undefined ? {} : { signal }),
-  });
-  return response.ok ? ok(toPage(response.value)) : response;
+  return sessionRequestPage(session, { path, query, schema: StatusListSchema, signal });
 }
 
 /**

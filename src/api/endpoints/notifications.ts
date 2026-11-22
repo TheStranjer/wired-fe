@@ -13,22 +13,17 @@
  */
 import * as v from 'valibot';
 
-import { type Result, ok } from '../../lib/result';
+import type { Result } from '../../lib/result';
 import type { ApiError } from '../errors';
-import { type Page, type PageRequest, pageQuery, toPage } from '../page';
+import { type Page, type PageRequest, pageQuery } from '../page';
+import { NothingSchema } from '../response';
 import { type Notification, NotificationSchema } from '../schemas/notification';
-import { type ApiSession, sessionRequest, sessionRequestData } from '../session';
+import { type ApiSession, sessionRequestData, sessionRequestPage } from '../session';
 import type { QueryValue } from '../url';
 
 /** The list body: an array of notifications. */
 const NotificationListSchema: v.GenericSchema<unknown, readonly Notification[]> =
   v.array(NotificationSchema);
-
-/** The dismiss/clear answer: any 2xx body becomes null. */
-const NothingSchema: v.GenericSchema<unknown, null> = v.pipe(
-  v.any(),
-  v.transform(() => null),
-);
 
 /** What {@link listNotifications} asks for besides the session: a page, and
  * the two type filters. */
@@ -66,13 +61,12 @@ export async function listNotifications(
   options: NotificationOptions,
   signal?: AbortSignal,
 ): Promise<Result<Page<Notification>, ApiError>> {
-  const response = await sessionRequest(session, {
+  return sessionRequestPage(session, {
     path: '/api/v1/notifications',
     query: notificationsQuery(options),
     schema: NotificationListSchema,
-    ...(signal === undefined ? {} : { signal }),
+    signal,
   });
-  return response.ok ? ok(toPage(response.value)) : response;
 }
 
 /**

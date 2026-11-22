@@ -20,6 +20,12 @@ export type ApiResponse<T> = {
   readonly link: string | null;
 };
 
+/** A schema for answers whose body does not matter: any 2xx body (usually `{}`) becomes null. */
+export const NothingSchema: v.GenericSchema<unknown, null> = v.pipe(
+  v.any(),
+  v.transform(() => null),
+);
+
 /** The `X-RateLimit-Reset` header as a date; null when absent or unparseable. */
 function rateLimitReset(headers: Headers): Date | null {
   const raw = headers.get('X-RateLimit-Reset');

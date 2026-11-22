@@ -7,7 +7,7 @@ import { HttpResponse, http } from 'msw';
 import * as v from 'valibot';
 import { describe, expect, it } from 'vitest';
 
-import { type ApiSession, sessionRequest, sessionRequestData } from './session';
+import { type ApiSession, sessionRequest, sessionRequestData, sessionRequestPage } from './session';
 import { err, ok } from '../lib/result';
 import { server } from '../test/server';
 
@@ -102,6 +102,46 @@ describe(sessionRequestData, () => {
 
     const session: ApiSession = { origin: ORIGIN, token: 'secret' };
     const result = await sessionRequestData(session, { path: PATH, schema: profileSchema });
+
+    expect(result).toStrictEqual(err({ kind: 'http', status: 403, message: 'Denied' }));
+  });
+});
+
+describe(sessionRequestPage, () => {
+  it('wraps the items and the parsed Link header into a page', async () => {
+    server.use(
+      http.get(`${ORIGIN}${PATH}`, ({ request }) => {
+        expect(request.headers.get('Authorization')).toBe('Bearer secret');
+
+        return HttpResponse.json([PROFILE], {
+          headers: { Link: `<${ORIGIN}${PATH}?max_id=9>; rel="next"` },
+        });
+      }),
+    );
+
+    const session: ApiSession = { origin: ORIGIN, token: 'secret' };
+    const result = await sessionRequestPage(session, {
+      path: PATH,
+      schema: v.array(profileSchema),
+    });
+
+    expect(result).toStrictEqual(
+      ok({ items: [PROFILE], links: { next: { max_id: '9' }, prev: null } }),
+    );
+  });
+
+  it('passes a failure through unchanged', async () => {
+    server.use(
+      http.get(`${ORIGIN}${PATH}`, () => {
+        return HttpResponse.json({ error: 'Denied' }, { status: 403 });
+      }),
+    );
+
+    const session: ApiSession = { origin: ORIGIN, token: 'secret' };
+    const result = await sessionRequestPage(session, {
+      path: PATH,
+      schema: v.array(profileSchema),
+    });
 
     expect(result).toStrictEqual(err({ kind: 'http', status: 403, message: 'Denied' }));
   });
