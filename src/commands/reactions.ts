@@ -9,7 +9,7 @@
  * prints the emoji, the verb and the label of the line that showed the post.
  */
 
-import { fail } from './outcome';
+import { OK, fail } from './outcome';
 import { printedLabel } from './statusLabel';
 import { type StatusTarget, resolveStatusTarget } from './targets';
 import type { CommandContext, CommandDefinition, CommandOutcome } from './types';
@@ -25,9 +25,6 @@ export type ReactionKind = 'react' | 'unreact';
 
 /** A `:shortcode:` reaction: a word that opens and closes on one colon. */
 const SHORTCODE = /^:[A-Za-z0-9_]+:$/u;
-
-/** The reaction was sent and every scrollback knows the answered status. */
-const OK: CommandOutcome = { ok: true };
 
 /** One word of the command line: as typed, and as it leaves for the server. */
 type Emoji = {

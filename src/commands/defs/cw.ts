@@ -8,15 +8,12 @@
  * and an error string from it comes back as the command's failure.
  */
 
-import { fail } from '../outcome';
+import { OK, fail } from '../outcome';
 import { tokenize } from '../tokenize';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** Every argument is refused with this line: the warning or the text is missing. */
 const USAGE = 'Usage: /cw "warning" text';
-
-/** The draft left for the active window's post handler. */
-const OK: CommandOutcome = { ok: true };
 
 /** Whitespace between tokens, as src/commands/tokenize.ts reads it. */
 const WHITESPACE = /\s/;

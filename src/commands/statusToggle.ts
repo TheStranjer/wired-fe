@@ -14,7 +14,7 @@
  * refuse a post of anybody else before the request leaves.
  */
 
-import { fail } from './outcome';
+import { OK, fail } from './outcome';
 import { targetLabel } from './statusLabel';
 import { type StatusTarget, resolveStatusTarget } from './targets';
 import type { CommandContext, CommandDefinition, CommandOutcome } from './types';
@@ -106,9 +106,6 @@ const COMMANDS: Record<ToggleCommand, Route> = {
   pin: { feature: 'pin', undo: false },
   unpin: { feature: 'pin', undo: true },
 };
-
-/** The toggle moved and the window printed it. */
-const OK: CommandOutcome = { ok: true };
 
 /** What a pin command answers when the post is not the acting account's own. */
 const NOT_MINE = 'You can only pin your own posts';

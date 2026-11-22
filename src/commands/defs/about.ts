@@ -11,11 +11,8 @@ import type { Capabilities } from '../../capabilities/capabilities';
 import type { InstanceProfile } from '../../capabilities/detect';
 import { formatDuration } from '../../lib/duration';
 import { activeAccount } from '../../state/selectors';
-import { contextRun } from '../outcome';
+import { OK, contextRun } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
-
-/** The report was printed; there is nothing else to say. */
-const OK: CommandOutcome = { ok: true };
 
 /** Shown when the command has no connected instance to describe. */
 const NOT_CONNECTED: CommandOutcome = {

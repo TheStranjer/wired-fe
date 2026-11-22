@@ -11,14 +11,11 @@
 
 import { wordsOf } from '../../lib/words';
 import { modeOf, storeRebind } from '../bindingArgs';
-import { fail, syncRun } from '../outcome';
+import { OK, fail, syncRun } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** The command's one form. */
 const USAGE = '/unbind <insert|navigation> <chord>';
-
-/** A run that unbound the key; the override is already on its way to storage. */
-const OK: CommandOutcome = { ok: true };
 
 /** Do what one argument text asks, or echo the usage back. */
 function handle(args: string, context: CommandContext): CommandOutcome {

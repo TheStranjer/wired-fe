@@ -14,18 +14,15 @@ import type { StoredAccount } from '../../accounts/accountStore';
 import { findAccount } from '../../accounts/findAccount';
 import { createStatus } from '../../api/endpoints/statusWrite';
 import { describeApiError } from '../../api/errors';
-import { fail } from '../outcome';
+import { OK, fail } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 import { splitFirstWord } from '../words';
 
 /** The command's grammar: /help shows it, a bad argument echoes it. */
 const USAGE = '/as <handle|n> <text>';
 
-/** The post is up under the named account. */
-const OK: CommandOutcome = { ok: true };
-
 /** The argument text was not an account and a message. */
-const USAGE_ERROR: CommandOutcome = { ok: false, message: `Usage: ${USAGE}` };
+const USAGE_ERROR = fail(`Usage: ${USAGE}`);
 
 /**
  * The account word and the text word: {@link args} trimmed and split at its

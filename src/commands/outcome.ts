@@ -16,6 +16,9 @@ export function fail(message: string): CommandOutcome {
   return { ok: false, message };
 }
 
+/** The success every command that has nothing to add answers with. */
+export const OK: CommandOutcome = { ok: true };
+
 /** The refusal every command answers with when nobody is signed in. */
 export const NOT_LOGGED_IN: CommandOutcome = { ok: false, message: NOT_LOGGED_IN_MESSAGE };
 

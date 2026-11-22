@@ -34,10 +34,13 @@ const HOME: WindowRef = { kind: 'home', accountKey: LAIN.key, target: null };
 const HOME_ID = windowId(HOME);
 
 /** A post with a web page of its own. */
-const ALPHA = status('a', { url: 'https://wired.example/a' });
+const ALPHA = status('a', {
+  uri: 'https://pleroma.example/n/a',
+  url: 'https://pleroma.example/a',
+});
 
 /** A post whose schema-default url is null; only its uri links. */
-const NO_URL = status('n');
+const NO_URL = status('n', { uri: 'https://pleroma.example/n/n' });
 
 /** A post whose only link is not http(s). */
 const FTP_ONLY = status('f', { uri: 'ftp://example.org/x' });
@@ -105,7 +108,26 @@ describe('/open', () => {
     const outcome = await command.run('a0', homeContext([ALPHA]));
 
     expect(outcome).toStrictEqual({ ok: true });
-    expect(opened).toHaveBeenCalledWith('https://wired.example/a', '_blank', 'noopener,noreferrer');
+    expect(opened).toHaveBeenCalledWith(
+      'https://pleroma.example/a',
+      '_blank',
+      'noopener,noreferrer',
+    );
+  });
+
+  it('opens the thread window of a post on the account instance', async () => {
+    const opened = stubOpen();
+    const context = homeContext([status('l', { url: `${ORIGIN}/notice/l` })]);
+
+    const outcome = await command.run('a0', context);
+
+    expect(outcome).toStrictEqual({ ok: true });
+    expect(context.dispatchWindows).toHaveBeenCalledWith({
+      type: 'open',
+      ref: { kind: 'thread', accountKey: LAIN.key, target: 'l' },
+      title: 'thread/a0',
+    });
+    expect(opened).not.toHaveBeenCalled();
   });
 
   it('opens the uri when the post carries no url', async () => {
@@ -115,7 +137,7 @@ describe('/open', () => {
 
     expect(outcome).toStrictEqual({ ok: true });
     expect(opened).toHaveBeenCalledWith(
-      'https://wired.example/n/n',
+      'https://pleroma.example/n/n',
       '_blank',
       'noopener,noreferrer',
     );
@@ -127,7 +149,11 @@ describe('/open', () => {
     const outcome = await command.run('', homeContext([NO_URL, ALPHA], 'a'));
 
     expect(outcome).toStrictEqual({ ok: true });
-    expect(opened).toHaveBeenCalledWith('https://wired.example/a', '_blank', 'noopener,noreferrer');
+    expect(opened).toHaveBeenCalledWith(
+      'https://pleroma.example/a',
+      '_blank',
+      'noopener,noreferrer',
+    );
   });
 
   it('opens the original of a boost', async () => {
@@ -136,7 +162,11 @@ describe('/open', () => {
     const outcome = await command.run('a0', homeContext([BOOST]));
 
     expect(outcome).toStrictEqual({ ok: true });
-    expect(opened).toHaveBeenCalledWith('https://wired.example/a', '_blank', 'noopener,noreferrer');
+    expect(opened).toHaveBeenCalledWith(
+      'https://pleroma.example/a',
+      '_blank',
+      'noopener,noreferrer',
+    );
   });
 
   it('refuses a javascript: argument and opens nothing', async () => {

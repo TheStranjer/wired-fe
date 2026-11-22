@@ -24,16 +24,13 @@ import { statusesAction } from '../../state/pageActions';
 import { replyDraft } from '../../state/replyDraft';
 import { accountByKey } from '../../state/selectors';
 import { type WindowKind, activeWindow } from '../../windows/model';
-import { fail } from '../outcome';
+import { OK, fail } from '../outcome';
 import { targetLabel } from '../statusLabel';
 import { type StatusTarget, resolveStatusTarget } from '../targets';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** The command's grammar: /help shows it, a bare label echoes it. */
 const USAGE = '/reply [label] <text>';
-
-/** The answer is up and the window knows it. */
-const OK: CommandOutcome = { ok: true };
 
 /** The window kinds that show one account's conversation and take posts. */
 const FEED_KINDS: ReadonlySet<WindowKind> = new Set<WindowKind>([

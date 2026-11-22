@@ -5,11 +5,8 @@
  * is the only target. Already-uploaded posts are untouched.
  */
 
-import { contextRun } from '../outcome';
+import { OK, contextRun } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
-
-/** The list is empty now, as it was before. */
-const OK: CommandOutcome = { ok: true };
 
 /** Empty the pending list and echo the confirmation, the way /dm echoes a send. */
 function handle(context: CommandContext): CommandOutcome {

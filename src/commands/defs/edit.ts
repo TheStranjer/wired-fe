@@ -18,18 +18,13 @@ import { editStatus } from '../../api/endpoints/statusWrite';
 import { describeApiError } from '../../api/errors';
 import { hasFeature } from '../../capabilities/capabilities';
 import { capabilitiesFor } from '../../state/selectors';
+import { OK, fail } from '../outcome';
 import { printedLabel } from '../statusLabel';
 import { type StatusTarget, resolveOwnStatusTarget } from '../targets';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
-/** The edit left for the instance, or the source filled the line. */
-const OK: CommandOutcome = { ok: true };
-
 /** What an instance without the `editing` capability hears (decision 5). */
-const NO_EDITING: CommandOutcome = {
-  ok: false,
-  message: 'This server does not support editing',
-};
+const NO_EDITING = fail('This server does not support editing');
 
 /** Whether {@link accountKey}'s instance takes edits at all (decision 5). */
 function supportsEditing(context: CommandContext, accountKey: string | null): boolean {
@@ -49,7 +44,7 @@ async function send(
     spoilerText: status.spoiler_text,
   });
   if (!edited.ok) {
-    return { ok: false, message: describeApiError(edited.error) };
+    return fail(describeApiError(edited.error));
   }
   context.dispatch({ type: 'statusUpdated', status: edited.value });
   context.print(`✎ edited [${printedLabel(context, status)}]`);
@@ -60,7 +55,7 @@ async function send(
 async function refill(target: StatusTarget, context: CommandContext): Promise<CommandOutcome> {
   const source = await getStatusSource(target.session, target.status.id);
   if (!source.ok) {
-    return { ok: false, message: describeApiError(source.error) };
+    return fail(describeApiError(source.error));
   }
   context.setInput(`/edit ${printedLabel(context, target.status)} ${source.value.text}`);
   return OK;
@@ -70,7 +65,7 @@ async function refill(target: StatusTarget, context: CommandContext): Promise<Co
 async function handle(args: string, context: CommandContext): Promise<CommandOutcome> {
   const target = resolveOwnStatusTarget(args, context, 'edit');
   if (!target.ok) {
-    return { ok: false, message: target.error };
+    return fail(target.error);
   }
   if (!supportsEditing(context, target.value.accountKey)) {
     return NO_EDITING;

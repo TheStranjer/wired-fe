@@ -12,17 +12,14 @@ import type { Buffer, LineData } from '../../state/buffer';
 import { statusForLabel, statusOfLine } from '../../state/bufferSelection';
 import { activeBuffer } from '../../state/selectors';
 import { activeWindow } from '../../windows/model';
-import { fail, syncRun } from '../outcome';
+import { OK, fail, syncRun } from '../outcome';
 import type { CommandBinding, CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** Every form of the command: /help shows it, a bad argument echoes it. */
 const USAGE = '/select next | prev | first | last | none | <label>';
 
-/** The command ran; what it asked for is on its way to the reducer. */
-const OK: CommandOutcome = { ok: true };
-
 /** The argument text matched none of the command's forms. */
-const USAGE_ERROR: CommandOutcome = { ok: false, message: `Usage: ${USAGE}` };
+const USAGE_ERROR = fail(`Usage: ${USAGE}`);
 
 /** Anything beyond a single word is no form of this command. */
 const WHITESPACE = /\s/u;

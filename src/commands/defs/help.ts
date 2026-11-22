@@ -7,12 +7,9 @@
  * default keys. Words beyond the first are ignored.
  */
 
-import { syncRun } from '../outcome';
+import { OK, fail, syncRun } from '../outcome';
 import { lookupCommand } from '../registry';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
-
-/** A run that found what it was asked for; there is nothing else to report. */
-const OK: CommandOutcome = { ok: true };
 
 /** Bookends of the command listing. */
 const HEADER = 'Commands:';
@@ -80,7 +77,7 @@ function handle(args: string, context: CommandContext): CommandOutcome {
   }
   const definition = lookupCommand(context.registry, subject.toLowerCase());
   if (definition === undefined) {
-    return { ok: false, message: `No such command: /${subject}` };
+    return fail(`No such command: /${subject}`);
   }
   return showDetails(definition, context);
 }
