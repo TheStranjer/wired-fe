@@ -100,6 +100,6 @@ export async function search(
     path: '/api/v2/search',
     query: searchQuery(query, options),
     schema: SearchResultsSchema,
-    ...(signal === undefined ? {} : { signal }),
+    signal,
   });
 }

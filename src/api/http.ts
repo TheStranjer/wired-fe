@@ -33,7 +33,7 @@ export type RequestOptions<T> = {
   /** Extra request headers, e.g. `Idempotency-Key`; the built-in headers win a clash. */
   readonly headers?: Readonly<Record<string, string>>;
   /** A signal that cancels the request, yielding the `aborted` error. */
-  readonly signal?: AbortSignal;
+  readonly signal?: AbortSignal | undefined;
   /** The schema the response body is validated against. */
   readonly schema: v.GenericSchema<unknown, T>;
 };
@@ -117,4 +117,13 @@ export async function apiRequest<T>(
     return sent;
   }
   return toApiResponse(sent.value, options.schema);
+}
+
+/**
+ * Sends {@link apiRequest} and keeps only the validated body, dropping the
+ * `Link` header; any failure is passed through unchanged.
+ */
+export async function requestData<T>(options: RequestOptions<T>): Promise<Result<T, ApiError>> {
+  const response = await apiRequest(options);
+  return response.ok ? ok(response.value.data) : response;
 }

@@ -8,7 +8,7 @@ import * as v from 'valibot';
 import { describe, expect, it } from 'vitest';
 
 import type { ApiError } from './errors';
-import { type ApiResponse, type QueryValue, apiRequest } from './http';
+import { type ApiResponse, type QueryValue, apiRequest, requestData } from './http';
 import { type Result, ok } from '../lib/result';
 import { server } from '../test/server';
 
@@ -221,5 +221,31 @@ describe(apiRequest, () => {
     });
 
     expect(failureOf(result)).toStrictEqual({ kind: 'network', message: 'boom' });
+  });
+});
+
+describe(requestData, () => {
+  it('keeps only the validated data, dropping the Link header', async () => {
+    server.use(
+      http.get(`${ORIGIN}/profile`, () => {
+        return HttpResponse.json(PROFILE, { headers: { Link: '<https://x/n>; rel="next"' } });
+      }),
+    );
+
+    const result = await requestData({ origin: ORIGIN, path: '/profile', schema: profileSchema });
+
+    expect(result).toStrictEqual(ok(PROFILE));
+  });
+
+  it('passes a failure through unchanged', async () => {
+    server.use(
+      http.get(`${ORIGIN}/profile`, () => {
+        return HttpResponse.json({ error: 'Denied' }, { status: 403 });
+      }),
+    );
+
+    const result = await requestData({ origin: ORIGIN, path: '/profile', schema: profileSchema });
+
+    expect(failureOf(result)).toStrictEqual({ kind: 'http', status: 403, message: 'Denied' });
   });
 });

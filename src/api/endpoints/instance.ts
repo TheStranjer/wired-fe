@@ -22,7 +22,7 @@ export async function getInstanceV1(
   return sessionRequestData(session, {
     path: '/api/v1/instance',
     schema: InstanceV1Schema,
-    ...(signal === undefined ? {} : { signal }),
+    signal,
   });
 }
 
@@ -38,7 +38,7 @@ export async function getInstanceV2(
   const result = await sessionRequestData(session, {
     path: '/api/v2/instance',
     schema: InstanceV2Schema,
-    ...(signal === undefined ? {} : { signal }),
+    signal,
   });
   if (!result.ok && result.error.kind === 'http' && result.error.status === 404) {
     return ok(null);

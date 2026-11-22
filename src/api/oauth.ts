@@ -9,8 +9,9 @@
 import * as v from 'valibot';
 
 import type { ApiError } from './errors';
-import { type RequestOptions, apiRequest } from './http';
-import { type Result, ok } from '../lib/result';
+import { requestData } from './http';
+import { NothingSchema } from './response';
+import type { Result } from '../lib/result';
 
 /** The scopes every app registration and token exchange asks for. */
 export const OAUTH_SCOPES = 'read write follow push';
@@ -40,18 +41,6 @@ const TokenSchema: v.GenericSchema<unknown, Token> = v.object({
   token_type: v.optional(v.string(), 'Bearer'),
   scope: v.optional(v.string(), ''),
 });
-
-/** A revocation answer: any 2xx body (usually `{}`) becomes null. */
-const NothingSchema: v.GenericSchema<unknown, null> = v.pipe(
-  v.any(),
-  v.transform(() => null),
-);
-
-/** Sends one request and keeps only its validated data, dropping the Link header. */
-async function requestData<T>(options: RequestOptions<T>): Promise<Result<T, ApiError>> {
-  const response = await apiRequest(options);
-  return response.ok ? ok(response.value.data) : response;
-}
 
 /**
  * Registers WiredFE as an OAuth app on the instance at {@link origin}

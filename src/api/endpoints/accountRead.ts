@@ -13,11 +13,11 @@ import * as v from 'valibot';
 
 import { type Result, ok } from '../../lib/result';
 import type { ApiError } from '../errors';
-import { type Page, type PageRequest, pageQuery, toPage } from '../page';
+import { type Page, type PageRequest, pageQuery } from '../page';
 import { type Account, AccountSchema } from '../schemas/account';
 import { type Relationship, RelationshipSchema } from '../schemas/relationship';
 import { type Status, StatusSchema } from '../schemas/status';
-import { type ApiSession, sessionRequest, sessionRequestData } from '../session';
+import { type ApiSession, sessionRequestData, sessionRequestPage } from '../session';
 import type { QueryValue } from '../url';
 
 /** The statuses list body: an array of posts. */
@@ -47,7 +47,7 @@ export async function verifyCredentials(
   return sessionRequestData(session, {
     path: '/api/v1/accounts/verify_credentials',
     schema: AccountSchema,
-    ...(signal === undefined ? {} : { signal }),
+    signal,
   });
 }
 
@@ -61,7 +61,7 @@ export async function getAccount(
   return sessionRequestData(session, {
     path: `/api/v1/accounts/${encodeURIComponent(id)}`,
     schema: AccountSchema,
-    ...(signal === undefined ? {} : { signal }),
+    signal,
   });
 }
 
@@ -78,7 +78,7 @@ export async function lookupAccount(
     path: '/api/v1/accounts/lookup',
     query: { acct: name },
     schema: AccountSchema,
-    ...(signal === undefined ? {} : { signal }),
+    signal,
   });
 }
 
@@ -105,13 +105,12 @@ export async function accountStatuses(
   id: string,
   ...[options, signal]: [options: StatusesOptions, signal?: AbortSignal]
 ): Promise<Result<Page<Status>, ApiError>> {
-  const response = await sessionRequest(session, {
+  return sessionRequestPage(session, {
     path: `/api/v1/accounts/${encodeURIComponent(id)}/statuses`,
     query: statusesQuery(options),
     schema: StatusListSchema,
-    ...(signal === undefined ? {} : { signal }),
+    signal,
   });
-  return response.ok ? ok(toPage(response.value)) : response;
 }
 
 /** How {@link session}'s account stands to each of {@link ids}: one
@@ -130,6 +129,6 @@ export async function relationships(
     path: '/api/v1/accounts/relationships',
     query: { id: ids },
     schema: RelationshipListSchema,
-    ...(signal === undefined ? {} : { signal }),
+    signal,
   });
 }

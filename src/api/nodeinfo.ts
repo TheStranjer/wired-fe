@@ -8,7 +8,7 @@
  * is a `parse` error.
  */
 import type { ApiError } from './errors';
-import { type RequestOptions, apiRequest } from './http';
+import { requestData } from './http';
 import {
   type NodeInfo,
   type NodeInfoLinks,
@@ -28,12 +28,6 @@ const WELL_KNOWN_PATH = '/.well-known/nodeinfo';
 
 /** The relations WiredFE understands, best first. */
 const PREFERRED_RELS: readonly string[] = [NODEINFO_REL_21, NODEINFO_REL_20];
-
-/** Sends one request and keeps only its validated data, dropping the Link header. */
-async function requestData<T>(options: RequestOptions<T>): Promise<Result<T, ApiError>> {
-  const response = await apiRequest(options);
-  return response.ok ? ok(response.value.data) : response;
-}
 
 /** The href of the first preferred link present in {@link links}; null when none is. */
 function preferredHref(links: NodeInfoLinks['links']): string | null {
@@ -64,12 +58,11 @@ export async function fetchNodeInfo(
   origin: string,
   signal?: AbortSignal,
 ): Promise<Result<NodeInfo, ApiError>> {
-  const abort = signal === undefined ? {} : { signal };
   const links = await requestData({
     origin,
     path: WELL_KNOWN_PATH,
     schema: NodeInfoLinksSchema,
-    ...abort,
+    signal,
   });
   if (!links.ok) {
     return links;
@@ -86,7 +79,7 @@ export async function fetchNodeInfo(
     origin,
     path: `${url.pathname}${url.search}`,
     schema: NodeInfoSchema,
-    ...abort,
+    signal,
   });
   return doc.ok ? ok(doc.value) : doc;
 }

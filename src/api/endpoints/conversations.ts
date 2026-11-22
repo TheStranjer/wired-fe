@@ -12,11 +12,11 @@
  */
 import * as v from 'valibot';
 
-import { type Result, ok } from '../../lib/result';
+import type { Result } from '../../lib/result';
 import type { ApiError } from '../errors';
-import { type Page, type PageRequest, pageQuery, toPage } from '../page';
+import { type Page, type PageRequest, pageQuery } from '../page';
 import { type Conversation, ConversationSchema } from '../schemas/conversation';
-import { type ApiSession, sessionRequest, sessionRequestData } from '../session';
+import { type ApiSession, sessionRequestData, sessionRequestPage } from '../session';
 
 /** The list body: an array of conversations. */
 const ConversationListSchema: v.GenericSchema<unknown, readonly Conversation[]> =
@@ -32,13 +32,12 @@ export async function listConversations(
   page?: PageRequest,
   signal?: AbortSignal,
 ): Promise<Result<Page<Conversation>, ApiError>> {
-  const response = await sessionRequest(session, {
+  return sessionRequestPage(session, {
     path: '/api/v1/conversations',
     query: pageQuery(page),
     schema: ConversationListSchema,
-    ...(signal === undefined ? {} : { signal }),
+    signal,
   });
-  return response.ok ? ok(toPage(response.value)) : response;
 }
 
 /**
