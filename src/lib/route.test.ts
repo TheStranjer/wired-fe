@@ -15,11 +15,31 @@ const ROUTES: readonly (readonly [string, Route])[] = [
   ['#/@lain@wired.example', { kind: 'acct', value: 'lain@wired.example' }],
   ['#/users/109', { kind: 'user', value: '109' }],
   ['#/tag/Rust', { kind: 'tag', value: 'Rust' }],
+  ['#/authorize_interaction?uri=ally%40x.example', { kind: 'interact', value: 'ally@x.example' }],
+];
+
+/** Interaction hashes whose value reads differently from how they are spelled. */
+const INTERACTIONS: readonly (readonly [string, string])[] = [
+  ['#/authorize_interaction?uri=acct:ally@x.example', 'ally@x.example'],
+  ['#/authorize_interaction?uri=acct%3Aally%40x.example', 'ally@x.example'],
+  ['#/authorize_interaction?uri=https://x.example/@ally/1', 'https://x.example/@ally/1'],
+  [
+    '#/authorize_interaction?uri=https%3A%2F%2Fx.example%2F%40ally%2F1',
+    'https://x.example/@ally/1',
+  ],
+  ['#/authorize_interaction?acct=ally@x.example', 'ally@x.example'],
+  ['#/authorize_interaction?acct=acct:ally@x.example', 'ally@x.example'],
+  ['#/authorize_interaction?uri=ally@x.example&acct=other@y.example', 'ally@x.example'],
+  ['#/authorize_interaction?uri=a+b', 'a+b'],
 ];
 
 describe(parseRoute, () => {
   it.each(ROUTES)('parses %s', (hash, route) => {
     expect(parseRoute(hash)).toStrictEqual(route);
+  });
+
+  it.each(INTERACTIONS)('parses %s as an interaction', (hash, value) => {
+    expect(parseRoute(hash)).toStrictEqual({ kind: 'interact', value });
   });
 
   it('decodes percent-escaped characters', () => {
@@ -54,6 +74,13 @@ describe(parseRoute, () => {
     '#/notice/%E0%A4%A',
     '#/%E0%A4%A/abc',
     '#/registration/abc',
+    '#/authorize_interaction',
+    '#/authorize_interaction?',
+    '#/authorize_interaction?uri=',
+    '#/authorize_interaction?uri=acct:',
+    '#/authorize_interaction?uri',
+    '#/authorize_interaction?other=ally@x.example',
+    '#/authorize_interaction?uri=%E0%A4%A',
   ])('is no route: %j', (hash) => {
     expect(parseRoute(hash)).toBeNull();
   });

@@ -5,9 +5,12 @@
  * thread window, a tag its hashtag window (lowercased, as `/tag` does, so the
  * same tag is the same window), and an account — by name through
  * `lookupAccount`, by id through `getAccount` — its profile window. A lookup
- * that fails prints why into the status window instead, and opens nothing.
+ * that fails prints why into the status window instead, and opens nothing. A
+ * remote follow or interaction link is searched for by ./openInteraction and
+ * opens the account or post it finds.
  */
 
+import { findInteraction } from './openInteraction';
 import { getAccount, lookupAccount } from '../../api/endpoints/accountRead';
 import { type ApiError, describeApiError } from '../../api/errors';
 import type { Account } from '../../api/schemas/account';
@@ -33,13 +36,36 @@ function open(target: RouteTarget, view: Pick<WindowRef, 'kind' | 'target'>, tit
   target.dispatch({ type: 'windows', action: { type: 'open', ref, title } });
 }
 
+/** Open the profile window of {@link account}. */
+function openAccount(target: RouteTarget, account: Account): void {
+  target.dispatch({ type: 'windows', action: profileWindowOpen(account, target.accountKey) });
+}
+
 /** Open the profile of the account {@link found} answers, or print why there is none. */
 function openProfile(target: RouteTarget, found: Result<Account, ApiError>): void {
-  target.dispatch(
-    found.ok
-      ? { type: 'windows', action: profileWindowOpen(found.value, target.accountKey) }
-      : printAction(STATUS_WINDOW_ID, 'error', describeApiError(found.error)),
-  );
+  if (found.ok) {
+    openAccount(target, found.value);
+  } else {
+    target.dispatch(printAction(STATUS_WINDOW_ID, 'error', describeApiError(found.error)));
+  }
+}
+
+/**
+ * Open what a remote follow or interaction link to {@link value} names: an
+ * account's profile window with the `/follow` hint printed into it, a post's
+ * thread window, or a line saying nothing was found (a failed search finds
+ * nothing).
+ */
+async function openInteraction(target: RouteTarget, value: string): Promise<void> {
+  const found = await findInteraction(target.session, value);
+  if (found === undefined) {
+    target.dispatch(printAction(null, 'info', `Could not find ${value}`));
+  } else if ('acct' in found) {
+    openAccount(target, found);
+    target.dispatch(printAction(null, 'info', `Type /follow to follow @${found.acct}`));
+  } else {
+    await openRoute({ kind: 'notice', value: found.id }, target);
+  }
 }
 
 /** Open the window {@link route} names for {@link target}'s account. */
@@ -50,6 +76,8 @@ export async function openRoute(route: Route, target: RouteTarget): Promise<void
   } else if (kind === 'tag') {
     const tag = value.toLowerCase();
     open(target, { kind: 'hashtag', target: tag }, `#${tag}`);
+  } else if (kind === 'interact') {
+    await openInteraction(target, value);
   } else {
     const read = kind === 'acct' ? lookupAccount : getAccount;
     openProfile(target, await read(target.session, value));
