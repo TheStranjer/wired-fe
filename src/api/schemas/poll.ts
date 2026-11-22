@@ -12,6 +12,7 @@
 
 import * as v from 'valibot';
 
+import { CountSchema } from './common';
 import { CustomEmojiSchema } from './customEmoji';
 import type { CustomEmoji } from './customEmoji';
 
@@ -47,7 +48,7 @@ export const PollSchema: v.GenericSchema<unknown, Poll> = v.object({
   expires_at: v.optional(v.nullable(v.string()), null),
   expired: v.boolean(),
   multiple: v.boolean(),
-  votes_count: v.pipe(v.number(), v.integer(), v.minValue(0)),
+  votes_count: CountSchema,
   voters_count: v.optional(TallySchema, null),
   options: v.array(PollOptionSchema),
   voted: v.optional(v.boolean(), false),

@@ -8,18 +8,10 @@
  * causes a fresh registration instead of reaching the login flow.
  */
 
-import * as v from 'valibot';
-
 import type { ApiError } from '../api/errors';
-import { type AppCredentials, registerApp } from '../api/oauth';
+import { type AppCredentials, AppCredentialsSchema, registerApp } from '../api/oauth';
 import { type Result, ok } from '../lib/result';
 import type { Store } from '../storage/store';
-
-/** A cached registration: the two credential strings, anything else misses. */
-const CachedAppSchema: v.GenericSchema<unknown, AppCredentials> = v.object({
-  client_id: v.string(),
-  client_secret: v.string(),
-});
 
 /** The cache key for one instance and redirect URI: the two joined by a space. */
 function cacheKey(origin: string, redirectUri: string): string {
@@ -37,7 +29,7 @@ export async function getOrRegisterApp(
   params: { readonly origin: string; readonly redirectUri: string; readonly appName: string },
 ): Promise<Result<AppCredentials, ApiError>> {
   const key = cacheKey(params.origin, params.redirectUri);
-  const cached = store.get(key, CachedAppSchema);
+  const cached = store.get(key, AppCredentialsSchema);
   if (cached !== undefined) {
     return ok(cached);
   }

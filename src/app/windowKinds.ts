@@ -7,14 +7,11 @@
  * src/commands/definitions.ts next door, but indexes by kind.
  */
 
+import { isRecord } from '../lib/guards';
+import { collectModules } from '../lib/registry';
 import { type Result, err, ok } from '../lib/result';
 import type { WindowKindDefinition } from '../state/windowKind';
 import type { WindowKind } from '../windows/model';
-
-/** Whether a value is a string-keyed object, e.g. a module namespace. */
-function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
-  return typeof value === 'object' && value !== null;
-}
 
 /**
  * Whether a value is a window kind definition: an object with a string `kind`
@@ -39,13 +36,13 @@ function isDefinition(value: unknown): value is WindowKindDefinition {
 export function collectWindowKinds(
   modules: Readonly<Record<string, unknown>>,
 ): Result<ReadonlyMap<WindowKind, WindowKindDefinition>, string> {
+  const collected = collectModules(modules, isDefinition, 'a windowKind');
+  if (!collected.ok) {
+    return collected;
+  }
   const kinds = new Map<WindowKind, WindowKindDefinition>();
   const owners = new Map<WindowKind, string>();
-  for (const path of Object.keys(modules).sort((a, b) => a.localeCompare(b))) {
-    const definition = modules[path];
-    if (!isDefinition(definition)) {
-      return err(`${path} does not export a windowKind`);
-    }
+  for (const [path, definition] of collected.value) {
     const owner = owners.get(definition.kind);
     if (owner !== undefined) {
       return err(`window kind ${definition.kind} is exported by ${owner} and ${path}`);
