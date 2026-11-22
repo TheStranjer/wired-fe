@@ -42,6 +42,7 @@ const BASE_PROPS: PostRowProps = {
   onToggleReveal: vi.fn<() => void>(),
   onSelect: vi.fn<() => void>(),
   onSelectAuthor: vi.fn<() => void>(),
+  onContentLink: () => false,
 };
 
 describe('PostRow quote line', () => {

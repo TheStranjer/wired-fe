@@ -32,8 +32,9 @@ export type PostBodyProps = {
 export function PostBody(props: PostBodyProps): JSX.Element {
   const { contentHtml, emojis, spoilerText, revealed, onToggleReveal } = props;
 
+  const body = <RemoteHtml emojis={emojis} html={contentHtml} inline />;
   if (spoilerText === '') {
-    return <RemoteHtml emojis={emojis} html={contentHtml} inline />;
+    return body;
   }
   return (
     <>
@@ -45,12 +46,7 @@ export function PostBody(props: PostBodyProps): JSX.Element {
       >
         {`[CW: ${spoilerText}]`}
       </button>
-      {revealed ? (
-        <>
-          {' '}
-          <RemoteHtml emojis={emojis} html={contentHtml} inline />
-        </>
-      ) : undefined}
+      {revealed ? <> {body}</> : undefined}
     </>
   );
 }

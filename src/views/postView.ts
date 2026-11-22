@@ -12,12 +12,11 @@
  * line ui/QuoteBlock draws, mapped in ./quoteView.
  */
 
+import { contentLinks, type ContentLink } from './contentLinks';
+import { mediaItem, pollOf, reactionOf } from './postParts';
 import { quoteView, type Handles, type LabelOf, type QuoteView } from './quoteView';
 import { fullHandle } from '../accounts/handle';
 import type { Account } from '../api/schemas/account';
-import type { MediaAttachment } from '../api/schemas/mediaAttachment';
-import type { Poll } from '../api/schemas/poll';
-import type { Reaction } from '../api/schemas/reaction';
 import type { Status, Visibility } from '../api/schemas/status';
 import type { EmojiRef } from '../ui/emojify';
 import type { MediaItem } from '../ui/MediaList';
@@ -44,6 +43,9 @@ export type PostView = {
   };
   /** The body as hostile remote HTML; RemoteHtml sanitizes it. */
   readonly contentHtml: string;
+  /** The links in the body the app opens itself, by the href each is written
+   * as: a mention opens a profile window, a hashtag a tag window. */
+  readonly links: ReadonlyMap<string, ContentLink>;
   /** The status's own custom emoji, as the row's body renders them inline. */
   readonly emojis: readonly EmojiRef[];
   /** The content warning of the displayed status; '' when there is none. */
@@ -137,38 +139,6 @@ function mineOf(status: Status): PostView['mine'] {
   };
 }
 
-/** One reaction without the image url the row does not draw (yet). */
-function reactionOf(reaction: Reaction): PostView['reactions'][number] {
-  return { name: reaction.name, count: reaction.count, me: reaction.me };
-}
-
-/** One attachment in the row's own field names. */
-function mediaItem(attachment: MediaAttachment): MediaItem {
-  return {
-    id: attachment.id,
-    type: attachment.type,
-    url: attachment.url,
-    previewUrl: attachment.preview_url,
-    description: attachment.description,
-  };
-}
-
-/** The displayed status's poll in the row's own field names; null when none. */
-function pollOf(poll: Poll | null): PollViewData | null {
-  if (poll === null) {
-    return null;
-  }
-  return {
-    options: poll.options.map((option) => ({ title: option.title, votes: option.votes_count })),
-    totalVotes: poll.votes_count,
-    expiresAt: poll.expires_at === null ? null : new Date(poll.expires_at),
-    expired: poll.expired,
-    multiple: poll.multiple,
-    ownVotes: poll.own_votes,
-    voted: poll.voted,
-  };
-}
-
 /**
  * Map a status onto one row's data: a boost shows the reblogged status and
  * names the booster, anything else shows itself with no booster. `labelOf`
@@ -182,6 +152,7 @@ export function postView(status: Status, viewer: Viewer, labelOf: LabelOf = () =
     date: new Date(shown.created_at),
     author: authorOf(shown.account, viewer),
     contentHtml: shown.content,
+    links: contentLinks(shown),
     emojis: shown.emojis.map(({ shortcode, static_url }) => ({ shortcode, url: static_url })),
     spoilerText: shown.spoiler_text,
     media: shown.media_attachments.map(mediaItem),

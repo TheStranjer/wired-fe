@@ -10,7 +10,7 @@
  * has any — open as lines of their own below it in {@link PollView} and
  * {@link MediaList}.
  */
-import type { JSX, MouseEvent, Ref } from 'react';
+import type { JSX, Ref } from 'react';
 
 import { BoostLine } from './BoostLine';
 import type { EmojiRef } from './emojify';
@@ -23,6 +23,7 @@ import { PostBody } from './PostBody';
 import { PostMeta, type PostMetaProps } from './PostMeta';
 import styles from './PostRow.module.css';
 import { QuoteBlock, type QuoteBlockProps } from './QuoteBlock';
+import { routeRowClick } from './rowClick';
 import { Timestamp } from './Timestamp';
 import type { ClockFormat } from '../lib/time';
 
@@ -84,23 +85,25 @@ export type PostRowProps = {
   readonly onSelect: () => void;
   /** Called when the nick is clicked. */
   readonly onSelectAuthor: () => void;
+  /** Called with the href of a link in the body that was plainly clicked;
+   * returns true when the app opened it itself, so the browser must not. */
+  readonly onContentLink: (href: string) => boolean;
 } & PostMetaProps;
-
-/** The controls inside a row: they own their own clicks, the row takes the rest. */
-const CONTROL_SELECTOR = 'button, a, audio, video';
-
-/** True when the click landed on a control inside the row. */
-function clickedControl(event: MouseEvent<HTMLElement>): boolean {
-  const { target } = event;
-  return target instanceof Element && target.closest(CONTROL_SELECTOR) !== null;
-}
 
 /** The parts of {@link PostRowProps} the post's own line draws: everything but
  * who boosted it above, the poll and media lines below, how the row itself is
- * selected, and its DOM node. */
+ * selected and how it routes clicks, and its DOM node. */
 type LineProps = Omit<
   PostRowProps,
-  'boostedBy' | 'poll' | 'media' | 'sensitive' | 'autoExpand' | 'selected' | 'onSelect' | 'ref'
+  | 'boostedBy'
+  | 'poll'
+  | 'media'
+  | 'sensitive'
+  | 'autoExpand'
+  | 'selected'
+  | 'onSelect'
+  | 'onContentLink'
+  | 'ref'
 >;
 
 /** The line itself: the label, the clock, the nick, who the post answers, its
@@ -158,7 +161,8 @@ function PostLine(props: LineProps): JSX.Element {
 
 /** One post as a chat line; clicking the row selects it, clicking the nick opens the author. */
 export function PostRow(props: PostRowProps): JSX.Element {
-  const { boostedBy, poll, media, sensitive, autoExpand, selected, onSelect, ref, ...line } = props;
+  const { boostedBy, poll, media, sensitive, autoExpand, selected, ref, ...line } = props;
+  const { onSelect, onContentLink } = line;
 
   return (
     <article
@@ -170,9 +174,7 @@ export function PostRow(props: PostRowProps): JSX.Element {
       // strict jsx-a11y gate reads the onClick name alone, never its semantics,
       // so the same synthetic event is caught in its capture phase.
       onClickCapture={(event) => {
-        if (!clickedControl(event)) {
-          onSelect();
-        }
+        routeRowClick(event, { onSelect, onContentLink });
       }}
       ref={ref}
     >

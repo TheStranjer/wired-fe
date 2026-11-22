@@ -36,6 +36,7 @@ const BASE_PROPS: PostRowProps = {
   onToggleReveal: vi.fn<() => void>(),
   onSelect: vi.fn<() => void>(),
   onSelectAuthor: vi.fn<() => void>(),
+  onContentLink: () => false,
 };
 
 /** One described image attachment with its own preview. */
