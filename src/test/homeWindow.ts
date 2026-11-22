@@ -4,9 +4,10 @@
  * statuses a test is given — API order, newest first — with the labels, the
  * selection and the session the target resolver reads. Building it through the
  * real reducer means a command sees exactly what the app would have shown it.
- * {@link serveStatusActions} stands in for the instance on the other side, and
- * {@link FOREIGN_WIRE} is an account of somebody else's, for the tests that
- * need a post the acting account does not own.
+ * {@link serveStatusActions} and {@link serveAccountActions} stand in for the
+ * instance on the other side, and {@link FOREIGN_WIRE} is an account of
+ * somebody else's, for the tests that need a post the acting account does not
+ * own.
  */
 
 import { type HttpHandler, HttpResponse, http } from 'msw';
@@ -100,4 +101,38 @@ export function serveStatusActions(body: Status): string[] {
   });
   server.use(handler);
   return paths;
+}
+
+/** One account action the instance was asked for: its path and JSON body. */
+type AccountActionCall = {
+  readonly path: string;
+  /** The parsed body, or undefined when the request went out with none. */
+  readonly body: unknown;
+};
+
+/**
+ * The six account action endpoints as one handler: every POST to
+ * `/api/v1/accounts/<id>/<action>` is answered with {@link relationship} — a
+ * relationship object is a valid answer, the same schema reads it back — and
+ * the call recorded: its pathname and parsed body, `undefined` for the
+ * requests that carry none. The returned list is what the instance was asked
+ * for, in order.
+ */
+export function serveAccountActions(relationship: Record<string, unknown>): AccountActionCall[] {
+  const calls: AccountActionCall[] = [];
+  const handler: HttpHandler = http.post(
+    `${ORIGIN}/api/v1/accounts/:id/:action`,
+    async ({ request }) => {
+      const text = await request.text();
+
+      calls.push({
+        path: new URL(request.url).pathname,
+        body: text === '' ? undefined : JSON.parse(text),
+      });
+
+      return HttpResponse.json(relationship);
+    },
+  );
+  server.use(handler);
+  return calls;
 }

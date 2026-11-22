@@ -35,6 +35,15 @@ export type AccountActionOptions = {
 };
 
 /**
+ * The option keys each action understands; the undos understand none and are
+ * absent. {@link actionBody} sends a key only when the caller set it.
+ */
+const ACTION_OPTIONS: Partial<Record<AccountAction, readonly (keyof AccountActionOptions)[]>> = {
+  follow: ['reblogs'],
+  mute: ['notifications', 'duration'],
+};
+
+/**
  * The JSON body an action carries: each option its action understands, and
  * only when the caller set it. An action with no options to send — every
  * undo, and follow or mute asked with nothing set — gets `undefined`, so the
@@ -44,14 +53,10 @@ function actionBody(
   action: AccountAction,
   options: AccountActionOptions,
 ): Record<string, unknown> | undefined {
-  const body: Record<string, unknown> = {
-    ...(action === 'follow' && options.reblogs !== undefined ? { reblogs: options.reblogs } : {}),
-    ...(action === 'mute' && options.notifications !== undefined
-      ? { notifications: options.notifications }
-      : {}),
-    ...(action === 'mute' && options.duration !== undefined ? { duration: options.duration } : {}),
-  };
-  return Object.keys(body).length === 0 ? undefined : body;
+  const given = (ACTION_OPTIONS[action] ?? []).filter((key) => options[key] !== undefined);
+  return given.length === 0
+    ? undefined
+    : Object.fromEntries(given.map((key) => [key, options[key]]));
 }
 
 /**
