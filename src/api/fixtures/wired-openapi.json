@@ -174,16 +174,6 @@
         ]
       }
     },
-    "/api/openapi": {
-      "get": {
-        "operationId": "GET__api_openapi",
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
     "/api/pleroma/accounts/mfa": {
       "get": {
         "operationId": "GET__api_pleroma_accounts_mfa",
@@ -418,16 +408,6 @@
             "oAuth2": []
           }
         ]
-      }
-    },
-    "/api/pleroma/frontend_configurations": {
-      "get": {
-        "operationId": "GET__api_pleroma_frontend_configurations",
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
       }
     },
     "/api/pleroma/move_account": {
@@ -4838,36 +4818,6 @@
         }
       }
     },
-    "/api/v1/pleroma/preferred_frontend": {
-      "put": {
-        "operationId": "PUT__api_v1_pleroma_preferred_frontend",
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        },
-        "security": [
-          {
-            "oAuth2": []
-          }
-        ]
-      }
-    },
-    "/api/v1/pleroma/preferred_frontend/available": {
-      "get": {
-        "operationId": "GET__api_v1_pleroma_preferred_frontend_available",
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        },
-        "security": [
-          {
-            "oAuth2": []
-          }
-        ]
-      }
-    },
     "/api/v1/pleroma/remote_interaction": {
       "post": {
         "operationId": "POST__api_v1_pleroma_remote_interaction",
@@ -6180,46 +6130,6 @@
         }
       }
     },
-    "/authorize_interaction": {
-      "get": {
-        "operationId": "GET__authorize_interaction",
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/check_password": {
-      "get": {
-        "operationId": "GET__check_password",
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/embed/{id}": {
-      "get": {
-        "operationId": "GET__embed__id",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
     "/emoji/{pack}/{file}": {
       "get": {
         "operationId": "GET__emoji__pack__file",
@@ -6248,24 +6158,6 @@
         }
       }
     },
-    "/frontend_switcher": {
-      "get": {
-        "operationId": "GET__frontend_switcher",
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      },
-      "post": {
-        "operationId": "POST__frontend_switcher",
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
     "/health": {
       "get": {
         "operationId": "GET__health",
@@ -6286,26 +6178,6 @@
         }
       }
     },
-    "/instance/{name}.html": {
-      "get": {
-        "operationId": "GET__instance__name_html",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "name",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
     "/internal/fetch": {
       "get": {
         "operationId": "GET__internal_fetch",
@@ -6319,54 +6191,6 @@
     "/internal/fetch/inbox": {
       "post": {
         "operationId": "POST__internal_fetch_inbox",
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/mailer/unsubscribe/{token}": {
-      "get": {
-        "operationId": "GET__mailer_unsubscribe__token",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "token",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/main/ostatus": {
-      "get": {
-        "operationId": "GET__main_ostatus",
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      },
-      "post": {
-        "operationId": "POST__main_ostatus",
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/manifest.json": {
-      "get": {
-        "operationId": "GET__manifest_json",
         "responses": {
           "200": {
             "description": "OK"
@@ -6434,26 +6258,6 @@
         }
       }
     },
-    "/notice/{id}/embed_player": {
-      "get": {
-        "operationId": "GET__notice__id_embed_player",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
     "/oauth/authorize": {
       "get": {
         "operationId": "GET__oauth_authorize",
@@ -6472,29 +6276,9 @@
         }
       }
     },
-    "/oauth/mfa": {
-      "get": {
-        "operationId": "GET__oauth_mfa",
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
     "/oauth/mfa/challenge": {
       "post": {
         "operationId": "POST__oauth_mfa_challenge",
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/oauth/mfa/verify": {
-      "post": {
-        "operationId": "POST__oauth_mfa_verify",
         "responses": {
           "200": {
             "description": "OK"
@@ -6625,24 +6409,6 @@
             }
           }
         ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/ostatus_subscribe": {
-      "get": {
-        "operationId": "GET__ostatus_subscribe",
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      },
-      "post": {
-        "operationId": "POST__ostatus_subscribe",
         "responses": {
           "200": {
             "description": "OK"
@@ -6838,36 +6604,6 @@
         }
       }
     },
-    "/tags/{tag}": {
-      "get": {
-        "operationId": "GET__tags__tag",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "tag",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/user_exists": {
-      "get": {
-        "operationId": "GET__user_exists",
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
     "/users/{nickname}": {
       "get": {
         "operationId": "GET__users__nickname",
@@ -6891,26 +6627,6 @@
     "/users/{nickname}/collections/featured": {
       "get": {
         "operationId": "GET__users__nickname_collections_featured",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "nickname",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/users/{nickname}/feed": {
-      "get": {
-        "operationId": "GET__users__nickname_feed",
         "parameters": [
           {
             "in": "path",
