@@ -20,7 +20,8 @@ import styles from './MediaList.module.css';
 export type MediaItem = {
   readonly id: string;
   readonly type: 'image' | 'gifv' | 'video' | 'audio' | 'unknown';
-  readonly url: string;
+  /** The file's http(s) URL; null when the server sent anything else. */
+  readonly url: string | null;
   readonly previewUrl: string | null;
   readonly description: string | null;
 };
@@ -45,34 +46,38 @@ function placeholder(item: MediaItem, index: number, total: number): string {
  * accessibility gate asks of every media element, not a promise of a track. */
 function ExpandedMedia(props: { readonly item: MediaItem }): JSX.Element {
   const { item } = props;
+  const { url } = item;
+  if (url === null) {
+    return <span className={styles['unavailable']}>[no usable link]</span>;
+  }
   switch (item.type) {
     case 'image':
     case 'gifv':
       return (
-        <a className={styles['link']} href={item.url} rel="noopener noreferrer" target="_blank">
+        <a className={styles['link']} href={url} rel="noopener noreferrer" target="_blank">
           <img
             alt={item.description ?? ''}
             className={styles['image']}
-            src={item.previewUrl ?? item.url}
+            src={item.previewUrl ?? url}
           />
         </a>
       );
     case 'video':
       return (
-        <video className={styles['player']} controls preload="none" src={item.url}>
+        <video className={styles['player']} controls preload="none" src={url}>
           <track kind="captions" />
         </video>
       );
     case 'audio':
       return (
-        <audio className={styles['player']} controls preload="none" src={item.url}>
+        <audio className={styles['player']} controls preload="none" src={url}>
           <track kind="captions" />
         </audio>
       );
     case 'unknown':
       return (
-        <a className={styles['link']} href={item.url} rel="noopener noreferrer" target="_blank">
-          {item.url}
+        <a className={styles['link']} href={url} rel="noopener noreferrer" target="_blank">
+          {url}
         </a>
       );
   }

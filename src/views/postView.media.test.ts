@@ -47,6 +47,32 @@ describe('postView media', () => {
     expect(postView(post, SIGNED_OUT).sensitive).toBe(true);
   });
 
+  it('maps a non-http(s) attachment url to null', () => {
+    const post = status('1', {
+      media_attachments: [{ id: 'm1', type: 'unknown', url: 'intent://x' }],
+    });
+
+    expect(postView(post, SIGNED_OUT).media[0]?.url).toBeNull();
+  });
+
+  it('maps a non-http(s) preview url to null', () => {
+    const post = status('1', {
+      media_attachments: [
+        {
+          id: 'm1',
+          type: 'image',
+          url: 'https://wired.example/m1.png',
+          preview_url: 'data:image/png;base64,AAAA',
+        },
+      ],
+    });
+
+    const item = postView(post, SIGNED_OUT).media[0];
+
+    expect(item?.previewUrl).toBeNull();
+    expect(item?.url).toBe('https://wired.example/m1.png');
+  });
+
   it('shows the attachments and warning of the original, not the boost', () => {
     const boost = status('boost-1', {
       sensitive: true,
