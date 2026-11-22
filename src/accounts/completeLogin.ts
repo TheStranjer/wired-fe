@@ -3,7 +3,9 @@
  * instance's authorize page with a query string, and this module turns it
  * into a stored, active account. The callback must be one, a pending login
  * started here must still be unexpired, and its `state` must match the
- * callback's (the CSRF check); only then is the cached app used to exchange
+ * callback's (the CSRF check); an error callback is shown only when its
+ * `state` matches too, and is otherwise ignored without touching the pending
+ * login, and its `error_description` is never shown; only then is the cached app used to exchange
  * the code, the new token verified against `verify_credentials`, and the
  * account stored — which makes it active. Every API failure goes through
  * {@link failed}, which clears the pending login so one code is never tried
@@ -26,6 +28,7 @@ import type { Store } from '../storage/store';
 /** What completing (or refusing) a login produced for the caller to show. */
 export type LoginOutcome =
   | { readonly kind: 'none' }
+  | { readonly kind: 'ignored' }
   | { readonly kind: 'ok'; readonly account: StoredAccount }
   | { readonly kind: 'error'; readonly message: string };
 
@@ -48,6 +51,20 @@ const EXPIRED_MESSAGE = 'Login expired or was not started here. Try again.';
 /** Shown when the callback's `state` is not the one this browser sent. */
 const MISMATCH_MESSAGE = 'Login state did not match. Try again.';
 
+/** The shape an `error` value must have to be echoed: a short OAuth error code. */
+const ERROR_CODE = /^[a-z_]{1,64}$/;
+
+/**
+ * The outcome of an error callback whose `state` matched the pending login:
+ * the pending login is cleared and the error code is shown when it looks like
+ * one. The server's `error_description` is attacker-controllable and never shown.
+ */
+function refused(login: Store, error: string): LoginOutcome {
+  clearPendingLogin(login);
+  const message = ERROR_CODE.test(error) ? `Login refused (${error})` : 'Login refused';
+  return { kind: 'error', message };
+}
+
 /**
  * The callback and pending-login checks (behaviours 1–4): `ok` with the
  * pending login and the code to exchange once every check passes; `err`
@@ -62,13 +79,11 @@ function checkCallback(
   if (callback === null) {
     return err({ kind: 'none' });
   }
-  if (callback.kind === 'error') {
-    clearPendingLogin(stores.login);
-    const reason = callback.description ?? callback.error;
-    return err({ kind: 'error', message: `Login refused: ${reason}` });
-  }
-
   const pending = readPendingLogin(stores.login, params.now);
+  if (callback.kind === 'error') {
+    const matches = pending !== null && pending.state === callback.state;
+    return err(matches ? refused(stores.login, callback.error) : { kind: 'ignored' });
+  }
   if (pending === null) {
     return err({ kind: 'error', message: EXPIRED_MESSAGE });
   }

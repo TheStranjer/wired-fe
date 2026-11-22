@@ -6,7 +6,7 @@
  * window's own account and lands it in that same window — or says to log in when
  * the window has no account to post as.
  */
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { describe, expect, it, vi, type Mock } from 'vitest';
 
@@ -126,7 +126,9 @@ describe('the federated window kind', () => {
 
     const log = await screen.findByRole('log', { name: 'federated' });
 
-    expect(log).toHaveTextContent('present day');
+    await waitFor(() => {
+      expect(log).toHaveTextContent('present day');
+    });
   });
 
   it('creates the post as its window’s account and adds it to that window', async () => {

@@ -145,8 +145,8 @@ function loggedInLine(account: StoredAccount): string {
 /**
  * Complete an OAuth login the redirect may have left in the URL: hand the
  * query to {@link completeLogin} before anything is restored, print what came
- * of it, and rewrite the address bar without its query so a reload never
- * replays `code` and `state`. A URL with no callback is left alone.
+ * of it (nothing if ignored), and rewrite the address bar without its query
+ * so a reload never replays `code` and `state`. No callback: left alone.
  */
 async function finishPendingLogin(deps: StartupDeps): Promise<void> {
   const { apps, login, accounts } = deps.stores;
@@ -159,7 +159,7 @@ async function finishPendingLogin(deps: StartupDeps): Promise<void> {
   }
   if (outcome.kind === 'ok') {
     printStatus(deps, loggedInLine(outcome.account), 'info');
-  } else {
+  } else if (outcome.kind === 'error') {
     printStatus(deps, outcome.message, 'error');
   }
   deps.location.replaceUrl(deps.location.pathname + deps.location.hash);
