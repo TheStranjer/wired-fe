@@ -29,6 +29,11 @@
   display: block;
 }
 
+.unavailable {
+  display: block;
+  color: var(--color-warn);
+}
+
 .image {
   display: block;
   max-width: 100%;

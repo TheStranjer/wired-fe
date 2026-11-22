@@ -14,6 +14,8 @@
 import createDOMPurify from 'dompurify';
 import type { Config } from 'dompurify';
 
+import { isHttpUrl } from '../lib/url';
+
 /** The only elements remote HTML may keep; every other element is removed. */
 const ALLOWED_TAGS: readonly string[] = [
   'p',
@@ -66,16 +68,6 @@ const SANITIZE_CONFIG: Config = {
   ALLOWED_ATTR: [...ALLOWED_ATTRIBUTES],
   ADD_FORBID_CONTENTS: [...FORBIDDEN_CONTENTS],
 };
-
-/** Whether {@link href} parses as an absolute URL over http: or https:. */
-function isHttpUrl(href: string): boolean {
-  try {
-    const { protocol } = new URL(href);
-    return protocol === 'http:' || protocol === 'https:';
-  } catch {
-    return false;
-  }
-}
 
 /** Keeps only the {@link ALLOWED_CLASS_TOKENS} of a class attribute. */
 function filterClassTokens(element: Element): void {

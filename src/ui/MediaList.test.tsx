@@ -152,6 +152,17 @@ describe(MediaList, () => {
     expect(container.querySelector('img')).toBeNull();
   });
 
+  it('shows a placeholder, with no link or media element, when the url is null', () => {
+    const { container } = renderList(
+      oneOfEachKind().map((entry) => ({ ...entry, url: null, previewUrl: null })),
+      { autoExpand: true },
+    );
+
+    expect(screen.getAllByText('[no usable link]')).toHaveLength(5);
+    expect(screen.queryByRole('link')).toBeNull();
+    expect(container.querySelector('img, video, audio')).toBeNull();
+  });
+
   it('closes a line again when its placeholder is pressed a second time', () => {
     renderList([item()], { autoExpand: true });
     const toggle = screen.getByRole('button', { name: '[IMG 1/1: a wall]' });

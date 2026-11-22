@@ -12,10 +12,10 @@
  * line ui/QuoteBlock draws, mapped in ./quoteView.
  */
 
+import { mediaItem } from './mediaView';
 import { quoteView, type Handles, type LabelOf, type QuoteView } from './quoteView';
 import { fullHandle } from '../accounts/handle';
 import type { Account } from '../api/schemas/account';
-import type { MediaAttachment } from '../api/schemas/mediaAttachment';
 import type { Poll } from '../api/schemas/poll';
 import type { Reaction } from '../api/schemas/reaction';
 import type { Status, Visibility } from '../api/schemas/status';
@@ -140,17 +140,6 @@ function mineOf(status: Status): PostView['mine'] {
 /** One reaction without the image url the row does not draw (yet). */
 function reactionOf(reaction: Reaction): PostView['reactions'][number] {
   return { name: reaction.name, count: reaction.count, me: reaction.me };
-}
-
-/** One attachment in the row's own field names. */
-function mediaItem(attachment: MediaAttachment): MediaItem {
-  return {
-    id: attachment.id,
-    type: attachment.type,
-    url: attachment.url,
-    previewUrl: attachment.preview_url,
-    description: attachment.description,
-  };
 }
 
 /** The displayed status's poll in the row's own field names; null when none. */
