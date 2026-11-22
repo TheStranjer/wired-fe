@@ -4,7 +4,7 @@
  */
 import { describe, expect, it } from 'vitest';
 
-import { wordsOf } from './words';
+import { compareWords, wordsOf } from './words';
 
 describe(wordsOf, () => {
   it('splits the words wherever the whitespace is', () => {
@@ -22,5 +22,11 @@ describe(wordsOf, () => {
 
   it('keeps a quoted-looking word whole', () => {
     expect(wordsOf('one "two three" four')).toStrictEqual(['one', '"two', 'three"', 'four']);
+  });
+});
+
+describe(compareWords, () => {
+  it('orders words alphabetically', () => {
+    expect(['fav', 'boost', 'dm'].toSorted(compareWords)).toStrictEqual(['boost', 'dm', 'fav']);
   });
 });

@@ -13,6 +13,7 @@
 
 import type { CustomEmoji } from '../api/schemas/customEmoji';
 import type { Status } from '../api/schemas/status';
+import { compareWords } from '../lib/words';
 import type { AppState } from '../state/appState';
 import type { LineData } from '../state/buffer';
 
@@ -43,11 +44,6 @@ export type CompletionProvider = {
 /** The accepts of a kind: {@link prefix} and at least {@link rest} more characters. */
 function acceptsWord(prefix: string, rest: number): (word: string) => boolean {
   return (word: string): boolean => word.startsWith(prefix) && word.length >= prefix.length + rest;
-}
-
-/** Sort candidates the way the command provider sorts commands. */
-function compareWords(a: string, b: string): number {
-  return a.localeCompare(b);
 }
 
 /**
