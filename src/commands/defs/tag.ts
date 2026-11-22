@@ -13,14 +13,11 @@
  */
 
 import { activeAccount } from '../../state/selectors';
-import { NOT_LOGGED_IN, fail, syncRun } from '../outcome';
+import { NOT_LOGGED_IN, OK, fail, syncRun } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** A hashtag name once its optional `#` is off: letters, digits, underscores. */
 const TAG = /^[\p{L}\p{N}_]+$/u;
-
-/** The window is open, or was already and is active now. */
-const OK: CommandOutcome = { ok: true };
 
 /** The argument trimmed, minus one leading `#` if it has one. */
 function tagName(args: string): string {

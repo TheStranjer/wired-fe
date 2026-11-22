@@ -3,31 +3,30 @@
  * target resolves the way the other post commands resolve theirs: a leading
  * label names a post of the active window's scrollback, otherwise the
  * navigation selection stands, and a boost copies its original (decision 6).
- * The link is the post's `url ?? uri`, exactly what `/open` would follow. A
+ * The link is WiredFE's permalink for a post of the account's own instance,
+ * otherwise the post's `url ?? uri`. A
  * browser that refuses the write — no permission, no clipboard, an insecure
  * context — is answered with a plain refusal, never a false `copied`.
  */
 
-import { statusLink } from '../statusLink';
+import { accountByKey } from '../../state/selectors';
+import { OK, fail } from '../outcome';
+import { localPermalink, statusLink } from '../statusLink';
 import { resolveStatusTarget } from '../targets';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
-/** The link is on the clipboard and was printed. */
-const OK: CommandOutcome = { ok: true };
-
 /** Shown when the browser rejects the write or has no clipboard at all. */
-const UNAVAILABLE: CommandOutcome = {
-  ok: false,
-  message: 'Clipboard unavailable',
-};
+const UNAVAILABLE = fail('Clipboard unavailable');
 
 /** Resolve the target, write its link, and print what was copied. */
 async function handle(args: string, context: CommandContext): Promise<CommandOutcome> {
   const target = resolveStatusTarget(args, context);
   if (!target.ok) {
-    return { ok: false, message: target.error };
+    return fail(target.error);
   }
-  const link = statusLink(target.value.status);
+  const { status, accountKey } = target.value;
+  const account = accountByKey(context.state, accountKey);
+  const link = localPermalink(status, account, window.location) ?? statusLink(status);
   try {
     await navigator.clipboard.writeText(link);
   } catch {

@@ -4,14 +4,11 @@
  * refuse when nobody is signed in. Each says only which window it opens.
  */
 
-import { NOT_LOGGED_IN, contextRun } from './outcome';
-import type { CommandContext, CommandDefinition, CommandOutcome } from './types';
+import { NOT_LOGGED_IN, OK, contextRun } from './outcome';
+import type { CommandContext, CommandDefinition } from './types';
 import type { StoredAccount } from '../accounts/accountStore';
 import { activeAccount } from '../state/selectors';
 import type { WindowsAction } from '../windows/reducer';
-
-/** The window is open, or was already and is active now. */
-const OK: CommandOutcome = { ok: true };
 
 /**
  * A command's run that dispatches {@link open}'s transition for the active

@@ -7,11 +7,8 @@
  * it (insert `Ctrl+e`, navigation `c`).
  */
 
-import { syncRun } from '../outcome';
+import { OK, syncRun } from '../outcome';
 import type { CommandBinding, CommandContext, CommandDefinition, CommandOutcome } from '../types';
-
-/** The one outcome: the box is open, whatever it was filled with. */
-const OK: CommandOutcome = { ok: true };
 
 /** `Ctrl+e` while typing, `c` while navigating: both ask for the composer. */
 const BINDINGS: readonly CommandBinding[] = [

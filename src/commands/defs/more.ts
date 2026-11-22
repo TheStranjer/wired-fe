@@ -11,11 +11,8 @@
 
 import { bufferFor } from '../../state/selectors';
 import { activeWindow } from '../../windows/model';
-import { contextRun } from '../outcome';
+import { OK, contextRun } from '../outcome';
 import type { CommandBinding, CommandContext, CommandDefinition, CommandOutcome } from '../types';
-
-/** The command ran; what it asked for is on its way to the reducer. */
-const OK: CommandOutcome = { ok: true };
 
 /** What a window at the end of its history answers with. */
 const NO_OLDER = 'No older posts';

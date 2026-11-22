@@ -14,7 +14,7 @@
 import type { Visibility } from '../../api/schemas/status';
 import { type Capabilities, hasFeature } from '../../capabilities/capabilities';
 import { capabilitiesFor } from '../../state/selectors';
-import { fail, syncRun } from '../outcome';
+import { OK, fail, syncRun } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** The command's one form; a refused argument echoes it. */
@@ -22,9 +22,6 @@ const USAGE = '/vis [public|unlisted|private|direct|local]';
 
 /** The refusal of `local` to an instance that cannot carry it. */
 const NO_LOCAL = 'This server has no local-only posts';
-
-/** The default is shown, or the settings action is on its way to the reducer. */
-const OK: CommandOutcome = { ok: true };
 
 /** The words the command takes, and the audience each names; may be none. */
 const AUDIENCES: ReadonlyMap<string, Visibility> = new Map([

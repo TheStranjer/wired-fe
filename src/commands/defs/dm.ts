@@ -19,18 +19,15 @@ import type { Status } from '../../api/schemas/status';
 import { statusesAction } from '../../state/pageActions';
 import { sessionFor } from '../../state/selectors';
 import type { WindowState } from '../../windows/model';
-import { NOT_LOGGED_IN, fail } from '../outcome';
+import { NOT_LOGGED_IN, OK, fail } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 import { splitFirstWord } from '../words';
 
 /** The command's grammar: /help shows it, a bad argument echoes it. */
 const USAGE = '/dm @user@host message';
 
-/** The message is up. */
-const OK: CommandOutcome = { ok: true };
-
 /** The argument text was not a handle and a message. */
-const USAGE_ERROR: CommandOutcome = { ok: false, message: `Usage: ${USAGE}` };
+const USAGE_ERROR = fail(`Usage: ${USAGE}`);
 
 /** A handle word: `@user@host`, `user@host`, or `@user` for the local instance. */
 const HANDLE = /^@[\w.~-]+(?:@[\w.~-]+)?$|^[\w.~-]+@[\w.~-]+$/u;

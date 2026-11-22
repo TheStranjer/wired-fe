@@ -33,10 +33,13 @@ const HOME: WindowRef = { kind: 'home', accountKey: LAIN.key, target: null };
 const HOME_ID = windowId(HOME);
 
 /** A post with a web page of its own. */
-const ALPHA = status('a', { url: 'https://wired.example/a' });
+const ALPHA = status('a', {
+  uri: 'https://pleroma.example/n/a',
+  url: 'https://pleroma.example/a',
+});
 
 /** A post whose schema-default url is null; only its uri links. */
-const NO_URL = status('n');
+const NO_URL = status('n', { uri: 'https://pleroma.example/n/n' });
 
 /** A boost showing ALPHA; copying it must follow the original. */
 const BOOST = status('b', { reblog: ALPHA });
@@ -105,8 +108,21 @@ describe('/copy', () => {
     const outcome = await command.run('a0', context);
 
     expect(outcome).toStrictEqual({ ok: true });
-    expect(writeText).toHaveBeenCalledWith('https://wired.example/a');
-    expect(print).toHaveBeenCalledWith('copied https://wired.example/a');
+    expect(writeText).toHaveBeenCalledWith('https://pleroma.example/a');
+    expect(print).toHaveBeenCalledWith('copied https://pleroma.example/a');
+  });
+
+  it('copies the WiredFE permalink of a post on the account instance', async () => {
+    const writeText = vi.fn<(text: string) => Promise<void>>().mockResolvedValue(undefined);
+    stubClipboard({ writeText });
+    const { context, print } = homeContext([status('l', { url: `${ORIGIN}/notice/l` })]);
+    const permalink = `${window.location.origin}${window.location.pathname}#/notice/l`;
+
+    const outcome = await command.run('a0', context);
+
+    expect(outcome).toStrictEqual({ ok: true });
+    expect(writeText).toHaveBeenCalledWith(permalink);
+    expect(print).toHaveBeenCalledWith(`copied ${permalink}`);
   });
 
   it('copies the uri when the post carries no url', async () => {
@@ -117,8 +133,8 @@ describe('/copy', () => {
     const outcome = await command.run('a0', context);
 
     expect(outcome).toStrictEqual({ ok: true });
-    expect(writeText).toHaveBeenCalledWith('https://wired.example/n/n');
-    expect(print).toHaveBeenCalledWith('copied https://wired.example/n/n');
+    expect(writeText).toHaveBeenCalledWith('https://pleroma.example/n/n');
+    expect(print).toHaveBeenCalledWith('copied https://pleroma.example/n/n');
   });
 
   it('copies the navigation selection when no label is given', async () => {
@@ -129,7 +145,7 @@ describe('/copy', () => {
     const outcome = await command.run('', context);
 
     expect(outcome).toStrictEqual({ ok: true });
-    expect(writeText).toHaveBeenCalledWith('https://wired.example/a');
+    expect(writeText).toHaveBeenCalledWith('https://pleroma.example/a');
   });
 
   it('copies the original of a boost', async () => {
@@ -140,7 +156,7 @@ describe('/copy', () => {
     const outcome = await command.run('a0', context);
 
     expect(outcome).toStrictEqual({ ok: true });
-    expect(writeText).toHaveBeenCalledWith('https://wired.example/a');
+    expect(writeText).toHaveBeenCalledWith('https://pleroma.example/a');
   });
 
   it('refuses when the browser rejects the write', async () => {

@@ -18,12 +18,10 @@ import type { Status } from '../../api/schemas/status';
 import type { ApiSession } from '../../api/session';
 import { type Result, err, ok } from '../../lib/result';
 import { wordsOf } from '../../lib/words';
+import { OK, fail } from '../outcome';
 import { printedLabel } from '../statusLabel';
 import { type StatusTarget, resolveStatusTarget } from '../targets';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
-
-/** The ballot is cast and every scrollback knows the new tally. */
-const OK: CommandOutcome = { ok: true };
 
 /** One choice as typed: the option's one-based number, digits only. */
 const CHOICE = /^[0-9]+$/u;
@@ -96,7 +94,7 @@ function prepare(target: StatusTarget, context: CommandContext): Result<Ballot, 
 async function cast(context: CommandContext, ballot: Ballot): Promise<CommandOutcome> {
   const voted = await votePoll(ballot.session, ballot.poll.id, ballot.choices);
   if (!voted.ok) {
-    return { ok: false, message: describeApiError(voted.error) };
+    return fail(describeApiError(voted.error));
   }
   context.dispatch({ type: 'statusUpdated', status: { ...ballot.status, poll: voted.value } });
   context.print(`voted ${ballot.choices.map(typedChoice).join(' ')} on ${ballot.label}`);
@@ -107,10 +105,10 @@ async function cast(context: CommandContext, ballot: Ballot): Promise<CommandOut
 async function handle(args: string, context: CommandContext): Promise<CommandOutcome> {
   const target = resolveStatusTarget(args, context);
   if (!target.ok) {
-    return { ok: false, message: target.error };
+    return fail(target.error);
   }
   const ballot = prepare(target.value, context);
-  return ballot.ok ? await cast(context, ballot.value) : { ok: false, message: ballot.error };
+  return ballot.ok ? await cast(context, ballot.value) : fail(ballot.error);
 }
 
 /** The `/vote` definition. */

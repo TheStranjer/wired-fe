@@ -18,14 +18,11 @@ import {
   THEMES,
   VISIBILITIES,
 } from '../../state/settings';
-import { fail, syncRun } from '../outcome';
+import { OK, fail, syncRun } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** The command's one form. */
 const USAGE = '/set [key [value]]';
-
-/** A run that showed or turned what was asked; there is nothing else to report. */
-const OK: CommandOutcome = { ok: true };
 
 /** The words a boolean knob takes and the value each means. */
 const MEANINGS: ReadonlyMap<string, boolean> = new Map([

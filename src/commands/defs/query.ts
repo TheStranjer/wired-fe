@@ -14,14 +14,11 @@
  */
 
 import { activeAccount } from '../../state/selectors';
-import { NOT_LOGGED_IN, fail, syncRun } from '../outcome';
+import { NOT_LOGGED_IN, OK, fail, syncRun } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** The command's grammar: /help shows it, a bare argument echoes it. */
 const USAGE = '/query <@handle>';
-
-/** The window is open, or was already and is active now. */
-const OK: CommandOutcome = { ok: true };
 
 /** A normalized handle: `user`, or `user@host`; letters, digits, `.`, `_`, `-`, `~`. */
 const HANDLE = /^[\w.~-]+(?:@[\w.~-]+)?$/u;

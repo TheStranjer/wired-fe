@@ -6,11 +6,8 @@
  * app's (src/app/useAttachments), reachable by mouse through the very dialog.
  */
 
-import { syncRun } from '../outcome';
+import { OK, syncRun } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
-
-/** The dialog is opening. */
-const OK: CommandOutcome = { ok: true };
 
 /** Open the file dialog asking it to describe what it picks. */
 function handle(args: string, context: CommandContext): CommandOutcome {

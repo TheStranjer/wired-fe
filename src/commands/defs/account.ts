@@ -19,21 +19,18 @@ import { findAccount } from '../../accounts/findAccount';
 import { describeApiError } from '../../api/errors';
 import { revokeToken } from '../../api/oauth';
 import { wordsOf } from '../../lib/words';
-import { NOT_LOGGED_IN, fail } from '../outcome';
+import { NOT_LOGGED_IN, OK, fail } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** Every form of the command: /help shows it, a bad argument echoes it. */
 const USAGE =
   '/account [list] | /account switch <n|handle> | /account next | /account logout [n|handle]';
 
-/** The command ran; what it asked for is on its way to the reducer. */
-const OK: CommandOutcome = { ok: true };
-
 /** The refusal shared by every form with nothing to act on. */
 const NO_ACCOUNTS: CommandOutcome = NOT_LOGGED_IN;
 
 /** The argument text matched none of the command's forms. */
-const USAGE_ERROR: CommandOutcome = { ok: false, message: `Usage: ${USAGE}` };
+const USAGE_ERROR = fail(`Usage: ${USAGE}`);
 
 /** The refusal naming the query nothing matched. */
 function noAccount(query: string | undefined): CommandOutcome {

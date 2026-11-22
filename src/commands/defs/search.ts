@@ -14,7 +14,7 @@
  */
 
 import { activeAccount } from '../../state/selectors';
-import { NOT_LOGGED_IN, fail, syncRun } from '../outcome';
+import { NOT_LOGGED_IN, OK, fail, syncRun } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** The command's grammar: /help shows it, a bare argument echoes it. */
@@ -22,9 +22,6 @@ const USAGE = '/search <query>';
 
 /** How many query characters the window title shows; the target keeps it all. */
 const TITLE_QUERY_LENGTH = 20;
-
-/** The search window is open, or was already and is active now. */
-const OK: CommandOutcome = { ok: true };
 
 /** The window's title: `search/` and the query cut off at {@link TITLE_QUERY_LENGTH}. */
 function searchTitle(query: string): string {

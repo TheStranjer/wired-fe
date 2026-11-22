@@ -11,14 +11,11 @@
 
 import { wordsOf } from '../../lib/words';
 import { type Theme, THEMES } from '../../state/settings';
-import { fail, syncRun } from '../outcome';
+import { OK, fail, syncRun } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** The command's one form. */
 const USAGE = '/theme [name]';
-
-/** A run that showed or set what was asked; there is nothing else to report. */
-const OK: CommandOutcome = { ok: true };
 
 /** Whether {@link word} names a theme, narrowed to {@link Theme}. */
 function isTheme(word: string): word is Theme {

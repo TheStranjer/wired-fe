@@ -19,7 +19,7 @@ import type { PollLimits } from '../../api/schemas/pollLimits';
 import { formatDuration } from '../../lib/duration';
 import { type Result, err, ok } from '../../lib/result';
 import { capabilitiesFor } from '../../state/selectors';
-import { fail } from '../outcome';
+import { OK, fail } from '../outcome';
 import { tokenize } from '../tokenize';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
@@ -27,10 +27,7 @@ import type { CommandContext, CommandDefinition, CommandOutcome } from '../types
 const USAGE = '/poll "<question>" "<option>" "<option>" [...] [--multiple] [--hours N]';
 
 /** Shown when there is no acting account whose instance limits can be read. */
-const NOT_CONNECTED: CommandOutcome = {
-  ok: false,
-  message: 'Not connected. Type /connect',
-};
+const NOT_CONNECTED = fail('Not connected. Type /connect');
 
 /** Fewer options than this is not much of a poll. */
 const MIN_OPTIONS = 2;
@@ -46,9 +43,6 @@ const MULTIPLE_FLAG = '--multiple';
 
 /** The flag that names the poll's run in hours. */
 const HOURS_FLAG = '--hours';
-
-/** The draft was left for the active window's post handler. */
-const OK: CommandOutcome = { ok: true };
 
 /** The settled poll: the post text, its options, the run and its kind. */
 type PollPlan = {

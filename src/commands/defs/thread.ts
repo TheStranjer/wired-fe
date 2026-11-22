@@ -13,33 +13,15 @@
  * what the command says back.
  */
 
-import type { Status } from '../../api/schemas/status';
 import { fail, syncRun } from '../outcome';
-import { targetLabel } from '../statusLabel';
 import { resolveStatusTarget } from '../targets';
+import { openThreadWindow } from '../threadWindow';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
-
-/** The thread window is open, or was already and is active now. */
-const OK: CommandOutcome = { ok: true };
-
-/** The window's title: `thread/` and the target's label, or its id alone. */
-function threadTitle(context: CommandContext, status: Status): string {
-  return `thread/${targetLabel(context, status).slice(1, -1)}`;
-}
 
 /** Resolve the post, then ask the window list for its thread window. */
 function handle(args: string, context: CommandContext): CommandOutcome {
   const target = resolveStatusTarget(args, context);
-  if (!target.ok) {
-    return fail(target.error);
-  }
-  const { status, accountKey } = target.value;
-  context.dispatchWindows({
-    type: 'open',
-    ref: { kind: 'thread', accountKey, target: status.id },
-    title: threadTitle(context, status),
-  });
-  return OK;
+  return target.ok ? openThreadWindow(context, target.value) : fail(target.error);
 }
 
 /** The `/thread` definition. */

@@ -10,14 +10,11 @@
 
 import { wordsOf } from '../../lib/words';
 import { modeOf } from '../bindingArgs';
-import { fail, syncRun } from '../outcome';
+import { OK, fail, syncRun } from '../outcome';
 import type { BindingMode, CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** The command's one form. */
 const USAGE = '/binds [insert|navigation]';
-
-/** A run that printed what was asked; there is nothing else to report. */
-const OK: CommandOutcome = { ok: true };
 
 /** Print {@link mode}'s header and its chords sorted by chord; `(none)` when it has none. */
 function printMode(context: CommandContext, mode: BindingMode): void {

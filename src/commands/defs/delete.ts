@@ -13,19 +13,17 @@
 
 import { deleteStatus } from '../../api/endpoints/statusWrite';
 import { describeApiError } from '../../api/errors';
+import { OK, fail } from '../outcome';
 import { printedLabel } from '../statusLabel';
 import { type StatusTarget, resolveOwnStatusTarget } from '../targets';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
-
-/** The post is gone and every scrollback that showed it knows. */
-const OK: CommandOutcome = { ok: true };
 
 /** Delete {@link target}'s post and tell every scrollback its id is gone. */
 async function remove(target: StatusTarget, context: CommandContext): Promise<CommandOutcome> {
   const { id } = target.status;
   const deleted = await deleteStatus(target.session, id);
   if (!deleted.ok) {
-    return { ok: false, message: describeApiError(deleted.error) };
+    return fail(describeApiError(deleted.error));
   }
   context.dispatch({ type: 'statusDeleted', id });
   context.print(`✗ deleted [${printedLabel(context, target.status)}]`);
@@ -35,7 +33,7 @@ async function remove(target: StatusTarget, context: CommandContext): Promise<Co
 /** Resolve this account's own post, then delete it; any refusal comes back instead. */
 async function handle(args: string, context: CommandContext): Promise<CommandOutcome> {
   const target = resolveOwnStatusTarget(args, context, 'delete');
-  return target.ok ? await remove(target.value, context) : { ok: false, message: target.error };
+  return target.ok ? await remove(target.value, context) : fail(target.error);
 }
 
 /** The `/delete` (alias `/del`) definition. */

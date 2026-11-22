@@ -15,7 +15,7 @@
 
 import { hasFeature } from '../../capabilities/capabilities';
 import { capabilitiesFor } from '../../state/selectors';
-import { fail } from '../outcome';
+import { OK, fail } from '../outcome';
 import { targetLabel } from '../statusLabel';
 import { resolveStatusTarget } from '../targets';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
@@ -24,13 +24,7 @@ import type { CommandContext, CommandDefinition, CommandOutcome } from '../types
 const USAGE = '/quote [label] <text>';
 
 /** The refusal of an instance the acting account cannot quote (decision 5). */
-const NO_QUOTE: CommandOutcome = {
-  ok: false,
-  message: 'This server does not support quote posts',
-};
-
-/** The draft was left for the active window's post handler. */
-const OK: CommandOutcome = { ok: true };
+const NO_QUOTE = fail('This server does not support quote posts');
 
 /** Whether the {@link accountKey}'s instance advertises quote posts (decision 5). */
 function canQuote(context: CommandContext, accountKey: string | null): boolean {
