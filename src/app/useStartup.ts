@@ -7,7 +7,7 @@
  * must still boot the session exactly one time.
  */
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { type StartupDeps, type StartupLocation, runStartup } from './startup';
 import { appStores } from './stores';
@@ -40,10 +40,16 @@ export function bootOnce(started: boolean, markStarted: () => void, boot: () => 
   boot();
 }
 
-/** Runs {@link runStartup} once, on this component's first mount. */
-export function useStartup(): void {
+/**
+ * Runs {@link runStartup} once, on this component's first mount. Answers
+ * false until that run has restored the accounts, opened their windows and
+ * detected their instances, then true: what the hash router (./useHashRoute)
+ * waits for before it opens anything.
+ */
+export function useStartup(): boolean {
   const dispatch = useAppDispatch();
   const startedRef = useRef(false);
+  const [done, setDone] = useState(false);
 
   useEffect(() => {
     const deps: StartupDeps = {
@@ -59,8 +65,12 @@ export function useStartup(): void {
         startedRef.current = true;
       },
       () => {
-        void runStartup(deps);
+        void (async () => {
+          await runStartup(deps);
+          setDone(true);
+        })();
       },
     );
   }, [dispatch]);
+  return done;
 }

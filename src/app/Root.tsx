@@ -9,7 +9,8 @@
  * kind. The kinds and the registry load once when this module loads; a failed
  * load prints its reason into the status window on mount, beside the startup
  * run that boots there. The ./use* hooks mounted below own every flow past
- * these five regions, WFE-134's tab title (./useDocumentTitle) among them.
+ * these five regions, WFE-134's tab title (./useDocumentTitle) and the hash
+ * routes (./useHashRoute, decision 4) among them.
  */
 
 import { useEffect, useState } from 'react';
@@ -19,12 +20,13 @@ import { CommandLine } from './CommandLine';
 import { appRegistry } from './registry';
 import { Shell } from './Shell';
 import { SidePane } from './SidePane';
+import { StatusBar, accountLabel } from './StatusBar';
 import { appStores } from './stores';
 import { useAttachments } from './useAttachments';
-import { useClock } from './useClock';
 import { useComposerOverlay } from './useComposerOverlay';
 import { useDocumentTitle } from './useDocumentTitle';
 import { useDropAndPaste } from './useDropAndPaste';
+import { useHashRoute } from './useHashRoute';
 import { useSettingsPersistence } from './useSettingsPersistence';
 import { useStartup } from './useStartup';
 import { useTheme } from './useTheme';
@@ -33,12 +35,9 @@ import { type Provider, commandProvider } from '../commands/complete';
 import type { Result } from '../lib/result';
 import type { ClockFormat } from '../lib/time';
 import { type AppState, printAction } from '../state/appState';
-import { accountByKey } from '../state/selectors';
 import { useAppDispatch, useAppState } from '../state/StateContext';
 import type { WindowKindDefinition } from '../state/windowKind';
 import { Scrollback } from '../ui/Scrollback';
-import { StatusLine } from '../ui/StatusLine';
-import type { StatusLineWindow } from '../ui/StatusLine';
 import { SystemLine } from '../ui/SystemLine';
 import { TopicBar } from '../ui/TopicBar';
 import { emojiProvider, handleProvider, tagProvider } from '../views/completionProviders';
@@ -67,24 +66,6 @@ type RegionProps = {
 /** Why {@link loaded} could not be loaded, or null when it could. */
 function failure<E>(loaded: Result<unknown, E>): E | null {
   return loaded.ok ? null : loaded.error;
-}
-
-/** The account behind {@link key}, named the way the bars show it; null if none. */
-function accountLabel(state: AppState, key: string | null): string | null {
-  const account = accountByKey(state, key);
-  return account === null ? null : `@${account.handle}`;
-}
-
-/** The status line's entries: every window, numbered in display order. */
-function statusWindows(state: AppState): readonly StatusLineWindow[] {
-  const active = activeWindow(state.windows);
-  return state.windows.windows.map((win, index) => ({
-    number: index + 1,
-    title: win.title,
-    unread: win.unread,
-    highlight: win.highlight,
-    active: win.id === active.id,
-  }));
 }
 
 /** The active account's instance's custom emoji list, as ./useCustomEmojis answers it. */
@@ -135,25 +116,6 @@ function WindowBody(props: RegionProps): JSX.Element {
   return <Body windowId={win.id} />;
 }
 
-/** The status line: clock, active account, numbered windows, pending media and hotkey mode. */
-function StatusBar(props: { readonly pendingMedia: number }): JSX.Element {
-  const state = useAppState();
-  const dispatch = useAppDispatch();
-  const clock = useClock(state.settings.clockFormat);
-  return (
-    <StatusLine
-      clock={clock}
-      accountLabel={accountLabel(state, state.activeAccountKey)}
-      windows={statusWindows(state)}
-      mode={state.mode}
-      pendingMedia={props.pendingMedia}
-      onSelectWindow={(number: number) => {
-        dispatch({ type: 'windows', action: { type: 'activateNumber', number } });
-      }}
-    />
-  );
-}
-
 /** The five shell regions, filled from the app state above it. */
 export function Root(): JSX.Element {
   const state = useAppState();
@@ -163,7 +125,7 @@ export function Root(): JSX.Element {
   const attachments = useAttachments();
   const drop = useDropAndPaste(attachments);
   const composer = useComposerOverlay(attachments);
-  useStartup();
+  useHashRoute(useStartup());
   useSettingsPersistence(state.settings, appStores().settings);
   useTheme(state.settings.theme, state.settings.effects);
   useDocumentTitle(state.windows);

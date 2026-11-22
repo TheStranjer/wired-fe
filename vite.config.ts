@@ -31,7 +31,18 @@ export default defineConfig({
     // Terser, not the default minifier: its multi-pass compression gives a
     // smaller gzipped deliverable inside the same bundle budget (.size-limit.json).
     minify: 'terser',
-    terserOptions: { compress: { passes: 4 } },
+    terserOptions: {
+      ecma: 2020,
+      compress: {
+        passes: 4,
+        pure_getters: true,
+        keep_fargs: false,
+        unsafe_arrows: true,
+        unsafe_methods: true,
+        unsafe_comps: true,
+        unsafe: true,
+      },
+    },
     // The deliverable is index.html plus one JS and one CSS file.
     cssCodeSplit: false,
     modulePreload: false,
