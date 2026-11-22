@@ -9,8 +9,8 @@
  * link in the scrollback is hostile, and so the command refuses it.
  */
 
-import type { Status } from '../../api/schemas/status';
 import { syncRun } from '../outcome';
+import { statusLink } from '../statusLink';
 import { resolveStatusTarget } from '../targets';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
@@ -28,11 +28,6 @@ const SCHEMED = /^[a-z][a-z0-9+.-]*:/iu;
 
 /** The schemes a browser may be sent to. */
 const HTTP = /^https?:\/\//iu;
-
-/** Where a post links: its web page, or its canonical id when it has none. */
-function linkOf(status: Status): string {
-  return status.url ?? status.uri;
-}
 
 /** Open {@link url} in a new tab, giving the new page no handle back here. */
 function openUrl(url: string): CommandOutcome {
@@ -56,7 +51,7 @@ function handle(args: string, context: CommandContext): CommandOutcome {
   if (!target.ok) {
     return { ok: false, message: target.error };
   }
-  const link = linkOf(target.value.status);
+  const link = statusLink(target.value.status);
   return HTTP.test(link) ? openUrl(link) : NOT_HTTP;
 }
 

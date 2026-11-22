@@ -10,27 +10,13 @@
  */
 
 import { homeWindowOpen } from '../../state/homeWindow';
-import { activeAccount } from '../../state/selectors';
-import { NOT_LOGGED_IN, contextRun } from '../outcome';
-import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
-
-/** The home window is open, or was already and is active now. */
-const OK: CommandOutcome = { ok: true };
-
-/** Ask for the active account's home window, or report why there is none. */
-function handle(context: CommandContext): CommandOutcome {
-  const account = activeAccount(context.state);
-  if (account === null) {
-    return NOT_LOGGED_IN;
-  }
-  context.dispatchWindows(homeWindowOpen(account, context.state.activeAccountKey));
-  return OK;
-}
+import { accountWindowRun } from '../openWindowRun';
+import type { CommandDefinition } from '../types';
 
 /** The `/home` definition. */
 export const command: CommandDefinition = {
   name: 'home',
   usage: '/home',
   summary: 'Open your home timeline',
-  run: contextRun(handle),
+  run: accountWindowRun(homeWindowOpen),
 };

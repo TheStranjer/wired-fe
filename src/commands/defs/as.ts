@@ -16,6 +16,7 @@ import { createStatus } from '../../api/endpoints/statusWrite';
 import { describeApiError } from '../../api/errors';
 import { fail } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
+import { splitFirstWord } from '../words';
 
 /** The command's grammar: /help shows it, a bad argument echoes it. */
 const USAGE = '/as <handle|n> <text>';
@@ -32,12 +33,8 @@ const USAGE_ERROR: CommandOutcome = { ok: false, message: `Usage: ${USAGE}` };
  * string ends in a non-space, so a gap always leaves a non-empty text.
  */
 function splitAccountAndText(args: string): readonly [word: string, text: string] | null {
-  const trimmed = args.trim();
-  const gap = trimmed.search(/\s/u);
-  if (gap === -1) {
-    return null;
-  }
-  return [trimmed.slice(0, gap), trimmed.slice(gap).trim()];
+  const [word, text] = splitFirstWord(args);
+  return text === '' ? null : [word, text];
 }
 
 /**

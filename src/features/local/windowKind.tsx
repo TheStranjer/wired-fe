@@ -11,8 +11,7 @@
 import type { JSX } from 'react';
 
 import { publicTimeline } from '../../api/endpoints/timelines';
-import { postStatus } from '../../state/postStatus';
-import type { WindowKindDefinition } from '../../state/windowKind';
+import { type WindowKindDefinition, postToWindow } from '../../state/windowKind';
 import { TimelineWindow } from '../../views/TimelineWindow';
 import type { FetchPage } from '../../views/useTimeline';
 
@@ -30,6 +29,5 @@ export const windowKind: WindowKindDefinition = {
   kind: 'local',
   topic: () => 'local timeline',
   Component: LocalWindow,
-  onPost: async (draft, win, context) =>
-    await postStatus(context, { accountKey: win.ref.accountKey, windowId: win.id, draft }),
+  onPost: postToWindow,
 };

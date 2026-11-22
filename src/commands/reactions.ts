@@ -9,6 +9,7 @@
  * prints the emoji, the verb and the label of the line that showed the post.
  */
 
+import { fail } from './outcome';
 import { printedLabel } from './statusLabel';
 import { type StatusTarget, resolveStatusTarget } from './targets';
 import type { CommandContext, CommandDefinition, CommandOutcome } from './types';
@@ -41,11 +42,6 @@ type Reaction = {
   readonly emoji: Emoji;
   readonly kind: ReactionKind;
 };
-
-/** A failure naming {@link message}. */
-function fail(message: string): CommandOutcome {
-  return { ok: false, message };
-}
 
 /**
  * The leftover argument text as the one reaction emoji: a `:shortcode:`

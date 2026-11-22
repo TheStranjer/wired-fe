@@ -12,6 +12,7 @@ import type { ComponentType } from 'react';
 
 import type { AppState } from './appState';
 import type { Draft } from './draft';
+import { postStatus } from './postStatus';
 import type { AppAction } from './reducer';
 import type { WindowKind, WindowState } from '../windows/model';
 
@@ -50,3 +51,14 @@ export type WindowKindDefinition = {
     context: PostContext,
   ) => Promise<string | null>;
 };
+
+/**
+ * The post handler of every window that posts as its own account into its own
+ * scrollback: home, local and federated share it, so a plain line typed there
+ * is one post through {@link postStatus}.
+ */
+export const postToWindow: NonNullable<WindowKindDefinition['onPost']> = async (
+  draft,
+  win,
+  context,
+) => await postStatus(context, { accountKey: win.ref.accountKey, windowId: win.id, draft });

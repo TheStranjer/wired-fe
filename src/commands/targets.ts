@@ -13,6 +13,7 @@
  */
 
 import type { CommandContext } from './types';
+import { splitFirstWord } from './words';
 import { lookupAccount } from '../api/endpoints/accountRead';
 import { describeApiError } from '../api/errors';
 import type { Account } from '../api/schemas/account';
@@ -63,13 +64,6 @@ function actingAs(context: CommandContext): Result<Acting, string> {
   const accountKey = windowAccountKey(state, activeWindow(state.windows).id);
   const session = sessionFor(state, accountKey);
   return session === null ? err(NOT_LOGGED_IN_MESSAGE) : ok({ accountKey, session });
-}
-
-/** args, trimmed, split at the first whitespace into its leading word and what follows it. */
-function splitFirstWord(args: string): readonly [word: string, rest: string] {
-  const trimmed = args.trim();
-  const gap = trimmed.search(/\s/u);
-  return gap === -1 ? [trimmed, ''] : [trimmed.slice(0, gap), trimmed.slice(gap).trim()];
 }
 
 /** The status a boost shows instead of itself; any other status as it is. */

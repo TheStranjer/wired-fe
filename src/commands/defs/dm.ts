@@ -21,6 +21,7 @@ import { sessionFor } from '../../state/selectors';
 import type { WindowState } from '../../windows/model';
 import { NOT_LOGGED_IN, fail } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
+import { splitFirstWord } from '../words';
 
 /** The command's grammar: /help shows it, a bad argument echoes it. */
 const USAGE = '/dm @user@host message';
@@ -42,13 +43,8 @@ const HANDLE = /^@[\w.~-]+(?:@[\w.~-]+)?$|^[\w.~-]+@[\w.~-]+$/u;
  * is the same refusal.
  */
 function splitHandleAndText(args: string): readonly [word: string, text: string] | null {
-  const trimmed = args.trim();
-  const gap = trimmed.search(/\s/u);
-  if (gap === -1) {
-    return null;
-  }
-  const word = trimmed.slice(0, gap);
-  return HANDLE.test(word) ? [word, trimmed.slice(gap).trim()] : null;
+  const [word, text] = splitFirstWord(args);
+  return text !== '' && HANDLE.test(word) ? [word, text] : null;
 }
 
 /** The form the message mentions: always `@user@host`; dm windows drop the `@`. */
