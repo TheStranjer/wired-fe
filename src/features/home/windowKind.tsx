@@ -11,8 +11,7 @@
 import type { JSX } from 'react';
 
 import { homeTimeline } from '../../api/endpoints/timelines';
-import { postStatus } from '../../state/postStatus';
-import type { WindowKindDefinition } from '../../state/windowKind';
+import { type WindowKindDefinition, postToWindow } from '../../state/windowKind';
 import { TimelineWindow } from '../../views/TimelineWindow';
 
 /** The home window: its buffer's lines, kept full by the home timeline endpoint. */
@@ -25,6 +24,5 @@ export const windowKind: WindowKindDefinition = {
   kind: 'home',
   topic: () => 'home timeline',
   Component: HomeWindow,
-  onPost: async (draft, win, context) =>
-    await postStatus(context, { accountKey: win.ref.accountKey, windowId: win.id, draft }),
+  onPost: postToWindow,
 };

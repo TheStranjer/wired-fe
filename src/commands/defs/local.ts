@@ -11,27 +11,13 @@
  */
 
 import { accountWindowOpen } from '../../state/accountWindow';
-import { activeAccount } from '../../state/selectors';
-import { NOT_LOGGED_IN, contextRun } from '../outcome';
-import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
-
-/** The local window is open, or was already and is active now. */
-const OK: CommandOutcome = { ok: true };
-
-/** Ask for the active account's local window, or report why there is none. */
-function handle(context: CommandContext): CommandOutcome {
-  const account = activeAccount(context.state);
-  if (account === null) {
-    return NOT_LOGGED_IN;
-  }
-  context.dispatchWindows(accountWindowOpen('local', account, context.state.activeAccountKey));
-  return OK;
-}
+import { accountWindowRun } from '../openWindowRun';
+import type { CommandDefinition } from '../types';
 
 /** The `/local` definition. */
 export const command: CommandDefinition = {
   name: 'local',
   usage: '/local',
   summary: 'Open the local timeline',
-  run: contextRun(handle),
+  run: accountWindowRun((account, activeKey) => accountWindowOpen('local', account, activeKey)),
 };

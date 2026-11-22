@@ -11,22 +11,8 @@
  */
 
 import { accountWindowOpen } from '../../state/accountWindow';
-import { activeAccount } from '../../state/selectors';
-import { NOT_LOGGED_IN, contextRun } from '../outcome';
-import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
-
-/** The federated window is open, or was already and is active now. */
-const OK: CommandOutcome = { ok: true };
-
-/** Ask for the active account's federated window, or report why there is none. */
-function handle(context: CommandContext): CommandOutcome {
-  const account = activeAccount(context.state);
-  if (account === null) {
-    return NOT_LOGGED_IN;
-  }
-  context.dispatchWindows(accountWindowOpen('federated', account, context.state.activeAccountKey));
-  return OK;
-}
+import { accountWindowRun } from '../openWindowRun';
+import type { CommandDefinition } from '../types';
 
 /** The `/federated` definition. */
 export const command: CommandDefinition = {
@@ -34,5 +20,5 @@ export const command: CommandDefinition = {
   aliases: ['fed'],
   usage: '/federated',
   summary: 'Open the federated timeline',
-  run: contextRun(handle),
+  run: accountWindowRun((account, activeKey) => accountWindowOpen('federated', account, activeKey)),
 };

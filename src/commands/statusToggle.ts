@@ -14,6 +14,7 @@
  * refuse a post of anybody else before the request leaves.
  */
 
+import { fail } from './outcome';
 import { targetLabel } from './statusLabel';
 import { type StatusTarget, resolveStatusTarget } from './targets';
 import type { CommandContext, CommandDefinition, CommandOutcome } from './types';
@@ -111,11 +112,6 @@ const OK: CommandOutcome = { ok: true };
 
 /** What a pin command answers when the post is not the acting account's own. */
 const NOT_MINE = 'You can only pin your own posts';
-
-/** A failure naming {@link message}. */
-function fail(message: string): CommandOutcome {
-  return { ok: false, message };
-}
 
 /**
  * Why {@link toggle} may not move on {@link target}'s post, or null when it

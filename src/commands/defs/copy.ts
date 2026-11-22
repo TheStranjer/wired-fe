@@ -8,7 +8,7 @@
  * context — is answered with a plain refusal, never a false `copied`.
  */
 
-import type { Status } from '../../api/schemas/status';
+import { statusLink } from '../statusLink';
 import { resolveStatusTarget } from '../targets';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
@@ -21,18 +21,13 @@ const UNAVAILABLE: CommandOutcome = {
   message: 'Clipboard unavailable',
 };
 
-/** Where a post links: its web page, or its canonical id when it has none. */
-function linkOf(status: Status): string {
-  return status.url ?? status.uri;
-}
-
 /** Resolve the target, write its link, and print what was copied. */
 async function handle(args: string, context: CommandContext): Promise<CommandOutcome> {
   const target = resolveStatusTarget(args, context);
   if (!target.ok) {
     return { ok: false, message: target.error };
   }
-  const link = linkOf(target.value.status);
+  const link = statusLink(target.value.status);
   try {
     await navigator.clipboard.writeText(link);
   } catch {
