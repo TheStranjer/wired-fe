@@ -13,13 +13,11 @@
  */
 
 import { getContext, getStatus } from '../../api/endpoints/statusRead';
-import { type ApiError, describeApiError } from '../../api/errors';
 import type { ApiSession } from '../../api/session';
-import { printAction } from '../../state/appState';
 import { postKey } from '../../state/bufferPosts';
 import { loadAction, statusesAction } from '../../state/pageActions';
 import type { Dispatch } from '../../state/StateContext';
-import { useOneShotLoad, type OneShotJob } from '../../views/useOneShotLoad';
+import { failJob, useOneShotLoad, type OneShotJob } from '../../views/useOneShotLoad';
 
 /** The signed-in account's session, target id and cancel signal, with a dispatch. */
 export type ThreadJob = {
@@ -29,12 +27,6 @@ export type ThreadJob = {
   readonly signal: AbortSignal;
   readonly dispatch: Dispatch;
 };
-
-/** Print why the thread never arrived, once, into the window's scrollback. */
-function printFailure(job: ThreadJob, error: ApiError): void {
-  job.dispatch(printAction(job.windowId, 'error', describeApiError(error)));
-  job.dispatch(loadAction(job.windowId, 'error'));
-}
 
 /**
  * Fetch the status and its context concurrently and report once: the whole
@@ -51,11 +43,11 @@ export async function fetchThread(job: ThreadJob): Promise<void> {
     return;
   }
   if (!found.ok) {
-    printFailure(job, found.error);
+    failJob(job, found.error);
     return;
   }
   if (!around.ok) {
-    printFailure(job, around.error);
+    failJob(job, around.error);
     return;
   }
   const thread = [...around.value.ancestors, found.value, ...around.value.descendants];

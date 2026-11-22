@@ -10,7 +10,10 @@
 
 import { useEffect, useRef } from 'react';
 
+import { type ApiError, describeApiError } from '../api/errors';
 import type { ApiSession } from '../api/session';
+import { printAction } from '../state/appState';
+import type { LineLevel } from '../state/buffer';
 import { loadAction } from '../state/pageActions';
 import { accountByKey, bufferFor, windowAccountKey } from '../state/selectors';
 import type { Dispatch } from '../state/StateContext';
@@ -28,6 +31,21 @@ export type OneShotJob = {
 
 /** What the window does with its job; resolves once the load has reported. */
 export type OneShotRun = (job: OneShotJob) => Promise<void>;
+
+/** Print {@link text} at {@link level} into the job's window's scrollback. */
+export function printToJob(
+  job: Pick<OneShotJob, 'windowId' | 'dispatch'>,
+  level: LineLevel,
+  text: string,
+): void {
+  job.dispatch(printAction(job.windowId, level, text));
+}
+
+/** Print why the load never answered, once, and fail the window's load. */
+export function failJob(job: Pick<OneShotJob, 'windowId' | 'dispatch'>, error: ApiError): void {
+  printToJob(job, 'error', describeApiError(error));
+  job.dispatch(loadAction(job.windowId, 'error'));
+}
 
 /**
  * Load the window {@link windowId} once: while its buffer is idle and its

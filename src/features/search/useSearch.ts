@@ -15,15 +15,12 @@
  */
 
 import { type SearchResults, search, shouldResolve } from '../../api/endpoints/search';
-import { type ApiError, describeApiError } from '../../api/errors';
 import type { Account } from '../../api/schemas/account';
 import type { Tag } from '../../api/schemas/tag';
 import type { ApiSession } from '../../api/session';
-import { printAction } from '../../state/appState';
-import type { LineLevel } from '../../state/buffer';
 import { loadAction, statusesAction } from '../../state/pageActions';
 import type { Dispatch } from '../../state/StateContext';
-import { type OneShotJob, useOneShotLoad } from '../../views/useOneShotLoad';
+import { type OneShotJob, failJob, printToJob, useOneShotLoad } from '../../views/useOneShotLoad';
 
 /** How many of each resource one search asks the instance for. */
 const SEARCH_LIMIT = 20;
@@ -37,17 +34,6 @@ export type SearchJob = {
   readonly signal: AbortSignal;
   readonly dispatch: Dispatch;
 };
-
-/** Print {@link text} at {@link level} into the window's scrollback. */
-function printText(job: SearchJob, level: LineLevel, text: string): void {
-  job.dispatch(printAction(job.windowId, level, text));
-}
-
-/** Print why the search never answered, once, and fail the load. */
-function printFailure(job: SearchJob, error: ApiError): void {
-  printText(job, 'error', describeApiError(error));
-  job.dispatch(loadAction(job.windowId, 'error'));
-}
 
 /** The account's name as the line shows it: its display name, or its username. */
 function nameOf(account: Account): string {
@@ -69,9 +55,9 @@ function printAccounts(job: SearchJob, accounts: readonly Account[]): void {
   if (accounts.length === 0) {
     return;
   }
-  printText(job, 'info', 'Accounts:');
+  printToJob(job, 'info', 'Accounts:');
   for (const account of accounts) {
-    printText(job, 'info', accountLine(account));
+    printToJob(job, 'info', accountLine(account));
   }
 }
 
@@ -80,9 +66,9 @@ function printTags(job: SearchJob, tags: readonly Tag[]): void {
   if (tags.length === 0) {
     return;
   }
-  printText(job, 'info', 'Tags:');
+  printToJob(job, 'info', 'Tags:');
   for (const tag of tags) {
-    printText(job, 'info', tagLine(tag));
+    printToJob(job, 'info', tagLine(tag));
   }
 }
 
@@ -100,7 +86,7 @@ function isNothing(results: SearchResults): boolean {
  */
 function report(job: SearchJob, results: SearchResults): void {
   if (isNothing(results)) {
-    printText(job, 'info', `No results for "${job.query}"`);
+    printToJob(job, 'info', `No results for "${job.query}"`);
   } else {
     printAccounts(job, results.accounts);
     printTags(job, results.hashtags);
@@ -130,7 +116,7 @@ export async function fetchSearch(job: SearchJob): Promise<void> {
     report(job, found.value);
     return;
   }
-  printFailure(job, found.error);
+  failJob(job, found.error);
 }
 
 /** The search window answers its target with one {@link fetchSearch}. */
