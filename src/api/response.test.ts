@@ -2,7 +2,7 @@
  * Tests for the response handling of apiRequest: the status and body mapping
  * as direct unit tests of toApiResponse on hand-built Response objects, and
  * the failure mappings again end-to-end through apiRequest over the shared
- * MSW server.
+ * MSW server. The 429 reset-time parsing lives in response.rateLimit.test.ts.
  */
 import { HttpResponse, http } from 'msw';
 import * as v from 'valibot';
@@ -78,31 +78,6 @@ describe(toApiResponse, () => {
     const result = await toApiResponse(new Response('42', { status: 200 }), schema);
 
     expect(parseFailureMessage(result)).toMatch(/^\(root\): /u);
-  });
-
-  it('maps 429 with a valid reset header to the parsed date', async () => {
-    const response = new Response(null, {
-      status: 429,
-      headers: { 'X-RateLimit-Reset': '2026-11-13T12:00:00.000Z' },
-    });
-
-    const result = await toApiResponse(response, schema);
-
-    expect(result).toStrictEqual({
-      ok: false,
-      error: { kind: 'rate-limited', resetAt: new Date('2026-11-13T12:00:00.000Z') },
-    });
-  });
-
-  it('maps 429 with an unparseable reset header to a null date', async () => {
-    const response = new Response(null, {
-      status: 429,
-      headers: { 'X-RateLimit-Reset': 'in a while' },
-    });
-
-    const result = await toApiResponse(response, schema);
-
-    expect(result).toStrictEqual({ ok: false, error: { kind: 'rate-limited', resetAt: null } });
   });
 
   it('takes the http message from a JSON error string', async () => {
