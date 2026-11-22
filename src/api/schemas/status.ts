@@ -140,3 +140,18 @@ export const StatusSchema: v.GenericSchema<unknown, Status> = v.pipe(
     local_only: status.visibility === 'local',
   })),
 );
+
+/**
+ * A list of statuses in which each item is parsed on its own: an item that
+ * fails {@link StatusSchema} is dropped instead of failing the whole list. A
+ * body that is not an array is still an error.
+ */
+export const StatusListSchema: v.GenericSchema<unknown, readonly Status[]> = v.pipe(
+  v.array(v.unknown()),
+  v.transform((items) =>
+    items.flatMap((item) => {
+      const result = v.safeParse(StatusSchema, item);
+      return result.success ? [result.output] : [];
+    }),
+  ),
+);

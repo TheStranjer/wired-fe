@@ -15,7 +15,7 @@ import * as v from 'valibot';
 import type { Result } from '../../lib/result';
 import type { ApiError } from '../errors';
 import { type Account, AccountSchema } from '../schemas/account';
-import { type Status, StatusSchema } from '../schemas/status';
+import { type Status, StatusListSchema } from '../schemas/status';
 import { type Tag, TagSchema } from '../schemas/tag';
 import { type ApiSession, sessionRequestData } from '../session';
 import type { QueryValue } from '../url';
@@ -33,7 +33,7 @@ export type SearchResults = {
 /** The document body: every list optional, an absent one answered empty. */
 const SearchResultsSchema: v.GenericSchema<unknown, SearchResults> = v.object({
   accounts: v.optional(v.array(AccountSchema), []),
-  statuses: v.optional(v.array(StatusSchema), []),
+  statuses: v.optional(StatusListSchema, []),
   hashtags: v.optional(v.array(TagSchema), []),
 });
 

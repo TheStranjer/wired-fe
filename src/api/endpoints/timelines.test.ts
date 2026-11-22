@@ -3,16 +3,16 @@
  * inspect the request URL: the home request carries its page cursor and limit
  * and its `Link` header comes back as `links.next`; `local: true` adds public's
  * `local` parameter and `local: false` omits it; the tag endpoint drops a
- * leading `#`, percent-encodes the name and keeps the page query; a malformed
- * status in the array is a parse error and a cancelled request the aborted one.
+ * leading `#`, percent-encodes the name and keeps the page query; and a
+ * cancelled request is the aborted error (malformed statuses: see
+ * timelinesPartial.test.ts).
  */
 import { HttpResponse, http } from 'msw';
 import { describe, expect, it } from 'vitest';
 
 import { homeTimeline, publicTimeline, tagTimeline } from './timelines';
-import { type Result, err, ok } from '../../lib/result';
+import { err, ok } from '../../lib/result';
 import { server } from '../../test/server';
-import type { ApiError } from '../errors';
 import type { Status } from '../schemas/status';
 import type { ApiSession } from '../session';
 
@@ -110,14 +110,6 @@ const LAIN: Status = {
 /** The empty page an answer without a `Link` header wraps into. */
 const NO_LINKS = { items: [], links: { next: null, prev: null } };
 
-/** The error a failed result carries, failing the test when it succeeded. */
-function failureOf(result: Result<unknown, ApiError>): ApiError {
-  if (result.ok) {
-    expect.fail('expected the call to fail');
-  }
-  return result.error;
-}
-
 describe(homeTimeline, () => {
   it('sends the cursor and limit and returns the page with its next link', async () => {
     server.use(
@@ -160,18 +152,6 @@ describe(homeTimeline, () => {
       ok: true,
       value: { items: [LAIN], links: { next: null, prev: null } },
     });
-  });
-
-  it('reports a malformed status in the array as a parse error', async () => {
-    server.use(
-      http.get(`${ORIGIN}/api/v1/timelines/home`, () => {
-        return HttpResponse.json([LAIN_WIRE, { id: '2' }]);
-      }),
-    );
-
-    const result = await homeTimeline(SESSION);
-
-    expect(failureOf(result).kind).toBe('parse');
   });
 
   it('maps an already-aborted signal to the aborted error', async () => {

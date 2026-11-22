@@ -63,7 +63,8 @@ function parsedStatus(id: string): Status {
 /** Inputs that must not parse at all: arrays missing, or of the wrong shape. */
 const BAD_CONTEXTS: readonly (readonly [string, unknown])[] = [
   ['non-object input', 'lain'],
-  ['a null ancestor', { ancestors: [null], descendants: [] }],
+  ['a non-array ancestors', { ancestors: 'lain', descendants: [] }],
+  ['a non-array descendants', { ancestors: [], descendants: { id: '1' } }],
   ['a numeric array', { ancestors: 3, descendants: [] }],
 ];
 
@@ -91,6 +92,18 @@ describe('Context schema', () => {
     const output = parse({ ancestors: [], descendants: [], other: 'value' });
 
     expect(new Set(Object.keys(output))).toStrictEqual(new Set(['ancestors', 'descendants']));
+  });
+
+  it('drops a bad descendant and keeps the ancestors intact', () => {
+    expect(
+      parse({
+        ancestors: [wireStatus('1')],
+        descendants: [wireStatus('2'), { ...wireStatus('3'), replies_count: -1 }, wireStatus('4')],
+      }),
+    ).toStrictEqual({
+      ancestors: [parsedStatus('1')],
+      descendants: [parsedStatus('2'), parsedStatus('4')],
+    });
   });
 
   it('fails without descendants', () => {
