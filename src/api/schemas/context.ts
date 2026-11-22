@@ -11,7 +11,7 @@
 import * as v from 'valibot';
 
 import type { Status } from './status';
-import { StatusSchema } from './status';
+import { StatusListSchema } from './status';
 
 /** The posts above and below one status, in conversation order. */
 export type Context = {
@@ -21,6 +21,6 @@ export type Context = {
 
 /** Parses any backend's context response into the internal {@link Context}. */
 export const ContextSchema: v.GenericSchema<unknown, Context> = v.object({
-  ancestors: v.array(StatusSchema),
-  descendants: v.array(StatusSchema),
+  ancestors: StatusListSchema,
+  descendants: StatusListSchema,
 });

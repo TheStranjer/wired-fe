@@ -193,10 +193,22 @@ describe(search, () => {
     });
   });
 
-  it('reports a status missing its account as a parse error', async () => {
+  it('drops a status missing its account instead of failing the search', async () => {
     server.use(
       http.get(`${ORIGIN}/api/v2/search`, () => {
         return HttpResponse.json({ statuses: [{ id: '7' }] });
+      }),
+    );
+
+    const result = await search(SESSION, 'lain', {});
+
+    expect(result).toStrictEqual({ ok: true, value: { accounts: [], statuses: [], hashtags: [] } });
+  });
+
+  it('reports a statuses list that is not an array as a parse error', async () => {
+    server.use(
+      http.get(`${ORIGIN}/api/v2/search`, () => {
+        return HttpResponse.json({ statuses: { id: '7' } });
       }),
     );
 

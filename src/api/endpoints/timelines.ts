@@ -6,17 +6,12 @@
  * cursors: the request carries {@link pageQuery}'s parameters and the
  * response's `Link` header is wrapped by {@link toPage} into a {@link Page}.
  */
-import * as v from 'valibot';
-
 import type { Result } from '../../lib/result';
 import type { ApiError } from '../errors';
 import { type Page, type PageRequest, pageQuery } from '../page';
-import { type Status, StatusSchema } from '../schemas/status';
+import { type Status, StatusListSchema } from '../schemas/status';
 import { type ApiSession, sessionRequestPage } from '../session';
 import type { QueryValue } from '../url';
-
-/** The list body all three timelines answer: an array of posts. */
-const StatusListSchema: v.GenericSchema<unknown, readonly Status[]> = v.array(StatusSchema);
 
 /** What {@link publicTimeline} asks for besides a session: which public
  * timeline, and which page of it. */

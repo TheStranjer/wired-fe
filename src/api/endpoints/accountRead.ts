@@ -16,12 +16,9 @@ import type { ApiError } from '../errors';
 import { type Page, type PageRequest, pageQuery } from '../page';
 import { type Account, AccountSchema } from '../schemas/account';
 import { type Relationship, RelationshipSchema } from '../schemas/relationship';
-import { type Status, StatusSchema } from '../schemas/status';
+import { type Status, StatusListSchema } from '../schemas/status';
 import { type ApiSession, sessionRequestData, sessionRequestPage } from '../session';
 import type { QueryValue } from '../url';
-
-/** The statuses list body: an array of posts. */
-const StatusListSchema: v.GenericSchema<unknown, readonly Status[]> = v.array(StatusSchema);
 
 /** The relationships list body: an array of states, one per requested id. */
 const RelationshipListSchema: v.GenericSchema<unknown, readonly Relationship[]> =
