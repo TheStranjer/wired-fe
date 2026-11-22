@@ -51,27 +51,30 @@ describe(parseCallback, () => {
     });
   });
 
-  it('reads an error with a decoded description', () => {
+  it('reads an error with a decoded description and no state', () => {
     expect(parseCallback('?error=access_denied&error_description=You+declined')).toStrictEqual({
       kind: 'error',
       error: 'access_denied',
       description: 'You declined',
+      state: null,
     });
   });
 
-  it('reads an error without a description', () => {
-    expect(parseCallback('?error=server_error')).toStrictEqual({
+  it('reads an error with its state', () => {
+    expect(parseCallback('?error=server_error&state=xyz')).toStrictEqual({
       kind: 'error',
       error: 'server_error',
       description: null,
+      state: 'xyz',
     });
   });
 
-  it('treats an empty description as none', () => {
-    expect(parseCallback('?error=server_error&error_description=')).toStrictEqual({
+  it('treats an empty description and an empty state as none', () => {
+    expect(parseCallback('?error=server_error&error_description=&state=')).toStrictEqual({
       kind: 'error',
       error: 'server_error',
       description: null,
+      state: null,
     });
   });
 

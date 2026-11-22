@@ -160,23 +160,6 @@ describe(completeLogin, () => {
     expect(readPendingLogin(stores.login, NOW)).toBeNull();
   });
 
-  it('refuses the instance error callback', async () => {
-    const stores = makeStores({ app: true });
-
-    const outcome = await run(stores, '?error=access_denied&error_description=User%20denied');
-
-    expect(messageOf(outcome)).toBe('Login refused: User denied');
-    expect(readPendingLogin(stores.login, NOW)).toBeNull();
-  });
-
-  it('falls back to the bare error code', async () => {
-    const stores = makeStores({ app: true });
-
-    const outcome = await run(stores, '?error=invalid_request');
-
-    expect(messageOf(outcome)).toBe('Login refused: invalid_request');
-  });
-
   it('reports a login that was never started here', async () => {
     const stores = makeStores({ pending: false });
 

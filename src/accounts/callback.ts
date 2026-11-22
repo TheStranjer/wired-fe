@@ -25,11 +25,17 @@ export function redirectUriFor(location: {
 
 /**
  * The result of an OAuth callback: either the `code` and `state` to exchange,
- * or the `error` the server reported with its optional description.
+ * or the `error` the server reported with its optional description and the
+ * `state` it echoed (absent when the redirect did not carry one).
  */
 export type Callback =
   | { readonly kind: 'code'; readonly code: string; readonly state: string }
-  | { readonly kind: 'error'; readonly error: string; readonly description: string | null };
+  | {
+      readonly kind: 'error';
+      readonly error: string;
+      readonly description: string | null;
+      readonly state: string | null;
+    };
 
 /**
  * Reads an OAuth callback out of a location's query string (`?code=...&state=...`
@@ -46,7 +52,12 @@ export function parseCallback(search: string): Callback | null {
   const error = params.get('error');
   if (isPresent(error)) {
     const description = params.get('error_description');
-    return { kind: 'error', error, description: isPresent(description) ? description : null };
+    return {
+      kind: 'error',
+      error,
+      description: isPresent(description) ? description : null,
+      state: isPresent(state) ? state : null,
+    };
   }
   return null;
 }

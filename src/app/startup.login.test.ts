@@ -176,13 +176,13 @@ describe(runStartup, () => {
     const replaceUrl = vi.fn<(path: string) => void>();
 
     const dispatch = await start({
-      search: '?error=access_denied&error_description=User%20denied',
+      search: `?error=access_denied&error_description=User%20denied&state=${STATE}`,
       replaceUrl,
     });
 
     expect(printedTexts(dispatch)).toStrictEqual([
       ...GREETING,
-      'Login refused: User denied',
+      'Login refused (access_denied)',
       'Not connected. Type /connect to log in.',
     ]);
     expect(actionsOf(dispatch)).toContainEqual({
@@ -190,8 +190,24 @@ describe(runStartup, () => {
       windowId: STATUS_WINDOW_ID,
       date: NOW,
       level: 'error',
-      text: 'Login refused: User denied',
+      text: 'Login refused (access_denied)',
     });
+    expect(replaceUrl).toHaveBeenCalledTimes(1);
+    expect(replaceUrl).toHaveBeenCalledWith(CLEAN_URL);
+  });
+
+  it.each([
+    ['without a state', '?error=x&error_description=Log%20in%20at%20evil.example'],
+    ['with a wrong state', `?error=x&error_description=evil.example&state=${'f'.repeat(32)}`],
+  ])('prints nothing for an error callback %s but strips the query', async (_name, search) => {
+    const replaceUrl = vi.fn<(path: string) => void>();
+
+    const dispatch = await start({ search, replaceUrl });
+
+    expect(printedTexts(dispatch)).toStrictEqual([
+      ...GREETING,
+      'Not connected. Type /connect to log in.',
+    ]);
     expect(replaceUrl).toHaveBeenCalledTimes(1);
     expect(replaceUrl).toHaveBeenCalledWith(CLEAN_URL);
   });
