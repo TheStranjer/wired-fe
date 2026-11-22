@@ -135,6 +135,41 @@ if (missingExamples.length > 0 && stdout !== undefined) {
   );
 }
 
+/** Routes wired-be removed. */
+const REMOVED_PATHS = [
+  '/api/v1/pleroma/preferred_frontend',
+  '/api/v1/pleroma/preferred_frontend/available',
+  '/api/openapi',
+  '/api/pleroma/frontend_configurations',
+  '/frontend_switcher',
+  '/embed/{id}',
+  '/notice/{id}/embed_player',
+  '/ostatus_subscribe',
+  '/main/ostatus',
+  '/authorize_interaction',
+  '/manifest.json',
+  '/user_exists',
+  '/check_password',
+  '/oauth/mfa',
+  '/oauth/mfa/verify',
+  '/tags/{tag}',
+  '/mailer/unsubscribe/{token}',
+  '/instance/{name}.html',
+] as const;
+
+describe('the frozen Wired OpenAPI snapshot paths', () => {
+  const paths = Object.keys(asRecord(DOCUMENT['paths']) ?? {});
+
+  it.each(REMOVED_PATHS)('does not list the removed path %s', (path) => {
+    expect(paths).toContain('/health');
+    expect(paths).not.toContain(path);
+  });
+
+  it('lists no feed path', () => {
+    expect(paths.filter((path) => /\/feed(\/|$)/.test(path))).toStrictEqual([]);
+  });
+});
+
 describe('the Wired OpenAPI snapshot against the WFE entity schemas', () => {
   it.skipIf(exampleMissing('Account'))('the Account example parses', () => {
     expect(parseReport(AccountSchema, exampleFor('Account'))).toBe(true);
