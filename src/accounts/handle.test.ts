@@ -6,7 +6,7 @@
  */
 import { describe, expect, it } from 'vitest';
 
-import { fullHandle } from './handle';
+import { fullHandle, usernameOf } from './handle';
 
 const ORIGIN = 'https://wired.example';
 
@@ -29,5 +29,15 @@ describe(fullHandle, () => {
 
   it('uses the hostname alone, without scheme or port', () => {
     expect(fullHandle({ acct: 'dev', fqn: null }, 'http://localhost:3000')).toBe('dev@localhost');
+  });
+});
+
+describe(usernameOf, () => {
+  it('takes the part before the first @', () => {
+    expect(usernameOf('lain@wired.example')).toBe('lain');
+  });
+
+  it('returns a bare username whole', () => {
+    expect(usernameOf('lain')).toBe('lain');
   });
 });

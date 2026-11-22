@@ -10,3 +10,8 @@ export function wordsOf(args: string): readonly string[] {
   const trimmed = args.trim();
   return trimmed === '' ? [] : trimmed.split(/\s+/u);
 }
+
+/** Orders two words the way the registry, `/help` and completion list them. */
+export function compareWords(a: string, b: string): number {
+  return a.localeCompare(b);
+}

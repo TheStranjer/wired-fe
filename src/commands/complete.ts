@@ -10,6 +10,7 @@
  */
 
 import type { Registry } from './types';
+import { compareWords } from '../lib/words';
 
 /** Characters that separate two words on the command line. */
 const WHITESPACE = /\s/;
@@ -137,11 +138,6 @@ export function cycleCompletion(
     return { text: state.original, cursor: state.cursor, state };
   }
   return showing({ ...state, index }, candidate);
-}
-
-/** Sort command words the way the registry and `/help` list them. */
-function compareWords(a: string, b: string): number {
-  return a.localeCompare(b);
 }
 
 /** Every name and alias of {@link registry}, each written as it is completed. */

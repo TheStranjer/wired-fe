@@ -5,10 +5,8 @@
  */
 
 import type { InstancesConfig } from '../config/schema';
+import { isAllowedInstanceUrl } from '../lib/origin';
 import { type Result, err, ok } from '../lib/result';
-
-/** Hostnames allowed plain `http:` because they are the development machine. */
-const LOCAL_HOSTNAMES = ['localhost', '127.0.0.1'];
 
 /** A leading `scheme://` on user input, per RFC 3986. */
 const SCHEME_PREFIX = /^[a-zA-Z][a-zA-Z\d+.-]*:\/\//;
@@ -33,14 +31,6 @@ function stripMention(typed: string): string {
   return typed.slice(typed.lastIndexOf('@') + 1);
 }
 
-/** True for `https:` anywhere and for `http:` on the development machine. */
-function isAllowedProtocol(url: URL): boolean {
-  return (
-    url.protocol === 'https:' ||
-    (url.protocol === 'http:' && LOCAL_HOSTNAMES.includes(url.hostname))
-  );
-}
-
 /**
  * Normalizes what the user typed (`wired.example`, `https://wired.example/`,
  * `@me@wired.example`) into a bare origin like `https://wired.example`.
@@ -55,7 +45,7 @@ export function normalizeTypedOrigin(typed: string): Result<string, string> {
   const candidate = SCHEME_PREFIX.test(input) ? input : `https://${input}`;
   try {
     const url = new URL(candidate);
-    return isAllowedProtocol(url) ? ok(url.origin) : err(NEED_HTTPS);
+    return isAllowedInstanceUrl(url) ? ok(url.origin) : err(NEED_HTTPS);
   } catch {
     return err(NEED_INSTANCE);
   }

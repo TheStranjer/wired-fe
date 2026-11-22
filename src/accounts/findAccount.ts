@@ -10,15 +10,10 @@
  */
 
 import type { StoredAccount } from './accountStore';
+import { usernameOf } from './handle';
 
 /** A query that could be a 1-based position in the list: digits only. */
 const INDEX_QUERY = /^\d+$/u;
-
-/** The part of a handle before its first `@`: the username. */
-function usernameOf(handle: string): string {
-  const [username = handle] = handle.split('@');
-  return username;
-}
 
 /** The account at the 1-based position {@link term} numbers, or null. */
 function accountAtIndex(accounts: readonly StoredAccount[], term: string): StoredAccount | null {

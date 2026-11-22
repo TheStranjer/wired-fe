@@ -12,14 +12,9 @@
  */
 
 import type { StoredAccount } from '../accounts/accountStore';
+import { usernameOf } from '../accounts/handle';
 import type { WindowKind, WindowRef } from '../windows/model';
 import type { WindowsAction } from '../windows/reducer';
-
-/** The plain username part of {@link handle}: `lain` for `lain@wired.example`. */
-function usernameOf(handle: string): string {
-  const [username = handle] = handle.split('@');
-  return username;
-}
 
 /** The view of {@link kind} that {@link account} owns, with nothing to target. */
 export function accountWindowRef(kind: WindowKind, account: StoredAccount): WindowRef {

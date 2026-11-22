@@ -7,23 +7,17 @@
 
 import * as v from 'valibot';
 
+import { isAllowedInstanceUrl } from '../lib/origin';
 import { type Result, err, ok } from '../lib/result';
 
 /** The longest accepted {@link WiredConfig.appName}, after trimming. */
 const MAX_APP_NAME_LENGTH = 64;
 
-/** Hostnames allowed to use plain `http:` because they are the development machine. */
-const LOCAL_HOSTNAMES = ['localhost', '127.0.0.1'];
-
 /** True when {@link value} is an `https:` origin, or `http:` on a local hostname. */
 function isDevAllowedOrigin(value: string): boolean {
   try {
     const url = new URL(value);
-    return (
-      url.origin === value &&
-      (url.protocol === 'https:' ||
-        (url.protocol === 'http:' && LOCAL_HOSTNAMES.includes(url.hostname)))
-    );
+    return url.origin === value && isAllowedInstanceUrl(url);
   } catch {
     return false;
   }

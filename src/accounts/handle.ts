@@ -21,3 +21,9 @@ export function fullHandle(account: Pick<Account, 'acct' | 'fqn'>, origin: strin
   }
   return `${account.acct}@${new URL(origin).hostname}`;
 }
+
+/** The part of {@link handle} before its first `@`: `lain` for `lain@wired.example`. */
+export function usernameOf(handle: string): string {
+  const [username = handle] = handle.split('@');
+  return username;
+}

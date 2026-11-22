@@ -4,6 +4,8 @@
  * a request can fail; callers switch on `kind`.
  */
 
+import { formatClock } from '../lib/time';
+
 /** Why an API call failed. */
 export type ApiError =
   | { readonly kind: 'network'; readonly message: string }
@@ -11,13 +13,6 @@ export type ApiError =
   | { readonly kind: 'http'; readonly status: number; readonly message: string }
   | { readonly kind: 'rate-limited'; readonly resetAt: Date | null }
   | { readonly kind: 'parse'; readonly message: string };
-
-/** Formats a date's local wall-clock time as `HH:MM`, 24-hour and zero-padded. */
-function formatClock(date: Date): string {
-  const hours = String(date.getHours()).padStart(2, '0');
-  const minutes = String(date.getMinutes()).padStart(2, '0');
-  return `${hours}:${minutes}`;
-}
 
 /** Renders an {@link ApiError} as the one-line message shown in the status window. */
 export function describeApiError(error: ApiError): string {
@@ -31,7 +26,7 @@ export function describeApiError(error: ApiError): string {
     case 'rate-limited':
       return error.resetAt === null
         ? 'Rate limited'
-        : `Rate limited until ${formatClock(error.resetAt)}`;
+        : `Rate limited until ${formatClock(error.resetAt, '24h')}`;
     case 'parse':
       return `Unexpected response: ${error.message}`;
   }
