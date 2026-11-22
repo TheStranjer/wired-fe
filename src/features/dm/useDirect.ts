@@ -18,17 +18,15 @@
 
 import { listConversations, markConversationRead } from '../../api/endpoints/conversations';
 import { getContext } from '../../api/endpoints/statusRead';
-import { type ApiError, describeApiError } from '../../api/errors';
+import type { ApiError } from '../../api/errors';
 import type { PageCursor } from '../../api/pagination';
 import type { Conversation } from '../../api/schemas/conversation';
 import type { Status } from '../../api/schemas/status';
 import type { ApiSession } from '../../api/session';
 import { type Result, ok } from '../../lib/result';
-import { printAction } from '../../state/appState';
-import type { LineLevel } from '../../state/buffer';
 import { loadAction, statusesAction } from '../../state/pageActions';
 import type { Dispatch } from '../../state/StateContext';
-import { useOneShotLoad } from '../../views/useOneShotLoad';
+import { failJob, printToJob, useOneShotLoad } from '../../views/useOneShotLoad';
 
 /** How many conversation pages one load reads, and how many each one holds. */
 const MAX_PAGES = 3;
@@ -44,20 +42,9 @@ export type DirectJob = {
   readonly dispatch: Dispatch;
 };
 
-/** Print {@link text} at {@link level} into the window's scrollback. */
-function printText(job: DirectJob, level: LineLevel, text: string): void {
-  job.dispatch(printAction(job.windowId, level, text));
-}
-
-/** Print why the conversation never arrived, once, and fail the load. */
-function printFailure(job: DirectJob, error: ApiError): void {
-  printText(job, 'error', describeApiError(error));
-  job.dispatch(loadAction(job.windowId, 'error'));
-}
-
 /** Say nothing has been said with the window's target yet, and close the load. */
 function printNothing(job: DirectJob): void {
-  printText(job, 'info', `No messages with @${job.target} yet. Type to start one.`);
+  printToJob(job, 'info', `No messages with @${job.target} yet. Type to start one.`);
   job.dispatch(loadAction(job.windowId, 'loaded', { exhausted: true }));
 }
 
@@ -120,7 +107,7 @@ async function showConversation(
     return;
   }
   if (!around.ok) {
-    printFailure(job, around.error);
+    failJob(job, around.error);
     return;
   }
   const thread = [...around.value.ancestors, last, ...around.value.descendants];
@@ -141,7 +128,7 @@ export async function fetchDirect(job: DirectJob): Promise<void> {
     return;
   }
   if (!found.ok) {
-    printFailure(job, found.error);
+    failJob(job, found.error);
     return;
   }
   const conversation = found.value;
