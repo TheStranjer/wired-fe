@@ -20,26 +20,25 @@ When a design choice is unclear, pick what an IRC power user would expect, then 
 
 ## The gate
 
-`scripts/ci.sh` runs every check: frozen-lockfile install, Prettier, TypeScript, ESLint, Stylelint, byte-size limits, Vitest with coverage thresholds, knip, the production build, a bundle size report (informational, no cap), and Playwright end-to-end tests against the built bundle. It keeps going after a failure, so one run reports everything that's broken, and exits 0 only when all checks pass. `.github/workflows/ci.yml` runs this same script. A change is not done until `scripts/ci.sh` exits 0. To add a check, add it to the script, not the workflow.
+`scripts/ci.sh` runs every check: frozen-lockfile install, Prettier, TypeScript, ESLint, Stylelint, byte-size limits, Vitest with coverage thresholds, knip, the production build, a bundle size report (informational, no cap), and Playwright end-to-end tests against the built bundle. It keeps going after a failure, so one run reports everything that's broken, and exits 0 only when all checks pass. `.github/workflows/ci.yml` runs this same script. A change is not done until `scripts/ci.sh` exits 0, so write code that passes every check, including the Vitest tests and coverage thresholds and the ESLint and Stylelint rules. **Do not run the tests or the linters locally.** CI runs them for you; running them yourself only wastes time. To add a check, add it to the script, not the workflow.
 
 ## Commands you may run
 
 You may run only the commands below, from the repository root. Anything not listed is forbidden; if you think you need one, stop and say so instead of improvising. Where a dedicated file-read or search tool exists, use it instead of the shell equivalents.
 
-| Purpose                        | Allowed                                                                                                             |
-| ------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
-| Whole gate                     | `scripts/ci.sh`                                                                                                     |
-| Single checks                  | `pnpm exec tsc -b`, `pnpm exec eslint --max-warnings 0 .`, `pnpm exec stylelint 'src/**/*.css'`, `pnpm exec knip`   |
-| Formatting                     | `pnpm exec prettier --write .`, `pnpm exec prettier --check .`                                                      |
-| Tests                          | `pnpm exec vitest run` (optionally with a file filter or `--coverage`), `pnpm exec playwright test` (after a build) |
-| Build                          | `pnpm exec vite build`, `pnpm exec size-limit`                                                                      |
-| Dependencies                   | `pnpm add <pkg>`, `pnpm add -D <pkg>`, `pnpm remove <pkg>`, `pnpm install --frozen-lockfile`                        |
-| Read files (if no tool exists) | `ls`, `cat`, `head`, `tail` (never `-f`), `wc`, `diff`, `find` (read-only), `grep`/`rg`                             |
-| Git, read-only                 | `git status`, `git diff`, `git log`, `git show`, `git branch`                                                       |
-| Git, write                     | `git switch -c <branch>`, `git add <paths>`, `git commit`                                                           |
+| Purpose                        | Allowed                                                                                      |
+| ------------------------------ | -------------------------------------------------------------------------------------------- |
+| Single checks                  | `pnpm exec tsc -b`, `pnpm exec knip`                                                         |
+| Formatting                     | `pnpm exec prettier --write .`, `pnpm exec prettier --check .`                               |
+| Build                          | `pnpm exec vite build`, `pnpm exec size-limit`                                               |
+| Dependencies                   | `pnpm add <pkg>`, `pnpm add -D <pkg>`, `pnpm remove <pkg>`, `pnpm install --frozen-lockfile` |
+| Read files (if no tool exists) | `ls`, `cat`, `head`, `tail` (never `-f`), `wc`, `diff`, `find` (read-only), `grep`/`rg`      |
+| Git, read-only                 | `git status`, `git diff`, `git log`, `git show`, `git branch`                                |
+| Git, write                     | `git switch -c <branch>`, `git add <paths>`, `git commit`                                    |
 
 Everything else is forbidden. In particular, never run:
 
+- **Tests and linters (CI runs them)**: `scripts/ci.sh`, `vitest` (with or without `run`), `playwright test`, `eslint`, `stylelint`. Write the code and tests so they pass, and leave the running to CI.
 - **Long-lived processes**: `pnpm dev`, `vite`, `vite dev`, `vite preview` on its own, `vitest` without `run` (watch mode), `playwright test --ui`, `&`, `nohup`, `screen`, `tmux`. Every command runs in the foreground, once, and finishes by itself. Playwright starts and stops its own preview server. To see the UI, write a Playwright test.
 - **Process hunting or control**: `pgrep`, `pkill`, `kill`, `killall`, `ps`, `top`, `lsof`, `fuser`, `jobs`, `wait`.
 - **Sleeping and polling**: `sleep`, `timeout`, `watch`, retry loops, `while`/`until`/`for` loops that re-check a condition.
