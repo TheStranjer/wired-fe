@@ -24,6 +24,7 @@ import {
   type ServeSearch,
   serveSearch,
 } from '../../test/searchWindow';
+import { withSession } from '../../test/withToken';
 
 /** The printed section, in the order a full document says it. */
 const SECTIONS: readonly unknown[] = [
@@ -45,7 +46,7 @@ const POSTS: readonly unknown[] = [
 /** A job searching for {@link SEARCH_QUERY} into a search window, aborted when told. */
 function jobFor(dispatch: Dispatch, signal = new AbortController().signal): SearchJob {
   return {
-    session: SEARCH_SESSION,
+    withToken: withSession(SEARCH_SESSION),
     query: SEARCH_QUERY,
     windowId: SEARCH_WINDOW,
     signal,

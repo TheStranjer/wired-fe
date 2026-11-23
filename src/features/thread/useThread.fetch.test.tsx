@@ -21,11 +21,12 @@ import {
   THREAD_TARGET,
   THREAD_WINDOW,
 } from '../../test/threadWindow';
+import { withSession } from '../../test/withToken';
 
 /** A job fetching target five into the thread window, aborted when told. */
 function jobFor(dispatch: Dispatch, signal = new AbortController().signal): ThreadJob {
   return {
-    session: THREAD_SESSION,
+    withToken: withSession(THREAD_SESSION),
     id: '5',
     windowId: THREAD_WINDOW,
     signal,

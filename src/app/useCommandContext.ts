@@ -25,6 +25,7 @@ import { blocksTyping, parseChord } from '../keys/chord';
 import { buildKeymap } from '../keys/keymap';
 import { printAction } from '../state/appState';
 import type { Draft } from '../state/draft';
+import { useRefreshDeps } from '../state/RefreshContext';
 import { useAppDispatch, useAppState } from '../state/StateContext';
 import type { PostContext, WindowKindDefinition } from '../state/windowKind';
 import { activeWindow } from '../windows/model';
@@ -112,6 +113,7 @@ export function useCommandContext(
   const state = useAppState();
   const dispatch = useAppDispatch();
   const active = activeWindow(state.windows);
+  const refresh = useRefreshDeps();
   const now = (): Date => new Date();
   const registry = loadedRegistry();
   const overrides = state.settings.keyOverrides;
@@ -132,7 +134,7 @@ export function useCommandContext(
     state,
     dispatch,
     now,
-    post: posting(active, { state, dispatch, now }, attachments),
+    post: posting(active, { state, dispatch, now, refresh }, attachments),
     setInput,
     openComposer,
     attachments,

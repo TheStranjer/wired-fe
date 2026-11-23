@@ -1,14 +1,12 @@
 /**
  * The whole application as one immutable value, and the reducer that moves it
- * (AGENTS.md "Layout": src/state is the pure app state — windows, line buffers,
- * accounts, settings — which the React context then puts in front of the shell).
- * The window list and its scrollbacks, the signed-in accounts and what their
- * instances turned out to be, the keyboard's mode and the reader's settings, all
- * in one place so a command, a hotkey and a click can ask for one transition.
+ * (AGENTS.md "Layout": src/state is the pure app state). Windows and their
+ * scrollbacks, the signed-in accounts (and which of them expired), what their
+ * instances turned out to be, the keyboard's mode and the reader's settings
+ * sit in one place so a command, a hotkey and a click ask for one transition.
  *
- * Every case returns the state it was handed when the action changes nothing —
- * an unknown window id, a mode already in, a stale active account — and the
- * pieces of a transition live in ./appReducer next door.
+ * Every case returns the state it was handed when the action changes nothing,
+ * and the pieces of a transition live in ./appReducer next door.
  */
 
 import {
@@ -19,7 +17,9 @@ import {
   putBuffer,
   putProfile,
   sameAccounts,
+  stillExpired,
   syncBuffers,
+  withExpired,
 } from './appReducer';
 import { type Buffer, EMPTY_BUFFER, appendSystem, clearBuffer, type LineLevel } from './buffer';
 import { DEFAULT_SETTINGS, type Settings } from './settings';
@@ -47,6 +47,8 @@ export type AppState = {
   readonly accounts: readonly StoredAccount[];
   /** The account commands act as; null while nobody is signed in. */
   readonly activeAccountKey: string | null;
+  /** Keys of accounts whose token was refused and could not be refreshed. */
+  readonly expired: ReadonlySet<string>;
   /** What each instance turned out to be, by origin (decision 5). */
   readonly profiles: ReadonlyMap<string, InstanceProfile>;
   readonly mode: InputModeState;
@@ -75,6 +77,7 @@ export type CoreAction =
       readonly accounts: readonly StoredAccount[];
       readonly activeKey: string | null;
     }
+  | { readonly type: 'accountExpired'; readonly accountKey: string }
   | { readonly type: 'profile'; readonly profile: InstanceProfile }
   | { readonly type: 'mode'; readonly mode: InputModeState }
   | { readonly type: 'settings'; readonly settings: Partial<Settings> };
@@ -91,11 +94,7 @@ export function printAction(windowId: string | null, level: LineLevel, text: str
   return { type: 'print', windowId, date: new Date(), level, text };
 }
 
-/**
- * The state a session starts in: window 1 with its empty buffer, nobody signed
- * in, the keyboard in insert mode, {@link DEFAULT_SETTINGS} unless the caller
- * has stored better ones.
- */
+/** The starting state: window 1, nobody signed in, insert mode, {@link DEFAULT_SETTINGS} unless given others. */
 export function initialAppState(settings: Settings = DEFAULT_SETTINGS): AppState {
   const windows = initialWindowsState();
   return {
@@ -103,6 +102,7 @@ export function initialAppState(settings: Settings = DEFAULT_SETTINGS): AppState
     buffers: syncBuffers(windows.windows, new Map<string, Buffer>()),
     accounts: [],
     activeAccountKey: null,
+    expired: new Set<string>(),
     profiles: new Map<string, InstanceProfile>(),
     mode: 'insert',
     settings,
@@ -121,6 +121,8 @@ export function coreReducer(state: AppState, action: CoreAction): AppState {
       return applyClear(state, action.windowId);
     case 'accounts':
       return applyAccounts(state, action.accounts, action.activeKey);
+    case 'accountExpired':
+      return { ...state, expired: withExpired(state.expired, action.accountKey) };
     case 'profile':
       return applyProfile(state, action.profile);
     case 'mode':
@@ -168,10 +170,12 @@ function applyAccounts(
   activeKey: string | null,
 ): AppState {
   const key = knownActiveKey(accounts, activeKey);
-  if (key === state.activeAccountKey && sameAccounts(state.accounts, accounts)) {
+  const expired = stillExpired(state.expired, state.accounts, accounts);
+  const same = key === state.activeAccountKey && sameAccounts(state.accounts, accounts);
+  if (same && expired === state.expired) {
     return state;
   }
-  return { ...state, accounts, activeAccountKey: key };
+  return { ...state, accounts, activeAccountKey: key, expired };
 }
 
 /** What one instance turned out to be, stored under its origin. */

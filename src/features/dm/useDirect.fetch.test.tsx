@@ -33,6 +33,7 @@ import {
   wireConversation,
 } from '../../test/dmWindow';
 import { status } from '../../test/fixtures';
+import { withSession } from '../../test/withToken';
 
 /** The line a window with nothing to show says. */
 const NO_MESSAGES = 'No messages with @alice@other.example yet. Type to start one.';
@@ -43,7 +44,7 @@ function jobFor(
   signal = new AbortController().signal,
   windowId: string = DM_WINDOW,
 ): DirectJob {
-  return { session: DM_SESSION, target: DM_TARGET, windowId, signal, dispatch };
+  return { withToken: withSession(DM_SESSION), target: DM_TARGET, windowId, signal, dispatch };
 }
 
 /** The actions a recorded dispatch saw, in order. */

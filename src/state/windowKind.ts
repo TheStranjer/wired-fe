@@ -14,6 +14,7 @@ import type { AppState } from './appState';
 import type { Draft } from './draft';
 import { postStatus } from './postStatus';
 import type { AppAction } from './reducer';
+import type { RefreshDeps } from './refreshSession';
 import type { WindowKind, WindowState } from '../windows/model';
 
 /**
@@ -28,6 +29,8 @@ export type PostContext = {
   readonly dispatch: (a: AppAction) => void;
   /** The current moment, so posts and printed lines can be stamped. */
   readonly now: () => Date;
+  /** How a post recovers from an expired token; absent, it cannot refresh. */
+  readonly refresh?: RefreshDeps;
 };
 
 /**

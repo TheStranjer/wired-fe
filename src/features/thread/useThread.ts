@@ -13,15 +13,15 @@
  */
 
 import { getContext, getStatus } from '../../api/endpoints/statusRead';
-import type { ApiSession } from '../../api/session';
 import { postKey } from '../../state/bufferPosts';
 import { loadAction, statusesAction } from '../../state/pageActions';
+import type { WithToken } from '../../state/refreshSession';
 import type { Dispatch } from '../../state/StateContext';
 import { failJob, useOneShotLoad, type OneShotJob } from '../../views/useOneShotLoad';
 
 /** The signed-in account's session, target id and cancel signal, with a dispatch. */
 export type ThreadJob = {
-  readonly session: ApiSession;
+  readonly withToken: WithToken;
   readonly id: string;
   readonly windowId: string;
   readonly signal: AbortSignal;
@@ -36,8 +36,8 @@ export type ThreadJob = {
  */
 export async function fetchThread(job: ThreadJob): Promise<void> {
   const [found, around] = await Promise.all([
-    getStatus(job.session, job.id, job.signal),
-    getContext(job.session, job.id, job.signal),
+    job.withToken(async (session) => await getStatus(session, job.id, job.signal)),
+    job.withToken(async (session) => await getContext(session, job.id, job.signal)),
   ]);
   if (job.signal.aborted) {
     return;

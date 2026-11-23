@@ -4,24 +4,28 @@
  * while the window's buffer is idle and its account can sign a fetch, run
  * the window's own load once against its target, and abort what is in
  * flight when the window closes. The load itself is the caller's: it gets
- * the session, the target and the cancel signal as one {@link OneShotJob},
- * the way ./usePagedBuffer hands a paged window its pages.
+ * the target, the cancel signal and a {@link WithToken} that runs each of
+ * its calls with the account's session, refreshing an expired token once
+ * (src/state/refreshSession), as one {@link OneShotJob}, the way
+ * ./usePagedBuffer hands a paged window its pages.
  */
 
 import { useEffect, useRef } from 'react';
 
 import { type ApiError, describeApiError } from '../api/errors';
-import type { ApiSession } from '../api/session';
 import { printAction } from '../state/appState';
 import type { LineLevel } from '../state/buffer';
 import { loadAction } from '../state/pageActions';
+import { useRefreshDeps } from '../state/RefreshContext';
+import { type WithToken, withFreshToken } from '../state/refreshSession';
 import { accountByKey, bufferFor, windowAccountKey } from '../state/selectors';
 import type { Dispatch } from '../state/StateContext';
 import { useAppDispatch, useAppState } from '../state/StateContext';
 
-/** One targeted load: the window's session, its target and a cancel signal. */
+/** One targeted load: the window's way to call the API, its target and a cancel signal. */
 export type OneShotJob = {
-  readonly session: ApiSession;
+  /** Runs a call with the window account's session, refreshing an expired token once. */
+  readonly withToken: WithToken;
   /** The handle, tag or status id the window's ref carries. */
   readonly target: string;
   readonly windowId: string;
@@ -49,35 +53,34 @@ export function failJob(job: Pick<OneShotJob, 'windowId' | 'dispatch'>, error: A
 
 /**
  * Load the window {@link windowId} once: while its buffer is idle and its
- * account stands, hand {@link run} the session, the target and a fresh
- * cancel signal; pass away with the window what the instance has not
- * answered yet. A window with no target and no signed-in owner asks for
- * nothing at all.
+ * account stands, hand {@link run} the target, a fresh cancel signal and the
+ * account's token-refreshing caller; pass away with the window what the
+ * instance has not answered yet. A window with no target and no signed-in
+ * owner asks for nothing at all.
  */
 export function useOneShotLoad(windowId: string, run: OneShotRun): void {
   const state = useAppState();
   const dispatch = useAppDispatch();
+  const refresh = useRefreshDeps();
   const target = state.windows.windows.find((win) => win.id === windowId)?.ref.target ?? null;
-  const owner = accountByKey(state, windowAccountKey(state, windowId));
-  const origin = owner?.origin ?? '';
-  const token = owner?.token ?? null;
+  const ownerKey = accountByKey(state, windowAccountKey(state, windowId))?.key ?? null;
   const { load } = bufferFor(state, windowId);
   const inflightRef = useRef<AbortController | null>(null);
 
   useEffect(() => () => inflightRef.current?.abort(), []);
   useEffect(() => {
-    if (target === null || token === null || load !== 'idle') {
+    if (target === null || ownerKey === null || load !== 'idle') {
       return;
     }
     const controller = new AbortController();
     inflightRef.current = controller;
     dispatch(loadAction(windowId, 'loading'));
     void run({
-      session: { origin, token },
+      withToken: async (call) => await withFreshToken(refresh, ownerKey, call),
       target,
       windowId,
       signal: controller.signal,
       dispatch,
     });
-  }, [load, target, origin, token, windowId, dispatch, run]);
+  }, [load, target, ownerKey, windowId, dispatch, refresh, run]);
 }
