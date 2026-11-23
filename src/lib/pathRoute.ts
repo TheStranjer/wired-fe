@@ -8,7 +8,9 @@
  * the startup step can swap one for the other in the address bar. The first
  * three become the routes of ./route; the rest keep their path and query as a
  * hash (`#/registration/<token>`): the invite route opens the sign-up box
- * (`parseRegistrationRoute`), the others have no window, so nothing acts on
+ * (`parseRegistrationRoute`), the authorization request
+ * `#/oauth/authorize?...` opens the app-authorization box
+ * (`parseAuthorizeRoute`), the others have no window, so nothing acts on
  * them but nothing is lost either. Pure.
  */
 

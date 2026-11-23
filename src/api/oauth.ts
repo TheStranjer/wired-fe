@@ -1,8 +1,8 @@
 /**
  * The OAuth endpoints of an instance (decision 8): WiredFE registers itself as
  * an app at runtime, exchanges the authorization code of the login redirect
- * for an access token, trades a refresh token for a new pair, asks for an app
- * token, and revokes a token again. All five are anonymous
+ * for an access token (or a password, WFE-168), trades a refresh token for a
+ * new pair, asks for an app token, and revokes a token again. All are anonymous
  * calls — the app credentials travel in the JSON body, never a bearer token —
  * and go through `apiRequest` (./http) like every other call, so failures
  * arrive as the shared {@link ApiError} values.
@@ -166,5 +166,34 @@ export async function revokeToken(
       token: params.token,
     },
     schema: NothingSchema,
+  });
+}
+
+/**
+ * Trades a username and password for an access token (the `password` grant)
+ * on behalf of the registered {@link params.app}. The password goes into this
+ * one request body and nowhere else.
+ */
+export async function requestPasswordToken(
+  origin: string,
+  params: {
+    readonly app: AppCredentials;
+    readonly username: string;
+    readonly password: string;
+  },
+): Promise<Result<Token, ApiError>> {
+  return requestData({
+    origin,
+    path: '/oauth/token',
+    method: 'POST',
+    json: {
+      grant_type: 'password',
+      username: params.username,
+      password: params.password,
+      client_id: params.app.client_id,
+      client_secret: params.app.client_secret,
+      scope: OAUTH_SCOPES,
+    },
+    schema: TokenSchema,
   });
 }

@@ -24,6 +24,7 @@ import { SidePane } from './SidePane';
 import { StatusBar, accountLabel } from './StatusBar';
 import { appStores } from './stores';
 import { useAttachments } from './useAttachments';
+import { useAuthorizeOverlay } from './useAuthorizeOverlay';
 import { useComposerOverlay } from './useComposerOverlay';
 import { useDocumentTitle } from './useDocumentTitle';
 import { useDropAndPaste } from './useDropAndPaste';
@@ -138,6 +139,7 @@ export function Root(): JSX.Element {
   const ready = useStartup();
   useHashRoute(ready);
   const registration = useRegistrationOverlay(ready);
+  const authorize = useAuthorizeOverlay(ready);
   useStateMirrors(state);
   useStreams();
 
@@ -166,6 +168,7 @@ export function Root(): JSX.Element {
       />
       {composer.overlay}
       {registration}
+      {authorize}
       {drop}
       {attachments.input}
     </>
