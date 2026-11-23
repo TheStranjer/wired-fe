@@ -6,7 +6,7 @@
  * reader's own moves — selection, content-warning reveal, keeping a new
  * selection in view (./LineView.scroll.test.tsx) and the nick click that opens
  * a profile window (./LineView.profile.test.tsx) — are asserted on the rendered
- * row, since the real reducer is what the view dispatches to.
+ * row.
  */
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
@@ -35,6 +35,8 @@ const ACCOUNT: StoredAccount = {
   accountId: 'acct-1',
   handle: 'lain@wired.example',
   token: 'never-logged',
+  refreshToken: null,
+  expiresAt: null,
 };
 
 /** The home window on {@link ACCOUNT}, and the id its ref names. */

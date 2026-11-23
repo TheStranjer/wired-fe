@@ -23,6 +23,8 @@ const LAIN: StoredAccount = {
   accountId: '1',
   handle: 'lain@wired.example',
   token: 'never-logged',
+  refreshToken: null,
+  expiresAt: null,
 };
 const ALI: StoredAccount = {
   key: accountKey(ORIGIN, '2'),
@@ -30,6 +32,8 @@ const ALI: StoredAccount = {
   accountId: '2',
   handle: 'ali@wired.example',
   token: 'never-logged',
+  refreshToken: null,
+  expiresAt: null,
 };
 const SAM: StoredAccount = {
   key: accountKey(OTHER, '3'),
@@ -37,6 +41,8 @@ const SAM: StoredAccount = {
   accountId: '3',
   handle: 'sam',
   token: 'never-logged',
+  refreshToken: null,
+  expiresAt: null,
 };
 
 /** Lain's own local window, the view the last two tests follow through the list. */

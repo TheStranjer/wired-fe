@@ -28,6 +28,8 @@ function account(origin: string, accountId: string): StoredAccount {
     accountId,
     handle: `${nickname}@${new URL(origin).host}`,
     token: 'not-a-real-token',
+    refreshToken: null,
+    expiresAt: null,
   };
 }
 

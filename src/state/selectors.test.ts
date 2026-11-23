@@ -50,6 +50,8 @@ function account(handle: string, origin: string, accountId: string): StoredAccou
     accountId,
     handle,
     token: `token-${accountId}`,
+    refreshToken: null,
+    expiresAt: null,
   };
 }
 

@@ -24,6 +24,8 @@ const ACCOUNT: StoredAccount = {
   accountId: '1',
   handle: 'lain@wired.example',
   token: 'not-a-real-token',
+  refreshToken: null,
+  expiresAt: null,
 };
 
 /** The signed-in, detected session the uploads run through. */

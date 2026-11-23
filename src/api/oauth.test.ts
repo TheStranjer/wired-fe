@@ -13,6 +13,7 @@ import {
   type Token,
   OAUTH_SCOPES,
   exchangeCode,
+  refreshAccessToken,
   registerApp,
   revokeToken,
 } from './oauth';
@@ -24,7 +25,13 @@ const REDIRECT_URI = `${ORIGIN}/auth/callback`;
 
 const APP: AppCredentials = { client_id: 'client-abc', client_secret: 'secret-xyz' };
 
-const TOKEN: Token = { access_token: 'token-1', token_type: 'Bearer', scope: OAUTH_SCOPES };
+const TOKEN: Token = {
+  access_token: 'token-1',
+  token_type: 'Bearer',
+  scope: OAUTH_SCOPES,
+  refresh_token: 'refresh-1',
+  expires_in: 3600,
+};
 
 /** The error a failed result carries, failing the test when it succeeded. */
 function failureOf(result: Result<unknown, ApiError>): ApiError {
@@ -151,7 +158,15 @@ describe(exchangeCode, () => {
       redirectUri: REDIRECT_URI,
     });
 
-    expect(result).toStrictEqual(ok({ access_token: 'token-1', token_type: 'Bearer', scope: '' }));
+    expect(result).toStrictEqual(
+      ok({
+        access_token: 'token-1',
+        token_type: 'Bearer',
+        scope: '',
+        refresh_token: null,
+        expires_in: null,
+      }),
+    );
   });
 
   it('maps a 400 invalid_grant to an http error with that message', async () => {
@@ -179,6 +194,65 @@ describe(exchangeCode, () => {
       code: 'expired-code',
       redirectUri: REDIRECT_URI,
     });
+
+    expect(failureOf(result)).toStrictEqual({
+      kind: 'http',
+      status: 400,
+      message: 'invalid_grant',
+    });
+  });
+});
+
+describe(refreshAccessToken, () => {
+  it('posts the four refresh fields and parses the new token pair', async () => {
+    server.use(
+      http.post(`${ORIGIN}/oauth/token`, async ({ request }) => {
+        expect(request.method).toBe('POST');
+
+        const payload: unknown = await request.json();
+
+        expect(payload).toStrictEqual({
+          grant_type: 'refresh_token',
+          refresh_token: 'refresh-0',
+          client_id: APP.client_id,
+          client_secret: APP.client_secret,
+        });
+
+        return HttpResponse.json({ ...TOKEN, created_at: 1_763_000_000 });
+      }),
+    );
+
+    const result = await refreshAccessToken(ORIGIN, { app: APP, refreshToken: 'refresh-0' });
+
+    expect(result).toStrictEqual(ok(TOKEN));
+  });
+
+  it('parses a missing refresh_token and expires_in as null', async () => {
+    server.use(
+      http.post(`${ORIGIN}/oauth/token`, () => HttpResponse.json({ access_token: 'token-2' })),
+    );
+
+    const result = await refreshAccessToken(ORIGIN, { app: APP, refreshToken: 'refresh-0' });
+
+    expect(result).toStrictEqual(
+      ok({
+        access_token: 'token-2',
+        token_type: 'Bearer',
+        scope: '',
+        refresh_token: null,
+        expires_in: null,
+      }),
+    );
+  });
+
+  it('maps a 400 to an http error with that message', async () => {
+    server.use(
+      http.post(`${ORIGIN}/oauth/token`, () =>
+        HttpResponse.json({ error: 'invalid_grant' }, { status: 400 }),
+      ),
+    );
+
+    const result = await refreshAccessToken(ORIGIN, { app: APP, refreshToken: 'stale' });
 
     expect(failureOf(result)).toStrictEqual({
       kind: 'http',

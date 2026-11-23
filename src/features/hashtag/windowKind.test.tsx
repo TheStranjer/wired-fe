@@ -33,6 +33,8 @@ const ACCOUNT: StoredAccount = {
   accountId: '1',
   handle: 'lain@wired.example',
   token: 'never-logged',
+  refreshToken: null,
+  expiresAt: null,
 };
 const LAIN: WindowRef = { kind: 'hashtag', accountKey: ACCOUNT.key, target: 'lain' };
 const WINDOW = windowId(LAIN);

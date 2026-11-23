@@ -39,6 +39,8 @@ function signedIn(handles: readonly string[]): CommandContext {
       accountId: String(index + 1),
       handle,
       token: `token-${handle}`,
+      refreshToken: null,
+      expiresAt: null,
     });
   }
   context.stores.accounts.setActive(accountKey(ORIGIN, '1'));

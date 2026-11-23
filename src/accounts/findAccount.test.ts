@@ -19,6 +19,8 @@ function account(handle: string): StoredAccount {
     accountId: username,
     handle,
     token: `token-${username}`,
+    refreshToken: null,
+    expiresAt: null,
   };
 }
 

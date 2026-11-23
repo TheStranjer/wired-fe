@@ -33,6 +33,8 @@ const ACCOUNT: StoredAccount = {
   accountId: '1',
   handle: 'lain@wired.example',
   token: 'not-a-real-token',
+  refreshToken: null,
+  expiresAt: null,
 };
 
 const HOME: WindowRef = { kind: 'home', accountKey: ACCOUNT.key, target: null };

@@ -29,6 +29,8 @@ const ACCOUNT: StoredAccount = {
   accountId: MY_ID,
   handle: 'lain@wired.example',
   token: 'never-logged',
+  refreshToken: null,
+  expiresAt: null,
 };
 
 /** The view of {@link kind} on the account under test. */

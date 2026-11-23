@@ -38,6 +38,8 @@ function account(handle: string, accountId: string): StoredAccount {
     accountId,
     handle,
     token: 'token',
+    refreshToken: null,
+    expiresAt: null,
   };
 }
 

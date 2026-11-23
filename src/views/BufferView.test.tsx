@@ -31,6 +31,8 @@ const ACCOUNT: StoredAccount = {
   accountId: 'acct-1',
   handle: 'lain@wired.example',
   token: 'never-logged',
+  refreshToken: null,
+  expiresAt: null,
 };
 
 /** The notifications window on {@link ACCOUNT}, and the id its ref names. */

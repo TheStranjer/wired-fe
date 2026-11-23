@@ -22,7 +22,7 @@ Numbered decisions. Tickets and code comments cite them as "decision N". To chan
 
 7. **Wired's shapes are the internal model.** API responses are parsed with valibot schemas in `src/api`. Mastodon and Pleroma responses go through adapters that map them onto Wired's entity shapes; the rest of the app sees one model.
 
-8. **Auth**: per instance, WiredFE registers an OAuth app at runtime (`POST /api/v1/apps`) and caches its credentials; there is no build-time client secret. Authorization code flow with the redirect URI derived from `window.location`. Tokens are stored per account, keyed by instance origin plus account id.
+8. **Auth**: per instance, WiredFE registers an OAuth app at runtime (`POST /api/v1/apps`) and caches its credentials; there is no build-time client secret. Authorization code flow with the redirect URI derived from `window.location`. Tokens are stored per account, keyed by instance origin plus account id, together with the refresh token and the access token's expiry (ms epoch) when the instance issues them; `refreshAccessToken` (`src/api/oauth.ts`) trades a refresh token for a new pair and `AccountStore.updateTokens` stores it.
 
 9. **Default assets contract**: Wired builds its default avatar, banner, instance thumbnail and mascot URLs against its `FRONTEND_BASE_URL` (WBE-304). WiredFE ships those files at fixed paths under `images/`: `avi.png`, `banner.png`, `thumbnail.jpg`, `mascot.png`. They are generated at build time by the Vite plugin in `tooling/images` (pixel-art grids, pure-JavaScript PNG/JPEG encoders) and emitted into `dist/images/`; the dev server serves the same URLs from memory. The files are not stored in `public/`. Renaming one breaks every Wired instance's defaults.
 

@@ -33,6 +33,8 @@ const LAIN: StoredAccount = {
   accountId: '1',
   handle: 'lain@wired.example',
   token: 'token',
+  refreshToken: null,
+  expiresAt: null,
 };
 
 /** Lain's home window: the active window the target resolver reads. */

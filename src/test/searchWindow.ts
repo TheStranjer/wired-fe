@@ -32,6 +32,8 @@ const SEARCH_ACCOUNT: StoredAccount = {
   accountId: '1',
   handle: 'lain@wired.example',
   token: 'never-logged',
+  refreshToken: null,
+  expiresAt: null,
 };
 
 /** The query the window searches for, as /search leaves it. */

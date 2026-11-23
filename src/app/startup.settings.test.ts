@@ -55,6 +55,7 @@ function storesFor(backend: StorageBackend | null): AppStores {
       list: () => noAccounts,
       get: () => undefined,
       add: (input) => ({ ...input, key: `${input.origin}#x` }),
+      updateTokens: () => undefined,
       remove: () => undefined,
       activeKey: () => null,
       setActive: () => undefined,

@@ -29,6 +29,8 @@ const LAIN: StoredAccount = {
   accountId: '1',
   handle: 'lain@wired.example',
   token: 'token',
+  refreshToken: null,
+  expiresAt: null,
 };
 
 /** The limits of an instance advertising {@link limits}. */

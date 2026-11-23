@@ -26,6 +26,8 @@ export const ACCOUNT: StoredAccount = {
   accountId: '1',
   handle: 'lain@wired.example',
   token: 'not-a-real-token',
+  refreshToken: null,
+  expiresAt: null,
 };
 
 /** What the fake instance answers a finished upload with, under `id`. */
