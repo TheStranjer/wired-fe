@@ -78,6 +78,7 @@ const QUIET = {
   reactions: [],
   media: [],
   emojis: [],
+  links: new Map(),
   sensitive: false,
   poll: null,
   quote: null,
@@ -119,6 +120,14 @@ describe(postView, () => {
       ],
       media: [],
       emojis: [{ shortcode: 'wired', url: 'https://wired.example/emoji/wired.gif' }],
+      links: new Map([
+        [
+          'https://other.example/users/alice',
+          { kind: 'profile', accountId: 'AhZalicAcc00000000000001', acct: 'alice@other.example' },
+        ],
+        ['https://wired.example/tags/lain', { kind: 'tag', name: 'lain' }],
+        ['https://wired.example/tag/lain', { kind: 'tag', name: 'lain' }],
+      ]),
       sensitive: false,
       poll: null,
       quote: {

@@ -12,6 +12,7 @@
  * checked the command says what to type instead.
  */
 
+import { hashtagWindowOpen } from '../../state/hashtagWindow';
 import { activeAccount } from '../../state/selectors';
 import { NOT_LOGGED_IN, OK, fail, syncRun } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
@@ -35,12 +36,7 @@ function handle(args: string, context: CommandContext): CommandOutcome {
   if (account === null) {
     return NOT_LOGGED_IN;
   }
-  const target = name.toLowerCase();
-  context.dispatchWindows({
-    type: 'open',
-    ref: { kind: 'hashtag', accountKey: account.key, target },
-    title: `#${target}`,
-  });
+  context.dispatchWindows(hashtagWindowOpen(name.toLowerCase(), account.key));
   return OK;
 }
 

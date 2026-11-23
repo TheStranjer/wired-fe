@@ -32,6 +32,8 @@ export default defineConfig({
     target: 'es2024',
     // Terser, not the default minifier: its multi-pass compression gives a
     // smaller gzipped deliverable inside the same bundle budget (.size-limit.json).
+    // pure_getters lets it drop property reads whose value is unused; the
+    // Playwright tests run against this very bundle.
     minify: 'terser',
     terserOptions: {
       ecma: 2020,

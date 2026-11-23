@@ -7,11 +7,14 @@
  * the open content warnings all come from the app state, and a click asks the one
  * reducer for the transition. When the selection moves onto the row, the view
  * keeps that row in view. Clicking the nick opens the author's profile window
- * (WFE-106) — for a boost, the author of the original it shows.
+ * (WFE-106) — for a boost, the author of the original it shows. A mention or
+ * hashtag link in the body opens its profile or tag window the same way
+ * (WFE-156, ./openContentLink).
  */
 import { useEffect, useRef } from 'react';
 import type { JSX } from 'react';
 
+import { openContentLink } from './openContentLink';
 import { postView, type Viewer } from './postView';
 import type { Account } from '../api/schemas/account';
 import type { Status } from '../api/schemas/status';
@@ -106,6 +109,7 @@ export function PostLine(props: PostLineProps): JSX.Element {
       reactions={view.reactions}
       replyTo={view.replyTo}
       visibility={view.visibility}
+      onContentLink={openContentLink(view.links, windowAccountKey(state, windowId), dispatch)}
       onSelect={() => {
         dispatch({ type: 'select', windowId, key: lineKey });
       }}

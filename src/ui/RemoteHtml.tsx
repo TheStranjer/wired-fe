@@ -33,8 +33,6 @@ export function RemoteHtml(props: RemoteHtmlProps): JSX.Element {
     return emojis === undefined || emojis.length === 0 ? sanitized : emojify(sanitized, emojis);
   }, [html, emojis]);
 
-  if (inline) {
-    return <span className={styles['root']} dangerouslySetInnerHTML={{ __html: safeHtml }} />;
-  }
-  return <div className={styles['root']} dangerouslySetInnerHTML={{ __html: safeHtml }} />;
+  const Root = inline ? 'span' : 'div';
+  return <Root className={styles['root']} dangerouslySetInnerHTML={{ __html: safeHtml }} />;
 }

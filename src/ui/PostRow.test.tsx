@@ -39,6 +39,7 @@ const BASE_PROPS: PostRowProps = {
   onToggleReveal: vi.fn<() => void>(),
   onSelect: vi.fn<() => void>(),
   onSelectAuthor: vi.fn<() => void>(),
+  onContentLink: () => false,
 };
 
 /** Render one row with fresh mocks for all three actions. */
