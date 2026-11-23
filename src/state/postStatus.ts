@@ -7,12 +7,14 @@
  * this helper (src/state/windowKind), so a home window, a thread and a DM
  * behave alike; it resolves to the message to show the reader, or to null when
  * the post went through. The idempotency key is a fresh uuid, so a retried send
- * is one post (src/api/endpoints/statusWrite).
+ * is one post (src/api/endpoints/statusWrite), also when an expired token is
+ * refreshed and the create retried (./refreshSession).
  */
 
 import { type Draft, draftToNewStatus } from './draft';
 import { statusesAction } from './pageActions';
-import { sessionFor } from './selectors';
+import { withFreshToken } from './refreshSession';
+import { accountByKey } from './selectors';
 import type { PostContext } from './windowKind';
 import { createStatus } from '../api/endpoints/statusWrite';
 import { describeApiError } from '../api/errors';
@@ -33,14 +35,17 @@ export async function postStatus(
   },
 ): Promise<string | null> {
   const { state, dispatch } = context;
-  const session = sessionFor(state, params.accountKey);
-  if (session === null) {
+  const account = accountByKey(state, params.accountKey);
+  if (account === null) {
     return NOT_LOGGED_IN_MESSAGE;
   }
-  const created = await createStatus(
-    session,
-    draftToNewStatus(params.draft, state.settings.defaultVisibility),
-    crypto.randomUUID(),
+  const refresh = context.refresh ?? { refresher: null, dispatch, getState: () => state };
+  const status = draftToNewStatus(params.draft, state.settings.defaultVisibility);
+  const key = crypto.randomUUID();
+  const created = await withFreshToken(
+    refresh,
+    account.key,
+    async (session) => await createStatus(session, status, key),
   );
   if (!created.ok) {
     return describeApiError(created.error);

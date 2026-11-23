@@ -17,8 +17,8 @@
 import { type SearchResults, search, shouldResolve } from '../../api/endpoints/search';
 import type { Account } from '../../api/schemas/account';
 import type { Tag } from '../../api/schemas/tag';
-import type { ApiSession } from '../../api/session';
 import { loadAction, statusesAction } from '../../state/pageActions';
+import type { WithToken } from '../../state/refreshSession';
 import type { Dispatch } from '../../state/StateContext';
 import { type OneShotJob, failJob, printToJob, useOneShotLoad } from '../../views/useOneShotLoad';
 
@@ -27,7 +27,7 @@ const SEARCH_LIMIT = 20;
 
 /** The window's inputs, handed to {@link fetchSearch} as one job. */
 export type SearchJob = {
-  readonly session: ApiSession;
+  readonly withToken: WithToken;
   /** The query to search for, as the window carries it. */
   readonly query: string;
   readonly windowId: string;
@@ -103,11 +103,14 @@ function report(job: SearchJob, results: SearchResults): void {
  * failure. A job whose signal is already aborted reports nothing at all.
  */
 export async function fetchSearch(job: SearchJob): Promise<void> {
-  const found = await search(
-    job.session,
-    job.query,
-    { resolve: shouldResolve(job.query), limit: SEARCH_LIMIT },
-    job.signal,
+  const found = await job.withToken(
+    async (session) =>
+      await search(
+        session,
+        job.query,
+        { resolve: shouldResolve(job.query), limit: SEARCH_LIMIT },
+        job.signal,
+      ),
   );
   if (job.signal.aborted) {
     return;

@@ -19,12 +19,13 @@
 import { listConversations, markConversationRead } from '../../api/endpoints/conversations';
 import { getContext } from '../../api/endpoints/statusRead';
 import type { ApiError } from '../../api/errors';
+import type { PageRequest } from '../../api/page';
 import type { PageCursor } from '../../api/pagination';
 import type { Conversation } from '../../api/schemas/conversation';
 import type { Status } from '../../api/schemas/status';
-import type { ApiSession } from '../../api/session';
 import { type Result, ok } from '../../lib/result';
 import { loadAction, statusesAction } from '../../state/pageActions';
+import type { WithToken } from '../../state/refreshSession';
 import type { Dispatch } from '../../state/StateContext';
 import { failJob, printToJob, useOneShotLoad } from '../../views/useOneShotLoad';
 
@@ -34,7 +35,7 @@ const PAGE_SIZE = 40;
 
 /** The window's inputs, handed to {@link fetchDirect} as one job. */
 export type DirectJob = {
-  readonly session: ApiSession;
+  readonly withToken: WithToken;
   /** The handle of the person to find a conversation with, as the window has it. */
   readonly target: string;
   readonly windowId: string;
@@ -70,10 +71,9 @@ async function findConversation(
 ): Promise<Result<Conversation | null, ApiError>> {
   let cursor: PageCursor | null = null;
   for (let page = 0; page < MAX_PAGES; page += 1) {
-    const found = await listConversations(
-      job.session,
-      { limit: PAGE_SIZE, ...(cursor === null ? {} : { cursor }) },
-      job.signal,
+    const request: PageRequest = { limit: PAGE_SIZE, ...(cursor === null ? {} : { cursor }) };
+    const found = await job.withToken(
+      async (session) => await listConversations(session, request, job.signal),
     );
     if (!found.ok) {
       return found;
@@ -102,7 +102,9 @@ async function showConversation(
   conversation: Conversation,
   last: Status,
 ): Promise<void> {
-  const around = await getContext(job.session, last.id, job.signal);
+  const around = await job.withToken(
+    async (session) => await getContext(session, last.id, job.signal),
+  );
   if (job.signal.aborted) {
     return;
   }
@@ -113,7 +115,7 @@ async function showConversation(
   const thread = [...around.value.ancestors, last, ...around.value.descendants];
   job.dispatch(statusesAction(job.windowId, thread.toReversed(), 'newer'));
   job.dispatch(loadAction(job.windowId, 'loaded', { exhausted: true }));
-  await markConversationRead(job.session, conversation.id);
+  await job.withToken(async (session) => await markConversationRead(session, conversation.id));
 }
 
 /**

@@ -21,7 +21,9 @@ import type { BufferLoad } from '../state/buffer';
 import type { BufferAction } from '../state/bufferActions';
 import type { Where } from '../state/bufferPosts';
 import { loadAction } from '../state/pageActions';
-import { bufferFor, sessionFor, windowAccountKey } from '../state/selectors';
+import { useRefreshDeps } from '../state/RefreshContext';
+import { type RefreshDeps, withFreshToken } from '../state/refreshSession';
+import { accountByKey, bufferFor, windowAccountKey } from '../state/selectors';
 import { type Dispatch, useAppDispatch, useAppState } from '../state/StateContext';
 
 /** One page of a window's list of `T`, fetched through {@link ApiSession} or cancelled. */
@@ -48,14 +50,16 @@ const NO_ACCOUNT = 'No account for this window';
 type Live<T> = {
   readonly dispatch: Dispatch;
   readonly loader: PageLoader<T>;
-  readonly session: ApiSession | null;
+  readonly refresh: RefreshDeps;
+  readonly accountKey: string | null;
 };
 
-/** {@link Live}'s pieces once a session stands behind them. */
+/** {@link Live}'s pieces once an account stands behind them. */
 type Ready<T> = {
   readonly dispatch: Dispatch;
   readonly loader: PageLoader<T>;
-  readonly session: ApiSession;
+  readonly refresh: RefreshDeps;
+  readonly accountKey: string;
 };
 
 /** Which page to fetch and where it lands in the window's scrollback. */
@@ -66,15 +70,12 @@ type PageJob = {
 };
 
 /** The newest render's fetch inputs, so effects run on state, not identity. */
-function useLive<T>(
-  session: ApiSession | null,
-  loader: PageLoader<T>,
-  dispatch: Dispatch,
-): RefObject<Live<T>> {
-  const liveRef = useRef<Live<T>>({ session, loader, dispatch });
+function useLive<T>(live: Live<T>): RefObject<Live<T>> {
+  const liveRef = useRef<Live<T>>(live);
+  const { dispatch, loader, refresh, accountKey } = live;
   useEffect(() => {
-    liveRef.current = { session, loader, dispatch };
-  }, [session, loader, dispatch]);
+    liveRef.current = { dispatch, loader, refresh, accountKey };
+  }, [dispatch, loader, refresh, accountKey]);
   return liveRef;
 }
 
@@ -84,7 +85,11 @@ function useLive<T>(
  * load. A page cancelled by unmount reports nothing at all.
  */
 async function runFetch<T>(ready: Ready<T>, signal: AbortSignal, job: PageJob): Promise<void> {
-  const outcome = await ready.loader.fetchPage(ready.session, job.request, signal);
+  const outcome = await withFreshToken(
+    ready.refresh,
+    ready.accountKey,
+    async (session) => await ready.loader.fetchPage(session, job.request, signal),
+  );
   const { windowId } = job;
   if (signal.aborted) {
     return;
@@ -105,16 +110,16 @@ async function runFetch<T>(ready: Ready<T>, signal: AbortSignal, job: PageJob): 
 }
 
 /** Tell a window with no account once, in its own scrollback, and stop. */
-function useNoAccountNotice(windowId: string, session: ApiSession | null): void {
+function useNoAccountNotice(windowId: string, accountKey: string | null): void {
   const dispatch = useAppDispatch();
   const printedRef = useRef(false);
   useEffect(() => {
-    if (session !== null || printedRef.current) {
+    if (accountKey !== null || printedRef.current) {
       return;
     }
     printedRef.current = true;
     dispatch(printAction(windowId, 'error', NO_ACCOUNT));
-  }, [session, windowId, dispatch]);
+  }, [accountKey, windowId, dispatch]);
 }
 
 /** Fetch the window's first page while its buffer is idle. */
@@ -123,14 +128,14 @@ function useFirstPage<T>(windowId: string, load: BufferLoad, liveRef: RefObject<
   useEffect(() => () => inflightRef.current?.abort(), []);
   useEffect(() => {
     const live = liveRef.current;
-    const { session } = live;
-    if (load !== 'idle' || session === null) {
+    const { accountKey } = live;
+    if (load !== 'idle' || accountKey === null) {
       return;
     }
     live.dispatch(loadAction(windowId, 'loading'));
     const controller = new AbortController();
     inflightRef.current = controller;
-    void runFetch({ ...live, session }, controller.signal, {
+    void runFetch({ ...live, accountKey }, controller.signal, {
       request: { limit: live.loader.pageSize },
       where: 'newer',
       windowId,
@@ -153,10 +158,10 @@ function useOlderPages<T>(windowId: string, liveRef: RefObject<Live<T>>, older: 
   useEffect(() => () => inflightRef.current?.abort(), []);
   useEffect(() => {
     const live = liveRef.current;
-    const { session } = live;
+    const { accountKey } = live;
     const { exhausted, load, olderCursor, olderRequests } = older;
     if (
-      session === null ||
+      accountKey === null ||
       load !== 'loaded' ||
       exhausted ||
       olderCursor === null ||
@@ -167,7 +172,7 @@ function useOlderPages<T>(windowId: string, liveRef: RefObject<Live<T>>, older: 
     handledRef.current = olderRequests;
     const controller = new AbortController();
     inflightRef.current = controller;
-    void runFetch({ ...live, session }, controller.signal, {
+    void runFetch({ ...live, accountKey }, controller.signal, {
       request: { cursor: olderCursor, limit: live.loader.pageSize },
       where: 'older',
       windowId,
@@ -183,10 +188,11 @@ function useOlderPages<T>(windowId: string, liveRef: RefObject<Live<T>>, older: 
 export function usePagedBuffer<T>(windowId: string, loader: PageLoader<T>): void {
   const state = useAppState();
   const dispatch = useAppDispatch();
-  const session = sessionFor(state, windowAccountKey(state, windowId));
+  const refresh = useRefreshDeps();
+  const accountKey = accountByKey(state, windowAccountKey(state, windowId))?.key ?? null;
   const { exhausted, load, olderCursor, olderRequests } = bufferFor(state, windowId);
-  const liveRef = useLive(session, loader, dispatch);
-  useNoAccountNotice(windowId, session);
+  const liveRef = useLive({ dispatch, loader, refresh, accountKey });
+  useNoAccountNotice(windowId, accountKey);
   useFirstPage(windowId, load, liveRef);
   useOlderPages(windowId, liveRef, { exhausted, load, olderCursor, olderRequests });
 }

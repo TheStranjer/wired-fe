@@ -88,6 +88,29 @@ export function sameAccounts(
   );
 }
 
+/**
+ * The expired keys that still stand after the account list moves from
+ * {@link before} to {@link after}: an account that left, or whose token was
+ * replaced (a refresh, a fresh login), is no longer expired. The same set
+ * when nothing drops.
+ */
+export function stillExpired(
+  expired: ReadonlySet<string>,
+  before: readonly StoredAccount[],
+  after: readonly StoredAccount[],
+): ReadonlySet<string> {
+  const kept = [...expired].filter((key) => {
+    const now = after.find((account) => account.key === key);
+    return now !== undefined && before.find((account) => account.key === key)?.token === now.token;
+  });
+  return kept.length === expired.size ? expired : new Set(kept);
+}
+
+/** The expired keys with {@link key} added; the same set when it is already there. */
+export function withExpired(expired: ReadonlySet<string>, key: string): ReadonlySet<string> {
+  return expired.has(key) ? expired : new Set(expired).add(key);
+}
+
 /** The profiles with {@link profile} stored under its origin; the same map when that very object is already there. */
 export function putProfile(
   profiles: ReadonlyMap<string, InstanceProfile>,
