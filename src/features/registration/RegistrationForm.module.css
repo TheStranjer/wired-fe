@@ -1,0 +1,72 @@
+/* The sign-up box: one column of labelled fields, the instance's complaints
+   under the field they are about, and the send button last. */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+}
+
+.label {
+  display: flex;
+  flex-direction: column;
+}
+
+.checkLabel {
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+  gap: var(--space);
+}
+
+.input {
+  padding: 0 var(--space);
+  border: 1px solid var(--color-dim);
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font: inherit;
+}
+
+.check {
+  accent-color: var(--color-accent);
+}
+
+.failure {
+  display: flex;
+  flex-direction: column;
+}
+
+.error {
+  margin: 0;
+  color: var(--color-error);
+}
+
+.notice {
+  margin: 0;
+}
+
+.button {
+  align-self: flex-start;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--color-accent);
+  font: inherit;
+  cursor: pointer;
+}
+
+.button:disabled {
+  color: var(--color-dim);
+  cursor: default;
+}
+
+.input:focus-visible,
+.check:focus-visible,
+.button:focus-visible {
+  outline: 1px solid var(--color-accent);
+}

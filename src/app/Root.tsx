@@ -27,6 +27,7 @@ import { useComposerOverlay } from './useComposerOverlay';
 import { useDocumentTitle } from './useDocumentTitle';
 import { useDropAndPaste } from './useDropAndPaste';
 import { useHashRoute } from './useHashRoute';
+import { useRegistrationOverlay } from './useRegistrationOverlay';
 import { useSettingsPersistence } from './useSettingsPersistence';
 import { useStartup } from './useStartup';
 import { useTheme } from './useTheme';
@@ -125,7 +126,9 @@ export function Root(): JSX.Element {
   const attachments = useAttachments();
   const drop = useDropAndPaste(attachments);
   const composer = useComposerOverlay(attachments);
-  useHashRoute(useStartup());
+  const ready = useStartup();
+  useHashRoute(ready);
+  const registration = useRegistrationOverlay(ready);
   useSettingsPersistence(state.settings, appStores().settings);
   useTheme(state.settings.theme, state.settings.effects);
   useDocumentTitle(state.windows);
@@ -154,6 +157,7 @@ export function Root(): JSX.Element {
         }
       />
       {composer.overlay}
+      {registration}
       {drop}
       {attachments.input}
     </>

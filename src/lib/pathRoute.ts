@@ -6,9 +6,10 @@
  * and `/oauth/external/consent`), while WiredFE only routes by hash. This maps
  * each of those pathnames onto the hash route that means the same thing, so
  * the startup step can swap one for the other in the address bar. The first
- * three become the routes of ./route; the rest have no window to open, so they
- * keep their path and query as a hash (`#/registration/<token>`) where
- * nothing acts on them but nothing is lost either. Pure.
+ * three become the routes of ./route; the rest keep their path and query as a
+ * hash (`#/registration/<token>`): the invite route opens the sign-up box
+ * (`parseRegistrationRoute`), the others have no window, so nothing acts on
+ * them but nothing is lost either. Pure.
  */
 
 /** The part of the address bar the conversion reads. */

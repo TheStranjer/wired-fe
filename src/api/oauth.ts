@@ -1,8 +1,8 @@
 /**
  * The OAuth endpoints of an instance (decision 8): WiredFE registers itself as
  * an app at runtime, exchanges the authorization code of the login redirect
- * for an access token, trades a refresh token for a new pair, and revokes a
- * token again. All four are anonymous
+ * for an access token, trades a refresh token for a new pair, asks for an app
+ * token, and revokes a token again. All five are anonymous
  * calls — the app credentials travel in the JSON body, never a bearer token —
  * and go through `apiRequest` (./http) like every other call, so failures
  * arrive as the shared {@link ApiError} values.
@@ -42,13 +42,18 @@ export const AppCredentialsSchema: v.GenericSchema<unknown, AppCredentials> = v.
   client_secret: v.string(),
 });
 
-/** A token answer: only `access_token` is required; the rest falls back. */
-const TokenSchema: v.GenericSchema<unknown, Token> = v.object({
-  access_token: v.string(),
+/** The token fields every token answer carries besides `access_token`; each falls back. */
+export const TOKEN_EXTRAS = {
   token_type: v.optional(v.string(), 'Bearer'),
   scope: v.optional(v.string(), ''),
   refresh_token: v.optional(v.nullable(v.string()), null),
   expires_in: v.optional(v.nullable(v.number()), null),
+};
+
+/** A token answer: only `access_token` is required; the rest falls back. */
+const TokenSchema: v.GenericSchema<unknown, Token> = v.object({
+  access_token: v.string(),
+  ...TOKEN_EXTRAS,
 });
 
 /**
@@ -118,6 +123,29 @@ export async function refreshAccessToken(
       refresh_token: params.refreshToken,
       client_id: params.app.client_id,
       client_secret: params.app.client_secret,
+    },
+    schema: TokenSchema,
+  });
+}
+
+/**
+ * Asks for an app token (the `client_credentials` grant) on behalf of the
+ * registered {@link params.app}: a token for the app itself, with no user
+ * behind it, which is what creating an account is authorised with.
+ */
+export async function requestAppToken(
+  origin: string,
+  params: { readonly app: AppCredentials },
+): Promise<Result<Token, ApiError>> {
+  return requestData({
+    origin,
+    path: '/oauth/token',
+    method: 'POST',
+    json: {
+      grant_type: 'client_credentials',
+      client_id: params.app.client_id,
+      client_secret: params.app.client_secret,
+      scope: OAUTH_SCOPES,
     },
     schema: TokenSchema,
   });

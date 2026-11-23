@@ -72,3 +72,17 @@ export function formatRoute({ kind, value }: Route): string {
   }
   return `#/${PREFIX[kind]}${encodeURIComponent(value).replaceAll('%40', '@')}`;
 }
+
+/** An invite-link route: its keyword, then one token segment, then an optional query that is ignored. */
+const REGISTRATION = /^#\/registration\/([^/?]+)(?:\?.*)?$/u;
+
+/**
+ * The invite token of the `#/registration/<token>` route {@link hash} spells,
+ * decoded, or null when it is anything else. It is no {@link Route}: it opens
+ * the sign-up box, not a window, so it has its own parser.
+ */
+export function parseRegistrationRoute(hash: string): string | null {
+  const [, segment] = REGISTRATION.exec(hash) ?? [];
+  const token = decode(segment);
+  return token === null || token === '' ? null : token;
+}
