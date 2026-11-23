@@ -33,6 +33,8 @@ const ACCOUNT_A: StoredAccount = {
   accountId: '1',
   handle: 'lain@a.example',
   token: 'token-a',
+  refreshToken: null,
+  expiresAt: null,
 };
 const ACCOUNT_B: StoredAccount = {
   key: accountKey(ORIGIN_B, '2'),
@@ -40,6 +42,8 @@ const ACCOUNT_B: StoredAccount = {
   accountId: '2',
   handle: 'sam@b.example',
   token: 'token-b',
+  refreshToken: null,
+  expiresAt: null,
 };
 
 /** The banner art, its text alternative and the tagline: every run's opening. */
@@ -80,6 +84,7 @@ function fakeStores(accounts: readonly StoredAccount[], activeKey: string | null
       list: () => accounts,
       get: (key) => accounts.find((account) => account.key === key),
       add: (input) => ({ ...input, key: accountKey(input.origin, input.accountId) }),
+      updateTokens: () => undefined,
       remove: () => undefined,
       activeKey: () => activeKey,
       setActive: () => undefined,

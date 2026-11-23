@@ -27,6 +27,8 @@ export const THREAD_ACCOUNT: StoredAccount = {
   accountId: '1',
   handle: 'lain@wired.example',
   token: 'never-logged',
+  refreshToken: null,
+  expiresAt: null,
 };
 
 /** Post five's thread window, its id, and the id of the same ref without a target. */

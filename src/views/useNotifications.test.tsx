@@ -36,6 +36,8 @@ const ACCOUNT: StoredAccount = {
   accountId: 'acct-1',
   handle: 'lain@wired.example',
   token: 'never-logged',
+  refreshToken: null,
+  expiresAt: null,
 };
 const REF: WindowRef = { kind: 'notifications', accountKey: ACCOUNT.key, target: null };
 const WINDOW = windowId(REF);

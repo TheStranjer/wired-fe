@@ -25,6 +25,8 @@ export const LAIN: StoredAccount = {
   accountId: '1',
   handle: 'lain@wired.example',
   token: 'never-logged',
+  refreshToken: null,
+  expiresAt: null,
 };
 
 /** Ally's account as the instance sends it. */

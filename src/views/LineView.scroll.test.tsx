@@ -33,6 +33,8 @@ function seeded(): AppState {
         accountId: 'acct-1',
         handle: 'lain@wired.example',
         token: 'never-logged',
+        refreshToken: null,
+        expiresAt: null,
       },
     ],
     activeKey: ACCOUNT_KEY,

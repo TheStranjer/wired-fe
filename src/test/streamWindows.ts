@@ -29,8 +29,24 @@ export const THEIRS = `${ORIGIN}#them`;
 
 /** The two stored accounts, mine the active one. */
 const ACCOUNTS: readonly StoredAccount[] = [
-  { key: MINE, origin: ORIGIN, accountId: 'me', handle: 'lain@wired.example', token: 'x' },
-  { key: THEIRS, origin: ORIGIN, accountId: 'them', handle: 'ally@wired.example', token: 'x' },
+  {
+    key: MINE,
+    origin: ORIGIN,
+    accountId: 'me',
+    handle: 'lain@wired.example',
+    token: 'x',
+    refreshToken: null,
+    expiresAt: null,
+  },
+  {
+    key: THEIRS,
+    origin: ORIGIN,
+    accountId: 'them',
+    handle: 'ally@wired.example',
+    token: 'x',
+    refreshToken: null,
+    expiresAt: null,
+  },
 ];
 
 /** The account every backend sends for somebody the wire reports as {@link acct}. */

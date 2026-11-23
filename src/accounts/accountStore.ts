@@ -25,7 +25,14 @@ export type StoredAccount = {
   readonly handle: string;
   /** The OAuth access token. Never logged. */
   readonly token: string;
+  /** The OAuth refresh token, or null when the instance issued none. Never logged. */
+  readonly refreshToken: string | null;
+  /** When the access token lapses (ms since the epoch), or null when unknown. */
+  readonly expiresAt: number | null;
 };
+
+/** The token fields a refresh replaces. */
+type StoredTokens = Pick<StoredAccount, 'token' | 'refreshToken' | 'expiresAt'>;
 
 /** The persisted list of accounts plus the active-account pointer. */
 export type AccountStore = {
@@ -35,6 +42,8 @@ export type AccountStore = {
   readonly get: (key: string) => StoredAccount | undefined;
   /** Adds or replaces (same key) and makes it active. */
   readonly add: (account: Omit<StoredAccount, 'key'>) => StoredAccount;
+  /** Replaces the tokens of the account with this key, keeping the active key; ignored for unknown keys. */
+  readonly updateTokens: (key: string, tokens: StoredTokens) => void;
   /** Removes; if it was active, the first remaining account becomes active (or none). */
   readonly remove: (key: string) => void;
   /** The active account's key, or null when there is none or it is stale. */
@@ -50,6 +59,8 @@ const StoredAccountSchema = v.strictObject({
   accountId: v.string(),
   handle: v.string(),
   token: v.string(),
+  refreshToken: v.optional(v.nullable(v.string()), null),
+  expiresAt: v.optional(v.nullable(v.number()), null),
 });
 
 /** The `list` value; anything else fails and reads as empty. */
@@ -77,6 +88,8 @@ function toStoredAccount(input: Omit<StoredAccount, 'key'>): StoredAccount {
     accountId: input.accountId,
     handle: input.handle,
     token: input.token,
+    refreshToken: input.refreshToken,
+    expiresAt: input.expiresAt,
   };
 }
 
@@ -87,6 +100,15 @@ function upsert(accounts: readonly StoredAccount[], account: StoredAccount): Sto
     return [...accounts, account];
   }
   return accounts.map((existing, position) => (position === index ? account : existing));
+}
+
+/** {@link accounts} with {@link tokens} replacing those of the account at {@link key}; unchanged for an unknown key. */
+function withTokens(
+  accounts: readonly StoredAccount[],
+  key: string,
+  tokens: StoredTokens,
+): StoredAccount[] {
+  return accounts.map((account) => (account.key === key ? { ...account, ...tokens } : account));
 }
 
 /**
@@ -115,6 +137,10 @@ export function createAccountStore(store: Store): AccountStore {
     return account;
   };
 
+  const updateTokens = (key: string, tokens: StoredTokens): void => {
+    store.set(LIST_KEY, withTokens(list(), key, tokens));
+  };
+
   const remove = (key: string): void => {
     const current = list();
     const remaining = current.filter((account) => account.key !== key);
@@ -135,5 +161,5 @@ export function createAccountStore(store: Store): AccountStore {
     }
   };
 
-  return { list, get, add, remove, activeKey, setActive };
+  return { list, get, add, updateTokens, remove, activeKey, setActive };
 }

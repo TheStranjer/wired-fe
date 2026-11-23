@@ -26,6 +26,8 @@ const ACCOUNT: StoredAccount = {
   accountId: '1',
   handle: 'lain@wired.example',
   token: 'never-logged',
+  refreshToken: null,
+  expiresAt: null,
 };
 
 /** Alice's dm view of {@link ACCOUNT}, as /query keys and titles it. */

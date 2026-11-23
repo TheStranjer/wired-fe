@@ -48,6 +48,8 @@ export function signedIn(handles: readonly string[], appCached = true): CommandC
       accountId: String(index + 1),
       handle,
       token: `token-${handle}`,
+      refreshToken: null,
+      expiresAt: null,
     });
   }
   context.stores.accounts.setActive(keyOf(1));

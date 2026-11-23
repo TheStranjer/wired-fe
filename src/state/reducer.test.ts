@@ -36,6 +36,8 @@ const ACCOUNT: StoredAccount = {
   accountId: 'acct-1',
   handle: 'lain@wired.example',
   token: 'never-logged',
+  refreshToken: null,
+  expiresAt: null,
 };
 
 /** The capabilities of an instance these tests name without detecting it. */

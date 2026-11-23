@@ -20,6 +20,8 @@ const ACCOUNT: StoredAccount = {
   accountId: '1',
   handle: 'lain@wired.example',
   token: 'never-logged',
+  refreshToken: null,
+  expiresAt: null,
 };
 
 /** What the opener under test answers with. */

@@ -1,7 +1,7 @@
 /**
  * Tests for completing an OAuth login (decision 8) over the shared MSW
  * server. The stores hold a cached app and a pending login; an unmocked
- * request fails the test. Each behaviour answers the message it names.
+ * request fails the test.
  */
 import { HttpResponse, http } from 'msw';
 import { describe, expect, it } from 'vitest';
@@ -26,6 +26,8 @@ const STATE = '0123456789abcdef0123456789abcdef';
 const CALLBACK = `?code=auth-code&state=${STATE}`;
 const APP: AppCredentials = { client_id: 'client-abc', client_secret: 'secret-xyz' };
 const ACCESS_TOKEN = 'token-lain';
+const REFRESH_TOKEN = 'refresh-lain';
+const EXPIRES_IN = 3600;
 
 const PENDING: PendingLogin = {
   origin: ORIGIN,
@@ -58,6 +60,8 @@ const STORED_LAIN: StoredAccount = {
   accountId: '109',
   handle: 'lain@wired.example',
   token: ACCESS_TOKEN,
+  refreshToken: REFRESH_TOKEN,
+  expiresAt: NOW + EXPIRES_IN * 1000,
 };
 
 /** An in-memory storage backend. */
@@ -106,7 +110,13 @@ async function run(stores: Stores, search: string, now: number = NOW): Promise<L
 /** Answers the token exchange. */
 function mockToken(): void {
   server.use(
-    http.post(`${ORIGIN}/oauth/token`, () => HttpResponse.json({ access_token: ACCESS_TOKEN })),
+    http.post(`${ORIGIN}/oauth/token`, () =>
+      HttpResponse.json({
+        access_token: ACCESS_TOKEN,
+        refresh_token: REFRESH_TOKEN,
+        expires_in: EXPIRES_IN,
+      }),
+    ),
   );
 }
 
@@ -158,6 +168,22 @@ describe(completeLogin, () => {
     expect(stores.accounts.list()).toStrictEqual([STORED_LAIN]);
     expect(stores.accounts.activeKey()).toBe(STORED_LAIN.key);
     expect(readPendingLogin(stores.login, NOW)).toBeNull();
+  });
+
+  it('stores null refresh token and expiry when the instance sends neither', async () => {
+    server.use(
+      http.post(`${ORIGIN}/oauth/token`, () => HttpResponse.json({ access_token: ACCESS_TOKEN })),
+    );
+    mockVerify();
+    const stores = makeStores({ app: true });
+
+    const outcome = await run(stores, CALLBACK);
+
+    expect(accountOf(outcome)).toStrictEqual({
+      ...STORED_LAIN,
+      refreshToken: null,
+      expiresAt: null,
+    });
   });
 
   it('reports a login that was never started here', async () => {

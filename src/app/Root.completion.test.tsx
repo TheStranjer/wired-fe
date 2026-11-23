@@ -31,6 +31,8 @@ const ACCOUNT: StoredAccount = {
   accountId: '1',
   handle: 'lain@wired.example',
   token: 'not-a-real-token',
+  refreshToken: null,
+  expiresAt: null,
 };
 
 /** The home window the tests open; its kind draws the scrollback and fetches. */

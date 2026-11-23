@@ -30,6 +30,8 @@ const DM_ACCOUNT: StoredAccount = {
   accountId: '1',
   handle: 'lain@wired.example',
   token: 'never-logged',
+  refreshToken: null,
+  expiresAt: null,
 };
 
 /** The normalized handle alice's conversation is keyed by, as /query leaves it. */

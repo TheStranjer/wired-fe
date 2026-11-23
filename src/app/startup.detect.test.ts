@@ -18,6 +18,7 @@ import { err, ok } from '../lib/result';
 import type { AppAction } from '../state/reducer';
 import type { Dispatch } from '../state/StateContext';
 import { createStore } from '../storage/store';
+import { arrivalGate } from '../test/arrivalGate';
 import { server } from '../test/server';
 import { STATUS_WINDOW_ID } from '../windows/model';
 
@@ -37,6 +38,8 @@ const ACCOUNT_A: StoredAccount = {
   accountId: '1',
   handle: 'lain@a.example',
   token: 'token-a',
+  refreshToken: null,
+  expiresAt: null,
 };
 const ACCOUNT_A2: StoredAccount = {
   key: accountKey(ORIGIN_A, '2'),
@@ -44,6 +47,8 @@ const ACCOUNT_A2: StoredAccount = {
   accountId: '2',
   handle: 'ali@a.example',
   token: 'token-a2',
+  refreshToken: null,
+  expiresAt: null,
 };
 const ACCOUNT_B: StoredAccount = {
   key: accountKey(ORIGIN_B, '2'),
@@ -51,6 +56,8 @@ const ACCOUNT_B: StoredAccount = {
   accountId: '2',
   handle: 'sam@b.example',
   token: 'token-b',
+  refreshToken: null,
+  expiresAt: null,
 };
 
 /** A Mastodon profile of {@link origin} titled {@link title}, with no features. */
@@ -81,6 +88,7 @@ function fakeStores(accounts: readonly StoredAccount[]): AppStores {
       list: () => accounts,
       get: (key) => accounts.find((account) => account.key === key),
       add: (input) => ({ ...input, key: accountKey(input.origin, input.accountId) }),
+      updateTokens: () => undefined,
       remove: () => undefined,
       activeKey: () => null,
       setActive: () => undefined,
@@ -144,25 +152,6 @@ function profilesOf(dispatch: Mock<Dispatch>): readonly InstanceProfile[] {
   return actionsOf(dispatch).flatMap((action) =>
     action.type === 'profile' ? [action.profile] : [],
   );
-}
-
-/** The gate of the concurrency test: it opens only when {@link expected} arrive. */
-function arrivalGate(expected: number): {
-  readonly arrive: () => Promise<void>;
-  readonly arrived: () => number;
-} {
-  const allArrived = Promise.withResolvers<undefined>();
-  let count = 0;
-  return {
-    arrive: async () => {
-      count += 1;
-      if (count === expected) {
-        allArrived.resolve(undefined);
-      }
-      await allArrived.promise;
-    },
-    arrived: () => count,
-  };
 }
 
 describe(runStartup, () => {

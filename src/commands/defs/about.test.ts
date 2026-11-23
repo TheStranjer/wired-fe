@@ -27,6 +27,8 @@ const ACCOUNT: StoredAccount = {
   accountId: '1',
   handle: 'lain@wired.example',
   token: 'token',
+  refreshToken: null,
+  expiresAt: null,
 };
 
 /** A Wired instance: generous posts, a year of polls, its own feature set. */

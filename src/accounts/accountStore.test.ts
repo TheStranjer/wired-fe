@@ -41,6 +41,8 @@ const LAIN: Omit<StoredAccount, 'key'> = {
   accountId: '1',
   handle: 'lain@wired.example',
   token: 'tok-lain',
+  refreshToken: 'refresh-lain',
+  expiresAt: 1_700_000_000_000,
 };
 
 const ALICE: Omit<StoredAccount, 'key'> = {
@@ -48,6 +50,8 @@ const ALICE: Omit<StoredAccount, 'key'> = {
   accountId: '9',
   handle: 'alice@pleroma.example',
   token: 'tok-alice',
+  refreshToken: null,
+  expiresAt: null,
 };
 
 const LAIN_KEY = accountKey(LAIN.origin, LAIN.accountId);
@@ -182,6 +186,61 @@ describe(createAccountStore, () => {
 
     expect(accounts.list()).toStrictEqual([]);
     expect(accounts.get(LAIN_KEY)).toBeUndefined();
+  });
+
+  it('reads a list stored before refresh tokens existed, with both fields null', () => {
+    const store = createStore('accounts', createFakeBackend());
+
+    store.set('list', [
+      {
+        key: LAIN_KEY,
+        origin: LAIN.origin,
+        accountId: LAIN.accountId,
+        handle: LAIN.handle,
+        token: LAIN.token,
+      },
+    ]);
+
+    expect(createAccountStore(store).list()).toStrictEqual([
+      { ...STORED_LAIN, refreshToken: null, expiresAt: null },
+    ]);
+  });
+
+  it('replaces both tokens and the expiry of one account and keeps the active key', () => {
+    const accounts = makeAccounts();
+
+    accounts.add(LAIN);
+    accounts.add(ALICE);
+    accounts.setActive(LAIN_KEY);
+    accounts.updateTokens(ALICE_KEY, {
+      token: 'tok-alice-2',
+      refreshToken: 'refresh-alice-2',
+      expiresAt: 1_800_000_000_000,
+    });
+
+    expect(accounts.list()).toStrictEqual([
+      STORED_LAIN,
+      {
+        ...STORED_ALICE,
+        token: 'tok-alice-2',
+        refreshToken: 'refresh-alice-2',
+        expiresAt: 1_800_000_000_000,
+      },
+    ]);
+    expect(accounts.activeKey()).toBe(LAIN_KEY);
+  });
+
+  it('ignores updating the tokens of a key that is not listed', () => {
+    const accounts = makeAccounts();
+
+    accounts.add(LAIN);
+    accounts.updateTokens('https://nowhere.example#1', {
+      token: 'x',
+      refreshToken: null,
+      expiresAt: null,
+    });
+
+    expect(accounts.list()).toStrictEqual([STORED_LAIN]);
   });
 
   it('reads the active key as null when no listed account has it', () => {

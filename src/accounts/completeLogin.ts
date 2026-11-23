@@ -16,12 +16,11 @@
 import type { AccountStore, StoredAccount } from './accountStore';
 import { getOrRegisterApp } from './appCache';
 import { parseCallback } from './callback';
-import { fullHandle } from './handle';
+import { type Verification, toAdd } from './loginRecord';
 import { type PendingLogin, clearPendingLogin, readPendingLogin } from './pendingLogin';
 import { verifyCredentials } from '../api/endpoints/accountRead';
 import { type ApiError, describeApiError } from '../api/errors';
 import { exchangeCode } from '../api/oauth';
-import type { Account } from '../api/schemas/account';
 import { type Result, err, ok } from '../lib/result';
 import type { Store } from '../storage/store';
 
@@ -41,9 +40,6 @@ type LoginStores = {
 
 /** A callback whose state matched the pending login it belongs to. */
 type Accepted = { readonly pending: PendingLogin; readonly code: string };
-
-/** A finished exchange: the access token and the account it proves. */
-type Verification = { readonly account: Account; readonly token: string };
 
 /** Shown when a callback arrives with no (or an expired) pending login. */
 const EXPIRED_MESSAGE = 'Login expired or was not started here. Try again.';
@@ -128,7 +124,7 @@ async function exchange(input: {
     origin: input.pending.origin,
     token: token.value.access_token,
   });
-  return verified.ok ? ok({ account: verified.value, token: token.value.access_token }) : verified;
+  return verified.ok ? ok({ account: verified.value, token: token.value }) : verified;
 }
 
 /**
@@ -141,16 +137,6 @@ function failed(login: Store, error: ApiError): LoginOutcome {
   return { kind: 'error', message: `Login failed: ${describeApiError(error)}` };
 }
 
-/** The stored record for a verified account: where, who, and its new token. */
-function toAdd(pending: PendingLogin, account: Account, token: string): Omit<StoredAccount, 'key'> {
-  return {
-    origin: pending.origin,
-    accountId: account.id,
-    handle: fullHandle(account, pending.origin),
-    token,
-  };
-}
-
 /**
  * The exchange-and-store leg (behaviours 5 and 6): {@link exchange}, then
  * storing the verified account — which makes it active — and clearing the
@@ -159,20 +145,18 @@ function toAdd(pending: PendingLogin, account: Account, token: string): Omit<Sto
 async function finishLogin(
   stores: LoginStores,
   accepted: Accepted,
-  appName: string,
+  params: { readonly appName: string; readonly now: number },
 ): Promise<LoginOutcome> {
   const verified = await exchange({
     ...accepted,
     apps: stores.apps,
-    appName,
+    appName: params.appName,
   });
   if (!verified.ok) {
     return failed(stores.login, verified.error);
   }
 
-  const account = stores.accounts.add(
-    toAdd(accepted.pending, verified.value.account, verified.value.token),
-  );
+  const account = stores.accounts.add(toAdd(accepted.pending, verified.value, params.now));
   clearPendingLogin(stores.login);
   return { kind: 'ok', account };
 }
@@ -194,5 +178,5 @@ export async function completeLogin(
   if (!accepted.ok) {
     return accepted.error;
   }
-  return finishLogin(stores, accepted.value, params.appName);
+  return finishLogin(stores, accepted.value, params);
 }

@@ -29,7 +29,15 @@ const CAPABILITIES: Capabilities = {
 /** An account as stored, keyed by origin plus account id. */
 function account(accountId: string): StoredAccount {
   const handle = `lain#${accountId}`;
-  return { key: `${WIRED}#${accountId}`, origin: WIRED, accountId, handle, token: 'token' };
+  return {
+    key: `${WIRED}#${accountId}`,
+    origin: WIRED,
+    accountId,
+    handle,
+    token: 'token',
+    refreshToken: null,
+    expiresAt: null,
+  };
 }
 
 /** What the instance at {@link origin} turned out to be. */

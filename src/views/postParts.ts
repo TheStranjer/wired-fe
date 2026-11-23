@@ -4,10 +4,8 @@
  * out of ./postView, which assembles them.
  */
 
-import type { MediaAttachment } from '../api/schemas/mediaAttachment';
 import type { Poll } from '../api/schemas/poll';
 import type { Reaction } from '../api/schemas/reaction';
-import type { MediaItem } from '../ui/MediaList';
 import type { PollViewData } from '../ui/PollView';
 
 /** One reaction without the image url the row does not draw (yet). */
@@ -17,17 +15,6 @@ export function reactionOf(reaction: Reaction): {
   readonly me: boolean;
 } {
   return { name: reaction.name, count: reaction.count, me: reaction.me };
-}
-
-/** One attachment in the row's own field names. */
-export function mediaItem(attachment: MediaAttachment): MediaItem {
-  return {
-    id: attachment.id,
-    type: attachment.type,
-    url: attachment.url,
-    previewUrl: attachment.preview_url,
-    description: attachment.description,
-  };
 }
 
 /** The displayed status's poll in the row's own field names; null when none. */

@@ -15,6 +15,8 @@ const ACCOUNT = {
   accountId: '7',
   handle: 'lain@wired.example',
   token: 'not-a-real-token',
+  refreshToken: null,
+  expiresAt: null,
 };
 
 describe(appStores, () => {
