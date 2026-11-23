@@ -9,15 +9,17 @@
  * after it and Enter sends it. With no text the command instead reads the
  * post's source — the plain text its author wrote, not the HTML the timeline
  * renders — and fills `/edit a3 <that text>` into the command line, so what is
- * retyped is what was written. A send carries only the text: the content
- * warning rides along as the post has it, since the line holds no place for it.
+ * retyped is what was written. A send carries the new text and the rest of the
+ * post as it stands (see ./editFields): the line holds no place for the
+ * content warning, media or poll, and Mastodon drops what an edit leaves out.
  */
 
 import { getStatusSource } from '../../api/endpoints/statusSource';
 import { editStatus } from '../../api/endpoints/statusWrite';
 import { describeApiError } from '../../api/errors';
-import { hasFeature } from '../../capabilities/capabilities';
+import { type Capabilities, hasFeature } from '../../capabilities/capabilities';
 import { capabilitiesFor } from '../../state/selectors';
+import { editFields } from '../editFields';
 import { OK, fail } from '../outcome';
 import { printedLabel } from '../statusLabel';
 import { type StatusTarget, resolveOwnStatusTarget } from '../targets';
@@ -26,23 +28,28 @@ import type { CommandContext, CommandDefinition, CommandOutcome } from '../types
 /** What an instance without the `editing` capability hears (decision 5). */
 const NO_EDITING = fail('This server does not support editing');
 
-/** Whether {@link accountKey}'s instance takes edits at all (decision 5). */
-function supportsEditing(context: CommandContext, accountKey: string | null): boolean {
+/** The capabilities of {@link accountKey}'s instance when it takes edits at all (decision 5). */
+function editingCapabilities(
+  context: CommandContext,
+  accountKey: string | null,
+): Capabilities | null {
   const capabilities = capabilitiesFor(context.state, accountKey);
-  return capabilities !== null && hasFeature(capabilities, 'editing');
+  return capabilities !== null && hasFeature(capabilities, 'editing') ? capabilities : null;
 }
 
-/** Send {@link text} as {@link target}'s new body, keeping the post's warning. */
+/** Send {@link text} as {@link target}'s new body, keeping the rest of the post. */
 async function send(
   target: StatusTarget,
   text: string,
-  context: CommandContext,
+  deps: { readonly context: CommandContext; readonly capabilities: Capabilities },
 ): Promise<CommandOutcome> {
+  const { context, capabilities } = deps;
   const { status } = target;
-  const edited = await editStatus(target.session, status.id, {
-    status: text,
-    spoilerText: status.spoiler_text,
-  });
+  const fields = editFields(status, capabilities.pollLimits, context.now());
+  if (!fields.ok) {
+    return fail(fields.error);
+  }
+  const edited = await editStatus(target.session, status.id, { ...fields.value, status: text });
   if (!edited.ok) {
     return fail(describeApiError(edited.error));
   }
@@ -67,13 +74,14 @@ async function handle(args: string, context: CommandContext): Promise<CommandOut
   if (!target.ok) {
     return fail(target.error);
   }
-  if (!supportsEditing(context, target.value.accountKey)) {
+  const capabilities = editingCapabilities(context, target.value.accountKey);
+  if (capabilities === null) {
     return NO_EDITING;
   }
   const text = target.value.rest.trim();
   return text === ''
     ? await refill(target.value, context)
-    : await send(target.value, text, context);
+    : await send(target.value, text, { context, capabilities });
 }
 
 /** The `/edit` definition. */
