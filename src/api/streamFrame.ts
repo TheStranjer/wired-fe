@@ -2,10 +2,10 @@
  * Decoding one text frame off `/api/v1/streaming` into a {@link StreamEvent}
  * (decision 7). A frame is `{ stream, event, payload }` where `payload` is the
  * entity as a JSON *string* — except a `delete`, whose payload is the bare id.
- * Payloads go through the same schemas the REST endpoints use. Anything the
- * client does not model, and any payload that does not parse, comes back as an
- * `other` event, so one bad frame never stops the connection; text that is no
- * frame at all comes back as null.
+ * Payloads go through the same schemas the REST endpoints use. An event the
+ * client does not model comes back as an `other` event; a frame whose payload
+ * does not parse, or text that is no frame at all, comes back as null and is
+ * dropped, so one bad frame never stops the connection.
  */
 
 import * as v from 'valibot';
@@ -47,7 +47,7 @@ function notificationEvent(frame: Frame): StreamEvent | null {
     : null;
 }
 
-/** The event a recognized frame carries, or null when it is not one WiredFE models. */
+/** The event a frame carries, or null when it is of a modelled kind with a bad payload. */
 function modelled(frame: Frame): StreamEvent | null {
   switch (frame.event) {
     case 'update':
@@ -61,18 +61,18 @@ function modelled(frame: Frame): StreamEvent | null {
         ? null
         : { kind: 'delete', stream: frame.stream, id: frame.payload };
     default:
-      return null;
+      return { kind: 'other', event: frame.event };
   }
 }
 
 /**
  * The event one text frame carries; `other` for a frame whose event is not
- * modelled or whose payload does not parse, null for text that is no frame.
+ * modelled, null for a frame to drop (no frame, or a payload that does not parse).
  */
 export function decodeFrame(text: string): StreamEvent | null {
   const frame = v.safeParse(FrameSchema, parseJson(text));
   if (!frame.success) {
     return null;
   }
-  return modelled(frame.output) ?? { kind: 'other', event: frame.output.event };
+  return modelled(frame.output);
 }

@@ -61,19 +61,14 @@ describe(decodeFrame, () => {
     });
   });
 
-  it('reports a modelled event with a broken payload as other', () => {
-    expect(decodeFrame(frame('update', '{nope'))).toStrictEqual({ kind: 'other', event: 'update' });
-    expect(decodeFrame(frame('notification', { id: 1 }))).toStrictEqual({
-      kind: 'other',
-      event: 'notification',
-    });
+  it('drops a modelled event with a broken payload', () => {
+    expect(decodeFrame(frame('update', '{nope'))).toBeNull();
+    expect(decodeFrame(frame('status.update', { id: 1 }))).toBeNull();
+    expect(decodeFrame(frame('notification', { id: 1 }))).toBeNull();
   });
 
-  it('reports a delete without a payload as other', () => {
-    expect(decodeFrame(JSON.stringify({ stream: ['user'], event: 'delete' }))).toStrictEqual({
-      kind: 'other',
-      event: 'delete',
-    });
+  it('drops a delete without a payload', () => {
+    expect(decodeFrame(JSON.stringify({ stream: ['user'], event: 'delete' }))).toBeNull();
   });
 
   it('defaults a missing stream list to empty', () => {

@@ -127,9 +127,10 @@ describe(useStreams, () => {
     const { unmount } = mount(offscreen(), <Streams />);
 
     expect(FakeSocket.instances.map((socket) => socket.url)).toStrictEqual([
-      'wss://wired.example/api/v1/streaming?access_token=x',
-      'wss://wired.example/api/v1/streaming?access_token=x',
+      'wss://wired.example/api/v1/streaming',
+      'wss://wired.example/api/v1/streaming',
     ]);
+    expect(FakeSocket.instances.map((socket) => socket.protocols)).toStrictEqual([['x'], ['x']]);
 
     unmount();
 

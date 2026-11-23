@@ -15,6 +15,8 @@ export class FakeSocket {
   static instances: FakeSocket[] = [];
 
   readonly url: string;
+  /** The subprotocols the client asked for, in order. */
+  readonly protocols: readonly string[];
   /** The text frames the client sent. */
   readonly sent: string[] = [];
   /** 0 connecting, 1 open, 3 closed, as in the browser. */
@@ -23,8 +25,9 @@ export class FakeSocket {
   closed = false;
   private readonly listeners = new Map<string, Listener[]>();
 
-  constructor(url: string) {
+  constructor(url: string, protocols: readonly string[] = []) {
     this.url = url;
+    this.protocols = protocols;
     FakeSocket.instances.push(this);
   }
 
@@ -57,11 +60,14 @@ export class FakeSocket {
     this.emit('message', { data });
   }
 
-  /** The connection dropped, as the browser reports it: an error, then a close. */
-  drop(): void {
+  /**
+   * The connection dropped, as the browser reports it: an error, then a close
+   * with {@link code} (1006, abnormal closure, unless the test says otherwise).
+   */
+  drop(code = 1006): void {
     this.readyState = 3;
     this.emit('error', {});
-    this.emit('close', {});
+    this.emit('close', { code });
   }
 
   private emit(type: string, event: unknown): void {
