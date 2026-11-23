@@ -91,6 +91,9 @@ function routeSession(page: Page, content: InstanceContent): readonly Promise<un
       await json(route, []);
     }),
     page.route(/\/api\/v1\/statuses/, statuses),
+    // The streaming socket (WFE-121): accepted and left silent, so the page's
+    // live connection opens without an instance behind it.
+    page.routeWebSocket(/\/api\/v1\/streaming/, () => undefined),
   ];
 }
 

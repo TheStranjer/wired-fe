@@ -8,7 +8,8 @@
  * dispatcher (decision 6), which runs a command or posts through the window's
  * kind. The kinds and the registry load once when this module loads; a failed
  * load prints its reason into the status window on mount, beside the startup
- * run that boots there. The ./use* hooks mounted below own every flow past
+ * run that boots there. The streaming connections (WFE-121) are opened by
+ * ../views/useStreams. The ./use* hooks mounted below own every flow past
  * these five regions, WFE-134's tab title (./useDocumentTitle) and the hash
  * routes (./useHashRoute, decision 4) among them.
  */
@@ -42,6 +43,7 @@ import { SystemLine } from '../ui/SystemLine';
 import { TopicBar } from '../ui/TopicBar';
 import { emojiProvider, handleProvider, tagProvider } from '../views/completionProviders';
 import { useCustomEmojis } from '../views/useCustomEmojis';
+import { useStreams } from '../views/useStreams';
 import { STATUS_WINDOW_ID, activeWindow } from '../windows/model';
 import type { WindowKind, WindowState } from '../windows/model';
 
@@ -129,6 +131,7 @@ export function Root(): JSX.Element {
   useSettingsPersistence(state.settings, appStores().settings);
   useTheme(state.settings.theme, state.settings.effects);
   useDocumentTitle(state.windows);
+  useStreams();
 
   useEffect(() => {
     for (const reason of [failure(KINDS), failure(REGISTRY)]) {
