@@ -5,9 +5,15 @@
 import '@testing-library/jest-dom/vitest';
 
 import { cleanup } from '@testing-library/react';
-import { afterAll, afterEach, beforeAll } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, vi } from 'vitest';
 
+import { FakeSocket } from './fakeSocket';
 import { server } from './server';
+
+beforeEach(() => {
+  FakeSocket.reset();
+  vi.stubGlobal('WebSocket', FakeSocket);
+});
 
 beforeAll(() => {
   // MSW v3 renamed onUnhandledRequest to onUnhandledFrame; 'error' still
