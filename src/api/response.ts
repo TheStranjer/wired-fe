@@ -7,7 +7,7 @@
  */
 import * as v from 'valibot';
 
-import type { ApiError } from './errors';
+import type { ApiError, FieldErrors } from './errors';
 import { type Result, err, ok } from '../lib/result';
 
 /**
@@ -61,11 +61,41 @@ function remoteError(body: unknown): string | null {
   return null;
 }
 
-/** The `http` error of a failed response: the remote message, else the status line. */
+/** One field message: a plain string, or Mastodon's `{ error, description }` object (its description kept). */
+const FieldMessageSchema: v.GenericSchema<unknown, string> = v.union([
+  v.string(),
+  v.pipe(
+    v.object({ description: v.string() }),
+    v.transform((message) => message.description),
+  ),
+]);
+
+/** The `details` of an error body: field name to its messages; anything else fails. */
+const DetailsSchema: v.GenericSchema<unknown, FieldErrors> = v.record(
+  v.string(),
+  v.array(FieldMessageSchema),
+);
+
+/** The non-empty field errors in a remote error body's `details`, if it has any. */
+function remoteDetails(body: unknown): FieldErrors | null {
+  if (typeof body !== 'object' || body === null || !('details' in body)) {
+    return null;
+  }
+  const parsed = v.safeParse(DetailsSchema, body.details);
+  return parsed.success && Object.keys(parsed.output).length > 0 ? parsed.output : null;
+}
+
+/** The `http` error of a failed response: the remote message, else the status line, plus any field details. */
 async function httpError(response: Response): Promise<ApiError> {
   const body: unknown = await response.json().catch(() => null);
   const statusText = response.statusText === '' ? 'Request failed' : response.statusText;
-  return { kind: 'http', status: response.status, message: remoteError(body) ?? statusText };
+  const details = remoteDetails(body);
+  return {
+    kind: 'http',
+    status: response.status,
+    message: remoteError(body) ?? statusText,
+    ...(details === null ? {} : { details }),
+  };
 }
 
 /** The `parse` error naming the first issue and its dot path, `(root)` when pathless. */

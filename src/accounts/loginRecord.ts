@@ -19,7 +19,7 @@ export type Verification = { readonly account: Account; readonly token: Token };
  * when the instance names no lifetime.
  */
 export function toAdd(
-  pending: PendingLogin,
+  pending: Pick<PendingLogin, 'origin'>,
   verified: Verification,
   now: number,
 ): Omit<StoredAccount, 'key'> {

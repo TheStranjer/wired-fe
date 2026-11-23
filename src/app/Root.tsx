@@ -28,6 +28,7 @@ import { useComposerOverlay } from './useComposerOverlay';
 import { useDocumentTitle } from './useDocumentTitle';
 import { useDropAndPaste } from './useDropAndPaste';
 import { useHashRoute } from './useHashRoute';
+import { useRegistrationOverlay } from './useRegistrationOverlay';
 import { useSettingsPersistence } from './useSettingsPersistence';
 import { useStartup } from './useStartup';
 import { useTheme } from './useTheme';
@@ -118,6 +119,13 @@ function WindowBody(props: RegionProps): JSX.Element {
   return <Body windowId={win.id} />;
 }
 
+/** Mirrors settings and window state out to storage, the theme and the tab title. */
+function useStateMirrors(state: AppState): void {
+  useSettingsPersistence(state.settings, appStores().settings);
+  useTheme(state.settings.theme, state.settings.effects);
+  useDocumentTitle(state.windows);
+}
+
 /** The five shell regions, filled from the app state above it. */
 export function Root(): JSX.Element {
   const state = useAppState();
@@ -127,10 +135,10 @@ export function Root(): JSX.Element {
   const attachments = useAttachments();
   const drop = useDropAndPaste(attachments);
   const composer = useComposerOverlay(attachments);
-  useHashRoute(useStartup());
-  useSettingsPersistence(state.settings, appStores().settings);
-  useTheme(state.settings.theme, state.settings.effects);
-  useDocumentTitle(state.windows);
+  const ready = useStartup();
+  useHashRoute(ready);
+  const registration = useRegistrationOverlay(ready);
+  useStateMirrors(state);
   useStreams();
 
   useEffect(() => {
@@ -157,6 +165,7 @@ export function Root(): JSX.Element {
         }
       />
       {composer.overlay}
+      {registration}
       {drop}
       {attachments.input}
     </>
