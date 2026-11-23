@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # scripts/ci.sh — the whole gate in one command: dependency install check,
 # Prettier, TypeScript, ESLint, Stylelint, file-size limits, unit tests with
-# coverage thresholds, the production build, the bundle size budget, dead-code
+# coverage thresholds, the production build, the bundle size report, dead-code
 # detection (knip) and the end-to-end tests against the built bundle.
 # .github/workflows/ci.yml runs this same script, so a clean run here is a
 # green pipeline there.
@@ -67,10 +67,10 @@ step 'unit tests + coverage' pnpm exec vitest run --coverage
 step 'knip (unused files, exports, dependencies)' pnpm exec knip
 
 if step 'build' pnpm exec vite build; then
-  step 'bundle size budget' pnpm exec size-limit
+  step 'bundle size report' pnpm exec size-limit
   step 'end-to-end tests' pnpm exec playwright test
 else
-  skip 'bundle size budget' 'build failed'
+  skip 'bundle size report' 'build failed'
   skip 'end-to-end tests' 'build failed'
 fi
 

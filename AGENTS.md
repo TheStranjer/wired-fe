@@ -20,7 +20,7 @@ When a design choice is unclear, pick what an IRC power user would expect, then 
 
 ## The gate
 
-`scripts/ci.sh` runs every check: frozen-lockfile install, Prettier, TypeScript, ESLint, Stylelint, byte-size limits, Vitest with coverage thresholds, knip, the production build, the bundle size budget, and Playwright end-to-end tests against the built bundle. It keeps going after a failure, so one run reports everything that's broken, and exits 0 only when all checks pass. `.github/workflows/ci.yml` runs this same script. A change is not done until `scripts/ci.sh` exits 0. To add a check, add it to the script, not the workflow.
+`scripts/ci.sh` runs every check: frozen-lockfile install, Prettier, TypeScript, ESLint, Stylelint, byte-size limits, Vitest with coverage thresholds, knip, the production build, a bundle size report (informational, no cap), and Playwright end-to-end tests against the built bundle. It keeps going after a failure, so one run reports everything that's broken, and exits 0 only when all checks pass. `.github/workflows/ci.yml` runs this same script. A change is not done until `scripts/ci.sh` exits 0. To add a check, add it to the script, not the workflow.
 
 ## Commands you may run
 
@@ -52,14 +52,14 @@ Everything else is forbidden. In particular, never run:
 
 - **Run each command once and read its whole output.** Don't re-run to see whether a failure is flaky. If output is long, redirect it to a file under `node_modules/.tmp/` and read that.
 - **Two strikes.** If the same fix fails twice, stop and report what you tried and what the output said.
-- **Don't weaken the gate.** Never edit `scripts/ci.sh`, `scripts/check-file-sizes.sh`, `.github/workflows/ci.yml`, `eslint.config.js`, `tooling/eslint/`, `stylelint.config.js`, `knip.json`, `.size-limit.json`, the coverage thresholds in `vite.config.ts`, or the strictness flags in `tsconfig*.json` to make a failure go away. Never skip, delete or loosen a failing test. Fix the code. Making checks stricter is welcome. The only exception is a ticket that explicitly asks for one of these files to change.
+- **Don't weaken the gate.** Never edit `scripts/ci.sh`, `scripts/check-file-sizes.sh`, `.github/workflows/ci.yml`, `eslint.config.js`, `tooling/eslint/`, `stylelint.config.js`, `knip.json`, the coverage thresholds in `vite.config.ts`, or the strictness flags in `tsconfig*.json` to make a failure go away. Never skip, delete or loosen a failing test. Fix the code. Making checks stricter is welcome. The only exception is a ticket that explicitly asks for one of these files to change.
 - **Stay in the repo**, leave no scratch files in it, and commit only when asked. Non-interactive commands only (`git commit -m`).
 
 ## Linting and limits
 
 - ESLint (typescript-eslint `strictTypeChecked`, `@eslint-react` strict, react-hooks, jsx-a11y strict, import-x, boundaries, Vitest) must pass with zero warnings. Inline `eslint-disable` comments are switched off and do nothing; `@ts-ignore`, `@ts-expect-error` and `@ts-nocheck` are banned.
 - **Size limits are hard**: 200 lines per file (400 for tests), 50 lines per function, 15 statements, complexity 10, depth 3, 3 parameters; plus byte limits per file in `scripts/check-file-sizes.sh`. When you hit one, split the module along a real seam. Don't compress code to fit.
-- **Bundle budget**: `.size-limit.json` caps the gzipped JS and CSS. Raising it needs the owner's approval in the ticket.
+- **Bundle size**: there is no cap. `.size-limit.json` only reports the gzipped JS and CSS sizes. Keep the bundle small anyway.
 - **Coverage**: 95% statements/functions/lines, 90% branches, over `src/`.
 - **knip** fails on unused files, exports and dependencies. Delete dead code; don't export things "for later".
 
@@ -132,7 +132,7 @@ e2e/              Playwright tests against the production build
 ### Dependencies
 
 - Add with `pnpm add` (exact versions are pinned automatically). `pnpm-workspace.yaml` refuses versions younger than a week and blocks dependency install scripts; don't loosen either.
-- Every new runtime dependency costs bundle budget. Prefer a small module in `lib/` over a package, and say why in the commit when you do add one.
+- Every new runtime dependency adds to the bundle size. Prefer a small module in `lib/` over a package, and say why in the commit when you do add one.
 
 ## Testing
 
