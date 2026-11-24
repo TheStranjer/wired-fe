@@ -9,7 +9,9 @@
  * included, is not a route. `#/authorize_interaction?uri=<v>` (also `acct=<v>`,
  * the old template's name) is a remote follow or interaction link: its value
  * is the account handle (a leading `acct:` stripped) or URL to resolve, kept
- * raw. Pure: nothing here reads the address bar.
+ * raw. Pure: nothing here reads the address bar. Two more hashes open boxes,
+ * not windows, and have their own parsers: `#/registration/<token>` (the invite)
+ * and `#/password_reset/<token>` (the reset letter).
  */
 
 /** One place the address bar can point at. */
@@ -83,6 +85,20 @@ const REGISTRATION = /^#\/registration\/([^/?]+)(?:\?.*)?$/u;
  */
 export function parseRegistrationRoute(hash: string): string | null {
   const [, segment] = REGISTRATION.exec(hash) ?? [];
+  const token = decode(segment);
+  return token === null || token === '' ? null : token;
+}
+
+/** A reset-letter route: its keyword, then one token segment, then an optional query that is ignored. */
+const PASSWORD_RESET = /^#\/password_reset\/([^/?]+)(?:\?.*)?$/u;
+
+/**
+ * The reset token of the `#/password_reset/<token>` route {@link hash} spells,
+ * decoded, or null when it is anything else. Like the invite route it is no
+ * {@link Route}: it opens the new-password box, not a window.
+ */
+export function parsePasswordResetRoute(hash: string): string | null {
+  const [, segment] = PASSWORD_RESET.exec(hash) ?? [];
   const token = decode(segment);
   return token === null || token === '' ? null : token;
 }
