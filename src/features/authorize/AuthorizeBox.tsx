@@ -11,10 +11,10 @@ import type { JSX } from 'react';
 
 import styles from './AuthorizeBox.module.css';
 import { CodeView } from './CodeView';
-import { webUrl } from './redirectTarget';
 import { describeScope } from './scopeWords';
 import { type AuthorizeSetup, type Phase, useAuthorize } from './useAuthorize';
 import type { AuthorizeInfo } from '../../api/endpoints/authorize';
+import { webUrl } from '../../lib/webUrl';
 
 /** What the box shows and the one callback it drives. */
 export type AuthorizeBoxProps = AuthorizeSetup & {
