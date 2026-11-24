@@ -1,0 +1,67 @@
+/* The external-login boxes: the request or the form as a column of plain
+   lines, the choices last. */
+
+.box,
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space);
+}
+
+.title {
+  margin: 0;
+  font: inherit;
+  color: var(--color-accent);
+}
+
+.line {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.scopes {
+  margin: 0;
+  padding-left: calc(var(--space) * 2);
+}
+
+.actions {
+  display: flex;
+  gap: calc(var(--space) * 2);
+}
+
+.error {
+  margin: 0;
+  color: var(--color-error);
+}
+
+.label {
+  display: flex;
+  flex-direction: column;
+}
+
+.input {
+  padding: 0 var(--space);
+  border: 1px solid var(--color-dim);
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font: inherit;
+}
+
+.button {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--color-accent);
+  font: inherit;
+  cursor: pointer;
+}
+
+.button:disabled {
+  color: var(--color-dim);
+  cursor: default;
+}
+
+.input:focus-visible,
+.button:focus-visible {
+  outline: 1px solid var(--color-accent);
+}

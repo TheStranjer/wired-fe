@@ -24,12 +24,11 @@ import { SidePane } from './SidePane';
 import { StatusBar, accountLabel } from './StatusBar';
 import { appStores } from './stores';
 import { useAttachments } from './useAttachments';
-import { useAuthorizeOverlay } from './useAuthorizeOverlay';
 import { useComposerOverlay } from './useComposerOverlay';
 import { useDocumentTitle } from './useDocumentTitle';
 import { useDropAndPaste } from './useDropAndPaste';
 import { useHashRoute } from './useHashRoute';
-import { useRegistrationOverlay } from './useRegistrationOverlay';
+import { useRouteOverlays } from './useRouteOverlays';
 import { useSettingsPersistence } from './useSettingsPersistence';
 import { useStartup } from './useStartup';
 import { useTheme } from './useTheme';
@@ -138,8 +137,7 @@ export function Root(): JSX.Element {
   const composer = useComposerOverlay(attachments);
   const ready = useStartup();
   useHashRoute(ready);
-  const registration = useRegistrationOverlay(ready);
-  const authorize = useAuthorizeOverlay(ready);
+  const overlays = useRouteOverlays(ready);
   useStateMirrors(state);
   useStreams();
 
@@ -167,8 +165,7 @@ export function Root(): JSX.Element {
         }
       />
       {composer.overlay}
-      {registration}
-      {authorize}
+      {overlays}
       {drop}
       {attachments.input}
     </>

@@ -5,7 +5,7 @@
  */
 import { describe, expect, it } from 'vitest';
 
-import { OOB_URI, redirectTarget, webUrl } from './redirectTarget';
+import { OOB_URI, redirectTarget } from './redirectTarget';
 
 describe(redirectTarget, () => {
   it('accepts https and http URLs', () => {
@@ -32,12 +32,5 @@ describe(redirectTarget, () => {
     '',
   ])('refuses %j', (uri) => {
     expect(redirectTarget(uri)).toBeNull();
-  });
-});
-
-describe(webUrl, () => {
-  it('answers null for what is not an http(s) URL', () => {
-    expect(webUrl('ftp://a.example')).toBeNull();
-    expect(webUrl('not a url')).toBeNull();
   });
 });
