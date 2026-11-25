@@ -129,8 +129,9 @@ async function connect(page: Page): Promise<void> {
 /**
  * Logs in through the fixture flow of {@link instance} (the fake Wired one by
  * default) and waits for what startup opens: the login line in window 1 and the
- * fixture posts in home — the reader ends up
- * looking at home, ready to move.
+ * `stream` feed of the first run (WFE-243), then opens the home and the
+ * notifications windows by hand and shows the fixture posts in home — the
+ * reader ends up looking at home, ready to move.
  */
 export async function signIn(page: Page, instance: Instance = WIRED): Promise<void> {
   await instance.route(page);
@@ -140,6 +141,8 @@ export async function signIn(page: Page, instance: Instance = WIRED): Promise<vo
   await expect(logRegion(page, 'status')).toContainText(
     `Logged in to ${ORIGIN} as @${instance.handle}`,
   );
+  await submit(page, '/home');
+  await submit(page, '/notifs');
   await showWindow(page, 'home');
   await expect(logRegion(page, 'home').locator('article').first()).toBeVisible();
 }

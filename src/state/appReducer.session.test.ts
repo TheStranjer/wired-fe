@@ -120,6 +120,7 @@ describe(mergedSettings, () => {
       feeds: [],
       images: true,
       keyOverrides: [],
+      streamMade: false,
       theme: 'wired',
     });
   });

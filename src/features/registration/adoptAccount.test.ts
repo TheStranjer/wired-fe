@@ -1,7 +1,8 @@
 /**
  * Tests for taking a registered account into the running session: the app
- * state hears of the account (active), its home and notifications windows
- * open, the status window says so, and the instance's profile is dispatched —
+ * state hears of the account (active) and of its sign-in (which is what makes
+ * the stream feed or opens its windows, tested in src/state/signIn), the
+ * status window says so, and the instance's profile is dispatched —
  * or the failure to read it is printed instead.
  */
 import { describe, expect, it, vi } from 'vitest';
@@ -49,7 +50,7 @@ function stored(): {
 }
 
 describe(adoptAccount, () => {
-  it('activates the account, opens its windows, says so and dispatches the profile', async () => {
+  it('activates the account, lets the app state place it, says so and dispatches the profile', async () => {
     const { accounts, account } = stored();
     const dispatch = vi.fn();
 
@@ -59,8 +60,7 @@ describe(adoptAccount, () => {
 
     expect(dispatch.mock.calls).toMatchObject([
       [{ type: 'accounts', accounts: [account], activeKey: account.key }],
-      [{ type: 'windows', action: { type: 'open', title: 'home' } }],
-      [{ type: 'windows', action: { type: 'open', title: 'notifs' } }],
+      [{ type: 'signedIn', account, date: expect.any(Date) as unknown }],
       [{ type: 'print', level: 'info', text: `Logged in to ${ORIGIN} as @lain@wired.example` }],
       [{ type: 'profile', profile: PROFILE }],
     ]);

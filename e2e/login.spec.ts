@@ -1,8 +1,8 @@
 /**
  * The whole first session against the fake Wired instance (decisions 3, 5, 6
  * and 8, e2e/fixtures/wired): `/connect` walks the OAuth redirect back, startup
- * has opened a home and a notifications window for the account and the home
- * window shows the fixture posts, and plain text on the command line becomes a
+ * has made the `stream` feed, the session has opened a home and a notifications
+ * window for the account and the home window shows the fixture posts, and plain text on the command line becomes a
  * post at the bottom of home — all of it with the console as silent as in
  * ./boot.spec. Getting logged in is e2e/fixtures/session's job; this spec is
  * what the shell does with the session it hands over.
