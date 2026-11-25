@@ -13,6 +13,7 @@
  * exhaustive — so a new action cannot quietly find no home.
  */
 
+import { type AlertAction, withAlertDismissed } from './alerts';
 import { type AppState, type CoreAction, coreReducer } from './appState';
 import { bufferReducer, type BufferAction } from './bufferActions';
 import { type ComposerAction, composerReducer, withLiveComposers } from './composerActions';
@@ -28,6 +29,7 @@ export type AppAction =
   | RestoreAction
   | SignInAction
   | SyncAction
+  | AlertAction
   | PlaceAction
   | BufferAction
   | ComposerAction
@@ -55,6 +57,35 @@ const COMPOSER_ACTION_TYPES: Record<ComposerAction['type'], true> = {
   composerAppend: true,
 };
 
+/** The sign-in, sync and alert actions: each a one-line transition, handled by {@link smallReducer}. */
+type SmallAction = SignInAction | SyncAction | AlertAction;
+
+/** The action types of {@link SmallAction}, every one of them by name. */
+const SMALL_ACTION_TYPES: Record<SmallAction['type'], true> = {
+  signedIn: true,
+  sync: true,
+  syncUnsupported: true,
+  dismissAlert: true,
+};
+
+/** Whether this action is one of the small slices' (sign-in, sync, alerts). */
+function isSmallAction(action: AppAction): action is SmallAction {
+  return Object.hasOwn(SMALL_ACTION_TYPES, action.type);
+}
+
+/** The transition of one {@link SmallAction}. */
+function smallReducer(state: AppState, action: SmallAction): AppState {
+  switch (action.type) {
+    case 'signedIn':
+      return signInReducer(state, action);
+    case 'sync':
+    case 'syncUnsupported':
+      return syncReducer(state, action);
+    case 'dismissAlert':
+      return withAlertDismissed(state);
+  }
+}
+
 /** Move the app state along by one action; the same state when nothing changes. */
 export function appReducer(state: AppState, action: AppAction): AppState {
   if (isBufferAction(action)) {
@@ -69,11 +100,8 @@ export function appReducer(state: AppState, action: AppAction): AppState {
   if (action.type === 'restore') {
     return withLiveComposers(restoreReducer(state, action));
   }
-  if (action.type === 'signedIn') {
-    return signInReducer(state, action);
-  }
-  if (action.type === 'sync' || action.type === 'syncUnsupported') {
-    return syncReducer(state, action);
+  if (isSmallAction(action)) {
+    return smallReducer(state, action);
   }
   if (action.type === 'openPlaced') {
     return withLiveComposers(placeReducer(state, action));

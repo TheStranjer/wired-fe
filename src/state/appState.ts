@@ -7,7 +7,8 @@
  * when the action changes nothing; the pieces live in ./appReducer.
  */
 
-import { withPrinted } from './appPrint';
+import type { Alert } from './alerts';
+import { withPrintedAlert } from './appPrint';
 import type { PrintLine } from './appPrint';
 import {
   isBlank,
@@ -67,6 +68,8 @@ export type AppState = {
   readonly sync: SyncStatus;
   /** The client-message counter: every printed line is keyed by its value. */
   readonly seq: number;
+  /** The modal alerts the error lines raised, oldest first; the head is on screen (./alerts). */
+  readonly alerts: readonly Alert[];
 };
 
 /** One thing that can happen to the application as a whole. */
@@ -114,6 +117,7 @@ export function initialAppState(settings: Settings = DEFAULT_SETTINGS): AppState
     settings,
     sync: INITIAL_SYNC,
     seq: 0,
+    alerts: [],
   };
 }
 
@@ -125,7 +129,7 @@ export function coreReducer(state: AppState, action: CoreAction): AppState {
     case 'layout':
       return applyLayout(state, action.action);
     case 'print':
-      return withPrinted(state, action);
+      return withPrintedAlert(state, action);
     case 'clear':
       return applyClear(state, action.windowId);
     case 'accounts':

@@ -95,6 +95,20 @@ describe(useGlobalKeys, () => {
     expect(handler).not.toHaveBeenCalled();
   });
 
+  it('does not call the handler for any key while an error alert is open', () => {
+    const handler = recorder(true);
+    render(
+      <>
+        <Probe handler={handler} />
+        <div role="alertdialog" aria-label="Error" />
+      </>,
+    );
+
+    fireEvent.keyDown(window, { key: 'j' });
+
+    expect(handler).not.toHaveBeenCalled();
+  });
+
   it('keeps resize keys pressed on a pane divider from the handler', () => {
     const handler = recorder(true);
     render(

@@ -141,6 +141,7 @@ describe(Root, () => {
     const input = commandLine();
 
     await submitAll(input, 'a submitted line');
+    fireEvent.click(await screen.findByRole('button', { name: 'OK' }));
 
     fireEvent.keyDown(window, { key: 'Escape' });
     fireEvent.keyDown(input, { key: 'ArrowUp' });

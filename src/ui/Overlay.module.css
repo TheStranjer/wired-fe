@@ -19,3 +19,8 @@
   background: var(--color-bar-bg);
   color: var(--color-bar-fg);
 }
+
+/* An alert interrupts: the same box, framed in the error colour. */
+.alert {
+  border-color: var(--color-error);
+}

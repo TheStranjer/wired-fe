@@ -27,10 +27,11 @@ describe(Root, () => {
       </AppStateProvider>,
     );
 
-    const line = await screen.findByText(MESSAGE);
     const log = screen.getByRole('log', { name: 'status' });
+    const line = await within(log).findByText(MESSAGE);
 
     expect(within(log).getAllByText(MESSAGE)).toHaveLength(1);
     expect(line).toBeInTheDocument();
+    expect(screen.getByRole('alertdialog', { name: 'Error' })).toHaveAccessibleDescription(MESSAGE);
   });
 });
