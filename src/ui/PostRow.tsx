@@ -86,6 +86,8 @@ export type PostRowProps = {
   readonly onToggleReveal: () => void;
   /** Called when the row itself is clicked, not one of its controls. */
   readonly onSelect: () => void;
+  /** Called when the row is double-clicked outside its controls: pop its thread out. */
+  readonly onPop: () => void;
   /** Called when the nick is clicked. */
   readonly onSelectAuthor: () => void;
   /** Called with the href of a link in the body that was plainly clicked;
@@ -105,6 +107,7 @@ type LineProps = Omit<
   | 'autoExpand'
   | 'selected'
   | 'onSelect'
+  | 'onPop'
   | 'onContentLink'
   | 'ref'
 >;
@@ -149,7 +152,7 @@ function PostLine(props: LineProps): JSX.Element {
 /** One post as a chat line; clicking the row selects it, clicking the nick opens the author. */
 export function PostRow(props: PostRowProps): JSX.Element {
   const { boostedBy, poll, media, sensitive, autoExpand, selected, ref, ...line } = props;
-  const { onSelect, onContentLink } = line;
+  const { onSelect, onPop, onContentLink } = line;
 
   return (
     <article
@@ -158,6 +161,7 @@ export function PostRow(props: PostRowProps): JSX.Element {
         fullHandle: line.author.fullHandle,
         selected,
         onSelect,
+        onPop,
         onContentLink,
       })}
       className={[styles['row'], selected ? styles['selected'] : undefined].join(' ')}

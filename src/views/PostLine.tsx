@@ -17,7 +17,7 @@
 import { useEffect, useRef } from 'react';
 import type { JSX } from 'react';
 
-import { usePostActions } from './PostActionsContext';
+import { usePostActions, type PostActions } from './PostActionsContext';
 import {
   cardName,
   dmCardProps,
@@ -43,6 +43,13 @@ function scrollRowIntoView(row: HTMLElement | null): void {
   }
 }
 
+/** The handler of a double-click on the post labelled {@link label}: run `/pop` on it. */
+function popOf(actions: PostActions, label: string): () => void {
+  return () => {
+    actions.run({ line: `/pop ${label}`, prefill: false });
+  };
+}
+
 /** One post: the card or the row its status maps onto, as the window's account sees it. */
 export function PostLine(props: PostLineTarget): JSX.Element {
   const { windowId, status } = props;
@@ -61,7 +68,15 @@ export function PostLine(props: PostLineTarget): JSX.Element {
   }, [selected]);
   const display = displayFor(state, windowId);
   if (display.density === 'lines') {
-    return <PostRow {...shared} author={view.author} boostedBy={view.boostedBy} ref={rowRef} />;
+    return (
+      <PostRow
+        {...shared}
+        author={view.author}
+        boostedBy={view.boostedBy}
+        onPop={popOf(actions, shared.label)}
+        ref={rowRef}
+      />
+    );
   }
   const author = { ...view.author, ...cardName(status) };
   return (
@@ -69,6 +84,7 @@ export function PostLine(props: PostLineTarget): JSX.Element {
       {...shared}
       author={author}
       boostedBy={view.boostedBy}
+      onPop={popOf(actions, shared.label)}
       ref={rowRef}
       actionLines={actions.linesFor(shared.label)}
       onAction={actions.run}

@@ -52,6 +52,7 @@ export const BASE_PROPS: PostCardProps = {
   onToggleReveal: vi.fn<() => void>(),
   onSelect: vi.fn<() => void>(),
   onSelectAuthor: vi.fn<() => void>(),
+  onPop: vi.fn<() => void>(),
   onContentLink: vi.fn<(href: string) => boolean>().mockReturnValue(false),
   actionLines: {},
   onAction: vi.fn<(line: PostActionLine) => void>(),

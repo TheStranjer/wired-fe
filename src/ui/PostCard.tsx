@@ -117,6 +117,7 @@ export function PostCard(props: PostCardProps): JSX.Element {
         selected,
         direct: props.visibility === 'direct',
         onSelect: props.onSelect,
+        onPop: props.onPop,
         onContentLink: props.onContentLink,
       })}
       className={cardClassKeys(props, selected)

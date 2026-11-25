@@ -41,6 +41,7 @@ const ROW_PROPS: PostRowProps = {
   onToggleReveal: vi.fn<() => void>(),
   onSelect: vi.fn<() => void>(),
   onSelectAuthor: vi.fn<() => void>(),
+  onPop: vi.fn<() => void>(),
   onContentLink: () => false,
 };
 
