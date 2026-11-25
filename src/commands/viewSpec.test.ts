@@ -13,7 +13,7 @@ describe(parseViewSpec, () => {
     ['local', 'local', ''],
     ['federated', 'federated', ''],
     ['notifications', 'notifications', ''],
-    ['composer', 'composer', ''],
+    ['composer', 'compose', ''],
     ['tag rust', 'tag', 'rust'],
     ['tag #rust', 'tag', '#rust'],
     ['search lain iwakura', 'search', 'lain iwakura'],

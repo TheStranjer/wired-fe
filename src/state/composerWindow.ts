@@ -7,9 +7,9 @@
  * `accountKey`; the "Post as" picker changes it (windows `setAccount`).
  */
 
+import type { OpenAction } from './placement';
 import type { StoredAccount } from '../accounts/accountStore';
 import type { WindowState } from '../windows/model';
-import type { WindowsAction } from '../windows/reducer';
 
 /** The title of draft number {@link n}: plain for the first, `compose/<n>` after. */
 function composerTitle(n: number): string {
@@ -32,7 +32,7 @@ function freeDraftNumber(windows: readonly WindowState[]): number {
 export function composerWindowOpen(
   account: StoredAccount,
   windows: readonly WindowState[],
-): WindowsAction {
+): OpenAction {
   const n = freeDraftNumber(windows);
   return {
     type: 'open',

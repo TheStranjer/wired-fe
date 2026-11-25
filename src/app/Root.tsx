@@ -29,7 +29,6 @@ import { StatusBar } from './StatusBar';
 import { appStores } from './stores';
 import { useAttachments } from './useAttachments';
 import { useCompletionProviders } from './useCompletionProviders';
-import { useComposerOverlay } from './useComposerOverlay';
 import { useDeskPersistence } from './useDeskPersistence';
 import { useDeskSync } from './useDeskSync';
 import { useDocumentTitle } from './useDocumentTitle';
@@ -85,7 +84,6 @@ export function Root(): JSX.Element {
   const providers = useCompletionProviders();
   const attachments = useAttachments();
   const drop = useDropAndPaste(attachments);
-  const composer = useComposerOverlay(attachments);
   const pendingKeys = usePendingKeys(state.mode);
   const ready = useStartup();
   useHashRoute(ready);
@@ -112,13 +110,11 @@ export function Root(): JSX.Element {
               attachments={attachments}
               pendingKeys={pendingKeys}
               completion={providers}
-              openComposer={composer.openComposer}
               registerRunner={postActions.register}
               registerLineRunner={lineRunner.register}
             />
           }
         />
-        {composer.overlay}
         {overlays}
         {drop}
         {attachments.input}

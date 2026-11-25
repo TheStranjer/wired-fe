@@ -1,27 +1,35 @@
 /**
- * Tests for opening and closing the composer overlay in the running shell
- * (WFE-125): `/compose` and its alias open the box filled with their
- * argument and clear the line, Ctrl+E moves the command line's own plain
- * text into the box — and leaves a command where it is, Escape closes it and
- * hands focus back without touching the mode, and the navigation c chord
- * opens it while typing inside stays the box's own. Startup is mocked; it
- * has its own tests. What the box posts is in Root.composer.post.test.tsx.
+ * Tests for opening the composer window in the running shell (WFE-245):
+ * `/compose` and its alias open a composer window filled with their argument
+ * and clear the line, a second one while the first is still empty focuses it
+ * instead, Ctrl+E moves the command line's own plain text into it — and leaves
+ * a command where it is — and the navigation c chord opens it. Startup is
+ * mocked; what the window sends is in Root.composer.post.test.tsx.
  */
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { HttpResponse, http } from 'msw';
 import { describe, expect, it, vi } from 'vitest';
 
 import { Root } from './Root';
+import { accountKey, type StoredAccount } from '../accounts/accountStore';
 import { initialAppState } from '../state/appState';
-import type { AppState } from '../state/appState';
-import { type AppAction, appReducer } from '../state/reducer';
+import { appReducer } from '../state/reducer';
 import { AppStateProvider } from '../state/StateContext';
+import { server } from '../test/server';
 
 vi.mock(import('./startup'), () => ({ runStartup: vi.fn() }));
 
-/** A fresh session moved along by {@link actions}. */
-function stateAfter(actions: readonly AppAction[]): AppState {
-  return actions.reduce(appReducer, initialAppState());
-}
+const ORIGIN = 'https://wired.example';
+
+const ACCOUNT: StoredAccount = {
+  key: accountKey(ORIGIN, '1'),
+  origin: ORIGIN,
+  accountId: '1',
+  handle: 'lain@wired.example',
+  token: 'not-a-real-token',
+  refreshToken: null,
+  expiresAt: null,
+};
 
 /** The command line. */
 function commandLine(): HTMLElement {
@@ -33,10 +41,16 @@ function postField(): HTMLTextAreaElement {
   return screen.getByRole('textbox', { name: 'Post text' });
 }
 
-/** Render Root over a session built from {@link actions}, focus on the line. */
-function renderRoot(actions: readonly AppAction[] = []): HTMLElement {
+/** Render Root signed in as lain, focus on the command line. */
+function renderRoot(): HTMLElement {
+  server.use(http.get(`${ORIGIN}/api/v1/custom_emojis`, () => HttpResponse.json([])));
+  const state = appReducer(initialAppState(), {
+    type: 'accounts',
+    accounts: [ACCOUNT],
+    activeKey: ACCOUNT.key,
+  });
   render(
-    <AppStateProvider initial={stateAfter(actions)}>
+    <AppStateProvider initial={state}>
       <Root />
     </AppStateProvider>,
   );
@@ -54,16 +68,17 @@ function submit(text: string): void {
   fireEvent.keyDown(line, { key: 'Enter' });
 }
 
-describe('opening the composer overlay', () => {
+describe('opening the composer window', () => {
   it('opens on /compose with its argument, and the line clears', async () => {
     renderRoot();
 
     submit('/compose so much to say');
 
-    const dialog = await screen.findByRole('dialog', { name: 'Compose' });
+    const field = await screen.findByRole('textbox', { name: 'Post text' });
 
-    expect(dialog).toBeInTheDocument();
-    expect(postField()).toHaveValue('so much to say');
+    expect(field).toHaveValue('so much to say');
+    expect(screen.getByRole('log', { name: 'compose' })).toBeInTheDocument();
+    expect(screen.queryByRole('dialog')).toBeNull();
 
     await waitFor(() => {
       expect(commandLine()).toHaveValue('');
@@ -75,12 +90,35 @@ describe('opening the composer overlay', () => {
 
     submit('/c');
 
-    const dialog = await screen.findByRole('dialog');
+    const field = await screen.findByRole('textbox', { name: 'Post text' });
 
-    expect(dialog).toBeInTheDocument();
-    expect(postField()).toHaveValue('');
+    expect(field).toHaveValue('');
     expect(screen.getByText('0/500')).toBeInTheDocument();
     expect(screen.queryByRole('option', { name: 'local' })).toBeNull();
+  });
+
+  it('runs under the name /composer too', async () => {
+    renderRoot();
+
+    submit('/composer');
+
+    const picker = await screen.findByRole('combobox', { name: 'Post as' });
+
+    expect(picker).toHaveValue(ACCOUNT.key);
+  });
+
+  it('focuses the composer that is still empty instead of opening another', async () => {
+    renderRoot();
+    submit('/compose');
+    await screen.findByRole('log', { name: 'compose' });
+
+    submit('/compose second try');
+
+    await waitFor(() => {
+      expect(postField()).toHaveValue('second try');
+    });
+
+    expect(screen.queryByRole('log', { name: 'compose/2' })).toBeNull();
   });
 
   it('Ctrl+E moves the command line’s plain text into the composer', async () => {
@@ -89,12 +127,10 @@ describe('opening the composer overlay', () => {
     fireEvent.change(line, { target: { value: 'a draft half typed' } });
     fireEvent.keyDown(line, { key: 'e', ctrlKey: true });
 
-    const dialog = await screen.findByRole('dialog');
+    const field = await screen.findByRole('textbox', { name: 'Post text' });
 
-    expect(dialog).toBeInTheDocument();
-    expect(postField()).toHaveValue('a draft half typed');
-    expect(line).toHaveValue('');
-    expect(postField()).toHaveFocus();
+    expect(field).toHaveValue('a draft half typed');
+    expect(commandLine()).toHaveValue('');
   });
 
   it('Ctrl+E over a command opens the composer empty and leaves the line', async () => {
@@ -103,44 +139,20 @@ describe('opening the composer overlay', () => {
     fireEvent.change(line, { target: { value: '/help' } });
     fireEvent.keyDown(line, { key: 'e', ctrlKey: true });
 
-    const dialog = await screen.findByRole('dialog');
+    const field = await screen.findByRole('textbox', { name: 'Post text' });
 
-    expect(dialog).toBeInTheDocument();
-    expect(postField()).toHaveValue('');
+    expect(field).toHaveValue('');
     expect(line).toHaveValue('/help');
   });
 
-  it('Escape closes the box and hands focus back to the command line', async () => {
-    const line = renderRoot();
-
-    submit('/compose farewell');
-    const field = await screen.findByRole('textbox', { name: 'Post text' });
-
-    expect(screen.getByText('[INS]')).toBeInTheDocument();
-
-    fireEvent.keyDown(field, { key: 'Escape' });
-
-    await waitFor(() => {
-      expect(screen.queryByRole('dialog')).toBeNull();
-    });
-
-    expect(line).toHaveFocus();
-    expect(screen.getByText('[INS]')).toBeInTheDocument();
-  });
-
-  it('opens on the navigation c chord and keeps its keys', async () => {
+  it('opens on the navigation c chord', async () => {
     renderRoot();
 
     fireEvent.keyDown(window, { key: 'Escape' });
     fireEvent.keyDown(window, { key: 'c' });
 
-    const dialog = await screen.findByRole('dialog');
+    const log = await screen.findByRole('log', { name: 'compose' });
 
-    expect(dialog).toBeInTheDocument();
-
-    fireEvent.keyDown(postField(), { key: 'i' });
-
-    expect(screen.getByText('[NAV]')).toBeInTheDocument();
-    expect(postField()).toHaveFocus();
+    expect(log).toBeInTheDocument();
   });
 });

@@ -3,9 +3,8 @@
  * content-warning line and a visibility select, over a live `n/max` character
  * counter that reads error-coloured past the limit, with `[ send ]` beside it
  * and the last failure under it. It is controlled: whoever renders it owns the
- * fields — the overlay in local state (./Composer), the composer window in the
- * app state — and decides what a send does, so both show exactly the same
- * thing. Ctrl+Enter or the button asks to send, but only while the draft is
+ * fields (the composer window keeps them in the app state) and decides what a
+ * send does. Ctrl+Enter or the button asks to send, but only while the draft is
  * sendable: text, within the limit, a valid poll if one is open, nothing in
  * flight. The poll editor (./PollSection) needs the instance's poll limits;
  * attachments (WFE-205) go under the text; the compact form (WFE-207) is a DM chat line.

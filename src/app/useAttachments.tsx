@@ -10,7 +10,9 @@
  * post that goes through takes the ids with it — and `add` uploads one file
  * without the dialog: the paste and drop entry points of the next ticket call
  * it. The list lives here, not in the app reducer: it is part of an unsent
- * draft, as transient as the composer box next door.
+ * draft, as transient as the composer box next door. While a composer window
+ * is focused the dialog's files are not pending at all: they go to that
+ * composer as its own media, described by the alt text (WFE-245).
  */
 
 import { useRef, useState } from 'react';
@@ -18,10 +20,12 @@ import type { ChangeEvent, JSX, Ref } from 'react';
 
 import { DEFAULT_MAX_MEDIA_ATTACHMENTS, type Capabilities } from '../capabilities/capabilities';
 import type { CommandContext, PrintLevel } from '../commands/types';
+import { useComposerMedia } from '../features/composer/useComposerMedia';
 import { type AppState, printAction } from '../state/appState';
 import { capabilitiesFor } from '../state/selectors';
-import { useAppDispatch, useAppState } from '../state/StateContext';
+import { type Dispatch, useAppDispatch, useAppState } from '../state/StateContext';
 import { type MediaAttachment, uploadAttachment } from '../state/uploadAttachment';
+import { activeWindow } from '../windows/model';
 
 /** The list every session and every cleared one starts on. */
 const NO_PENDING: readonly MediaAttachment[] = [];
@@ -59,6 +63,21 @@ function maxFor(state: AppState): number {
 /** The files the input just reported, as the array the upload loop wants. */
 function filesOf(input: HTMLInputElement): readonly File[] {
   return input.files === null ? [] : [...input.files];
+}
+
+/** One client message into the active window, the way a command would say it. */
+function printer(dispatch: Dispatch): UploadRun['print'] {
+  return (text, level) => {
+    dispatch(printAction(null, level, text));
+  };
+}
+
+/** The files the input reported, which it is emptied of so the same file can be chosen again. */
+function takeFiles(event: ChangeEvent<HTMLInputElement>): readonly File[] {
+  const input = event.currentTarget;
+  const chosen = filesOf(input);
+  input.value = '';
+  return chosen;
 }
 
 /**
@@ -123,14 +142,13 @@ function FilePicker(props: FilePickerProps): JSX.Element {
 export function useAttachments(): Attachments {
   const state = useAppState();
   const dispatch = useAppDispatch();
+  const focused = activeWindow(state.windows);
+  const composerMedia = useComposerMedia(focused.id, focused.ref.accountKey);
   const [pending, setPending] = useState<readonly MediaAttachment[]>(NO_PENDING);
   const altRef = useRef('');
   const inputRef = useRef<HTMLInputElement>(null);
 
-  /** Say one line in the active window, the way a command would. */
-  function print(text: string, level: PrintLevel): void {
-    dispatch(printAction(null, level, text));
-  }
+  const print = printer(dispatch);
 
   /** Put one accepted attachment at the end of the list. */
   function attach(attachment: MediaAttachment): void {
@@ -142,12 +160,14 @@ export function useAttachments(): Attachments {
     return { files, state, description: altRef.current, starting: pending.length, print, attach };
   }
 
-  /** What the hidden input answers a chosen file list with. */
+  /** A focused composer window takes the chosen files as its own media; else they wait for the next post. */
   function onFiles(event: ChangeEvent<HTMLInputElement>): void {
-    const input = event.currentTarget;
-    const chosen = filesOf(input);
-    input.value = '';
-    void uploadChosen(run(chosen));
+    const chosen = takeFiles(event);
+    if (focused.ref.kind === 'composer') {
+      composerMedia.addDescribed(chosen, altRef.current);
+    } else {
+      void uploadChosen(run(chosen));
+    }
   }
 
   return {

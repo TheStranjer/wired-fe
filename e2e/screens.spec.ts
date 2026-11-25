@@ -65,11 +65,14 @@ async function threadScreen(page: Page): Promise<void> {
   await expect(logRegion(page, THREAD).locator('article')).toHaveCount(4);
 }
 
-/** `/compose` with a draft in it: the modal box, its fields and its counter. */
+/** `/compose` with a draft in it: a composer window floating over home, its fields and its counter. */
 async function composerScreen(page: Page): Promise<void> {
   await showWindow(page, 'home');
   await submit(page, '/compose present day, present time');
-  await expect(page.getByRole('dialog', { name: 'Compose' })).toBeVisible();
+  await expect(page.getByRole('textbox', { name: 'Post text' })).toHaveValue(
+    'present day, present time',
+  );
+  await expect(page.getByRole('combobox', { name: 'Post as' })).toBeVisible();
 }
 
 /** `/help` in window 1: the command list the one registry generates (decision 6). */

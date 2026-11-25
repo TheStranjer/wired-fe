@@ -2,7 +2,7 @@
  * Tests for the context the app builds for one render: printing into the active
  * window at the asked level, the window list and the actions commands ask it
  * for, clearing the active window, refusing to post where no shipped window
- * kind takes posts, opening the composer, and the page, config, registry,
+ * kind takes posts, the command line's text, and the page, config, registry,
  * stores and clock commands read. The kinds are the real ones: status and home,
  * and only that second one posts. How posting reaches a kind that does
  * answer is in useCommandContext.post.test.tsx.
@@ -75,10 +75,10 @@ function registry(): Registry {
 function renderContext(
   actions: readonly AppAction[],
   setInput: (text: string) => void,
-  openComposer: (initialText: string) => void = () => undefined,
+  line = '',
 ): RenderHookResult<Hook, unknown> {
   return renderHook(
-    () => ({ context: useCommandContext(setInput, openComposer, NO_MEDIA), state: useAppState() }),
+    () => ({ context: useCommandContext(setInput, NO_MEDIA, line), state: useAppState() }),
     { wrapper: seeded(actions) },
   );
 }
@@ -169,13 +169,10 @@ describe(useCommandContext, () => {
     expect(setInput).toHaveBeenCalledWith('/dm @lain@wired.example hi');
   });
 
-  it('opens the composer through the callback it was handed', () => {
-    const openComposer = vi.fn();
-    const { context } = renderContext([], vi.fn(), openComposer).result.current;
+  it('carries the text the command line holds', () => {
+    const { context } = renderContext([], vi.fn(), 'a long draft').result.current;
 
-    context.openComposer('a long draft');
-
-    expect(openComposer).toHaveBeenCalledWith('a long draft');
+    expect(context.line).toBe('a long draft');
   });
 
   it('navigates by giving the page a new address', () => {

@@ -54,6 +54,13 @@ export function composerFields(state: AppState, windowId: string): ComposerField
   );
 }
 
+/** Whether window {@link windowId}'s draft holds nothing yet: no text, no warning, no poll, no media. */
+export function composerIsEmpty(state: AppState, windowId: string): boolean {
+  const { text, spoiler, poll } = composerFields(state, windowId);
+  const media = state.composerMedia.get(windowId) ?? [];
+  return text === '' && spoiler === '' && poll === undefined && media.length === 0;
+}
+
 /** {@link text} joined under {@link before} on a new line; alone when nothing is there yet. */
 function appended(before: string, text: string): string {
   return before === '' ? text : `${before}\n${text}`;

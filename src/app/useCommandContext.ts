@@ -4,7 +4,7 @@
  * React context, the registry and the stores from their one lazy load, the
  * configuration from the build (decision 3), `page` and `navigate` from
  * `window.location`, the command line's text back through the `setInput` the
- * caller passes in, the composer overlay through its `openComposer`, the
+ * caller passes in and its current text as `line`, the
  * pending media (WFE-126) through the `attachments` Root's useAttachments
  * hands down, the registry narrowed to what the active account's backend can
  * do (WFE-172), and the key-binding helpers (WFE-130) from src/keys: the
@@ -96,13 +96,14 @@ function posting(
  * the state as it stands right now. Build one per submit (or per bound hotkey)
  * and hand it to `dispatchInput`; {@link setInput} is the command line's own
  * setter, so a command that prefills or edits the line can rewrite it,
- * {@link openComposer} is the app's way to show the composer overlay (WFE-125),
- * and {@link attachments} is its way to hold media for the next post (WFE-126).
+ * {@link line} is what the command line holds (`/compose` takes a half-typed
+ * post from it), and {@link attachments} is the app's way to hold media for
+ * the next post (WFE-126).
  */
 export function useCommandContext(
   setInput: (text: string) => void,
-  openComposer: (initialText: string) => void,
   attachments: CommandContext['attachments'],
+  line: string,
 ): CommandContext {
   const state = useAppState();
   const dispatch = useAppDispatch();
@@ -130,7 +131,7 @@ export function useCommandContext(
     now,
     post: posting(active, { state, dispatch, now, refresh }, attachments),
     setInput,
-    openComposer,
+    line,
     attachments,
     keys: { parseChord: parseSequence, blocksTyping, keymap },
     navigate: (url: string) => {

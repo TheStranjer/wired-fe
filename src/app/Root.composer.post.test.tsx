@@ -1,12 +1,11 @@
 /**
- * Tests for what the composer overlay posts (WFE-125): a send runs through
- * the active window's kind and closes the box, adding the created post to
- * that window's scrollback; an error string comes back shown inside the box
- * with the draft kept; the status window's refusal to post appears the same
- * way; and the active account's instance decides the counter's limit and
- * whether the local audience is offered (decision 5). Startup is mocked.
+ * Tests for what the composer window sends from the shell (WFE-245): `/compose`
+ * opens a window whose send posts as its account and clears the fields, keeping
+ * the window; a failure comes back inside the window with the draft kept; and
+ * the account's instance decides the counter's limit and whether the local
+ * audience is offered (decision 5). Startup is mocked.
  */
-import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -20,7 +19,6 @@ import { type AppAction, appReducer } from '../state/reducer';
 import { AppStateProvider } from '../state/StateContext';
 import { status } from '../test/fixtures';
 import { server } from '../test/server';
-import type { WindowRef } from '../windows/model';
 
 vi.mock(import('./startup'), () => ({ runStartup: vi.fn() }));
 
@@ -36,9 +34,7 @@ const ACCOUNT: StoredAccount = {
   expiresAt: null,
 };
 
-const HOME: WindowRef = { kind: 'home', accountKey: ACCOUNT.key, target: null };
-
-/** What the home window's kind answers a send with. */
+/** What the instance answers a send with. */
 const CREATED = status('42', { content: '<p>a new lament</p>' });
 
 /** A wired instance that serves local-only posts and caps posts at thirty. */
@@ -87,57 +83,50 @@ function submit(text: string): void {
   fireEvent.keyDown(line, { key: 'Enter' });
 }
 
-/** The home timeline and custom emoji list a signed-in home window asks for. */
-function serveHome(): void {
-  server.use(
-    http.get(`${ORIGIN}/api/v1/timelines/home`, () => HttpResponse.json([])),
-    http.get(`${ORIGIN}/api/v1/custom_emojis`, () => HttpResponse.json([])),
-  );
+/** The custom emoji list a signed-in session asks for. */
+function serveEmoji(): void {
+  server.use(http.get(`${ORIGIN}/api/v1/custom_emojis`, () => HttpResponse.json([])));
 }
 
-/** The signed-in home window the send tests post through. */
-const HOME_WINDOW: readonly AppAction[] = [
-  ...SIGNED_IN,
-  { type: 'windows', action: { type: 'open', ref: HOME, title: 'home' } },
-];
+describe('the composer window sending', () => {
+  beforeEach(serveEmoji);
 
-describe('the composer overlay posting', () => {
-  beforeEach(serveHome);
-
-  it('shows the active window’s refusal inside the box and keeps it open', async () => {
-    renderRoot([]);
-
-    submit('/compose shout');
-    fireEvent.click(await screen.findByRole('button', { name: '[ send ]' }));
-
-    const refusal = await screen.findByText("You can't post in this window. Try /home");
-
-    expect(refusal).toBeInTheDocument();
-    expect(screen.getByRole('dialog')).toBeInTheDocument();
-  });
-
-  it('posts through the active home window and closes', async () => {
+  it('posts as the account, then clears the fields and keeps the window', async () => {
     server.use(
       http.post(`${ORIGIN}/api/v1/statuses`, () => {
         return HttpResponse.json(CREATED);
       }),
     );
-    renderRoot(HOME_WINDOW);
+    renderRoot(SIGNED_IN);
 
     submit('/compose hello');
     fireEvent.click(await screen.findByRole('button', { name: '[ send ]' }));
 
-    await waitFor(() => {
-      expect(screen.queryByRole('dialog')).toBeNull();
-    });
-
-    const home = screen.getByRole('log', { name: 'home' });
-    const posted = await within(home).findByText('a new lament');
+    const posted = await screen.findByText(/Posted as/u);
 
     expect(posted).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'Post text' })).toHaveValue('');
+    expect(screen.getByRole('log', { name: 'compose' })).toBeInTheDocument();
   });
 
-  it('reaches the box the instance’s limit and audiences', async () => {
+  it('shows a refused send inside the window and keeps the draft', async () => {
+    server.use(
+      http.post(`${ORIGIN}/api/v1/statuses`, () => {
+        return HttpResponse.json({ error: 'boom' }, { status: 500 });
+      }),
+    );
+    renderRoot(SIGNED_IN);
+
+    submit('/compose shout');
+    fireEvent.click(await screen.findByRole('button', { name: '[ send ]' }));
+
+    const failure = await screen.findByText(/HTTP 500/u);
+
+    expect(failure).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'Post text' })).toHaveValue('shout');
+  });
+
+  it('reaches the window the instance’s limit and audiences', async () => {
     renderRoot(SIGNED_IN);
 
     submit('/compose');
@@ -156,7 +145,7 @@ describe('the composer overlay posting', () => {
     const field = await screen.findByRole('textbox', { name: 'Post text' });
 
     expect(field).toHaveValue('x'.repeat(31));
-    expect(within(screen.getByRole('dialog')).getByText('31/30')).toBeInTheDocument();
+    expect(screen.getByText('31/30')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: '[ send ]' })).toBeDisabled();
   });
 });

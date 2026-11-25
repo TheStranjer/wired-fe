@@ -17,7 +17,7 @@ vi.mock(import('./registry'), () => ({
 
 describe(useCommandContext, () => {
   it('builds a context with no commands in it when the registry failed', () => {
-    const { result } = renderHook(() => useCommandContext(vi.fn(), vi.fn(), fakeAttachments()), {
+    const { result } = renderHook(() => useCommandContext(vi.fn(), fakeAttachments(), ''), {
       wrapper: AppStateProvider,
     });
 
