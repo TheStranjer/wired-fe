@@ -1,8 +1,17 @@
 /* The side pane's nick list: the heading dimmed above, one bracketed nick per
-   line with no bullets, so the pane reads like an IRC user list. */
+   line with no bullets, so the pane reads like an IRC user list. An entry is
+   one non-wrapping flex row: the brackets keep their size and the handle
+   between them is cut with an ellipsis (the full handle is its title). */
 
 .pane {
+  min-width: 0;
   padding: 0 var(--space);
+}
+
+.entry {
+  display: flex;
+  min-width: 0;
+  white-space: nowrap;
 }
 
 .heading {

@@ -3,11 +3,20 @@
    .handle so they win on source order at equal specificity. */
 
 .bracket {
+  flex: none;
   color: var(--color-dim);
 }
 
 .handle {
   color: var(--color-fg);
+}
+
+.truncate {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .button {

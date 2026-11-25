@@ -41,8 +41,9 @@ function NickEntry(props: {
 }): JSX.Element {
   const { account, onSelect } = props;
   return (
-    <li>
+    <li className={styles['entry']}>
       <Nick
+        truncate
         handle={account.acct}
         fullHandle={account.fullHandle}
         self={account.self}

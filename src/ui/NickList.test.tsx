@@ -56,4 +56,14 @@ describe(NickList, () => {
     expect(screen.getByText('recently here')).toBeInTheDocument();
     expect(screen.queryByRole('button')).toBeNull();
   });
+
+  it('renders a 40-character handle as one entry holding the full handle as its title', () => {
+    const acct = `${'a'.repeat(20)}@${'b'.repeat(19)}`;
+    const long: ListedAccount = { id: '3', acct, fullHandle: `@${acct}`, self: false };
+    render(<NickList title="recently here" accounts={[long]} onSelect={vi.fn()} />);
+
+    const entry = within(screen.getByRole('list')).getByRole('listitem');
+
+    expect(within(entry).getByTitle(`@${acct}`)).toHaveTextContent(acct);
+  });
 });

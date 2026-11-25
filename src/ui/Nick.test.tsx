@@ -58,4 +58,11 @@ describe(Nick, () => {
     expect(container.textContent).toBe('<alice>');
     expect(screen.getByRole('button', { name: '@alice@m.example' })).toBeInTheDocument();
   });
+
+  it('renders the same bracketed text and title when told to truncate', () => {
+    const { container } = render(<Nick {...BASE_PROPS} truncate />);
+
+    expect(container.textContent).toBe('<alice>');
+    expect(screen.getByText('alice')).toHaveAttribute('title', '@alice@m.example');
+  });
 });

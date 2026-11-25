@@ -5,7 +5,7 @@
 .shell {
   display: grid;
   grid-template-rows: auto 1fr auto auto;
-  grid-template-columns: 1fr 18ch;
+  grid-template-columns: minmax(0, 1fr) 24ch;
   height: 100%;
 }
 
@@ -29,7 +29,7 @@
   grid-column: 2;
   min-height: 0;
   border-left: 1px solid var(--color-dim);
-  overflow-y: auto;
+  overflow: hidden auto;
 }
 
 .footer {
