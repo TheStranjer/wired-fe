@@ -1,12 +1,10 @@
 /**
  * The whole application as one immutable value, and the reducer that moves it
  * (AGENTS.md "Layout": src/state is the pure app state). Windows and their
- * scrollbacks, the signed-in accounts (and which of them expired), what their
- * instances turned out to be, the keyboard's mode and the reader's settings
- * sit in one place so a command, a hotkey and a click ask for one transition.
- *
- * Every case returns the state it was handed when the action changes nothing,
- * and the pieces of a transition live in ./appReducer next door.
+ * scrollbacks, the accounts, what their instances turned out to be, the
+ * keyboard's mode and the settings sit in one place so a command, a hotkey and
+ * a click ask for one transition. Every case returns the state it was handed
+ * when the action changes nothing; the pieces live in ./appReducer.
  */
 
 import {
@@ -22,6 +20,7 @@ import {
   withExpired,
 } from './appReducer';
 import { type Buffer, EMPTY_BUFFER, appendSystem, clearBuffer, type LineLevel } from './buffer';
+import type { ComposerFields } from './draft';
 import { DEFAULT_SETTINGS, type Settings } from './settings';
 import type { StoredAccount } from '../accounts/accountStore';
 import type { InstanceProfile } from '../capabilities/detect';
@@ -51,6 +50,8 @@ export type AppState = {
   readonly expired: ReadonlySet<string>;
   /** What each instance turned out to be, by origin (decision 5). */
   readonly profiles: ReadonlyMap<string, InstanceProfile>;
+  /** The pane composers' drafts, by window id (./composerActions). */
+  readonly composers: ReadonlyMap<string, ComposerFields>;
   readonly mode: InputModeState;
   readonly settings: Settings;
   /** The client-message counter: every printed line is keyed by its value. */
@@ -67,8 +68,7 @@ export type CoreAction =
       readonly date: Date;
       readonly level: LineLevel;
       readonly text: string;
-      /** The line is decorative ASCII art (WFE-135): stored on the line so
-       * the view can hide it from assistive technology. Omitted otherwise. */
+      /** Decorative ASCII art (WFE-135): the view hides it from assistive technology. */
       readonly decorative?: boolean;
     }
   | { readonly type: 'clear'; readonly windowId: string }
@@ -104,6 +104,7 @@ export function initialAppState(settings: Settings = DEFAULT_SETTINGS): AppState
     activeAccountKey: null,
     expired: new Set<string>(),
     profiles: new Map<string, InstanceProfile>(),
+    composers: new Map<string, ComposerFields>(),
     mode: 'insert',
     settings,
     seq: 0,
@@ -126,7 +127,7 @@ export function coreReducer(state: AppState, action: CoreAction): AppState {
     case 'profile':
       return applyProfile(state, action.profile);
     case 'mode':
-      return applyMode(state, action.mode);
+      return state.mode === action.mode ? state : { ...state, mode: action.mode };
     case 'settings':
       return applySettings(state, action.settings);
   }
@@ -185,11 +186,6 @@ function applyProfile(state: AppState, profile: InstanceProfile): AppState {
     return state;
   }
   return { ...state, profiles };
-}
-
-/** The mode the keyboard is in. */
-function applyMode(state: AppState, mode: InputModeState): AppState {
-  return state.mode === mode ? state : { ...state, mode };
 }
 
 /** The reader's settings, with {@link patch} laid over them. */

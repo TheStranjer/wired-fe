@@ -7,7 +7,7 @@
 
 import { setDisplay } from './display';
 import type { DisplayChange } from './display';
-import { STATUS_WINDOW_ID, withActive, windowId } from './model';
+import { STATUS_WINDOW_ID, withAccountKey, withActive, windowId } from './model';
 import type { WindowRef, WindowsState, WindowState } from './model';
 import { activateNext, activateNumber, activatePrevious, moveWindow } from './navigation';
 import { markRead, markUnread } from './unread';
@@ -17,6 +17,7 @@ export type WindowsAction =
   | { readonly type: 'open'; readonly ref: WindowRef; readonly title: string }
   | { readonly type: 'close'; readonly id: string }
   | { readonly type: 'activate'; readonly id: string }
+  | { readonly type: 'setAccount'; readonly id: string; readonly accountKey: string }
   | { readonly type: 'activateNumber'; readonly number: number }
   | { readonly type: 'next' }
   | { readonly type: 'previous' }
@@ -53,6 +54,9 @@ export function windowsReducer(state: WindowsState, action: WindowsAction): Wind
   if (isUnreadAction(action)) {
     return unreadReducer(state, action);
   }
+  if (isNavigation(action)) {
+    return navigate(state, action);
+  }
   switch (action.type) {
     case 'open':
       return openWindow(state, action.ref, action.title);
@@ -60,6 +64,32 @@ export function windowsReducer(state: WindowsState, action: WindowsAction): Wind
       return closeWindow(state, action.id);
     case 'activate':
       return withActive(state, action.id);
+    case 'setAccount':
+      return withAccountKey(state, action.id, action.accountKey);
+    case 'setDisplay':
+      return setDisplay(state, action.id, action.overrides);
+  }
+}
+
+/** The actions that move through or around the list, built in navigation next door. */
+type NavigationAction = Extract<
+  WindowsAction,
+  { readonly type: 'activateNumber' | 'next' | 'previous' | 'move' }
+>;
+
+/** Whether {@link action} is one of the {@link NavigationAction}s. */
+function isNavigation(action: WindowsAction): action is NavigationAction {
+  return (
+    action.type === 'activateNumber' ||
+    action.type === 'next' ||
+    action.type === 'previous' ||
+    action.type === 'move'
+  );
+}
+
+/** Apply a navigation action. */
+function navigate(state: WindowsState, action: NavigationAction): WindowsState {
+  switch (action.type) {
     case 'activateNumber':
       return activateNumber(state, action.number);
     case 'next':
@@ -68,8 +98,6 @@ export function windowsReducer(state: WindowsState, action: WindowsAction): Wind
       return activatePrevious(state);
     case 'move':
       return moveWindow(state, action.id, action.toNumber);
-    case 'setDisplay':
-      return setDisplay(state, action.id, action.overrides);
   }
 }
 

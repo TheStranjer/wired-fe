@@ -5,16 +5,15 @@
  * plain text uses — a long post means whatever the active window says a post
  * means, pending media and all (WFE-126). The active account's instance sets
  * the length limit and decides whether the local audience is offered
- * (decision 5).
+ * (decision 5, src/state/composerActions).
  */
 
 import { useState } from 'react';
 import type { JSX } from 'react';
 
 import { useCommandContext } from './useCommandContext';
-import { type Capabilities, hasFeature } from '../capabilities/capabilities';
 import type { CommandContext } from '../commands/types';
-import { capabilitiesFor } from '../state/selectors';
+import { composerLimits } from '../state/composerActions';
 import { useAppState } from '../state/StateContext';
 import { Overlay } from '../ui/Overlay';
 import { Composer } from '../views/Composer';
@@ -28,17 +27,9 @@ type ComposerState = {
 /** The box, closed and empty: where the shell starts and returns to. */
 const NOT_OPEN: ComposerState = { open: false, initialText: '' };
 
-/** The post length of an instance nothing is known about, as src/capabilities counts it. */
-const UNKNOWN_MAX_CHARACTERS = 500;
-
 /** The command-line setter this context never needs: only its post handler is read. */
 function ignoreInput(): void {
   // The overlay posts; it never rewrites the command line.
-}
-
-/** Whether an instance with {@link capabilities} offers the local audience. */
-function allowsLocal(capabilities: Capabilities | null): boolean {
-  return capabilities !== null && hasFeature(capabilities, 'localOnlyPosts');
 }
 
 /** What the composer overlay gives Root: the opener commands call, and the box. */
@@ -60,7 +51,7 @@ export function useComposerOverlay(attachments: CommandContext['attachments']): 
     setComposer(NOT_OPEN);
   };
   const { post } = useCommandContext(ignoreInput, openComposer, attachments);
-  const capabilities = capabilitiesFor(state, state.activeAccountKey);
+  const { allowLocal, maxCharacters } = composerLimits(state, state.activeAccountKey);
   if (!composer.open) {
     return { openComposer, overlay: null };
   }
@@ -69,10 +60,10 @@ export function useComposerOverlay(attachments: CommandContext['attachments']): 
     overlay: (
       <Overlay label="Compose" onClose={closeComposer}>
         <Composer
-          allowLocal={allowsLocal(capabilities)}
+          allowLocal={allowLocal}
           defaultVisibility={state.settings.defaultVisibility}
           initialText={composer.initialText}
-          maxCharacters={capabilities?.maxCharacters ?? UNKNOWN_MAX_CHARACTERS}
+          maxCharacters={maxCharacters}
           onClose={closeComposer}
           onSubmit={post}
         />

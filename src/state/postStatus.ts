@@ -18,7 +18,9 @@ import { accountByKey } from './selectors';
 import type { PostContext } from './windowKind';
 import { createStatus } from '../api/endpoints/statusWrite';
 import { describeApiError } from '../api/errors';
+import type { Status } from '../api/schemas/status';
 import { NOT_LOGGED_IN_MESSAGE } from '../lib/refusal';
+import { type Result, err } from '../lib/result';
 
 /**
  * Creates the status for {@link params.accountKey} through the session that
@@ -34,22 +36,37 @@ export async function postStatus(
     readonly draft: Draft;
   },
 ): Promise<string | null> {
+  const created = await createPost(context, params.accountKey, params.draft);
+  if (!created.ok) {
+    return created.error;
+  }
+  context.dispatch(statusesAction(params.windowId, [created.value], 'newer'));
+  return null;
+}
+
+/**
+ * Creates the status for {@link accountKey} and hands it back without adding it
+ * to any scrollback — what a window that shows no posts (the composer) needs.
+ * The error is the message to print: no session at all, or whatever
+ * {@link describeApiError} says of a failed create.
+ */
+export async function createPost(
+  context: Pick<PostContext, 'state' | 'dispatch' | 'refresh'>,
+  accountKey: string | null,
+  draft: Draft,
+): Promise<Result<Status, string>> {
   const { state, dispatch } = context;
-  const account = accountByKey(state, params.accountKey);
+  const account = accountByKey(state, accountKey);
   if (account === null) {
-    return NOT_LOGGED_IN_MESSAGE;
+    return err(NOT_LOGGED_IN_MESSAGE);
   }
   const refresh = context.refresh ?? { refresher: null, dispatch, getState: () => state };
-  const status = draftToNewStatus(params.draft, state.settings.defaultVisibility);
+  const status = draftToNewStatus(draft, state.settings.defaultVisibility);
   const key = crypto.randomUUID();
   const created = await withFreshToken(
     refresh,
     account.key,
     async (session) => await createStatus(session, status, key),
   );
-  if (!created.ok) {
-    return describeApiError(created.error);
-  }
-  dispatch(statusesAction(params.windowId, [created.value], 'newer'));
-  return null;
+  return created.ok ? created : err(describeApiError(created.error));
 }
