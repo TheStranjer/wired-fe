@@ -3,9 +3,18 @@
  * Every other stylesheet uses var(--...). Stylelint enforces this.
  * Three themes, chosen by `/theme` (WFE-131) and set as `data-theme` on the
  * root element by src/app/useTheme; the bare `:root` is the `wired` default:
- * green on black. `lain` is the pink-and-dark Wicked-Lain palette, `bnet` the
- * Battle.net blue-and-gold one. Warnings and errors stay amber and red (kept
- * readable in each theme) so they read as different from ordinary text.
+ * pseudomonochrome (decision 16), near-black with grey-white text, lime kept
+ * for `--color-accent` and the pane borders. `lain` is the pink-and-dark
+ * Wicked-Lain palette, `bnet` the Battle.net blue-and-gold one. Warnings and
+ * errors stay amber and red (kept readable in each theme) so they read as
+ * different from ordinary text.
+ *
+ * `--color-border` frames a pane; `--color-border-focus` is a darker, duller
+ * version of it for the focused pane (focus is also marked by `[*]` in the
+ * title, never by colour alone). Borders are not text, so they are exempt from
+ * the 4.5:1 rule below, but each focus border keeps at least 3:1 against
+ * `--color-bg` (WCAG 1.4.11) and stays visibly distinct from `--color-border`.
+ * `--border-width` and `--border-width-focus` are the matching thicknesses.
  *
  * Every color here is text on `--color-bg` or on `--color-bar-bg` somewhere in
  * the shell, so every one of them clears 4.5:1 against both (WCAG 2.1 AA at the
@@ -17,12 +26,16 @@
  * readable contrast.
  */
 :root {
-  --color-bg: #000;
-  --color-fg: #3d6;
-  --color-dim: #34ab58;
+  --color-bg: #0a0a0a;
+  --color-fg: #d0d0d0;
+  --color-dim: #8f8f8f;
   --color-accent: #8dffaa;
-  --color-bar-bg: #0c2a16;
-  --color-bar-fg: #8dffaa;
+  --color-border: #6f3;
+  --color-border-focus: #1f7a3a;
+  --border-width: 1px;
+  --border-width-focus: 2px;
+  --color-bar-bg: #161616;
+  --color-bar-fg: #b8b8b8;
   --color-ok: #3d6;
   --color-warn: #e0b040;
   --color-error: #ff5050;
@@ -40,6 +53,10 @@
   --color-fg: #d7c6cc;
   --color-dim: #a3868f;
   --color-accent: #e0507a;
+  --color-border: #e0507a;
+  --color-border-focus: #a84763;
+  --border-width: 1px;
+  --border-width-focus: 2px;
   --color-bar-bg: #2a1119;
   --color-bar-fg: #f0a0b8;
   --color-ok: #6fdc8c;
@@ -55,6 +72,10 @@
   --color-fg: #e8e8e8;
   --color-dim: #9a9a9a;
   --color-accent: #f2d34b;
+  --color-border: #f2d34b;
+  --color-border-focus: #8c7424;
+  --border-width: 1px;
+  --border-width-focus: 2px;
   --color-bar-bg: #1b2a44;
   --color-bar-fg: #cfd8e8;
   --color-ok: #52d452;
