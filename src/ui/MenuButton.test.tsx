@@ -174,3 +174,13 @@ describe(MenuButton, () => {
     expect(screen.getByRole('menu')).toHaveFocus();
   });
 });
+
+describe('MenuButton item names', () => {
+  it('uses an item name as its accessible name instead of its text', () => {
+    const { button } = setup([{ id: 'a', label: 'Avatars •', checked: true, name: 'Avatars, on' }]);
+
+    fireEvent.click(button);
+
+    expect(screen.getByRole('menuitemcheckbox', { name: 'Avatars, on' })).toBeInTheDocument();
+  });
+});
