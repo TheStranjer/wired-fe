@@ -6,17 +6,21 @@ Rules for anyone (human or AI) changing this codebase. Read `docs/ARCHITECTURE.m
 
 WiredFE is the web frontend for Wired, a fediverse server (backend: [wired-be](https://github.com/TheStranjer/wired-be)). It also works against Mastodon and Pleroma/Akkoma servers, with fewer features.
 
-It should feel like the 1990s internet of _Serial Experiments Lain_: part IRC client, part 1990s Battle.net chat, part terminal. It is not a Twitter clone with a dark theme. Concretely:
+It should feel like the 1990s internet of _Serial Experiments Lain_: part tiling window manager, part terminal, part modern social client. Concretely:
 
-- **The command line is the composer.** A single input line sits at the bottom. Typing plain text and pressing Enter posts it to the active window: a new post in a timeline, a reply in a thread, a DM in a DM window. Text starting with `/` is a command (`/dm @someone@example.com hey`, `/fav a3`, `/follow`, `/win 3`, `/help`). `//text` posts a literal leading slash.
-- **Windows, like IRC buffers.** Each window belongs to one account and shows one view (home, notifications, a thread, a DM, a hashtag, a profile). A status line lists them with unread counts. `Alt+1..9` or `/win N` switches between them.
-- **Two hotkey modes.** Insert mode types into the command line. `Esc` enters navigation mode, where single keys act (`j`/`k` and the arrow keys move between posts, `f` favourite, `b` boost, `r` reply, `t` thread, `?` help); `i` or `Enter` goes back. Arrow keys move between things WeeChat-style in both modes where it is unambiguous. Every binding is rebindable.
-- **Everything is reachable three ways:** a command, a hotkey, and a click. All three come from one command registry (decision 6); never wire one without the others.
+- **A tiling desktop.** The screen is a desktop of panes split side by side or stacked; any pane can be torn off into a floating window dragged around inside the viewport (decision 12). Thin lime borders, little ornament.
+- **Any view in any pane.** Feeds, a composer, a thread, a DM, notifications, a profile, search: each is a window kind and can be shown in any pane or float (decision 13).
+- **Feeds are what the user says.** A feed mixes any sources from any signed-in accounts into one stream (decision 14).
+- **Posts look like posts.** Cards with avatar, name, body, inline images and an action bar by default; the IRC-line rendering stays as a per-window choice (decision 15).
+- **The command line is always there, never required.** The input line at the bottom can do everything the GUI does (`/vsplit feed main`, `/float`, `/desktop 3`, `/fav a3`); plain text posts to the focused window; `//text` posts a literal leading slash.
+- **Everything is reachable three ways** (command, hotkey, click) from one registry (decision 6); never wire one without the others.
+- **Two hotkey modes**, plus key sequences: tmux-style `Ctrl+B %` and vim-style `w v` are the default layout keys, all rebindable (decision 18).
 - **Every post has a short label** (`[a3]`) so commands can refer to it.
 - **Multi-account and multi-instance from day one.** The active account is always visible. `/as @me@other.example <text>` acts as another account for one command.
-- **Monospace grid, theme tokens, optional effects.** CRT/glitch effects are opt-in, honour `prefers-reduced-motion`, and never flash.
+- **Pseudomonochrome** (decision 16). Effects stay opt-in, honour `prefers-reduced-motion`, and never flash.
+- **Your desk follows you** (decision 17).
 
-When a design choice is unclear, pick what an IRC power user would expect, then make it reachable by mouse.
+When a design choice is unclear, pick what a tiling-WM and IRC power user would expect, then make it reachable by mouse.
 
 ## The gate
 
@@ -73,7 +77,7 @@ src/
   views/          rendering shared by every window: lines, buffers, timeline loading
   ui/             presentational components: no data fetching, no account state
   keys/           keymap, modes (insert/navigation), rebinding
-  windows/        window list state: open, close, activate, numbering, unread (pure)
+  windows/        window list and desktop layout state: windows, panes, floats, desktops (pure)
   state/          pure app state: windows, line buffers, accounts, settings; reducer and React context
   commands/       the command registry, parser, completion, /help
   accounts/       multi-account store, OAuth app registration and login, token storage
