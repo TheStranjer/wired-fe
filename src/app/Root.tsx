@@ -1,8 +1,8 @@
 /**
  * The shell wired to real state (AGENTS.md "Windows, like IRC buffers"): every
  * region is drawn from the app state the AppStateProvider above holds. The
- * active window's kind decides its topic, its scrollback and its side pane of
- * who is in the window (./SidePane, WFE-133); the window list, the active
+ * active window's kind decides its topic and its scrollback (who is in a
+ * window is the `people` window kind, src/features/people); the window list, the active
  * account, the clock and the hotkey mode fill the status line; the command
  * line (./CommandLine) hands every typed or chord-bound line to the
  * dispatcher (decision 6), which runs a command or posts through the window's
@@ -22,7 +22,6 @@ import { DesktopView } from './DesktopView';
 import { KINDS } from './loadedKinds';
 import { appRegistry } from './registry';
 import { Shell } from './Shell';
-import { SidePane } from './SidePane';
 import { StatusBar, accountLabel } from './StatusBar';
 import { appStores } from './stores';
 import { useAttachments } from './useAttachments';
@@ -92,7 +91,7 @@ function useLoadFailures(): void {
   }, [dispatch]);
 }
 
-/** The five shell regions, filled from the app state above it. */
+/** The shell regions, filled from the app state above it. */
 export function Root(): JSX.Element {
   const state = useAppState();
   const active = activeWindow(state.windows);
@@ -116,7 +115,6 @@ export function Root(): JSX.Element {
         topic={<Topic win={active} state={state} />}
         scrollback={<DesktopView />}
         scrollbackLabel={`Desktop ${String(state.layout.active + 1)}`}
-        sidePane={<SidePane win={active} />}
         statusLine={
           <StatusBar pendingMedia={attachments.pending.length} pendingKeys={pendingKeys.prefix} />
         }

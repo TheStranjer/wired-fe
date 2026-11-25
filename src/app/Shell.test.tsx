@@ -11,7 +11,6 @@ import type { ShellProps } from './Shell';
 const SLOTS: ShellProps = {
   topic: <span>topic-slot</span>,
   scrollback: <span>scrollback-slot</span>,
-  sidePane: <span>side-pane-slot</span>,
   statusLine: <span>status-line-slot</span>,
   input: <span>input-slot</span>,
 };
@@ -33,14 +32,6 @@ describe(Shell, () => {
     render(<Shell {...SLOTS} scrollbackLabel="Desktop 2" />);
 
     expect(screen.getByRole('main', { name: 'Desktop 2' })).toBeInTheDocument();
-  });
-
-  it('renders the side pane slot in a Users complementary region', () => {
-    render(<Shell {...SLOTS} />);
-
-    const users = screen.getByRole('complementary', { name: 'Users' });
-
-    expect(within(users).getByText('side-pane-slot')).toBeInTheDocument();
   });
 
   it('renders the status line and input slots in the footer', () => {
