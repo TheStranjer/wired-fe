@@ -29,6 +29,12 @@ describe(Shell, () => {
     expect(within(screen.getByRole('main')).getByText('scrollback-slot')).toBeInTheDocument();
   });
 
+  it('names the main region after the scrollback label', () => {
+    render(<Shell {...SLOTS} scrollbackLabel="Desktop 2" />);
+
+    expect(screen.getByRole('main', { name: 'Desktop 2' })).toBeInTheDocument();
+  });
+
   it('renders the side pane slot in a Users complementary region', () => {
     render(<Shell {...SLOTS} />);
 

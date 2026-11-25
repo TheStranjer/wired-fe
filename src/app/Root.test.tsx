@@ -96,9 +96,10 @@ function serveNoCustomEmojis(): void {
   );
 }
 
-/** The topic bar, the shell's banner region. */
+/** The topic bar, the shell's first banner region (pane title bars are headers too). */
 function banner(): HTMLElement {
-  return screen.getByRole('banner');
+  const [topic] = screen.getAllByRole('banner');
+  return topic ?? screen.getByRole('banner');
 }
 
 describe(Root, () => {
@@ -113,6 +114,14 @@ describe(Root, () => {
     expect(within(banner()).getByText('status')).toBeInTheDocument();
     expect(within(banner()).getByText('WIRED — Present day. Present time.')).toBeInTheDocument();
     expect(screen.getByRole('log', { name: 'status' })).toBeInTheDocument();
+  });
+
+  it('draws the active desktop in a main region named after its number', () => {
+    renderRoot([]);
+
+    const desktop = screen.getByRole('main', { name: 'Desktop 1' });
+
+    expect(within(desktop).getByRole('region', { name: 'status' })).toBeInTheDocument();
   });
 
   it('names the window and active accounts by handle', () => {

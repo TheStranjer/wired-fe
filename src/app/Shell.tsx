@@ -14,6 +14,8 @@ export type ShellProps = {
   readonly topic: ReactNode;
   /** The active window's scrollback, the tall region on the left. */
   readonly scrollback: ReactNode;
+  /** The accessible name of the scrollback region, e.g. `Desktop 1`. */
+  readonly scrollbackLabel?: string | undefined;
   /** The user list beside the scrollback. */
   readonly sidePane: ReactNode;
   /** The status line, directly above the command line. */
@@ -24,12 +26,14 @@ export type ShellProps = {
 
 /** The viewport-filling grid of the five shell regions. */
 export function Shell(props: ShellProps): JSX.Element {
-  const { topic, scrollback, sidePane, statusLine, input } = props;
+  const { topic, scrollback, scrollbackLabel, sidePane, statusLine, input } = props;
 
   return (
     <div className={styles['shell']}>
       <header className={styles['topic']}>{topic}</header>
-      <main className={styles['scrollback']}>{scrollback}</main>
+      <main aria-label={scrollbackLabel} className={styles['scrollback']}>
+        {scrollback}
+      </main>
       <aside aria-label="Users" className={styles['sidePane']}>
         {sidePane}
       </aside>
