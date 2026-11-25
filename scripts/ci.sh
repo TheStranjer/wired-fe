@@ -10,6 +10,13 @@
 # everything that is broken. The exception is the install: without the locked
 # dependencies nothing else can run, so a failed install stops the gate.
 #
+# The output is terse, so an LLM can read all of it: no news is good news.
+# Each check's output is captured. A passing check prints nothing, unless its
+# output has warning lines, which are printed alone. A failing check prints
+# its whole output. Every tool runs with its most compact reporter, and colour
+# codes, the repository path prefix, blank lines and rule lines are stripped.
+# A fully green run prints nothing at all.
+#
 # The exit status is explicit: 0 when every check passed, 1 otherwise.
 #
 # Usage:
@@ -32,57 +39,80 @@ if ! command -v pnpm >/dev/null 2>&1; then
   exit 1
 fi
 
+export NO_COLOR=1
+
+log_dir="$(mktemp -d)"
+trap 'rm -rf -- "$log_dir"' EXIT
+
+# Lines of a passing check's output that are still worth reporting.
+WARNING_PATTERN='(^|[^[:alpha:]])(warn|deprecat)|\(!\)'
+
 failed_checks=()
 
-# step LABEL COMMAND... — print the label, stream the command's own output
-# through untouched, and remember the label when the command fails.
+# clean LOG — print LOG without colour codes, carriage returns, the absolute
+# repository path, blank lines or lines drawn only from rule characters.
+clean() {
+  sed -E \
+    -e 's/\x1b\[[0-9;?]*[[:alpha:]]//g' \
+    -e 's/\r//g' \
+    -e "s|${repo_root}/||g" \
+    -e '/^[[:space:]⎯─━═-]*$/d' \
+    "$1"
+}
+
+# step LABEL COMMAND... — run the command with its output captured. On
+# success print only its warning lines, if any; on failure print all of its
+# output and remember the label.
 step() {
-  local label="$1"
+  local label="$1" log warnings
   shift
-  printf '\n==> %s\n' "$label"
-  if ! "$@"; then
-    failed_checks+=("$label")
-    printf 'FAILED: %s\n' "$label" >&2
-    return 1
+  log="$log_dir/${label//[^[:alnum:]]/-}.log"
+  if "$@" >"$log" 2>&1; then
+    warnings="$(clean "$log" | grep -iE "$WARNING_PATTERN")"
+    if [[ -n "$warnings" ]]; then
+      printf '== %s: warnings\n%s\n' "$label" "$warnings"
+    fi
+    return 0
   fi
+  failed_checks+=("$label")
+  printf '== %s: FAILED\n' "$label"
+  clean "$log"
+  return 1
 }
 
 # skip LABEL REASON — record a check that could not run as failed.
 skip() {
-  printf '\n==> %s\nFAILED: %s (skipped: %s)\n' "$1" "$1" "$2" >&2
   failed_checks+=("$1 (skipped: $2)")
 }
 
 if ! step 'install (frozen lockfile)' pnpm install --frozen-lockfile --prefer-offline; then
-  printf '\nThe locked dependencies could not be installed; nothing else can run.\n' >&2
+  printf 'Nothing else ran.\n'
   exit 1
 fi
 
-step 'Prettier' pnpm exec prettier --check .
-step 'TypeScript' pnpm exec tsc -b
+step 'Prettier (unformatted files)' pnpm exec prettier --list-different .
+step 'TypeScript' pnpm exec tsc -b --pretty false
 step 'ESLint' pnpm exec eslint --max-warnings 0 .
-step 'Stylelint' pnpm exec stylelint --max-warnings 0 'src/**/*.css'
+step 'Stylelint' pnpm exec stylelint --max-warnings 0 --formatter unix 'src/**/*.css'
 step 'file sizes' scripts/check-file-sizes.sh
-step 'unit tests + coverage' pnpm exec vitest run --coverage
-step 'knip (unused files, exports, dependencies)' pnpm exec knip
+step 'unit tests + coverage' pnpm exec vitest run --reporter=dot --silent=passed-only \
+  --coverage --coverage.reporter=text --coverage.skipFull
+step 'knip (unused files, exports, dependencies)' pnpm exec knip --reporter compact --no-progress
 
 if step 'build' pnpm exec vite build; then
   step 'bundle size report' pnpm exec size-limit
-  step 'end-to-end tests' pnpm exec playwright test
+  step 'end-to-end tests' pnpm exec playwright test --reporter=dot
 else
   skip 'bundle size report' 'build failed'
   skip 'end-to-end tests' 'build failed'
 fi
 
 # Exit explicitly: green means 0, anything else means 1.
-printf '\n'
 if ((${#failed_checks[@]} == 0)); then
-  printf 'All checks passed.\n'
   exit 0
 fi
 
-printf 'Failed checks:\n'
-for check in "${failed_checks[@]}"; do
-  printf '  - %s\n' "$check"
-done
+printf 'FAILED:'
+printf ' [%s]' "${failed_checks[@]}"
+printf '\n'
 exit 1
