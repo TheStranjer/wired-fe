@@ -7,6 +7,7 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { PostCard } from './PostCard';
 import { AVATAR, BASE_PROPS, renderCard } from './postCardHarness';
+import type { ClickModifiers } from '../lib/clickModifiers';
 
 describe(PostCard, () => {
   it('is an article named by label and full handle', () => {
@@ -170,7 +171,7 @@ describe(PostCard, () => {
   });
 
   it('hands a clicked body link to the app and keeps the browser away', () => {
-    const onContentLink = vi.fn<(href: string) => boolean>(() => true);
+    const onContentLink = vi.fn<(href: string, click: ClickModifiers) => boolean>(() => true);
     const { onSelect } = renderCard({
       contentHtml: '<p><a href="https://wired.example/tags/rust">#rust</a></p>',
       onContentLink,
@@ -178,7 +179,10 @@ describe(PostCard, () => {
 
     const proceeded = fireEvent.click(screen.getByRole('link', { name: '#rust' }));
 
-    expect(onContentLink).toHaveBeenCalledExactlyOnceWith('https://wired.example/tags/rust');
+    expect(onContentLink).toHaveBeenCalledExactlyOnceWith(
+      'https://wired.example/tags/rust',
+      expect.objectContaining({ button: 0 }),
+    );
     expect(proceeded).toBe(false);
     expect(onSelect).not.toHaveBeenCalled();
   });

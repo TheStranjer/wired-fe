@@ -6,14 +6,14 @@
  * finds the window that already shows it (src/windows/reducer).
  */
 
-import type { WindowsAction } from '../windows/reducer';
+import type { OpenAction } from './placement';
 
 /**
  * The window-list transition that opens the timeline of the hashtag {@link name}
  * (already lowercase, without its `#`), owned by the window-list state
  * {@link accountKey} names, titled `#<name>`.
  */
-export function hashtagWindowOpen(name: string, accountKey: string): WindowsAction {
+export function hashtagWindowOpen(name: string, accountKey: string): OpenAction {
   return {
     type: 'open',
     ref: { kind: 'hashtag', accountKey, target: name },

@@ -25,6 +25,7 @@ import { PostRowHead } from './PostRowHead';
 import { QuoteBlock, type QuoteBlockProps } from './QuoteBlock';
 import { postArticleProps } from './rowClick';
 import type { Via } from './ViaMark';
+import type { ClickModifiers } from '../lib/clickModifiers';
 import type { ClockFormat } from '../lib/time';
 
 /**
@@ -88,11 +89,11 @@ export type PostRowProps = {
   readonly onSelect: () => void;
   /** Called when the row is double-clicked outside its controls: pop its thread out. */
   readonly onPop: () => void;
-  /** Called when the nick is clicked. */
-  readonly onSelectAuthor: () => void;
-  /** Called with the href of a link in the body that was plainly clicked;
-   * returns true when the app opened it itself, so the browser must not. */
-  readonly onContentLink: (href: string) => boolean;
+  /** Called with the click when the nick is clicked. */
+  readonly onSelectAuthor: (click: ClickModifiers) => void;
+  /** Called with the href of a link in the body that was clicked, and the
+   * click; returns true when the app opened it itself, so the browser must not. */
+  readonly onContentLink: (href: string, click: ClickModifiers) => boolean;
 } & PostMetaProps;
 
 /** The parts of {@link PostRowProps} the post's own line draws: everything but

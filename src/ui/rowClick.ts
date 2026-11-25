@@ -1,5 +1,6 @@
 /**
- * Where a click inside a post row goes: a plain click on a link in the body
+ * Where a click inside a post row goes: a click (any modifier, primary or
+ * middle button) on a link in the body
  * goes to the app when it opens that link itself (a mention or a hashtag), a
  * click on any other control stays with that control, and a click on the rest
  * of the row selects it. A double-click on the rest of the row pops the post
@@ -9,11 +10,13 @@
  */
 import type { MouseEvent } from 'react';
 
+import { type ClickModifiers, isMiddleClick } from '../lib/clickModifiers';
+
 /** What a row does with a click: select itself, or open a body link in the app. */
 type RowClickHandlers = {
   readonly onSelect: () => void;
   /** True when the app opened {@link href} itself, so the browser must not. */
-  readonly onContentLink: (href: string) => boolean;
+  readonly onContentLink: (href: string, click: ClickModifiers) => boolean;
 };
 
 /** What a post article needs to say about itself and to route clicks. */
@@ -35,6 +38,7 @@ type PostArticleProps = {
   readonly 'aria-current': 'true' | undefined;
   readonly 'aria-label': string;
   readonly onClickCapture: (event: MouseEvent<HTMLElement>) => void;
+  readonly onAuxClickCapture: (event: MouseEvent<HTMLElement>) => void;
   readonly onDoubleClickCapture: (event: MouseEvent<HTMLElement>) => void;
 };
 
@@ -60,6 +64,9 @@ export function postArticleProps(input: PostArticleInput): PostArticleProps {
     onClickCapture: (event) => {
       routeRowClick(event, handlers);
     },
+    onAuxClickCapture: (event) => {
+      offerLink(event, handlers);
+    },
     onDoubleClickCapture: (event) => {
       if (controlOf(event, CONTROLS) === null) {
         onPop();
@@ -68,31 +75,35 @@ export function postArticleProps(input: PostArticleInput): PostArticleProps {
   };
 }
 
-/** True for the primary button with no modifier: the click that follows a
- * link in this page, where the others open it in a new tab or window. */
-function isPlain(event: MouseEvent<HTMLElement>): boolean {
-  return event.button === 0 && !event.ctrlKey && !event.metaKey && !event.shiftKey;
-}
-
 /** The element of {@link selector} the event landed in or on, or null for the bare row. */
 function controlOf(event: MouseEvent<HTMLElement>, selector: string): Element | null {
   return event.target instanceof Element ? event.target.closest(selector) : null;
 }
 
 /**
- * Route one click, seen in the row's capture phase: a plain click on a link the
- * app opens itself is opened there and its default prevented; a modifier or
- * non-primary click on a link is left to the browser; a click on any other
+ * Offer a click on a link to the app, which places the window it opens by the
+ * click's modifiers (WFE-238): the default is prevented when the app opened
+ * it, so the browser never opens a new tab for an internal link; a link the
+ * app does not open, or a button other than the primary and the middle one,
+ * is left to the browser.
+ */
+function offerLink(event: MouseEvent<HTMLElement>, handlers: RowClickHandlers): void {
+  const href = controlOf(event, CONTROLS)?.getAttribute('href') ?? null;
+  const offered = event.button === 0 || isMiddleClick(event);
+  if (href !== null && offered && handlers.onContentLink(href, event)) {
+    event.preventDefault();
+  }
+}
+
+/**
+ * Route one click, seen in the row's capture phase: a click on a link the app
+ * opens itself is opened there ({@link offerLink}); a click on any other
  * control is left to that control; the rest of the row is selected.
  */
 function routeRowClick(event: MouseEvent<HTMLElement>, handlers: RowClickHandlers): void {
-  const control = controlOf(event, CONTROLS);
-  if (control === null) {
+  if (controlOf(event, CONTROLS) === null) {
     handlers.onSelect();
-    return;
-  }
-  const href = control.getAttribute('href');
-  if (href !== null && isPlain(event) && handlers.onContentLink(href)) {
-    event.preventDefault();
+  } else {
+    offerLink(event, handlers);
   }
 }

@@ -9,6 +9,7 @@ import { Nick } from './Nick';
 import styles from './PostRow.module.css';
 import { Timestamp } from './Timestamp';
 import { type Via, ViaMark } from './ViaMark';
+import type { ClickModifiers } from '../lib/clickModifiers';
 import type { ClockFormat } from '../lib/time';
 
 /** Props of {@link PostRowHead}: the row's own props that its first words draw. */
@@ -23,7 +24,7 @@ export type PostRowHeadProps = {
     readonly self: boolean;
   };
   readonly replyTo: string | null;
-  readonly onSelectAuthor: () => void;
+  readonly onSelectAuthor: (click: ClickModifiers) => void;
 };
 
 /** The label, clock, account marker, nick and reply marker of a row. */

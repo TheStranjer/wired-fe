@@ -47,7 +47,10 @@ describe(NickList, () => {
 
     fireEvent.click(screen.getByRole('button', { name: '@lain@wired.example' }));
 
-    expect(onSelect).toHaveBeenCalledExactlyOnceWith(ME);
+    expect(onSelect).toHaveBeenCalledExactlyOnceWith(
+      ME,
+      expect.objectContaining({ button: 0, shiftKey: false }),
+    );
   });
 
   it('shows just the heading when no one is on the list', () => {

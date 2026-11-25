@@ -5,7 +5,8 @@
  * `#rust` — and leaves the address bar without
  * the hash; nothing opens before startup is done. The accounts are answered
  * over MSW; what the router does with nobody signed in, with a `hashchange`
- * and with a failed lookup is in useHashRoute.events.test.tsx.
+ * and with a failed lookup is in useHashRoute.events.test.tsx. A route always
+ * opens `here` (WFE-238), whatever `openIn` and `openInByKind` say.
  */
 import { waitFor } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
@@ -14,6 +15,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { useHashRoute } from './useHashRoute';
 import { ALLY, LAIN, ORIGIN, mountRouter, titles, visit } from '../test/hashRoute';
 import { server } from '../test/server';
+import { activeDesktop, focusedWindowId } from '../windows/desktops';
 
 /** The router mounted over lain's session, {@link ready} or not. */
 function mount(ready: boolean): ReturnType<typeof mountRouter> {
@@ -34,6 +36,21 @@ describe(useHashRoute, () => {
     expect(result.current.state.windows.activeId).toBe(`thread:${LAIN.key}:abc`);
     expect(window.location.hash).toBe('');
     expect(window.location.search).toBe('?q=1');
+  });
+
+  it('opens a route here, in the focused pane, whatever the placement settings say', () => {
+    visit('/#/notice/abc');
+
+    const { result } = mountRouter(useHashRoute, true, [
+      { type: 'accounts', accounts: [LAIN], activeKey: LAIN.key },
+      { type: 'settings', settings: { openIn: 'float', openInByKind: { thread: 'vsplit' } } },
+    ]);
+
+    const desktop = activeDesktop(result.current.state.layout);
+
+    expect(desktop.floats).toStrictEqual([]);
+    expect(desktop.tree?.type).toBe('pane');
+    expect(focusedWindowId(result.current.state.layout)).toBe(`thread:${LAIN.key}:abc`);
   });
 
   it('opens the profile window of #/@acct after looking her up', async () => {

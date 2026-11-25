@@ -5,7 +5,9 @@
  */
 import type { JSX } from 'react';
 
+import { onMiddleClick } from './middleClick';
 import styles from './Nick.module.css';
+import type { ClickModifiers } from '../lib/clickModifiers';
 
 /** Props of {@link Nick}. */
 export type NickProps = {
@@ -15,8 +17,9 @@ export type NickProps = {
   readonly fullHandle: string;
   /** True when this nick is the current user's own. */
   readonly self: boolean;
-  /** Called when the nick is clicked; omit to render plain, unclickable text. */
-  readonly onSelect?: () => void;
+  /** Called with the click when the nick is clicked, by the primary or the
+   * middle button; omit to render plain, unclickable text. */
+  readonly onSelect?: (click: ClickModifiers) => void;
   /** True in a one-line, flex-row slot (the nick list): the handle then shrinks
    * and ends in an ellipsis when it is too long, and the brackets never shrink. */
   readonly truncate?: boolean;
@@ -53,6 +56,7 @@ export function Nick(props: NickProps): JSX.Element {
         <button
           aria-label={fullHandle}
           className={classes}
+          onAuxClick={onMiddleClick(onSelect)}
           onClick={onSelect}
           title={fullHandle}
           type="button"
