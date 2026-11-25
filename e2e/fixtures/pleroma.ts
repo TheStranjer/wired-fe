@@ -41,6 +41,9 @@ const FEATURES = [
   'pleroma_custom_emoji_reactions',
 ];
 
+/** The post formats Pleroma lists in its v1 document; Markdown among them turns `markdown` on. */
+const POST_FORMATS = ['text/plain', 'text/html', 'text/markdown'];
+
 /** The fixture day at {@link clock}. */
 function moment(clock: string): string {
   return `2026-11-15T${clock}:00.000Z`;
@@ -150,7 +153,7 @@ function routeDiscovery(page: Page): readonly Promise<unknown>[] {
           min_expiration: 3600,
           max_expiration: 2592000,
         },
-        pleroma: { metadata: { features: FEATURES } },
+        pleroma: { metadata: { features: FEATURES, post_formats: POST_FORMATS } },
       });
     }),
     page.route('**/api/v2/instance', async (route) => {

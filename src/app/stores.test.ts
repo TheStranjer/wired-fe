@@ -20,14 +20,25 @@ const ACCOUNT = {
 };
 
 describe(appStores, () => {
-  it('creates the four stores once and hands out that one value', () => {
+  it('creates the stores once and hands out that one value', () => {
     const stores = appStores();
 
-    expect(appStores()).toBe(stores);
-    expect(stores.apps).toBe(appStores().apps);
-    expect(stores.login).toBe(appStores().login);
-    expect(stores.accounts).toBe(appStores().accounts);
-    expect(stores.settings).toBe(appStores().settings);
+    const again = appStores();
+
+    expect(again).toBe(stores);
+    expect([again.apps, again.login, again.accounts, again.settings, again.profiles]).toStrictEqual(
+      [stores.apps, stores.login, stores.accounts, stores.settings, stores.profiles],
+    );
+  });
+
+  it('keeps the instance profiles in the session, not in the persistent storage', () => {
+    const { profiles } = appStores();
+
+    expect(profiles.set('probe', 'session only')).toBe(true);
+    expect(globalThis.sessionStorage.getItem('wired:v1:profiles:probe')).toBe('"session only"');
+    expect(globalThis.localStorage.getItem('wired:v1:profiles:probe')).toBeNull();
+
+    profiles.remove('probe');
   });
 
   it('keeps each namespace to itself', () => {

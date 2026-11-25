@@ -32,9 +32,7 @@ type FeatureContext = {
 const FEATURE_PHRASES: Readonly<Record<FeatureFlag, string>> = {
   emojiReactions: 'react to posts with emoji',
   customEmojiReactions: 'react with custom emoji',
-  chats: 'chat',
   quotePosting: 'quote posts',
-  bookmarkFolders: 'file bookmarks in folders',
   editing: 'edit posts',
   localOnlyPosts: 'post local-only',
   markdown: 'format posts with Markdown',

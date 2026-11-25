@@ -21,6 +21,8 @@ export type InstanceV1 = {
   readonly maxMediaAttachments: number | null;
   readonly pollLimits: PollLimits | null;
   readonly features: readonly string[];
+  /** The content types the instance accepts for posts, from `pleroma.metadata.post_formats`; [] when it lists none. */
+  readonly postFormats: readonly string[];
 };
 
 /** The v1 document as far as this schema cares: only the blocks we read. */
@@ -38,6 +40,7 @@ export const InstanceV1Schema: v.GenericSchema<unknown, InstanceV1> = v.pipe(
   InstanceV1WireSchema,
   v.transform((doc) => {
     const statuses = readKey(doc.configuration, 'statuses');
+    const metadata = readKey(doc.pleroma, 'metadata');
     return {
       title: doc.title,
       version: doc.version,
@@ -47,7 +50,8 @@ export const InstanceV1Schema: v.GenericSchema<unknown, InstanceV1> = v.pipe(
       pollLimits:
         extractPollLimits(readKey(doc.configuration, 'polls'), 'max_characters_per_option') ??
         extractPollLimits(doc.poll_limits, 'max_option_chars'),
-      features: stringList(readKey(readKey(doc.pleroma, 'metadata'), 'features')),
+      features: stringList(readKey(metadata, 'features')),
+      postFormats: stringList(readKey(metadata, 'post_formats')),
     };
   }),
 );

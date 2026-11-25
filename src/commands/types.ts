@@ -100,6 +100,8 @@ export type CommandContext = {
     readonly login: Store;
     readonly accounts: AccountStore;
     readonly settings: Store;
+    /** Per-session store (`sessionStorage`) of the instance profiles detected this session (decision 5). */
+    readonly profiles: Store;
   };
 };
 

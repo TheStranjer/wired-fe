@@ -72,6 +72,7 @@ function inMemoryStores(): CommandContext['stores'] {
     login: createStore('login', memoryBackend()),
     accounts: createAccountStore(createStore('accounts', memoryBackend())),
     settings: createStore('settings', memoryBackend()),
+    profiles: createStore('profiles', memoryBackend()),
   };
 }
 

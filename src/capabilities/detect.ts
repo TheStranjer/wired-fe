@@ -28,6 +28,9 @@ export type InstanceProfile = {
   readonly capabilities: Capabilities;
 };
 
+/** The read of what one instance turned out to be; {@link detectInstance} by default. */
+export type Detect = (origin: string) => Promise<Result<InstanceProfile, ApiError>>;
+
 /** The documents of a connect, with the ones that did not answer as null. */
 type Documents = {
   readonly nodeInfo: NodeInfo;

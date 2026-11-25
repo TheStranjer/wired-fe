@@ -33,21 +33,14 @@ const TITLE = 'The Wired Lounge';
 type Serving = { readonly status?: number; readonly hold?: () => Promise<void> };
 
 /** The feature strings a Wired instance advertises in its NodeInfo metadata. */
-const WIRED_FEATURES: readonly string[] = [
-  'pleroma_emoji_reactions',
-  'pleroma_chat_messages',
-  'quote_posting',
-  'editing',
-];
+const WIRED_FEATURES: readonly string[] = ['pleroma_emoji_reactions', 'quote_posting', 'editing'];
 
-/** The flags {@link WIRED_FEATURES} turns on, plus the dialect's own two. */
+/** The flags {@link WIRED_FEATURES} turns on, plus the dialect's `localOnlyPosts`. */
 const WIRED_FLAGS: readonly FeatureFlag[] = [
   'emojiReactions',
-  'chats',
   'quotePosting',
   'editing',
   'localOnlyPosts',
-  'markdown',
 ];
 
 /** The capabilities of a {@link backend} that advertises {@link flags} and no limits. */
@@ -143,17 +136,22 @@ function arrivalGate(expected: number): {
 describe(detectInstance, () => {
   it('detects a Wired instance from its features and the v1 document', async () => {
     serveNodeInfo('Wired', { features: WIRED_FEATURES });
-    serve(V1_PATH, { title: TITLE, version: '2.7.2', max_toot_chars: 1_000 });
+    serve(V1_PATH, {
+      title: TITLE,
+      version: '2.7.2',
+      max_toot_chars: 1_000,
+      pleroma: { metadata: { post_formats: ['text/plain', 'text/markdown'] } },
+    });
     serve(V2_PATH, { error: 'Not Found' }, { status: 404 });
 
     const result = await detectInstance(ORIGIN);
 
     expect(result).toStrictEqual(
-      ok(profile(TITLE, capsWith('wired', WIRED_FLAGS, { maxCharacters: 1_000 }))),
+      ok(profile(TITLE, capsWith('wired', [...WIRED_FLAGS, 'markdown'], { maxCharacters: 1_000 }))),
     );
   });
 
-  it('detects a Mastodon instance by its v2 title and the editing flag alone', async () => {
+  it('detects a Mastodon instance by its v2 title, editing and, at API version 12, quotes', async () => {
     serveNodeInfo('Mastodon', { nodeName: 'ignored.example' });
     serve(V1_PATH, {
       title: 'Old Lounge',
@@ -163,6 +161,7 @@ describe(detectInstance, () => {
     serve(V2_PATH, {
       title: 'New Lounge',
       version: '4.3.0',
+      api_versions: { mastodon: 12 },
       configuration: { statuses: { max_characters: 5_000, max_media_attachments: 6 } },
     });
 
@@ -172,7 +171,10 @@ describe(detectInstance, () => {
       ok(
         profile(
           'New Lounge',
-          capsWith('mastodon', ['editing'], { maxCharacters: 5_000, maxMediaAttachments: 6 }),
+          capsWith('mastodon', ['editing', 'quotePosting'], {
+            maxCharacters: 5_000,
+            maxMediaAttachments: 6,
+          }),
         ),
       ),
     );
@@ -222,9 +224,7 @@ describe(detectInstance, () => {
 
     const result = await detectInstance(ORIGIN);
 
-    expect(result).toStrictEqual(
-      ok(profile(TITLE, capsWith('wired', ['localOnlyPosts', 'markdown']))),
-    );
+    expect(result).toStrictEqual(ok(profile(TITLE, capsWith('wired', ['localOnlyPosts']))));
   });
 
   it('names the instance by its hostname when nothing carries a title', async () => {

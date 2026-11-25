@@ -24,6 +24,9 @@ import { ORIGIN, json } from './wire';
 /** The feature strings Wired advertises in NodeInfo and its v1 document. */
 const FEATURES = ['pleroma_api', 'chat', 'pleroma_emoji_reactions', 'quote_posting'];
 
+/** The post formats Wired lists in its v1 document; Markdown among them turns `markdown` on. */
+const POST_FORMATS = ['text/plain', 'text/html', 'text/markdown'];
+
 /** The routes that describe the instance to the capability builder (decision 5). */
 function routeDiscovery(page: Page): readonly Promise<unknown>[] {
   return [
@@ -44,7 +47,7 @@ function routeDiscovery(page: Page): readonly Promise<unknown>[] {
         title: 'The Wired',
         version: '2.7.2 (compatible; Wired 0.1.0)',
         max_toot_chars: 5000,
-        pleroma: { metadata: { features: FEATURES } },
+        pleroma: { metadata: { features: FEATURES, post_formats: POST_FORMATS } },
       });
     }),
     page.route('**/api/v2/instance', async (route) => {

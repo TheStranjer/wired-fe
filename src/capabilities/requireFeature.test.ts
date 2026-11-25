@@ -15,9 +15,7 @@ const ORIGIN = 'https://mastodon.test';
 const ALL_FLAGS: Readonly<Record<FeatureFlag, true>> = {
   emojiReactions: true,
   customEmojiReactions: true,
-  chats: true,
   quotePosting: true,
-  bookmarkFolders: true,
   editing: true,
   localOnlyPosts: true,
   markdown: true,
