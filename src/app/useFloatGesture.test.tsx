@@ -15,7 +15,7 @@ import type { Dispatch } from '../state/StateContext';
 /** A button that starts a move, one that starts a resize, inside a layer that may be missing. */
 function Harness(props: { readonly dispatch: Dispatch; readonly attached: boolean }): JSX.Element {
   const layerRef = useRef<HTMLDivElement>(null);
-  const begin = useFloatGesture(layerRef, props.dispatch);
+  const begin = useFloatGesture(layerRef, props.dispatch, { tree: null, onTarget: vi.fn() });
   return (
     <div ref={props.attached ? layerRef : null}>
       <button type="button" onPointerDown={begin('f1', 'move')}>

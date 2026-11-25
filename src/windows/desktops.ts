@@ -5,6 +5,7 @@
  * transitions on a single desktop live in desktopPanes.ts. Pure: every
  * function returns the input unchanged when nothing applies.
  */
+import { dockDesktopPaneAt } from './desktopDock';
 import {
   EMPTY_DESKTOP,
   dockDesktopPane,
@@ -17,6 +18,7 @@ import {
   splitDesktop,
 } from './desktopPanes';
 import type { Desktop } from './desktopPanes';
+import type { DropEdge } from './dropZone';
 import { singlePane } from './splitTree';
 import type { SplitDir } from './splitTree';
 
@@ -125,6 +127,15 @@ export function floatFocused(state: DesktopsState): DesktopsState {
 /** Docks the focused float into the tree beside the last pane. */
 export function dockFocused(state: DesktopsState): DesktopsState {
   return updateActive(state, dockDesktopPane);
+}
+
+/** Docks the float `floatPaneId` against the `edge` of the tree pane `targetPaneId`. */
+export function dockAt(
+  state: DesktopsState,
+  floatPaneId: string,
+  ...target: readonly [targetPaneId: string, edge: DropEdge]
+): DesktopsState {
+  return updateActive(state, (desktop) => dockDesktopPaneAt(desktop, floatPaneId, ...target));
 }
 
 /** Moves a pane or float, wherever it is, to desktop `n` (created when missing); the view stays put. */

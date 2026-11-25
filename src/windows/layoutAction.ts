@@ -3,6 +3,7 @@
  * plain data: the actions of the layout reducer, in four groups so each
  * group's reducer stays small and its switch stays exhaustive.
  */
+import type { DropEdge } from './dropZone';
 import type { FocusStep } from './paneFocus';
 import type { Direction } from './splitGeometry';
 import type { SplitPath } from './splitRatio';
@@ -23,7 +24,14 @@ export type PaneAction =
   | { readonly type: 'split'; readonly dir: SplitDir; readonly windowId: string }
   | { readonly type: 'closePane' }
   | { readonly type: 'float' }
-  | { readonly type: 'dock' };
+  | { readonly type: 'dock' }
+  | {
+      /** Docks a float against the `edge` of a tree pane (a float dragged there). */
+      readonly type: 'dockAt';
+      readonly floatPaneId: string;
+      readonly targetPaneId: string;
+      readonly edge: DropEdge;
+    };
 
 /** Actions on the floats of the active desktop; sizes are viewport fractions. */
 export type FloatAction =

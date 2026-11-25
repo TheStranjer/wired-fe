@@ -8,6 +8,7 @@
 import {
   closeDesktop,
   closeFocusedPane,
+  dockAt,
   dockFocused,
   floatFocused,
   focusPane,
@@ -37,6 +38,7 @@ const PANE_TYPES: ReadonlySet<string> = new Set<PaneAction['type']>([
   'closePane',
   'float',
   'dock',
+  'dockAt',
 ]);
 
 const FLOAT_TYPES: ReadonlySet<string> = new Set<FloatAction['type']>([
@@ -76,6 +78,8 @@ function paneReducer(state: DesktopsState, action: PaneAction): DesktopsState {
       return floatFocused(state);
     case 'dock':
       return dockFocused(state);
+    case 'dockAt':
+      return dockAt(state, action.floatPaneId, action.targetPaneId, action.edge);
   }
 }
 
