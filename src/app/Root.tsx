@@ -29,6 +29,7 @@ import { useComposerOverlay } from './useComposerOverlay';
 import { useDocumentTitle } from './useDocumentTitle';
 import { useDropAndPaste } from './useDropAndPaste';
 import { useHashRoute } from './useHashRoute';
+import { usePostActionsApi } from './usePostActionsApi';
 import { useRouteOverlays } from './useRouteOverlays';
 import { useSettingsPersistence } from './useSettingsPersistence';
 import { useStartup } from './useStartup';
@@ -43,6 +44,7 @@ import type { WindowKindDefinition } from '../state/windowKind';
 import { Scrollback } from '../ui/Scrollback';
 import { SystemLine } from '../ui/SystemLine';
 import { TopicBar } from '../ui/TopicBar';
+import { PostActionsProvider } from '../views/PostActionsContext';
 import { useStreams } from '../views/useStreams';
 import { STATUS_WINDOW_ID, activeWindow } from '../windows/model';
 import type { WindowKind, WindowState } from '../windows/model';
@@ -111,10 +113,21 @@ function useStateMirrors(state: AppState): void {
   useDocumentTitle(state.windows);
 }
 
+/** Print why the kinds or the registry could not load into the status window, once on mount. */
+function useLoadFailures(): void {
+  const dispatch = useAppDispatch();
+  useEffect(() => {
+    for (const reason of [failure(KINDS), failure(REGISTRY)]) {
+      if (reason !== null) {
+        dispatch(printAction(STATUS_WINDOW_ID, 'error', reason));
+      }
+    }
+  }, [dispatch]);
+}
+
 /** The five shell regions, filled from the app state above it. */
 export function Root(): JSX.Element {
   const state = useAppState();
-  const dispatch = useAppDispatch();
   const active = activeWindow(state.windows);
   const providers = useCompletionProviders();
   const attachments = useAttachments();
@@ -126,17 +139,12 @@ export function Root(): JSX.Element {
   const overlays = useRouteOverlays(ready);
   useStateMirrors(state);
   useStreams();
+  const postActions = usePostActionsApi();
 
-  useEffect(() => {
-    for (const reason of [failure(KINDS), failure(REGISTRY)]) {
-      if (reason !== null) {
-        dispatch(printAction(STATUS_WINDOW_ID, 'error', reason));
-      }
-    }
-  }, [dispatch]);
+  useLoadFailures();
 
   return (
-    <>
+    <PostActionsProvider actions={postActions.actions}>
       <Shell
         topic={<Topic win={active} state={state} />}
         scrollback={<WindowBody win={active} state={state} />}
@@ -150,6 +158,7 @@ export function Root(): JSX.Element {
             pendingKeys={pendingKeys}
             completion={providers}
             openComposer={composer.openComposer}
+            registerRunner={postActions.register}
           />
         }
       />
@@ -157,6 +166,6 @@ export function Root(): JSX.Element {
       {overlays}
       {drop}
       {attachments.input}
-    </>
+    </PostActionsProvider>
   );
 }

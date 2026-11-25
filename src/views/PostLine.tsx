@@ -16,6 +16,7 @@
 import { useEffect, useRef } from 'react';
 import type { JSX } from 'react';
 
+import { usePostActions } from './PostActionsContext';
 import { cardName, sharedPostProps, viewerFor, type PostLineTarget } from './postLineProps';
 import { postView } from './postView';
 import { labelForStatus } from '../state/bufferSelection';
@@ -43,6 +44,7 @@ export function PostLine(props: PostLineTarget): JSX.Element {
   const buffer = bufferFor(state, windowId);
   const view = postView(status, viewerFor(state, windowId), (id) => labelForStatus(buffer, id));
   const shared = sharedPostProps({ state, go: dispatch }, props, view);
+  const actions = usePostActions();
   const rowRef = useRef<HTMLElement | null>(null);
   const { selected } = shared;
   useEffect(() => {
@@ -61,6 +63,8 @@ export function PostLine(props: PostLineTarget): JSX.Element {
       author={author}
       boostedBy={view.boostedBy}
       ref={rowRef}
+      actionLines={actions.linesFor(shared.label)}
+      onAction={actions.run}
       showAvatar={display.avatars}
     />
   );
