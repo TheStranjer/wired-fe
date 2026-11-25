@@ -9,6 +9,7 @@ import { vi } from 'vitest';
 
 import { TEST_DATE } from './fixtures';
 import { createAccountStore } from '../accounts/accountStore';
+import { createSyncStore } from '../accounts/syncPrefs';
 import type { CommandContext, Registry } from '../commands/types';
 import type { WiredConfig } from '../config/schema';
 import { initialAppState } from '../state/appState';
@@ -72,6 +73,7 @@ function inMemoryStores(): CommandContext['stores'] {
     login: createStore('login', memoryBackend()),
     accounts: createAccountStore(createStore('accounts', memoryBackend())),
     settings: createStore('settings', memoryBackend()),
+    sync: createSyncStore(createStore('sync', memoryBackend())),
     profiles: createStore('profiles', memoryBackend()),
   };
 }

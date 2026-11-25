@@ -14,6 +14,7 @@ import { BANNER } from './banner';
 import { type Detect, type StartupDeps, runStartup } from './startup';
 import type { AppStores } from './stores';
 import { accountKey, type StoredAccount } from '../accounts/accountStore';
+import { createSyncStore } from '../accounts/syncPrefs';
 import { DEFAULT_POLL_LIMITS } from '../capabilities/capabilities';
 import type { InstanceProfile } from '../capabilities/detect';
 import { ok } from '../lib/result';
@@ -89,6 +90,7 @@ function fakeStores(accounts: readonly StoredAccount[], activeKey: string | null
     login: inert,
     settings: inert,
     profiles: inert,
+    sync: createSyncStore(inert),
     accounts: {
       list: () => accounts,
       get: (key) => accounts.find((account) => account.key === key),

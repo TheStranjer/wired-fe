@@ -1,9 +1,8 @@
 /**
  * Tests for startup's opening and its report of who is signed in: the
- * decorative banner and its text alternative, the `/connect` hint of a build
- * with no accounts in every instance mode (decision 3), and one line per
- * account — the active one marked — under the reports of the instances they
- * live on.
+ * banner and its text alternative, the `/connect` hint with no accounts in
+ * every instance mode (decision 3), and one line per account — the active one
+ * marked — under the reports of the instances they live on.
  */
 import { describe, expect, it, vi, type Mock } from 'vitest';
 
@@ -11,6 +10,7 @@ import { BANNER } from './banner';
 import { type Detect, type StartupDeps, runStartup } from './startup';
 import type { AppStores } from './stores';
 import { accountKey, type StoredAccount } from '../accounts/accountStore';
+import { createSyncStore } from '../accounts/syncPrefs';
 import { DEFAULT_POLL_LIMITS } from '../capabilities/capabilities';
 import type { InstanceProfile } from '../capabilities/detect';
 import type { InstancesConfig, WiredConfig } from '../config/schema';
@@ -81,6 +81,7 @@ function fakeStores(accounts: readonly StoredAccount[], activeKey: string | null
     login: inert,
     settings: inert,
     profiles: inert,
+    sync: createSyncStore(inert),
     accounts: {
       list: () => accounts,
       get: (key) => accounts.find((account) => account.key === key),

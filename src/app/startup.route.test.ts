@@ -7,6 +7,7 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { runStartup } from './startup';
 import { createAccountStore } from '../accounts/accountStore';
+import { createSyncStore } from '../accounts/syncPrefs';
 import { createStore } from '../storage/store';
 
 /** Startup over empty stores and a page at {@link pathname}; the rewrites it asked for. */
@@ -19,6 +20,7 @@ async function rewritesAt(pathname: string, basePath?: string): Promise<readonly
       login: createStore('route-test-login', null),
       accounts: createAccountStore(createStore('route-test-accounts', null)),
       settings: createStore('route-test-settings', null),
+      sync: createSyncStore(createStore('route-test-sync', null)),
       profiles: createStore('route-test-profiles', null),
     },
     config: { appName: 'WIRED', instances: { mode: 'same-origin' }, basePath },

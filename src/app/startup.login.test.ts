@@ -13,13 +13,15 @@ import { type Detect, type StartupDeps, runStartup } from './startup';
 import type { AppStores } from './stores';
 import { createAccountStore } from '../accounts/accountStore';
 import { type PendingLogin, savePendingLogin } from '../accounts/pendingLogin';
+import { createSyncStore } from '../accounts/syncPrefs';
 import { DEFAULT_POLL_LIMITS } from '../capabilities/capabilities';
 import type { InstanceProfile } from '../capabilities/detect';
 import type { WiredConfig } from '../config/schema';
 import { ok } from '../lib/result';
 import type { AppAction } from '../state/reducer';
 import type { Dispatch } from '../state/StateContext';
-import { type StorageBackend, createStore } from '../storage/store';
+import { createStore } from '../storage/store';
+import { memoryBackend } from '../test/memoryBackend';
 import { server } from '../test/server';
 import { STATUS_WINDOW_ID } from '../windows/model';
 
@@ -64,33 +66,19 @@ const ACCOUNT_WIRE = {
   statuses_count: 12,
 };
 
-/** An in-memory storage backend, for stores that really store. */
-function createFakeBackend(): StorageBackend {
-  const entries = new Map<string, string>();
-
-  return {
-    getItem: (key) => entries.get(key) ?? null,
-    removeItem: (key) => {
-      entries.delete(key);
-    },
-    setItem: (key, value) => {
-      entries.set(key, value);
-    },
-  };
-}
-
 /** Stores holding {@link APP} and {@link PENDING}: ready to complete {@link CALLBACK}. */
 function loginStores(): AppStores {
-  const apps = createStore('login-test-apps', createFakeBackend());
+  const apps = createStore('login-test-apps', memoryBackend());
   apps.set(`${ORIGIN} ${REDIRECT_URI}`, APP);
-  const login = createStore('login-test-login', createFakeBackend());
+  const login = createStore('login-test-login', memoryBackend());
   savePendingLogin(login, PENDING);
 
   return {
     apps,
     login,
-    accounts: createAccountStore(createStore('login-test-accounts', createFakeBackend())),
+    accounts: createAccountStore(createStore('login-test-accounts', memoryBackend())),
     settings: createStore('login-test-settings', null),
+    sync: createSyncStore(createStore('login-test-sync', null)),
     profiles: createStore('login-test-profiles', null),
   };
 }
