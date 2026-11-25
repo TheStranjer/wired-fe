@@ -1,9 +1,9 @@
 /**
  * Tests for the shell wired to real state: pane titles with the kind's topic,
- * the account handles in the header and status line, the status line's
- * entries and window switching, and the command line handing every line to
- * the dispatcher: /help, unknown commands, refused posts, /clear, and the
- * line clearing itself afterwards.
+ * the account handles in the header and status line, and the command line
+ * handing every line to the dispatcher: /help, unknown commands, refused
+ * posts, /clear, and the line clearing itself afterwards. The status line's
+ * entries are tested in Root.statusLine.test.
  */
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
@@ -16,7 +16,6 @@ import type { AppState } from '../state/appState';
 import { type AppAction, appReducer } from '../state/reducer';
 import { AppStateProvider } from '../state/StateContext';
 import { server } from '../test/server';
-import { STATUS_WINDOW_ID, windowId } from '../windows/model';
 import type { WindowRef } from '../windows/model';
 import type { WindowsAction } from '../windows/reducer';
 
@@ -133,37 +132,6 @@ describe(Root, () => {
     expect(within(pane).getByText(/home @lain@wired\.example — home timeline/)).toBeInTheDocument();
     expect(within(banner()).getByText('@lain@wired.example')).toBeInTheDocument();
     expect(screen.getByText('[@lain@wired.example]')).toBeInTheDocument();
-  });
-
-  it('lists the clock, mode and windows with unread in the status line', () => {
-    renderRoot([
-      { type: 'accounts', accounts: [ACCOUNT], activeKey: ACCOUNT.key },
-      win({ type: 'open', ref: HOME, title: 'home' }),
-      win({ type: 'activate', id: STATUS_WINDOW_ID }),
-      win({ type: 'markUnread', id: windowId(HOME), count: 3, highlight: true }),
-    ]);
-
-    expect(screen.getByText(/\[\d{2}:\d{2}\]/)).toBeInTheDocument();
-    expect(screen.getByText('[INS]')).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: 'Window 2: home, 3 unread, highlighted' }),
-    ).toBeInTheDocument();
-    expect(screen.getByRole('region', { name: 'status' })).toBeInTheDocument();
-  });
-
-  it('switches windows when a status line entry is clicked', () => {
-    renderRoot([
-      win({ type: 'open', ref: HOME, title: 'home' }),
-      win({ type: 'activate', id: STATUS_WINDOW_ID }),
-    ]);
-
-    expect(screen.getByRole('log', { name: 'status' })).toBeInTheDocument();
-
-    fireEvent.click(screen.getByRole('button', { name: 'Window 2: home' }));
-
-    expect(screen.getByRole('log', { name: 'home' })).toBeInTheDocument();
-    expect(screen.queryByRole('log', { name: 'status' })).toBeNull();
-    expect(screen.getByRole('region', { name: 'home' })).toBeInTheDocument();
   });
 
   it('prints the command list into the active window when /help runs', async () => {
