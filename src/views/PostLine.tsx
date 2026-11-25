@@ -15,7 +15,7 @@
  * profile or tag window the same way (WFE-156, ./openContentLink).
  */
 import { useEffect, useRef } from 'react';
-import type { JSX } from 'react';
+import type { JSX, RefObject } from 'react';
 
 import { usePostActions, type PostActions } from './PostActionsContext';
 import {
@@ -26,6 +26,7 @@ import {
   type PostLineTarget,
 } from './postLineProps';
 import { postView } from './postView';
+import { usePostConfirm } from './usePostConfirm';
 import { labelForStatus } from '../state/bufferSelection';
 import { bufferFor, displayFor } from '../state/selectors';
 import { useAppDispatch, useAppState } from '../state/StateContext';
@@ -41,6 +42,17 @@ function scrollRowIntoView(row: HTMLElement | null): void {
   if (row !== null && 'scrollIntoView' in row) {
     row.scrollIntoView({ block: 'nearest' });
   }
+}
+
+/** A ref for the entry's element that scrolls it into view whenever {@link selected} turns true. */
+function useScrollWhenSelected(selected: boolean): RefObject<HTMLElement | null> {
+  const rowRef = useRef<HTMLElement | null>(null);
+  useEffect(() => {
+    if (selected) {
+      scrollRowIntoView(rowRef.current);
+    }
+  }, [selected]);
+  return rowRef;
 }
 
 /** The handler of a double-click on the post labelled {@link label}: run `/pop` on it. */
@@ -59,13 +71,8 @@ export function PostLine(props: PostLineTarget): JSX.Element {
   const view = postView(status, viewerFor(state, windowId), (id) => labelForStatus(buffer, id));
   const shared = sharedPostProps({ state, go: dispatch }, props, view);
   const actions = usePostActions();
-  const rowRef = useRef<HTMLElement | null>(null);
-  const { selected } = shared;
-  useEffect(() => {
-    if (selected) {
-      scrollRowIntoView(rowRef.current);
-    }
-  }, [selected]);
+  const rowRef = useScrollWhenSelected(shared.selected);
+  const confirm = usePostConfirm(actions, shared.label, view);
   const display = displayFor(state, windowId);
   if (display.density === 'lines') {
     return (
@@ -80,17 +87,20 @@ export function PostLine(props: PostLineTarget): JSX.Element {
   }
   const author = { ...view.author, ...cardName(status) };
   return (
-    <PostCard
-      {...shared}
-      author={author}
-      boostedBy={view.boostedBy}
-      onPop={popOf(actions, shared.label)}
-      ref={rowRef}
-      actionLines={actions.linesFor(shared.label)}
-      onAction={actions.run}
-      showAvatar={display.avatars}
-      showImages={display.images}
-      {...dmCardProps(state, props, view)}
-    />
+    <>
+      <PostCard
+        {...shared}
+        author={author}
+        boostedBy={view.boostedBy}
+        onPop={popOf(actions, shared.label)}
+        ref={rowRef}
+        actionLines={actions.linesFor(shared.label)}
+        onAction={confirm.onAction}
+        showAvatar={display.avatars}
+        showImages={display.images}
+        {...dmCardProps(state, props, view)}
+      />
+      {confirm.dialog}
+    </>
   );
 }

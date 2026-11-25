@@ -5,12 +5,15 @@
  * layer may not import that one (AGENTS.md "Layout"), the shapes just match.
  */
 
-/** One command line for a click target, and whether it only fills the input. */
+/** One command line for a click target, whether it only fills the input and
+ * whether a click confirms it first. */
 export type PostActionLine = {
   /** The line, e.g. `/boost a3`. */
   readonly line: string;
   /** True fills the line into the command line for the user to finish. */
   readonly prefill: boolean;
+  /** Present when a click asks first in a dialog (WFE-266): which question. */
+  readonly confirm?: 'delete' | 'block';
 };
 
 /** The line each command runs on the card's post, by command name; a command the

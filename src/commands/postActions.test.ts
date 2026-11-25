@@ -62,6 +62,13 @@ describe(postActionLines, () => {
     expect(lines.mute).toStrictEqual({ line: '/mute a3', prefill: true });
   });
 
+  it('marks delete and block to be confirmed on click, not prefilled', () => {
+    const lines = postActionLines(realRegistry(), 'a3');
+
+    expect(lines.delete).toStrictEqual({ line: '/delete a3', prefill: false, confirm: 'delete' });
+    expect(lines.block).toStrictEqual({ line: '/block a3', prefill: false, confirm: 'block' });
+  });
+
   it('carries a line for every action when the backend does everything', () => {
     const registry = availableCommands(realRegistry(), {
       signedIn: true,
