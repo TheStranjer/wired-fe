@@ -4,7 +4,7 @@
  * IRC's `/whois` answers *about* somebody. The target resolves like the other
  * account commands' (src/commands/targets): a first word carrying an `@` is a
  * handle the instance looks up, a post label names that post's author, and
- * otherwise the navigation selection's author stands — so `w` in navigation
+ * otherwise the navigation selection's author stands — so `Shift+w` in navigation
  * mode whois's the post you are looking at. The window shows the account's
  * whois block above its posts (src/features/profile); opening the same
  * account twice activates the window that already shows it. Whatever the
@@ -35,5 +35,5 @@ export const command: CommandDefinition = {
   usage: '/whois [label | @user@host]',
   summary: "Open an account's profile window",
   run: handle,
-  bindings: [{ mode: 'navigation', chord: 'w', args: '' }],
+  bindings: [{ mode: 'navigation', chord: 'Shift+w', args: '' }],
 };

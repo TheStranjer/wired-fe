@@ -19,5 +19,5 @@ export const command: CommandDefinition = {
   usage: USAGE,
   summary: 'Split the focused pane stacked',
   run: splitRun('column', USAGE),
-  bindings: tmuxBindings('"', ''),
+  bindings: [...tmuxBindings('"', ''), { mode: 'navigation', chord: 'w s', args: '' }],
 };

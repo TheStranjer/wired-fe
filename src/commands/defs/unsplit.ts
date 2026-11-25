@@ -19,7 +19,7 @@ export const command: CommandDefinition = {
   aliases: ['pclose'],
   usage: '/unsplit',
   summary: 'Close the focused pane; its window stays open (unlike /close)',
-  bindings: tmuxBindings('x', ''),
+  bindings: [...tmuxBindings('x', ''), { mode: 'navigation', chord: 'w c', args: '' }],
   run: contextRun((context) => {
     const { layout } = context.state;
     if (activeDesktop(layout).focusedPaneId === null) {

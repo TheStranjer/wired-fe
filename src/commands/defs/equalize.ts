@@ -12,6 +12,7 @@ export const command: CommandDefinition = {
   name: 'equalize',
   usage: '/equalize',
   summary: 'Give every pane an equal share of the desktop',
+  bindings: [{ mode: 'navigation', chord: 'w =', args: '' }],
   run: contextRun((context) => {
     context.dispatch({ type: 'layout', action: { type: 'equalize' } });
     return OK;
