@@ -136,7 +136,10 @@ describe('/edit refusals', () => {
 
     const outcome = await command.run('a0', context);
 
-    expect(outcome).toStrictEqual({ ok: false, message: 'This server does not support editing' });
+    expect(outcome).toStrictEqual({
+      ok: false,
+      message: "@lain@wired.example's server (Wired) can't edit posts",
+    });
     expect(context.setInput).not.toHaveBeenCalled();
   });
 
@@ -145,6 +148,9 @@ describe('/edit refusals', () => {
 
     const outcome = await command.run('a0 new text', context);
 
-    expect(outcome).toStrictEqual({ ok: false, message: 'This server does not support editing' });
+    expect(outcome).toStrictEqual({
+      ok: false,
+      message: "@lain@wired.example's server can't edit posts",
+    });
   });
 });

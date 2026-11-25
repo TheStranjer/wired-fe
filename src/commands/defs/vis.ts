@@ -12,16 +12,12 @@
  */
 
 import type { Visibility } from '../../api/schemas/status';
-import { type Capabilities, hasFeature } from '../../capabilities/capabilities';
-import { capabilitiesFor } from '../../state/selectors';
+import { requireFeature } from '../../capabilities/requireFeature';
 import { OK, fail, syncRun } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** The command's one form; a refused argument echoes it. */
 const USAGE = '/vis [public|unlisted|private|direct|local]';
-
-/** The refusal of `local` to an instance that cannot carry it. */
-const NO_LOCAL = 'This server has no local-only posts';
 
 /** The words the command takes, and the audience each names; may be none. */
 const AUDIENCES: ReadonlyMap<string, Visibility> = new Map([
@@ -36,11 +32,6 @@ const AUDIENCES: ReadonlyMap<string, Visibility> = new Map([
 /** The line that answers both showing and setting: what new posts now are. */
 function report(context: CommandContext, visibility: Visibility): void {
   context.print(`New posts are ${visibility} by default`);
-}
-
-/** Whether an instance with {@link capabilities} serves local-only posts. */
-function servesLocal(capabilities: Capabilities | null): boolean {
-  return capabilities !== null && hasFeature(capabilities, 'localOnlyPosts');
 }
 
 /**
@@ -59,9 +50,11 @@ function handle(args: string, context: CommandContext): CommandOutcome {
   if (visibility === undefined) {
     return fail(`Usage: ${USAGE}`);
   }
-  const active = capabilitiesFor(context.state, context.state.activeAccountKey);
-  if (visibility === 'local' && !servesLocal(active)) {
-    return fail(NO_LOCAL);
+  if (visibility === 'local') {
+    const local = requireFeature(context, context.state.activeAccountKey, 'localOnlyPosts');
+    if (!local.ok) {
+      return fail(local.error);
+    }
   }
   context.dispatch({ type: 'settings', settings: { defaultVisibility: visibility } });
   report(context, visibility);

@@ -144,7 +144,10 @@ describe('/vis', () => {
 
     const outcome = await command.run('local', context);
 
-    expect(outcome).toStrictEqual({ ok: false, message: 'This server has no local-only posts' });
+    expect(outcome).toStrictEqual({
+      ok: false,
+      message: "@lain@wired.example's server (Wired) can't post local-only",
+    });
     expect(context.dispatch).not.toHaveBeenCalled();
     expect(context.print).not.toHaveBeenCalled();
   });
@@ -154,7 +157,7 @@ describe('/vis', () => {
 
     const outcome = await command.run('local', context);
 
-    expect(outcome).toStrictEqual({ ok: false, message: 'This server has no local-only posts' });
+    expect(outcome).toStrictEqual({ ok: false, message: "This server can't post local-only" });
     expect(context.dispatch).not.toHaveBeenCalled();
     expect(context.print).not.toHaveBeenCalled();
   });

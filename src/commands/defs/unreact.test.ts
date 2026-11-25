@@ -156,7 +156,10 @@ describe('/unreact', () => {
 
     const outcome = await command.run('a0 🔥', context);
 
-    expect(outcome).toStrictEqual({ ok: false, message: 'Instance lacks emojiReactions' });
+    expect(outcome).toStrictEqual({
+      ok: false,
+      message: "@lain@wired.example's server (Pleroma) can't react to posts with emoji",
+    });
     expect(context.dispatch).not.toHaveBeenCalled();
     expect(context.print).not.toHaveBeenCalled();
   });
@@ -166,7 +169,10 @@ describe('/unreact', () => {
 
     const outcome = await command.run('a0 :blob:', context);
 
-    expect(outcome).toStrictEqual({ ok: false, message: 'Instance lacks customEmojiReactions' });
+    expect(outcome).toStrictEqual({
+      ok: false,
+      message: "@lain@wired.example's server (Pleroma) can't react with custom emoji",
+    });
   });
 
   it('echoes the usage when the emoji is missing', async () => {

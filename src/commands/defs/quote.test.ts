@@ -164,7 +164,7 @@ describe('/quote', () => {
 
     expect(outcome).toStrictEqual({
       ok: false,
-      message: 'This server does not support quote posts',
+      message: "@lain@wired.example's server (Wired) can't quote posts",
     });
     expect(context.post).not.toHaveBeenCalled();
     expect(context.print).not.toHaveBeenCalled();
@@ -177,7 +177,7 @@ describe('/quote', () => {
 
     expect(outcome).toStrictEqual({
       ok: false,
-      message: 'This server does not support quote posts',
+      message: "@lain@wired.example's server can't quote posts",
     });
   });
 

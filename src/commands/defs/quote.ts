@@ -13,8 +13,7 @@
  * Enter sends it.
  */
 
-import { hasFeature } from '../../capabilities/capabilities';
-import { capabilitiesFor } from '../../state/selectors';
+import { requireFeature } from '../../capabilities/requireFeature';
 import { OK, fail } from '../outcome';
 import { targetLabel } from '../statusLabel';
 import { resolveStatusTarget } from '../targets';
@@ -23,23 +22,15 @@ import type { CommandContext, CommandDefinition, CommandOutcome } from '../types
 /** How to call the command; echoed when there is no text to post. */
 const USAGE = '/quote [label] <text>';
 
-/** The refusal of an instance the acting account cannot quote (decision 5). */
-const NO_QUOTE = fail('This server does not support quote posts');
-
-/** Whether the {@link accountKey}'s instance advertises quote posts (decision 5). */
-function canQuote(context: CommandContext, accountKey: string | null): boolean {
-  const capabilities = capabilitiesFor(context.state, accountKey);
-  return capabilities !== null && hasFeature(capabilities, 'quotePosting');
-}
-
 /** Resolve the quoted post, gate on the capability, post the text, report. */
 async function handle(args: string, context: CommandContext): Promise<CommandOutcome> {
   const target = resolveStatusTarget(args, context);
   if (!target.ok) {
     return fail(target.error);
   }
-  if (!canQuote(context, target.value.accountKey)) {
-    return NO_QUOTE;
+  const quoting = requireFeature(context, target.value.accountKey, 'quotePosting');
+  if (!quoting.ok) {
+    return fail(quoting.error);
   }
   const text = target.value.rest.trim();
   if (text === '') {
