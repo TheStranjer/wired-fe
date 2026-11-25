@@ -27,6 +27,16 @@ export type WindowRef = {
   readonly target: string | null;
 };
 
+/**
+ * What one window overrides of the reader's `density`, `avatars` and `images`
+ * settings (decision 15); a missing key inherits the setting.
+ */
+export type DisplayOverrides = {
+  readonly density?: 'cards' | 'lines';
+  readonly avatars?: boolean;
+  readonly images?: boolean;
+};
+
 /** One numbered window, as the status line and the window commands see it. */
 export type WindowState = {
   readonly id: string;
@@ -34,6 +44,8 @@ export type WindowState = {
   readonly title: string;
   readonly unread: number;
   readonly highlight: boolean;
+  /** This window's display overrides; empty by default (inherit everything). */
+  readonly display: DisplayOverrides;
 };
 
 /** The layer's whole state: windows in display order, plus the active one. */
@@ -52,6 +64,7 @@ const STATUS_WINDOW: WindowState = {
   title: STATUS_WINDOW_ID,
   unread: 0,
   highlight: false,
+  display: {},
 };
 
 /**

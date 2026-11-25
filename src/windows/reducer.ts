@@ -5,6 +5,8 @@
  * new one, never mutating the window objects or the array it was given.
  */
 
+import { setDisplay } from './display';
+import type { DisplayChange } from './display';
 import { STATUS_WINDOW_ID, withActive, windowId } from './model';
 import type { WindowRef, WindowsState, WindowState } from './model';
 import { activateNext, activateNumber, activatePrevious, moveWindow } from './navigation';
@@ -25,10 +27,32 @@ export type WindowsAction =
       readonly count: number;
       readonly highlight: boolean;
     }
-  | { readonly type: 'markRead'; readonly id: string };
+  | { readonly type: 'markRead'; readonly id: string }
+  | { readonly type: 'setDisplay'; readonly id: string; readonly overrides: DisplayChange };
+
+/** The two actions that track what a window has unread. */
+type UnreadAction = Extract<WindowsAction, { readonly type: 'markUnread' | 'markRead' }>;
+
+/** Whether {@link action} is one of the unread-tracking actions. */
+function isUnreadAction(action: WindowsAction): action is UnreadAction {
+  return action.type === 'markUnread' || action.type === 'markRead';
+}
+
+/** Apply an unread-tracking action. */
+function unreadReducer(state: WindowsState, action: UnreadAction): WindowsState {
+  switch (action.type) {
+    case 'markUnread':
+      return markUnread(state, action.id, action.count, action.highlight);
+    case 'markRead':
+      return markRead(state, action.id);
+  }
+}
 
 /** Apply a window action. Returns the same state when the action changes nothing. */
 export function windowsReducer(state: WindowsState, action: WindowsAction): WindowsState {
+  if (isUnreadAction(action)) {
+    return unreadReducer(state, action);
+  }
   switch (action.type) {
     case 'open':
       return openWindow(state, action.ref, action.title);
@@ -44,10 +68,8 @@ export function windowsReducer(state: WindowsState, action: WindowsAction): Wind
       return activatePrevious(state);
     case 'move':
       return moveWindow(state, action.id, action.toNumber);
-    case 'markUnread':
-      return markUnread(state, action.id, action.count, action.highlight);
-    case 'markRead':
-      return markRead(state, action.id);
+    case 'setDisplay':
+      return setDisplay(state, action.id, action.overrides);
   }
 }
 
@@ -60,7 +82,7 @@ function openWindow(state: WindowsState, ref: WindowRef, title: string): Windows
   if (state.windows.some((win) => win.id === id)) {
     return withActive(state, id);
   }
-  const fresh: WindowState = { id, ref, title, unread: 0, highlight: false };
+  const fresh: WindowState = { id, ref, title, unread: 0, highlight: false, display: {} };
   return { windows: [...state.windows, fresh], activeId: id };
 }
 

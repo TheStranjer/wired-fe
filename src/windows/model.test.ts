@@ -32,6 +32,7 @@ function stateWith(...ids: readonly string[]): WindowsState {
     title: id,
     unread: 0,
     highlight: false,
+    display: {},
   }));
   return { windows, activeId: ids.at(-1) ?? STATUS_WINDOW_ID };
 }
@@ -70,6 +71,7 @@ describe(initialWindowsState, () => {
           title: STATUS_WINDOW_ID,
           unread: 0,
           highlight: false,
+          display: {},
         },
       ],
       activeId: STATUS_WINDOW_ID,
@@ -115,6 +117,7 @@ describe(activeWindow, () => {
       title: STATUS_WINDOW_ID,
       unread: 0,
       highlight: false,
+      display: {},
     });
   });
 });

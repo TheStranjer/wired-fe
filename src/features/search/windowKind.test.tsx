@@ -29,6 +29,7 @@ function targetless(): WindowState {
     title: 'search/-',
     unread: 0,
     highlight: false,
+    display: {},
   };
 }
 

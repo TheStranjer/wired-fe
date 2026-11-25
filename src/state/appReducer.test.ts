@@ -30,6 +30,7 @@ function windowFor(id: string): WindowState {
     title: id,
     unread: 0,
     highlight: false,
+    display: {},
   };
 }
 

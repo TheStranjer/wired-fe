@@ -29,6 +29,7 @@ function targetless(): WindowState {
     title: 'dm/-',
     unread: 0,
     highlight: false,
+    display: {},
   };
 }
 

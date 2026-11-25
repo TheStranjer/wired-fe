@@ -20,7 +20,7 @@ function ref(kind: WindowKind, target: string | null = null): WindowRef {
 
 /** The window `ref` names for a view, carrying the given unread state. */
 function windowFor(view: WindowRef, unread = 0, highlight = false): WindowState {
-  return { id: windowId(view), ref: view, title: view.kind, unread, highlight };
+  return { id: windowId(view), ref: view, title: view.kind, unread, highlight, display: {} };
 }
 
 /** Status, a home window with two unread lines, and an active, clean dm. */

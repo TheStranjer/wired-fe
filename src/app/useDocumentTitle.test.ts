@@ -20,7 +20,7 @@ const HOME: WindowRef = { kind: 'home', accountKey: 'lain@wired.example', target
 
 /** The home window carrying {@link unread} lines and {@link highlight}. */
 function home(unread: number, highlight: boolean): WindowState {
-  return { id: windowId(HOME), ref: HOME, title: 'home', unread, highlight };
+  return { id: windowId(HOME), ref: HOME, title: 'home', unread, highlight, display: {} };
 }
 
 /** A window list of window 1 plus {@link extra}, with window 1 active. */

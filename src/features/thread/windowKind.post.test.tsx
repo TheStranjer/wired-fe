@@ -94,6 +94,7 @@ function targetless(): WindowState {
     title: 'thread/-',
     unread: 0,
     highlight: false,
+    display: {},
   };
 }
 

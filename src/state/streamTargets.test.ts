@@ -20,6 +20,7 @@ function win(kind: WindowKind, target: string | null = null): WindowState {
     title: kind,
     unread: 0,
     highlight: false,
+    display: {},
   };
 }
 
