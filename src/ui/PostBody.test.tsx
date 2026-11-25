@@ -13,6 +13,7 @@ import type { PostBodyProps } from './PostBody';
 const BASE: Omit<PostBodyProps, 'onToggleReveal'> = {
   contentHtml: '<p>present day, present time</p>',
   emojis: [],
+  hasQuoteCard: false,
   spoilerText: '',
   revealed: false,
 };

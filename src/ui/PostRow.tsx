@@ -122,7 +122,6 @@ function PostLine(props: LineProps): JSX.Element {
     mine,
     reactions,
     edited,
-    quote,
     onToggleReveal,
     onSelectAuthor,
   } = props;
@@ -143,6 +142,7 @@ function PostLine(props: LineProps): JSX.Element {
       <PostBody
         contentHtml={props.contentHtml}
         emojis={props.emojis}
+        hasQuoteCard={props.quote !== null}
         spoilerText={spoilerText}
         revealed={revealed}
         onToggleReveal={onToggleReveal}
@@ -154,7 +154,7 @@ function PostLine(props: LineProps): JSX.Element {
         reactions={reactions}
         visibility={visibility}
       />
-      {quote === null ? undefined : <QuoteBlock {...quote} />}
+      {props.quote === null ? undefined : <QuoteBlock {...props.quote} />}
     </>
   );
 }

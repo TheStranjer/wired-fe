@@ -17,6 +17,8 @@ export type PostBodyProps = {
   readonly contentHtml: string;
   /** The post's own custom emoji, rendered inline in the body. */
   readonly emojis: readonly EmojiRef[];
+  /** Whether a quote card shows, so the body's "RE:/RT: link" fallback goes. */
+  readonly hasQuoteCard: boolean;
   /** The content warning text; the empty string means there is none. */
   readonly spoilerText: string;
   /** Whether a warned body is shown; meaningless without a warning. */
@@ -30,9 +32,11 @@ export type PostBodyProps = {
  * once revealed. While hidden the content is not rendered at all.
  */
 export function PostBody(props: PostBodyProps): JSX.Element {
-  const { contentHtml, emojis, spoilerText, revealed, onToggleReveal } = props;
+  const { contentHtml, emojis, hasQuoteCard, spoilerText, revealed, onToggleReveal } = props;
 
-  const body = <RemoteHtml emojis={emojis} html={contentHtml} inline />;
+  const body = (
+    <RemoteHtml dropQuoteFallback={hasQuoteCard} emojis={emojis} html={contentHtml} inline />
+  );
   if (spoilerText === '') {
     return body;
   }

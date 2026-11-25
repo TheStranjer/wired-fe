@@ -79,3 +79,22 @@ describe('PostRow quote line', () => {
     );
   });
 });
+
+describe('PostRow quote fallback', () => {
+  const FALLBACK =
+    '<p>quoting</p><p class="quote-inline">RE: <a href="https://m.test/1">m.test/1</a></p>';
+
+  it('hides the RE: fallback when the quote card shows', () => {
+    const { container } = render(<PostRow {...BASE_PROPS} contentHtml={FALLBACK} quote={QUOTE} />);
+
+    expect(container.textContent).not.toContain('RE:');
+    expect(container.textContent).toContain('quoting');
+    expect(container.textContent).toContain('┌');
+  });
+
+  it('keeps the RE: fallback when the quoted post could not be loaded', () => {
+    const { container } = render(<PostRow {...BASE_PROPS} contentHtml={FALLBACK} />);
+
+    expect(container.textContent).toContain('RE: m.test/1');
+  });
+});

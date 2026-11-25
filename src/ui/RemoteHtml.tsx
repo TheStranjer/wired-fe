@@ -23,15 +23,17 @@ export type RemoteHtmlProps = {
   readonly inline?: boolean;
   /** The post's own custom emoji; their `:shortcode:` text renders as images. */
   readonly emojis?: readonly EmojiRef[] | undefined;
+  /** Drop the quote's "RE:/RT: link" fallback, because a quote card shows. */
+  readonly dropQuoteFallback?: boolean;
 };
 
 /** Sanitized fediverse markup: the app's only raw-HTML rendering component. */
 export function RemoteHtml(props: RemoteHtmlProps): JSX.Element {
-  const { html, inline = false, emojis } = props;
+  const { html, inline = false, emojis, dropQuoteFallback = false } = props;
   const safeHtml = useMemo(() => {
-    const sanitized = sanitizeRemoteHtml(html);
+    const sanitized = sanitizeRemoteHtml(html, { dropQuoteFallback });
     return emojis === undefined || emojis.length === 0 ? sanitized : emojify(sanitized, emojis);
-  }, [html, emojis]);
+  }, [html, emojis, dropQuoteFallback]);
 
   const Root = inline ? 'span' : 'div';
   return <Root className={styles['root']} dangerouslySetInnerHTML={{ __html: safeHtml }} />;
