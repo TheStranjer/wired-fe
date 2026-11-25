@@ -17,15 +17,19 @@ export type NickProps = {
   readonly self: boolean;
   /** Called when the nick is clicked; omit to render plain, unclickable text. */
   readonly onSelect?: () => void;
+  /** True in a one-line, flex-row slot (the nick list): the handle then shrinks
+   * and ends in an ellipsis when it is too long, and the brackets never shrink. */
+  readonly truncate?: boolean;
 };
 
 /**
  * The handle's classes: the plain-text button look and the self highlight come
  * after .handle in the stylesheet, so on equal specificity they win.
  */
-function handleClasses(self: boolean, clickable: boolean): string {
+function handleClasses(self: boolean, clickable: boolean, truncate: boolean): string {
   return [
     styles['handle'],
+    truncate ? styles['truncate'] : undefined,
     clickable ? styles['button'] : undefined,
     self ? styles['self'] : undefined,
   ].join(' ');
@@ -33,8 +37,8 @@ function handleClasses(self: boolean, clickable: boolean): string {
 
 /** The handle as `<handle>`, as a button when onSelect is given, else a span. */
 export function Nick(props: NickProps): JSX.Element {
-  const { handle, fullHandle, self, onSelect } = props;
-  const classes = handleClasses(self, onSelect !== undefined);
+  const { handle, fullHandle, self, onSelect, truncate = false } = props;
+  const classes = handleClasses(self, onSelect !== undefined, truncate);
 
   return (
     <>
