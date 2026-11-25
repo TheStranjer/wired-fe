@@ -39,6 +39,22 @@ describe(viewProvider, () => {
     expect(tab('/vsplit')).toBeNull();
   });
 
+  it('completes the views after /float, with its move and size words', () => {
+    expect(candidates('/float m')).toStrictEqual(['move']);
+    expect(candidates('/float s')).toStrictEqual(['search', 'size']);
+    expect(tab('/float ta')).toBe('/float tag ');
+    expect(tab('/FLOAT SI')).toBe('/FLOAT size ');
+  });
+
+  it('keeps move and size to /float, and offers nothing after its first argument', () => {
+    expect(candidates('/vsplit m')).toStrictEqual([]);
+    expect(tab('/float move 1')).toBeNull();
+  });
+
+  it('offers the plain view words when asked without the text before the word', () => {
+    expect(viewProvider().candidates('ho')).toStrictEqual(['home']);
+  });
+
   it('declines when the engine passes no line', () => {
     expect(viewProvider().accepts('h', false)).toBe(false);
   });

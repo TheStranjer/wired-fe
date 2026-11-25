@@ -5,7 +5,8 @@
  * (`tag rust`, `home`…). Those commands are run unchanged with their window
  * ask held back, so handle lookups, labels, titles and refusals stay theirs;
  * the held `open` is dispatched only once the new pane has focus, which puts
- * the window in it.
+ * the window in it. `/float <view>` reuses the same lookup and placement,
+ * splitting and then tearing the new pane off.
  */
 
 import { OK, fail } from './outcome';
@@ -13,6 +14,7 @@ import { lookupCommand } from './registry';
 import type { CommandContext, CommandDefinition, CommandOutcome } from './types';
 import { type ViewSpec, VIEW_WORDS, parseViewSpec } from './viewSpec';
 import { type Result, err, ok } from '../lib/result';
+import type { LayoutAction } from '../windows/layoutAction';
 import { windowId } from '../windows/model';
 import type { WindowsAction } from '../windows/reducer';
 import type { SplitDir } from '../windows/splitTree';
@@ -21,7 +23,7 @@ import type { SplitDir } from '../windows/splitTree';
 type OpenAction = Extract<WindowsAction, { readonly type: 'open' }>;
 
 /** What the new pane shows: the window's id, and the `open` that creates it when it is not yet open. */
-type Shown = { readonly windowId: string; readonly open: OpenAction | null };
+export type Shown = { readonly windowId: string; readonly open: OpenAction | null };
 
 /** The grammar line the commands print in their usage: the views a spec may name. */
 export const VIEW_USAGE = `[${VIEW_WORDS.join('|')} …]`;
@@ -73,9 +75,37 @@ async function shownBy(context: CommandContext, spec: ViewSpec): Promise<Result<
   return spec.type === 'window' ? numbered(context, spec.number) : await runOpen(context, spec);
 }
 
-/** Splits the focused pane along {@link dir}, focuses the new pane and puts {@link shown} in it. */
-function split(context: CommandContext, dir: SplitDir, shown: Shown): CommandOutcome {
-  context.dispatch({ type: 'layout', action: { type: 'split', dir, windowId: shown.windowId } });
+/**
+ * What the argument text of a split or float command asks to show: the focused
+ * window when it is blank, otherwise the view spec's window. A spec that does
+ * not parse answers with its error and the {@link usage}; one that parses but
+ * cannot open says why.
+ */
+export async function viewToShow(
+  args: string,
+  context: CommandContext,
+  usage: string,
+): Promise<Result<Shown, string>> {
+  if (args.trim() === '') {
+    return ok({ windowId: context.windows.activeId, open: null });
+  }
+  const spec = parseViewSpec(args);
+  return spec.ok ? await shownBy(context, spec.value) : err(`${spec.error}. Usage: ${usage}`);
+}
+
+/**
+ * Asks the layout for {@link actions} in order, the new pane taking focus,
+ * then dispatches the held `open` of {@link shown}, which puts its window in
+ * the focused pane.
+ */
+export function placeShown(
+  context: CommandContext,
+  shown: Shown,
+  actions: readonly LayoutAction[],
+): CommandOutcome {
+  for (const action of actions) {
+    context.dispatch({ type: 'layout', action });
+  }
   if (shown.open !== null) {
     context.dispatchWindows(shown.open);
   }
@@ -90,14 +120,9 @@ function split(context: CommandContext, dir: SplitDir, shown: Shown): CommandOut
  */
 export function splitRun(dir: SplitDir, usage: string): CommandDefinition['run'] {
   return async (args, context) => {
-    if (args.trim() === '') {
-      return split(context, dir, { windowId: context.windows.activeId, open: null });
-    }
-    const spec = parseViewSpec(args);
-    if (!spec.ok) {
-      return fail(`${spec.error}. Usage: ${usage}`);
-    }
-    const shown = await shownBy(context, spec.value);
-    return shown.ok ? split(context, dir, shown.value) : fail(shown.error);
+    const shown = await viewToShow(args, context, usage);
+    return shown.ok
+      ? placeShown(context, shown.value, [{ type: 'split', dir, windowId: shown.value.windowId }])
+      : fail(shown.error);
   };
 }
