@@ -14,8 +14,8 @@ export type PostActionLine = {
   readonly prefill: boolean;
   /** True opens the emoji picker on a click instead of handing the line on (WFE-265). */
   readonly picker?: true;
-  /** Present when a click asks first in a dialog (WFE-266): which question. */
-  readonly confirm?: 'delete' | 'block';
+  /** Present when a click asks first in a dialog (WFE-266, WFE-267): which question. */
+  readonly confirm?: 'delete' | 'block' | 'mute';
 };
 
 /** The line each command runs on the card's post, by command name; a command the

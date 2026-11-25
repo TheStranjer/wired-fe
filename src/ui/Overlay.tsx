@@ -28,7 +28,9 @@ export type OverlayProps = {
 };
 
 /** The elements Tab can land on, as the browser's own tab order counts them. */
-const FOCUSABLE = 'a[href], button, input, textarea, select, [tabindex]:not([tabindex="-1"])';
+const FOCUSABLE = ['a[href]', 'button', 'input', 'textarea', 'select', '[tabindex]']
+  .map((selector) => `${selector}:not([tabindex="-1"])`)
+  .join(', ');
 
 /** The fields {@link box} can give focus to, in DOM order. */
 function fieldsOf(box: HTMLElement): HTMLElement[] {

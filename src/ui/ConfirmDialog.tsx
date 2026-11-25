@@ -2,10 +2,12 @@
  * A yes/no question in the modal box (WFE-266): a title, a message and two
  * buttons. Cancel comes first so the box's focus lands on it and a stray Enter
  * destroys nothing; Escape cancels too. `danger` styles the confirm button with
- * the theme's error colour. Presentational: what confirming does belongs to
+ * the theme's error colour. An optional body slot (WFE-267) sits between the
+ * message and the buttons; its first field, if any, takes the box's initial
+ * focus instead of Cancel. Presentational: what confirming does belongs to
  * the caller, and so does closing the dialog afterwards.
  */
-import type { JSX } from 'react';
+import type { JSX, ReactNode } from 'react';
 
 import styles from './ConfirmDialog.module.css';
 import { Overlay } from './Overlay';
@@ -22,6 +24,8 @@ export type ConfirmDialogProps = {
   readonly cancelLabel?: string;
   /** Whether confirming is destructive: the confirm button turns error-coloured. */
   readonly danger?: boolean;
+  /** Optional body between the message and the buttons, e.g. a choice (WFE-267). */
+  readonly children?: ReactNode;
   /** Called when the confirm button is pressed. */
   readonly onConfirm: () => void;
   /** Called by the cancel button and by Escape. */
@@ -35,6 +39,7 @@ export function ConfirmDialog(props: ConfirmDialogProps): JSX.Element {
     <Overlay label={title} onClose={props.onCancel}>
       <h2 className={styles['title']}>{title}</h2>
       <p className={styles['message']}>{message}</p>
+      {props.children}
       <div className={styles['buttons']}>
         <button
           className={styles['button']}

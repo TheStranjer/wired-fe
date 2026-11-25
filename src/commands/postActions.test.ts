@@ -67,10 +67,10 @@ describe(postActionLines, () => {
     expect(lines.edit).toStrictEqual({ line: '/edit a3', prefill: false });
   });
 
-  it('prefills the lines whose hotkey prefills them', () => {
+  it('marks mute to open its duration dialog on click, not prefilled', () => {
     const lines = postActionLines(realRegistry(), 'a3');
 
-    expect(lines.mute).toStrictEqual({ line: '/mute a3', prefill: true });
+    expect(lines.mute).toStrictEqual({ line: '/mute a3', prefill: false, confirm: 'mute' });
   });
 
   it('marks delete and block to be confirmed on click, not prefilled', () => {

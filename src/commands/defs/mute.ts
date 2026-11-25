@@ -6,7 +6,9 @@
  * No duration mutes forever. A word that spells no duration is refused
  * before anything is sent; what {@link accountToggleRun} describes is the
  * body. `Shift+M` in navigation mode prefills the line, so the duration can
- * be typed after the author of the selected post.
+ * be typed after the author of the selected post; a click on a card's `⋯` →
+ * Mute author (WFE-267) instead opens a dialog choosing the duration, and runs
+ * the same line with that duration word on the end.
  */
 
 import { accountToggleRun } from '../accountToggle';
