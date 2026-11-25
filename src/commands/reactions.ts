@@ -16,9 +16,9 @@ import type { CommandContext, CommandDefinition, CommandOutcome } from './types'
 import { react, unreact } from '../api/endpoints/reactions';
 import { type ApiError, describeApiError } from '../api/errors';
 import type { Status } from '../api/schemas/status';
-import { type Capabilities, type FeatureFlag, hasFeature } from '../capabilities/capabilities';
+import type { FeatureFlag } from '../capabilities/capabilities';
+import { requireFeature } from '../capabilities/requireFeature';
 import { type Result, err, ok } from '../lib/result';
-import { capabilitiesFor } from '../state/selectors';
 
 /** Which of the two commands is running: attach the emoji, or detach it. */
 export type ReactionKind = 'react' | 'unreact';
@@ -60,17 +60,19 @@ function requiredFlags(emoji: Emoji): readonly FeatureFlag[] {
 }
 
 /**
- * Why {@link emoji} cannot be sent to {@link capabilities}: the refusal
- * naming the first capability that is missing, or null when all of them are
- * met. Capabilities that were never read refuse as though the plain
- * `emojiReactions` flag were absent — no reaction endpoint is trusted there.
+ * Why {@link emoji} cannot be sent to {@link accountKey}'s instance: the
+ * refusal for the first capability that is missing, or null when all of them
+ * are met. Capabilities that were never read refuse as the plain
+ * `emojiReactions` flag would.
  */
-function refusal(capabilities: Capabilities | null, emoji: Emoji): string | null {
-  if (capabilities === null) {
-    return 'Instance lacks emojiReactions';
+function refusal(context: CommandContext, accountKey: string | null, emoji: Emoji): string | null {
+  for (const flag of requiredFlags(emoji)) {
+    const required = requireFeature(context, accountKey, flag);
+    if (!required.ok) {
+      return required.error;
+    }
   }
-  const missing = requiredFlags(emoji).find((flag) => !hasFeature(capabilities, flag));
-  return missing === undefined ? null : `Instance lacks ${missing}`;
+  return null;
 }
 
 /** Attach or detach {@link reaction}'s emoji on its post. */
@@ -116,7 +118,7 @@ async function runReaction(
   if (!emoji.ok) {
     return fail(emoji.error);
   }
-  const problem = refusal(capabilitiesFor(context.state, target.value.accountKey), emoji.value);
+  const problem = refusal(context, target.value.accountKey, emoji.value);
   if (problem !== null) {
     return fail(problem);
   }

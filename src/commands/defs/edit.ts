@@ -17,25 +17,13 @@
 import { getStatusSource } from '../../api/endpoints/statusSource';
 import { editStatus } from '../../api/endpoints/statusWrite';
 import { describeApiError } from '../../api/errors';
-import { type Capabilities, hasFeature } from '../../capabilities/capabilities';
-import { capabilitiesFor } from '../../state/selectors';
+import type { Capabilities } from '../../capabilities/capabilities';
+import { requireFeature } from '../../capabilities/requireFeature';
 import { editFields } from '../editFields';
 import { OK, fail } from '../outcome';
 import { printedLabel } from '../statusLabel';
 import { type StatusTarget, resolveOwnStatusTarget } from '../targets';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
-
-/** What an instance without the `editing` capability hears (decision 5). */
-const NO_EDITING = fail('This server does not support editing');
-
-/** The capabilities of {@link accountKey}'s instance when it takes edits at all (decision 5). */
-function editingCapabilities(
-  context: CommandContext,
-  accountKey: string | null,
-): Capabilities | null {
-  const capabilities = capabilitiesFor(context.state, accountKey);
-  return capabilities !== null && hasFeature(capabilities, 'editing') ? capabilities : null;
-}
 
 /** Send {@link text} as {@link target}'s new body, keeping the rest of the post. */
 async function send(
@@ -74,14 +62,14 @@ async function handle(args: string, context: CommandContext): Promise<CommandOut
   if (!target.ok) {
     return fail(target.error);
   }
-  const capabilities = editingCapabilities(context, target.value.accountKey);
-  if (capabilities === null) {
-    return NO_EDITING;
+  const editing = requireFeature(context, target.value.accountKey, 'editing');
+  if (!editing.ok) {
+    return fail(editing.error);
   }
   const text = target.value.rest.trim();
   return text === ''
     ? await refill(target.value, context)
-    : await send(target.value, text, { context, capabilities });
+    : await send(target.value, text, { context, capabilities: editing.value });
 }
 
 /** The `/edit` definition. */

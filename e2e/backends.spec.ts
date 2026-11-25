@@ -107,7 +107,7 @@ async function reactToFirst(page: Page, one: BackendCase, reactions: string[]): 
   const home = logRegion(page, 'home');
   await submit(page, '/react a0 🔥');
   if (!one.reacts) {
-    await expect(home).toContainText('Instance lacks emojiReactions');
+    await expect(home).toContainText("server (Mastodon) can't react to posts with emoji");
     expect(reactions).toStrictEqual([]);
     return;
   }

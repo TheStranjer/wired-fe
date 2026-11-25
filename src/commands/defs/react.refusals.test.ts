@@ -91,7 +91,10 @@ describe('/react refusals', () => {
 
     const outcome = await command.run('a0 🔥', context);
 
-    expect(outcome).toStrictEqual({ ok: false, message: 'Instance lacks emojiReactions' });
+    expect(outcome).toStrictEqual({
+      ok: false,
+      message: "@lain@wired.example's server (Pleroma) can't react to posts with emoji",
+    });
     expect(context.dispatch).not.toHaveBeenCalled();
     expect(context.print).not.toHaveBeenCalled();
   });
@@ -101,7 +104,10 @@ describe('/react refusals', () => {
 
     const outcome = await command.run('a0 :blob:', context);
 
-    expect(outcome).toStrictEqual({ ok: false, message: 'Instance lacks customEmojiReactions' });
+    expect(outcome).toStrictEqual({
+      ok: false,
+      message: "@lain@wired.example's server (Pleroma) can't react with custom emoji",
+    });
   });
 
   it('refuses as though without emojiReactions when none was ever detected', async () => {
@@ -109,7 +115,10 @@ describe('/react refusals', () => {
 
     const outcome = await command.run('a0 🔥', context);
 
-    expect(outcome).toStrictEqual({ ok: false, message: 'Instance lacks emojiReactions' });
+    expect(outcome).toStrictEqual({
+      ok: false,
+      message: "@lain@wired.example's server can't react to posts with emoji",
+    });
   });
 
   it('echoes the usage when the emoji is missing', async () => {
