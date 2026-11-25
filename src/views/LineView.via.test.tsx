@@ -45,7 +45,12 @@ function shown(
   density: 'cards' | 'lines' = 'cards',
   feed: FeedSpec = FEED,
 ): AppState {
-  const feedItems = appReducer(feedState([feed]), { type: 'feed', windowId: WINDOW, items });
+  const feedItems = appReducer(feedState([feed]), {
+    type: 'feed',
+    windowId: WINDOW,
+    items,
+    cursors: {},
+  });
   return coreReducer(feedItems, {
     type: 'windows',
     action: { type: 'setDisplay', id: WINDOW, overrides: { density } },

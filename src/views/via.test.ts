@@ -34,7 +34,7 @@ function seen(id: string, seenBy: readonly string[]): FeedItem {
 
 /** The multi-account feed with `items` shown. */
 function shown(items: readonly FeedItem[], feed: FeedSpec = SPEC): AppState {
-  return appReducer(feedState([feed]), { type: 'feed', windowId: WINDOW, items });
+  return appReducer(feedState([feed]), { type: 'feed', windowId: WINDOW, items, cursors: {} });
 }
 
 describe(viaFor, () => {
@@ -154,6 +154,7 @@ describe(viaFor, () => {
       type: 'feed',
       windowId: feedWindowId(null),
       items: [seen('p', [A_KEY])],
+      cursors: {},
     });
 
     expect(viaFor(state, feedWindowId(null), 'post:p')).toBeNull();
