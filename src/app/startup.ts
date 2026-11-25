@@ -168,17 +168,17 @@ async function finishPendingLogin(deps: StartupDeps): Promise<void> {
 /**
  * Boot the session into the status window: load the stored settings, greet,
  * finish a login left in the URL, turn a path route into its hash route
- * (./routeFromPath), then restore the stored accounts into the
- * app state and open each one's home and notifications window, and either
- * hint at `/connect` (no accounts, by instance mode) or detect each account's
- * instance once — concurrently, one report per origin — and announce every
- * account, the active one marked.
+ * (./routeFromPath), restore the stored accounts into the app state and open
+ * each one's home and notifications window, then either hint at `/connect`
+ * (no accounts, by instance mode) or detect each account's instance once
+ * (concurrently, one report per origin) and announce every account, the
+ * active one marked.
  */
 export async function runStartup(deps: StartupDeps): Promise<void> {
   loadSettings(deps);
   greet(deps);
   await finishPendingLogin(deps);
-  routeFromPath(deps.location);
+  routeFromPath(deps.location, deps.config.basePath);
   const accounts = deps.stores.accounts.list();
   const activeKey = deps.stores.accounts.activeKey();
   deps.dispatch({ type: 'accounts', accounts, activeKey });

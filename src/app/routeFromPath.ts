@@ -15,10 +15,14 @@ type RouteLocation = PathLocation & {
   readonly replaceUrl: (path: string) => void;
 };
 
-/** Replace the path in {@link location} with its hash route, if it has one. */
-export function routeFromPath(location: RouteLocation): void {
-  const hash = pathToHash(location);
+/**
+ * Replace the path in {@link location} with its hash route, if it has one,
+ * keeping the page under {@link basePath} (the build's hosting path, `/` by
+ * default): `/fe/notice/a` becomes `/fe/#/notice/a`.
+ */
+export function routeFromPath(location: RouteLocation, basePath = '/'): void {
+  const hash = pathToHash(location, basePath);
   if (hash !== null) {
-    location.replaceUrl(`/${hash}`);
+    location.replaceUrl(`${basePath}${hash}`);
   }
 }
