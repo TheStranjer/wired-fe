@@ -40,7 +40,7 @@ export type PostContext = {
 export type WindowKindDefinition = {
   /** Which kind of view this definition implements. */
   readonly kind: WindowKind;
-  /** Topic line text for the TopicBar. */
+  /** Topic line text for the pane title. */
   readonly topic: (window: WindowState, state: AppState) => string;
   /** The component rendering one window of this kind, by window id. */
   readonly Component: ComponentType<{ readonly windowId: string }>;

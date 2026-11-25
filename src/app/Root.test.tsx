@@ -1,12 +1,9 @@
 /**
- * Tests for the shell wired to real state: the status window with its kind's
- * topic, the account handles in the topic bar and the status line, the status
- * line's clock, mode and window entries, switching a window by clicking its
- * entry, and the command line handing every line to the dispatcher — /help
- * printing the command list,
- * an unknown command printing its error, plain text in the status window
- * printing the refusal to post, /clear emptying the buffer, and the line
- * clearing itself once the command is done with.
+ * Tests for the shell wired to real state: pane titles with the kind's topic,
+ * the account handles in the header and status line, the status line's
+ * entries and window switching, and the command line handing every line to
+ * the dispatcher: /help, unknown commands, refused posts, /clear, and the
+ * line clearing itself afterwards.
  */
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
@@ -96,10 +93,10 @@ function serveNoCustomEmojis(): void {
   );
 }
 
-/** The topic bar, the shell's first banner region (pane title bars are headers too). */
+/** The global header, the first banner (pane title bars are headers too). */
 function banner(): HTMLElement {
-  const [topic] = screen.getAllByRole('banner');
-  return topic ?? screen.getByRole('banner');
+  const [header] = screen.getAllByRole('banner');
+  return header ?? screen.getByRole('banner');
 }
 
 describe(Root, () => {
@@ -111,8 +108,9 @@ describe(Root, () => {
   it('shows the status window with its kind topic', () => {
     renderRoot([]);
 
-    expect(within(banner()).getByText('status')).toBeInTheDocument();
-    expect(within(banner()).getByText('WIRED — Present day. Present time.')).toBeInTheDocument();
+    const pane = screen.getByRole('region', { name: 'status' });
+
+    expect(within(pane).getByText(/status — WIRED — Present day\. Present time\./)).toBeVisible();
     expect(screen.getByRole('log', { name: 'status' })).toBeInTheDocument();
   });
 
@@ -124,13 +122,15 @@ describe(Root, () => {
     expect(within(desktop).getByRole('region', { name: 'status' })).toBeInTheDocument();
   });
 
-  it('names the window and active accounts by handle', () => {
+  it('titles the focused pane with its window, account and topic', () => {
     renderRoot([
       { type: 'accounts', accounts: [ACCOUNT], activeKey: ACCOUNT.key },
       win({ type: 'open', ref: HOME, title: 'home' }),
     ]);
 
-    expect(within(banner()).getByText('home')).toBeInTheDocument();
+    const pane = screen.getByRole('region', { name: 'home @lain@wired.example' });
+
+    expect(within(pane).getByText(/home @lain@wired\.example — home timeline/)).toBeInTheDocument();
     expect(within(banner()).getByText('@lain@wired.example')).toBeInTheDocument();
     expect(screen.getByText('[@lain@wired.example]')).toBeInTheDocument();
   });
@@ -148,7 +148,7 @@ describe(Root, () => {
     expect(
       screen.getByRole('button', { name: 'Window 2: home, 3 unread, highlighted' }),
     ).toBeInTheDocument();
-    expect(within(banner()).getByText('status')).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'status' })).toBeInTheDocument();
   });
 
   it('switches windows when a status line entry is clicked', () => {
@@ -163,7 +163,7 @@ describe(Root, () => {
 
     expect(screen.getByRole('log', { name: 'home' })).toBeInTheDocument();
     expect(screen.queryByRole('log', { name: 'status' })).toBeNull();
-    expect(within(banner()).getByText('home')).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'home' })).toBeInTheDocument();
   });
 
   it('prints the command list into the active window when /help runs', async () => {

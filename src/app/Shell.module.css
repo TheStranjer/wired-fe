@@ -1,4 +1,4 @@
-/* The shell grid: topic bar over scrollback + side pane, status line and
+/* The shell grid: header over scrollback + side pane, status line and
    command line at the bottom. Below 640px the side pane gives way to the
    scrollback. */
 
@@ -9,7 +9,7 @@
   height: 100%;
 }
 
-.topic {
+.header {
   grid-row: 1;
   grid-column: 1 / -1;
   background: var(--color-bar-bg);

@@ -1,6 +1,6 @@
 /**
- * The shell: the fixed layout that arranges the topic bar, the active
- * window's scrollback, the side pane, the status line and the command line
+ * The shell: the fixed layout that arranges the global header, the desktop
+ * of panes, the side pane, the status line and the command line
  * (AGENTS.md "Windows, like IRC buffers"). Presentational only: which content
  * fills each region belongs to the app and feature layers.
  */
@@ -10,8 +10,8 @@ import styles from './Shell.module.css';
 
 /** The five regions of the screen, each filled by a higher layer. */
 export type ShellProps = {
-  /** Topic bar content, across the top full width. */
-  readonly topic: ReactNode;
+  /** Global header chrome, one line across the top full width. */
+  readonly header: ReactNode;
   /** The active window's scrollback, the tall region on the left. */
   readonly scrollback: ReactNode;
   /** The accessible name of the scrollback region, e.g. `Desktop 1`. */
@@ -26,11 +26,11 @@ export type ShellProps = {
 
 /** The viewport-filling grid of the five shell regions. */
 export function Shell(props: ShellProps): JSX.Element {
-  const { topic, scrollback, scrollbackLabel, sidePane, statusLine, input } = props;
+  const { header, scrollback, scrollbackLabel, sidePane, statusLine, input } = props;
 
   return (
     <div className={styles['shell']}>
-      <header className={styles['topic']}>{topic}</header>
+      <header className={styles['header']}>{header}</header>
       <main aria-label={scrollbackLabel} className={styles['scrollback']}>
         {scrollback}
       </main>
