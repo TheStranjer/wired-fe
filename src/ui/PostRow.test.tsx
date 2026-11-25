@@ -63,7 +63,7 @@ function renderPost(overrides: Partial<PostRowProps> = {}) {
 const MINE: Partial<PostRowProps> = {
   counts: { replies: 2, boosts: 1, favourites: 5 },
   mine: { boosted: true, favourited: true, bookmarked: true },
-  reactions: [{ name: '🔥', count: 2, me: true }],
+  reactions: [{ name: '🔥', count: 2, me: true, url: null }],
   edited: true,
 };
 
@@ -135,7 +135,7 @@ describe(PostRow, () => {
       '[a3] 23:04 <alice> present day, present time  ↩2 ⟳1 ★5 🔖 🔥2 (edited)',
     );
     expect(screen.getByText('⟳1')).toHaveAttribute('title', 'you boosted this');
-    expect(screen.getByText('🔥2')).toHaveAttribute('title', 'you reacted with 🔥');
+    expect(screen.getByTitle('you reacted with 🔥')).toHaveTextContent('🔥2');
   });
 
   it('shows one post as the row the ticket asks for', () => {
@@ -146,7 +146,7 @@ describe(PostRow, () => {
       contentHtml: '<p>present day</p>',
       counts: { replies: 2, boosts: 1, favourites: 5 },
       mine: { boosted: false, favourited: true, bookmarked: false },
-      reactions: [{ name: '🔥', count: 2, me: false }],
+      reactions: [{ name: '🔥', count: 2, me: false, url: null }],
       edited: true,
     });
 

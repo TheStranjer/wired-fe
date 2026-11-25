@@ -7,14 +7,11 @@
 import type { Poll } from '../api/schemas/poll';
 import type { Reaction } from '../api/schemas/reaction';
 import type { PollViewData } from '../ui/PollView';
+import type { PostReaction } from '../ui/ReactionChip';
 
-/** One reaction without the image url the row does not draw (yet). */
-export function reactionOf(reaction: Reaction): {
-  readonly name: string;
-  readonly count: number;
-  readonly me: boolean;
-} {
-  return { name: reaction.name, count: reaction.count, me: reaction.me };
+/** One reaction in the row's names, with the picture of a custom emoji. */
+export function reactionOf(reaction: Reaction): PostReaction {
+  return { name: reaction.name, count: reaction.count, me: reaction.me, url: reaction.url };
 }
 
 /** The displayed status's poll in the row's own field names; null when none. */

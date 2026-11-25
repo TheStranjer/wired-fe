@@ -90,14 +90,50 @@ describe(PostMeta, () => {
   it('shows each reaction as its emoji and tally', () => {
     const { container } = renderMeta({
       reactions: [
-        { name: '🔥', count: 2, me: true },
-        { name: '❤️', count: 1, me: false },
+        { name: '🔥', count: 2, me: true, url: null },
+        { name: '❤️', count: 1, me: false, url: null },
       ],
     });
 
     expect(container.textContent).toBe('  🔥2 ❤️1');
-    expect(screen.getByText('🔥2')).toHaveAttribute('title', 'you reacted with 🔥');
-    expect(screen.getByText('❤️1')).not.toHaveAttribute('title');
+    expect(screen.getByTitle('you reacted with 🔥')).toHaveTextContent('🔥2');
+    expect(screen.getByRole('img', { name: '❤️, 1 reaction' })).not.toHaveAttribute('title');
+  });
+
+  it('shows a custom emoji reaction as its picture followed by the tally', () => {
+    const { container } = renderMeta({
+      reactions: [{ name: 'wiredcat', count: 2, me: false, url: 'https://wired.example/cat.png' }],
+    });
+
+    const image = screen.getByAltText(':wiredcat:');
+
+    expect(image).toHaveAttribute('src', 'https://wired.example/cat.png');
+    expect(image).toHaveAttribute('title', 'wiredcat');
+    expect(container.textContent).toBe('  2');
+    expect(screen.getByRole('img', { name: 'wiredcat, 2 reactions' })).toBeInTheDocument();
+  });
+
+  it('names a remote custom emoji by its shortcode and its full name', () => {
+    renderMeta({
+      reactions: [
+        { name: 'blob-cat@pleroma.test', count: 3, me: true, url: 'https://pleroma.test/b.png' },
+      ],
+    });
+
+    const image = screen.getByAltText(':blob-cat:');
+
+    expect(image).toHaveAttribute('title', 'blob-cat@pleroma.test');
+    expect(screen.getByTitle('you reacted with blob-cat@pleroma.test')).toBeInTheDocument();
+  });
+
+  it('keeps the name as text when the picture is not an https url', () => {
+    const { container } = renderMeta({
+      reactions: [{ name: 'wiredcat', count: 1, me: false, url: 'http://wired.example/c.png' }],
+    });
+
+    expect(screen.queryByAltText(':wiredcat:')).toBeNull();
+    expect(container.textContent).toBe('  wiredcat1');
+    expect(screen.getByRole('img', { name: 'wiredcat, 1 reaction' })).toBeInTheDocument();
   });
 
   it('marks a post the author edited', () => {
@@ -112,7 +148,7 @@ describe(PostMeta, () => {
       visibility: 'direct',
       counts: SOME_COUNTS,
       mine: { boosted: true, favourited: false, bookmarked: false },
-      reactions: [{ name: '🔥', count: 2, me: false }],
+      reactions: [{ name: '🔥', count: 2, me: false, url: null }],
       edited: true,
     });
 

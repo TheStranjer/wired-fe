@@ -92,7 +92,7 @@ describe('postView metadata', () => {
     });
   });
 
-  it('keeps a reaction tally and drops the image url the row does not draw', () => {
+  it('keeps a reaction tally and the image url of a custom emoji', () => {
     const post = status('a', {
       pleroma: {
         emoji_reactions: [
@@ -103,8 +103,8 @@ describe('postView metadata', () => {
     });
 
     expect(postView(post, SIGNED_OUT).reactions).toStrictEqual([
-      { name: '🔥', count: 2, me: true },
-      { name: '❤️', count: 1, me: false },
+      { name: '🔥', count: 2, me: true, url: 'https://wired.example/emoji/fire.gif' },
+      { name: '❤️', count: 1, me: false, url: null },
     ]);
   });
 
@@ -141,6 +141,6 @@ describe('postView metadata', () => {
     expect([view.visibility, view.edited]).toStrictEqual(['direct', true]);
     expect(view.counts).toStrictEqual({ replies: 4, boosts: 5, favourites: 6 });
     expect(view.mine).toStrictEqual({ boosted: true, favourited: true, bookmarked: true });
-    expect(view.reactions).toStrictEqual([{ name: '🔥', count: 2, me: true }]);
+    expect(view.reactions).toStrictEqual([{ name: '🔥', count: 2, me: true, url: null }]);
   });
 });

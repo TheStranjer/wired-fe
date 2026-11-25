@@ -115,8 +115,8 @@ describe(postView, () => {
       counts: { replies: 3, boosts: 2, favourites: 9 },
       mine: { boosted: false, favourited: true, bookmarked: true },
       reactions: [
-        { name: '❤️', count: 3, me: true },
-        { name: 'lain', count: 1, me: false },
+        { name: '❤️', count: 3, me: true, url: null },
+        { name: 'lain', count: 1, me: false, url: 'https://wired.example/emoji/lain.gif' },
       ],
       media: [],
       emojis: [{ shortcode: 'wired', url: 'https://wired.example/emoji/wired.gif' }],
