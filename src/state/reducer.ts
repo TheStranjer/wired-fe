@@ -19,10 +19,17 @@ import { type ComposerAction, composerReducer, withLiveComposers } from './compo
 import { type ComposerMediaAction, composerMediaReducer } from './composerMedia';
 import { type RestoreAction, restoreReducer } from './deskRestore';
 import { type SignInAction, signInReducer } from './signIn';
+import { type SyncAction, syncReducer } from './syncStatus';
 
 /** One thing that can happen to the application as a whole. */
 export type AppAction =
-  CoreAction | RestoreAction | SignInAction | BufferAction | ComposerAction | ComposerMediaAction;
+  | CoreAction
+  | RestoreAction
+  | SignInAction
+  | SyncAction
+  | BufferAction
+  | ComposerAction
+  | ComposerMediaAction;
 
 /** The action types the buffer reducer owns, every one of them by name. */
 const BUFFER_ACTION_TYPES: Record<BufferAction['type'], true> = {
@@ -62,6 +69,9 @@ export function appReducer(state: AppState, action: AppAction): AppState {
   }
   if (action.type === 'signedIn') {
     return signInReducer(state, action);
+  }
+  if (action.type === 'sync' || action.type === 'syncUnsupported') {
+    return syncReducer(state, action);
   }
   return withLiveComposers(coreReducer(state, action));
 }

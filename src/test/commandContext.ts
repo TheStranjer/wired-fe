@@ -104,6 +104,7 @@ export function fakeCommandContext(overrides: Partial<CommandContext> = {}): Com
     navigate: vi.fn(),
     page: EXAMPLE_PAGE,
     deviceClass: 'desktop',
+    requestSync: vi.fn(),
     config: EXAMPLE_CONFIG,
     stores: inMemoryStores(),
     ...overrides,

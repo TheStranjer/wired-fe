@@ -19,6 +19,7 @@ import { useMemo } from 'react';
 
 import { DEVICE_CLASS } from './readDeviceClass';
 import { appStores } from './stores';
+import { requestSync } from './syncRequests';
 import { useAvailableRegistry } from './useAvailableRegistry';
 import { loadWindowKinds } from './windowKinds';
 import type { CommandContext, PrintLevel } from '../commands/types';
@@ -137,6 +138,7 @@ export function useCommandContext(
     },
     page: { origin: window.location.origin, pathname: window.location.pathname },
     deviceClass: DEVICE_CLASS,
+    requestSync,
     config: buildConfig,
     stores: appStores(),
   };
