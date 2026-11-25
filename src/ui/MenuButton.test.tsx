@@ -16,7 +16,7 @@ describe(MenuButton, () => {
 
     expect(button).toHaveAttribute('aria-haspopup', 'menu');
     expect(button).toHaveAttribute('aria-expanded', 'false');
-    expect(button).toHaveTextContent('┃▾');
+    expect(button).toHaveTextContent('◫▾');
     expect(screen.queryByRole('menu')).toBeNull();
   });
 

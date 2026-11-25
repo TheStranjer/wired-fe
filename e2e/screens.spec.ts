@@ -2,7 +2,7 @@
  * Accessibility checks and review screenshots for every main screen (WFE-138,
  * WFE-251, decision 11): the stream feed with its cards, the same feed as IRC
  * lines, a composer pane beside it, a thread floating over it, the feed editor,
- * the open `┃▾` menu, the stream on a phone, and the status window, the
+ * the open `◫▾` menu, the stream on a phone, and the status window, the
  * notifications, a thread, `/help` and navigation mode. Each one runs axe-core
  * with any `serious` or `critical` violation failing the run, and saves a PNG
  * under test-results/screens/ for a human to review, in each of the three

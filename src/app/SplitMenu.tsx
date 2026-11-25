@@ -1,6 +1,6 @@
 /**
  * One view-menu button of a pane's title bar (WFE-229, WFE-269, WFE-270):
- * `┃▾`, `━▾` or `⧉▾` over the rows of ./paneMenu. A plain row runs its line
+ * `◫▾`, `⊟▾` or `⧉▾` over the rows of ./paneMenu. A plain row runs its line
  * through the pane runner at once, a row that asks (`Hashtag…`, `Profile…`,
  * ...) opens its dialog first and runs the completed line when it is
  * answered, and `Existing window…` opens a second level listing the other

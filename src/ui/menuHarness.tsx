@@ -22,7 +22,7 @@ export function setup(items: readonly MenuItem[] = ITEMS): {
   onSelect: (id: string) => void;
 } {
   const onSelect = vi.fn<(id: string) => void>();
-  render(<MenuButton glyph="┃▾" items={items} label="Split side by side" onSelect={onSelect} />);
+  render(<MenuButton glyph="◫▾" items={items} label="Split side by side" onSelect={onSelect} />);
   return { button: screen.getByRole('button', { name: 'Split side by side' }), onSelect };
 }
 

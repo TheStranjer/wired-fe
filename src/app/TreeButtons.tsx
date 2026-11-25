@@ -1,6 +1,6 @@
 /**
  * The split and pop-out buttons of a tree pane (WFE-229, WFE-269, WFE-270):
- * `┃▾`, `━▾` and `⧉▾`, each a menu of views that runs `/vsplit <view>`,
+ * `◫▾`, `⊟▾` and `⧉▾`, each a menu of views that runs `/vsplit <view>`,
  * `/split <view>` or `/float <view>` on its pane. The rows that need an
  * argument ask for it in a dialog, and `Existing window…` opens a second
  * level listing the other open windows (see ./SplitMenu).
@@ -18,8 +18,8 @@ import type { WindowState } from '../windows/model';
 
 /** The split buttons, side by side first. */
 const SPLIT_BUTTONS: readonly SplitButton[] = [
-  { glyph: '┃▾', label: 'Split side by side', command: 'vsplit' },
-  { glyph: '━▾', label: 'Split stacked', command: 'split' },
+  { glyph: '◫▾', label: 'Split side by side', command: 'vsplit' },
+  { glyph: '⊟▾', label: 'Split stacked', command: 'split' },
 ];
 
 /** The pop-out button, which takes `This pane` as well as the views. */

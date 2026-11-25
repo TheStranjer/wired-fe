@@ -84,6 +84,45 @@ export async function dragFrom(page: Page, start: Point, by: Point): Promise<voi
   await page.mouse.up();
 }
 
+/** How far a glyph may stick out of its button, in pixels, to allow for rounding. */
+const GLYPH_TOLERANCE = 0.5;
+
+/**
+ * How far the text of {@link button} sticks out past its own box, in pixels
+ * (zero or less means inside), one number per text node: the largest overshoot
+ * of the four edges, measured with a `Range` over the text node.
+ */
+async function glyphOverflows(button: Locator): Promise<number[]> {
+  return button.evaluate((element) => {
+    const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+    const box = element.getBoundingClientRect();
+    const overflows: number[] = [];
+    for (let node = walker.nextNode(); node !== null; node = walker.nextNode()) {
+      const range = document.createRange();
+      range.selectNodeContents(node);
+      const glyph = range.getBoundingClientRect();
+      overflows.push(
+        Math.max(
+          box.top - glyph.top,
+          glyph.bottom - box.bottom,
+          box.left - glyph.left,
+          glyph.right - box.right,
+        ),
+      );
+    }
+    return overflows;
+  });
+}
+
+/** Asserts that the text of {@link button} lies inside its box, within rounding. */
+export async function expectGlyphInside(button: Locator): Promise<void> {
+  const overflows = await glyphOverflows(button);
+  expect(overflows.length).toBeGreaterThan(0);
+  for (const overflow of overflows) {
+    expect(overflow).toBeLessThanOrEqual(GLYPH_TOLERANCE);
+  }
+}
+
 /** Asserts that {@link box} lies wholly inside the page's viewport. */
 export function expectInsideViewport(page: Page, box: Box): void {
   const viewport = page.viewportSize();

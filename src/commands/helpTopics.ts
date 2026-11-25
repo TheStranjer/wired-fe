@@ -24,7 +24,7 @@ const LAYOUT: HelpTopic = {
     'Keys: Ctrl+B % / " split, Ctrl+B arrows focus, Ctrl+B x closes the pane, Ctrl+B z keeps only this one, Ctrl+B f / d float and dock; in navigation mode (Esc) w v / w s split, w h j k l focus, w c closes the pane, w o keeps only this one, w = equalizes, w f / w d float and dock. ' +
     'Alt+1..9 jump to a desktop, Alt+[ and Alt+] step to the previous and next one. ' +
     'Ctrl+B & (or the × after the active desktop in the status line, or a middle-click on any desktop) closes a desktop and keeps its windows open (/win); /desktop prune closes every empty one. ' +
-    'Buttons: ┃▾ and ━▾ split with a view, ⧉▾ pops a pane or a view out, ⊞ docks a float, ✕ closes. Shift-drag a float over a pane to dock it against that edge. ' +
+    'Buttons: ◫▾ and ⊟▾ split with a view, ⧉▾ pops a pane or a view out, ⊞ docks a float, ✕ closes. Shift-drag a float over a pane to dock it against that edge. ' +
     'Ctrl+click opens in a float, Shift+click in a side-by-side split, middle-click hidden; --in here|vsplit|split|float|hidden places any opened window. ' +
     'On a phone one pane shows at a time, with a ‹ 2/4 › switcher in its title bar. Closing a pane keeps its window; /close ends the window.',
   commands: [

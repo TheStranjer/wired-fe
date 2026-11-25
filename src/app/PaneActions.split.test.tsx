@@ -1,5 +1,5 @@
 /**
- * Tests for the split buttons of a pane's title bar (WFE-229): `┃▾` and `━▾`
+ * Tests for the split buttons of a pane's title bar (WFE-229): `◫▾` and `⊟▾`
  * split the pane whose button was clicked, not the focused one, with the view
  * chosen from the menu; the rows that ask for an argument open a dialog and
  * run the finished line (WFE-269), `Existing window…` fills the command line
@@ -103,6 +103,16 @@ function openFirst(name: string): HTMLElement {
 }
 
 describe('the split buttons', () => {
+  it('draws the side by side button as ◫▾ and the stacked one as ⊟▾', () => {
+    renderDesk();
+
+    const [side] = screen.getAllByRole('button', { name: 'Split side by side' });
+    const [stacked] = screen.getAllByRole('button', { name: 'Split stacked' });
+
+    expect(side).toHaveTextContent('◫▾');
+    expect(stacked).toHaveTextContent('⊟▾');
+  });
+
   it('splits the clicked pane side by side, not the focused one', async () => {
     renderDesk();
 
