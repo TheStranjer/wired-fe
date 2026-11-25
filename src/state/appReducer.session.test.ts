@@ -120,8 +120,18 @@ describe(mergedSettings, () => {
       feeds: [],
       images: true,
       keyOverrides: [],
+      openIn: 'here',
+      openInByKind: {},
       theme: 'wired',
     });
+  });
+
+  it('takes a new default placement and new per-kind placements, which are behaviour', () => {
+    expect(mergedSettings(DEFAULT_SETTINGS, { openIn: 'float' }).openIn).toBe('float');
+    expect(mergedSettings(DEFAULT_SETTINGS, { openIn: 'here' })).toBe(DEFAULT_SETTINGS);
+    expect(
+      mergedSettings(DEFAULT_SETTINGS, { openInByKind: { thread: 'vsplit' } }).openInByKind,
+    ).toStrictEqual({ thread: 'vsplit' });
   });
 
   it('hands back the very same record for a patch that asks for nothing new', () => {

@@ -14,6 +14,7 @@
  */
 
 import { activeAccount } from '../../state/selectors';
+import { placedRun } from '../openWindowRun';
 import { NOT_LOGGED_IN, OK, fail, syncRun } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
@@ -58,5 +59,5 @@ export const command: CommandDefinition = {
   aliases: ['q'],
   usage: USAGE,
   summary: 'Open a private conversation window',
-  run: syncRun(handle),
+  run: placedRun(syncRun(handle)),
 };

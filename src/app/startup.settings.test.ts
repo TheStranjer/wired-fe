@@ -30,6 +30,8 @@ const CHOSEN: Settings = {
   feeds: [{ id: 'f1', name: 'main', sources: [{ accountKey: 'a#1', source: 'home' }] }],
   images: false,
   keyOverrides: [{ mode: 'navigation', chord: 'Ctrl+e', line: '/fav' }],
+  openIn: 'float',
+  openInByKind: { thread: 'vsplit' },
   theme: 'bnet',
 };
 

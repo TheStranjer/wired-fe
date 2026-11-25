@@ -14,6 +14,7 @@
  */
 
 import { activeAccount } from '../../state/selectors';
+import { placedRun } from '../openWindowRun';
 import { NOT_LOGGED_IN, OK, fail, syncRun } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
@@ -52,5 +53,5 @@ export const command: CommandDefinition = {
   aliases: ['s'],
   usage: USAGE,
   summary: 'Search accounts, posts and tags',
-  run: syncRun(handle),
+  run: placedRun(syncRun(handle)),
 };

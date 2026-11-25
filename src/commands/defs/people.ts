@@ -5,15 +5,19 @@
  * (WFE-220), and puts focus back on the watched window. It toggles: when the
  * active desktop already shows that people window, the command closes its
  * pane instead. A people window has nobody of its own to list, so asking
- * there is refused. Arguments are ignored: the focused window is the subject.
+ * there is refused. The focused window is the subject; a trailing `--in <placement>`, or a
+ * per-kind `openIn.people` setting, puts the window somewhere other than that
+ * split (decision 13).
  */
 
 import { peopleWindowId, peopleWindowOpen } from '../../state/peopleWindow';
+import { type Placement, chosenPlacement } from '../../state/placement';
 import { activeDesktop } from '../../windows/desktops';
 import { activeWindow } from '../../windows/model';
 import type { WindowState } from '../../windows/model';
 import { paneShowing } from '../../windows/shownPanes';
-import { OK, contextRun, fail } from '../outcome';
+import { splitPlacement } from '../openWindowRun';
+import { OK, fail, syncRun } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /**
@@ -41,17 +45,33 @@ function hide(context: CommandContext, watched: WindowState, paneId: string): vo
   context.dispatchWindows({ type: 'activate', id: watched.id });
 }
 
-/** Toggle the people pane of the focused window. */
-function handle(context: CommandContext): CommandOutcome {
+/** Open the people window of {@link watched} as {@link placement} says, where the reader chose one. */
+function place(context: CommandContext, watched: WindowState, placement: Placement): void {
+  context.dispatch({ type: 'openPlaced', action: peopleWindowOpen(watched), placement });
+}
+
+/**
+ * Toggle the people pane of the focused window. It opens in its own split to
+ * the right unless `--in` or the per-kind setting for `people` places it; the
+ * global default placement does not apply, since the split is its own default.
+ */
+function handle(args: string, context: CommandContext): CommandOutcome {
+  const placed = splitPlacement(args);
   const watched = activeWindow(context.windows);
+  if (!placed.ok) {
+    return fail(placed.error);
+  }
   if (watched.ref.kind === 'people') {
     return NOTHING_TO_LIST;
   }
   const paneId = paneShowing(activeDesktop(context.state.layout), peopleWindowId(watched));
-  if (paneId === null) {
+  const chosen = chosenPlacement(context.state.settings, 'people', placed.value.placement);
+  if (paneId !== null) {
+    hide(context, watched, paneId);
+  } else if (chosen === null) {
     show(context, watched);
   } else {
-    hide(context, watched, paneId);
+    place(context, watched, chosen);
   }
   return OK;
 }
@@ -61,5 +81,5 @@ export const command: CommandDefinition = {
   name: 'people',
   usage: '/people',
   summary: 'Show or hide who is in this window',
-  run: contextRun(handle),
+  run: syncRun(handle),
 };
