@@ -158,7 +158,7 @@ describe('the split buttons', () => {
     expect(labels).toContain('Home');
     expect(labels).toContain('Existing window…');
     expect(labels).toContain('People here');
+    expect(labels).toContain('New feed…');
     expect(labels).not.toContain('Direct messages');
-    expect(labels).not.toContain('New feed…');
   });
 });
