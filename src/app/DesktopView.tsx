@@ -3,9 +3,10 @@
  * flex containers sized by each split's ratio, every leaf a PaneFrame around
  * its own window's content, so two panes can show two different scrollbacks.
  * The focused pane wears the focus frame; a pointer-down on any pane asks to
- * focus it.
+ * focus it. Between a split's halves sits a Divider that dispatches the new
+ * ratio for the split's path (WFE-221).
  */
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 import type { JSX, ReactNode } from 'react';
 
 import styles from './DesktopView.module.css';
@@ -13,15 +14,19 @@ import { accountLabel } from './StatusBar';
 import { WindowBody, windowTopic } from './WindowBody';
 import type { AppState } from '../state/appState';
 import { useAppDispatch, useAppState } from '../state/StateContext';
+import { Divider } from '../ui/Divider';
 import { PaneFrame } from '../ui/PaneFrame';
 import { activeDesktop } from '../windows/desktops';
-import type { PaneLeaf, SplitTree } from '../windows/splitTree';
+import { MAX_RATIO, MIN_RATIO } from '../windows/splitRatio';
+import type { SplitPath } from '../windows/splitRatio';
+import type { PaneLeaf, SplitNode, SplitTree } from '../windows/splitTree';
 
 /** What every node of the tree needs to draw itself. */
 type View = {
   readonly state: AppState;
   readonly focusedPaneId: string | null;
   readonly focus: (paneId: string) => void;
+  readonly setRatio: (path: SplitPath, ratio: number) => void;
 };
 
 /** One half of a split, taking `grow` of the room along the split's axis. */
@@ -63,21 +68,47 @@ function Pane(props: { readonly leaf: PaneLeaf; readonly view: View }): JSX.Elem
   );
 }
 
-/** A subtree: a pane, or a split of two halves. */
-function Node(props: { readonly tree: SplitTree; readonly view: View }): JSX.Element | null {
-  const { tree, view } = props;
-  if (tree.type === 'pane') {
-    return <Pane leaf={tree} view={view} />;
-  }
+/** A split: its two halves with a divider between, sized by the ratio. */
+function Split(props: {
+  readonly tree: SplitNode;
+  readonly path: SplitPath;
+  readonly view: View;
+}): JSX.Element {
+  const { tree, path, view } = props;
+  const containerRef = useRef<HTMLDivElement>(null);
+  const row = tree.dir === 'row';
   return (
-    <div className={tree.dir === 'row' ? styles['row'] : styles['column']}>
+    <div ref={containerRef} className={row ? styles['row'] : styles['column']}>
       <Half grow={tree.ratio}>
-        <Node tree={tree.a} view={view} />
+        <Node tree={tree.a} path={[...path, 'a']} view={view} />
       </Half>
+      <Divider
+        bounds={{ min: MIN_RATIO, max: MAX_RATIO }}
+        containerRef={containerRef}
+        onRatioChange={(ratio) => {
+          view.setRatio(path, ratio);
+        }}
+        orientation={row ? 'vertical' : 'horizontal'}
+        ratio={tree.ratio}
+      />
       <Half grow={1 - tree.ratio}>
-        <Node tree={tree.b} view={view} />
+        <Node tree={tree.b} path={[...path, 'b']} view={view} />
       </Half>
     </div>
+  );
+}
+
+/** A subtree at `path`: a pane, or a split. */
+function Node(props: {
+  readonly tree: SplitTree;
+  readonly path: SplitPath;
+  readonly view: View;
+}): JSX.Element | null {
+  const { tree, path, view } = props;
+  return tree.type === 'pane' ? (
+    <Pane leaf={tree} view={view} />
+  ) : (
+    <Split tree={tree} path={path} view={view} />
   );
 }
 
@@ -92,13 +123,19 @@ export function DesktopView(): JSX.Element {
     },
     [dispatch],
   );
-  const view: View = { state, focusedPaneId: desktop.focusedPaneId, focus };
+  const setRatio = useCallback(
+    (path: SplitPath, ratio: number) => {
+      dispatch({ type: 'layout', action: { type: 'setRatio', path, ratio } });
+    },
+    [dispatch],
+  );
+  const view: View = { state, focusedPaneId: desktop.focusedPaneId, focus, setRatio };
   return (
     <div className={styles['desktop']}>
       {desktop.tree === null ? (
         <div className={styles['empty']}>empty desktop — /vsplit, /split or Ctrl+B %</div>
       ) : (
-        <Node tree={desktop.tree} view={view} />
+        <Node tree={desktop.tree} path={[]} view={view} />
       )}
     </div>
   );

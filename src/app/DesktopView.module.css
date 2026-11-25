@@ -1,5 +1,5 @@
 /* The desktop: nested flex containers for the split tree, a 1px border-coloured
-   gap between panes. The share of each half is set from the split's ratio. */
+   divider between panes. The share of each half is set from the split's ratio. */
 
 .desktop {
   display: flex;
@@ -13,7 +13,6 @@
 .column {
   display: flex;
   flex: 1;
-  gap: 1px;
   min-width: 0;
   min-height: 0;
   background: var(--color-border);

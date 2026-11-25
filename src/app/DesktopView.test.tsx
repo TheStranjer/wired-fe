@@ -8,7 +8,7 @@
  */
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import type { JSX } from 'react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { DesktopView } from './DesktopView';
 import { initialAppState } from '../state/appState';
@@ -137,6 +137,74 @@ describe(DesktopView, () => {
     expect(screen.getByRole('region', { name: 'phantom/b' }).closest('div')).toHaveStyle({
       flexGrow: '0.75',
     });
+  });
+
+  it('draws a divider between the halves of a split and none for one pane', () => {
+    view(initialAppState());
+
+    expect(screen.queryByRole('separator')).not.toBeInTheDocument();
+
+    view(splitState('row'));
+
+    expect(screen.getByRole('separator', { name: 'Resize panes' })).toHaveAttribute(
+      'aria-orientation',
+      'vertical',
+    );
+  });
+
+  it('draws a horizontal divider for a column split', () => {
+    view(splitState('column'));
+
+    expect(screen.getByRole('separator')).toHaveAttribute('aria-orientation', 'horizontal');
+  });
+
+  it('resizes the split from the divider with the keyboard and resets it on double-click', () => {
+    view(splitState('row'));
+    const divider = screen.getByRole('separator');
+    const first = screen.getByRole('region', { name: 'phantom/a' }).closest('div');
+
+    fireEvent.keyDown(divider, { key: 'ArrowRight' });
+
+    expect(divider).toHaveAttribute('aria-valuenow', '55');
+    expect(first).toHaveStyle({ flexGrow: '0.55' });
+
+    fireEvent.doubleClick(divider);
+
+    expect(divider).toHaveAttribute('aria-valuenow', '50');
+  });
+
+  it('resizes the split as the divider is dragged', () => {
+    Object.defineProperty(HTMLElement.prototype, 'setPointerCapture', {
+      configurable: true,
+      value: vi.fn(),
+    });
+    view(splitState('row'));
+    const divider = screen.getByRole('separator');
+    vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockReturnValue({
+      left: 0,
+      top: 0,
+      width: 1000,
+      height: 500,
+    } as DOMRect);
+
+    fireEvent(divider, new MouseEvent('pointerdown', { bubbles: true }));
+    fireEvent(divider, new MouseEvent('pointermove', { bubbles: true, clientX: 700 }));
+
+    expect(divider).toHaveAttribute('aria-valuenow', '70');
+  });
+
+  it('resizes only the nested split whose divider is used', () => {
+    const nested = appReducer(splitState('row'), {
+      type: 'layout',
+      action: { type: 'split', dir: 'column', windowId: windowId(phantom('a')) },
+    });
+    view(nested);
+    const [outer, inner] = screen.getAllByRole('separator');
+
+    fireEvent.keyDown(inner ?? document.body, { key: 'End' });
+
+    expect(outer).toHaveAttribute('aria-valuenow', '50');
+    expect(inner).toHaveAttribute('aria-valuenow', '90');
   });
 
   it('shows a hint on an empty desktop', () => {

@@ -95,6 +95,38 @@ describe(useGlobalKeys, () => {
     expect(handler).not.toHaveBeenCalled();
   });
 
+  it('keeps resize keys pressed on a pane divider from the handler', () => {
+    const handler = recorder(true);
+    render(
+      <>
+        <Probe handler={handler} />
+        <div aria-label="Resize panes" role="separator" />
+      </>,
+    );
+    const divider = screen.getByRole('separator');
+
+    fireEvent.keyDown(divider, { key: 'ArrowLeft' });
+    fireEvent.keyDown(divider, { key: 'Home' });
+
+    expect(handler).not.toHaveBeenCalled();
+  });
+
+  it('still sends other and modified keys pressed on a pane divider to the handler', () => {
+    const handler = recorder(false);
+    render(
+      <>
+        <Probe handler={handler} />
+        <div aria-label="Resize panes" role="separator" />
+      </>,
+    );
+    const divider = screen.getByRole('separator');
+
+    fireEvent.keyDown(divider, { key: 'j' });
+    fireEvent.keyDown(divider, { key: 'ArrowLeft', ctrlKey: true });
+
+    expect(handler).toHaveBeenCalledTimes(2);
+  });
+
   it('stops listening once unmounted', () => {
     const handler = recorder(true);
     const view = render(<Probe handler={handler} />);
