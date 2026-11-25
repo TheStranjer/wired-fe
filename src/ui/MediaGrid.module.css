@@ -1,0 +1,105 @@
+/* The inline media of a card. One attachment takes the full width, up to about
+   24 lines tall; more share two columns. The sensitive cover is a solid block
+   and the ALT badge and `+N` button are plain text on a solid background, so
+   nothing leans on colour or blending. */
+
+.media {
+  margin-block: var(--space);
+}
+
+.single {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+.pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space);
+}
+
+.tile {
+  position: relative;
+  min-width: 0;
+}
+
+.link {
+  display: block;
+}
+
+.image {
+  display: block;
+  width: 100%;
+  max-height: calc(24 * 1em * var(--line-height));
+  object-fit: contain;
+  border: var(--border-width) solid var(--color-dim);
+  background: var(--color-bar-bg);
+}
+
+.pair .image {
+  height: calc(8 * 1em * var(--line-height));
+  object-fit: cover;
+}
+
+.player {
+  display: block;
+  width: 100%;
+}
+
+.unavailable {
+  display: block;
+  color: var(--color-warn);
+}
+
+.alt {
+  position: absolute;
+  inset-block-end: var(--space);
+  inset-inline-start: var(--space);
+  border: var(--border-width) solid var(--color-fg);
+  padding: 0 calc(var(--space) / 2);
+  background: var(--color-bg);
+  font: inherit;
+  color: var(--color-fg);
+  cursor: pointer;
+}
+
+.more {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: var(--color-bg);
+  font: inherit;
+  font-size: 2em;
+  color: var(--color-fg);
+  cursor: pointer;
+}
+
+.cover {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  margin-block: var(--space);
+  border: var(--border-width) solid var(--color-dim);
+  padding: calc(var(--space) * 3) var(--space);
+  background: var(--color-bar-bg);
+  font: inherit;
+  color: var(--color-error);
+  cursor: pointer;
+}
+
+.alt:focus-visible,
+.more:focus-visible,
+.cover:focus-visible {
+  outline: var(--border-width-focus) solid var(--color-fg);
+  outline-offset: 2px;
+}
+
+.descriptions {
+  margin-block-start: var(--space);
+  color: var(--color-dim);
+}
+
+.description {
+  margin: 0;
+  white-space: pre-wrap;
+}
