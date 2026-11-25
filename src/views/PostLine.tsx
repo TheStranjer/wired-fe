@@ -62,6 +62,7 @@ export function PostLine(props: PostLineTarget): JSX.Element {
       boostedBy={view.boostedBy}
       ref={rowRef}
       showAvatar={display.avatars}
+      showImages={display.images}
     />
   );
 }

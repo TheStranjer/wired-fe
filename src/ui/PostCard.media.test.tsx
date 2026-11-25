@@ -46,6 +46,7 @@ const BASE_PROPS: PostCardProps = {
   edited: false,
   selected: false,
   showAvatar: true,
+  showImages: true,
   onToggleReveal: vi.fn<() => void>(),
   onSelect: vi.fn<() => void>(),
   onSelectAuthor: vi.fn<() => void>(),
@@ -57,6 +58,16 @@ describe('PostCard media', () => {
     render(<PostCard {...BASE_PROPS} />);
 
     expect(screen.getByRole('img', { name: 'x' })).toBeInTheDocument();
+  });
+
+  it('prints placeholder lines instead of the grid when images are off', () => {
+    render(<PostCard {...BASE_PROPS} showImages={false} />);
+
+    expect(screen.getByRole('button', { name: '[IMG 1/1: x]' })).toHaveAttribute(
+      'aria-expanded',
+      'false',
+    );
+    expect(screen.queryByRole('img', { name: 'x' })).toBeNull();
   });
 
   it('covers them while the body is behind its content warning', () => {

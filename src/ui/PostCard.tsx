@@ -4,8 +4,8 @@
  * avatar beside their display name and handle, then the body, quote, poll,
  * attachments and metadata, all in the same parts the row uses. Purely
  * presentational, with the same props as the row plus the avatars, the display
- * name and whether avatars show at all. A boost adds who boosted it above the
- * author. There is no action bar yet.
+ * name and whether avatars and images show; without images the attachments are
+ * the row's placeholder lines. A boost adds who boosted it above the author.
  */
 import type { JSX } from 'react';
 
@@ -13,6 +13,7 @@ import { Avatar } from './Avatar';
 import { BoostLine } from './BoostLine';
 import type { EmojiRef } from './emojify';
 import { MediaGrid } from './MediaGrid';
+import { MediaList } from './MediaList';
 import { Nick } from './Nick';
 import { PollView } from './PollView';
 import { PostBody } from './PostBody';
@@ -44,6 +45,8 @@ export type PostCardProps = Omit<PostRowProps, 'author' | 'boostedBy'> & {
     (NonNullable<PostRowProps['boostedBy']> & { readonly avatar: AvatarUrls }) | null;
   /** Whether avatars show; false leaves the card text-only. */
   readonly showAvatar: boolean;
+  /** Whether media draws as a grid; false leaves the IRC placeholder lines. */
+  readonly showImages: boolean;
 };
 
 /** The top line of the frame: the label on the left, the clock on the right. */
@@ -129,12 +132,16 @@ function CardContent(props: PostCardProps): JSX.Element {
       {poll === null ? undefined : (
         <PollView clockFormat={props.clockFormat} label={props.label} poll={poll} />
       )}
-      <MediaGrid
-        autoExpand={props.autoExpand}
-        items={media}
-        sensitive={props.sensitive}
-        warned={spoilerText !== '' && !revealed}
-      />
+      {props.showImages ? (
+        <MediaGrid
+          autoExpand={props.autoExpand}
+          items={media}
+          sensitive={props.sensitive}
+          warned={spoilerText !== '' && !revealed}
+        />
+      ) : (
+        <MediaList autoExpand={props.autoExpand} items={media} sensitive={props.sensitive} />
+      )}
       <PostMeta
         counts={props.counts}
         edited={props.edited}
