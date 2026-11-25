@@ -28,7 +28,7 @@ export type { MenuItem } from './menuNav';
 export type MenuButtonProps = {
   /** Accessible name of the button and of the menu, e.g. `Split side by side`. */
   readonly label: string;
-  /** The visible text of the button, e.g. `┃▾`. */
+  /** The visible text of the button, e.g. `◫▾`. */
   readonly glyph: string;
   /** The menu's rows, top to bottom. */
   readonly items: readonly MenuItem[];

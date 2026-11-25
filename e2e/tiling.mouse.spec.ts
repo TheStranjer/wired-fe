@@ -1,5 +1,5 @@
 /**
- * The tiling desktop by mouse (WFE-250, decisions 12 and 13): the `┃▾` split
+ * The tiling desktop by mouse (WFE-250, decisions 12 and 13): the `◫▾` split
  * button and its view menu, the `⧉▾` pop-out button, a float dragged by its
  * title bar and docked back with `⊞`, and the dividers between panes, dragged
  * and driven with the arrow keys. The keyboard and command flows are in
@@ -15,6 +15,7 @@ import {
   centerOf,
   desktopButton,
   dragFrom,
+  expectGlyphInside,
   expectInsideViewport,
   floatOf,
   grabOf,
@@ -26,7 +27,7 @@ import {
 /** How far the float is dragged right, in pixels. */
 const DRAG = 100;
 
-/** Splits the only pane side by side with the Home view, through the `┃▾` menu. */
+/** Splits the only pane side by side with the Home view, through the `◫▾` menu. */
 async function splitWithHome(page: Page): Promise<void> {
   await page.getByRole('button', { name: 'Split side by side' }).click();
   await page.getByRole('menuitem', { name: 'Home', exact: true }).click();
@@ -65,6 +66,21 @@ test('the buttons split a pane, pop it out, and a float drags and docks', async 
     .click();
   await expect(floatOf(page, 'home')).toHaveCount(0);
   await expect(pane(page, 'home')).toHaveCount(2);
+});
+
+test('the glyphs of the title-bar menu buttons stay inside their buttons', async ({ page }) => {
+  await signIn(page);
+  await splitWithHome(page);
+  const checked = new Set<string | null>();
+  for (const frame of await pane(page, 'home').all()) {
+    for (const button of await titleBar(frame).getByRole('button').all()) {
+      await expectGlyphInside(button);
+      checked.add(await button.getAttribute('aria-label'));
+    }
+  }
+  expect([...checked]).toEqual(
+    expect.arrayContaining(['Split side by side', 'Split stacked', 'Pop out']),
+  );
 });
 
 test('Existing window… lists the other windows and floats the one picked', async ({ page }) => {

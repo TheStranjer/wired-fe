@@ -3,7 +3,7 @@
  * how the shell gets from a fresh sign-in to that screen, with the assertions
  * that say it is really there — the stream feed with its cards, the same feed
  * as IRC lines, a composer pane beside it, a thread floating over it, the feed
- * editor, the open `┃▾` menu, the stream on a phone — and the older screens that
+ * editor, the open `◫▾` menu, the stream on a phone — and the older screens that
  * remain: the status window, the notifications, a thread, `/help` and
  * navigation mode. Every screen starts from the sign-in alone, never from
  * another screen, so the specs can run them in any order and theme.
@@ -84,7 +84,7 @@ async function feedEditorScreen(page: Page): Promise<void> {
   await expect(page.getByRole('textbox', { name: 'Feed name' })).toHaveValue('stream');
 }
 
-/** The `┃▾` button clicked: the menu of views a new pane can show, open. */
+/** The `◫▾` button clicked: the menu of views a new pane can show, open. */
 async function paneMenuScreen(page: Page): Promise<void> {
   await showStream(page);
   await page.getByRole('button', { name: 'Split side by side' }).click();

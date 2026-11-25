@@ -1,7 +1,7 @@
 /**
  * The views a pane's split buttons offer (WFE-229, decisions 12 and 13): one
  * list, built from the commands the backend can run and the reader's saved
- * feeds, shared by `┃▾` (`/vsplit`) and `━▾` (`/split`). Pure. A row whose
+ * feeds, shared by `◫▾` (`/vsplit`) and `⊟▾` (`/split`). Pure. A row whose
  * command is missing is left out, so no menu offers what a line would refuse.
  * A row either runs at once, asks for its argument in a small dialog (the
  * `…` rows that need typed text, WFE-269), or opens a picker of the open

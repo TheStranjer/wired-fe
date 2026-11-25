@@ -14,8 +14,8 @@ The screen is a desktop of panes split side by side or stacked. Each pane shows 
 
 | To                            | Command                           | tmux keys (both modes) | Vim keys (navigation mode) | Mouse                                  |
 | ----------------------------- | --------------------------------- | ---------------------- | -------------------------- | -------------------------------------- |
-| Split side by side            | `/vsplit [view]`                  | `Ctrl+B %`             | `w v`                      | `┃▾` in the pane's title bar           |
-| Split stacked                 | `/split [view]`                   | `Ctrl+B "`             | `w s`                      | `━▾`                                   |
+| Split side by side            | `/vsplit [view]`                  | `Ctrl+B %`             | `w v`                      | `◫▾` in the pane's title bar           |
+| Split stacked                 | `/split [view]`                   | `Ctrl+B "`             | `w s`                      | `⊟▾`                                   |
 | Focus a neighbour             | `/focus left\|right\|up\|down`    | `Ctrl+B` + arrow       | `w h`, `w j`, `w k`, `w l` | click the pane                         |
 | Cycle focus                   | `/focus next`                     | `Ctrl+B o`             | `w w`                      |                                        |
 | Close the pane (window stays) | `/unsplit`                        | `Ctrl+B x`             | `w c`                      | `✕`                                    |
