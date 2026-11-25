@@ -12,6 +12,7 @@ import { appRegistry } from './registry';
 import { useAvailableRegistry } from './useAvailableRegistry';
 import { hasFeature } from '../capabilities/capabilities';
 import { type Provider, commandProvider } from '../commands/complete';
+import { desktopProvider } from '../commands/desktopWords';
 import { displayProvider } from '../commands/displayWords';
 import { capabilitiesFor } from '../state/selectors';
 import { useAppState } from '../state/StateContext';
@@ -32,5 +33,7 @@ export function useCompletionProviders(): readonly Provider[] {
     tagProvider(state),
     custom ? emoji : withoutReactionWords(emoji),
   ];
-  return appRegistry().ok ? [displayProvider(), commandProvider(registry), ...seen] : seen;
+  return appRegistry().ok
+    ? [displayProvider(), desktopProvider(), commandProvider(registry), ...seen]
+    : seen;
 }

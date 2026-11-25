@@ -7,7 +7,7 @@
  */
 import { addFloat, findFloat, raiseFloat, removeFloat } from './floats';
 import type { FloatRect, Floats } from './floats';
-import { findPane, singlePane } from './splitTree';
+import { findPane, panes, singlePane } from './splitTree';
 import type { PaneLeaf, SplitDir, SplitTree } from './splitTree';
 import { closePane, splitPane } from './splitTreeOps';
 
@@ -43,6 +43,12 @@ export function focusedWindow(desktop: Desktop): string | null {
     return null;
   }
   return findPlaced(desktop, desktop.focusedPaneId)?.windowId ?? null;
+}
+
+/** Every pane of the desktop, tree panes first, then floats bottom to top. */
+export function shownPanes(desktop: Desktop): readonly Pick<PlacedPane, 'paneId' | 'windowId'>[] {
+  const inTree = desktop.tree === null ? [] : panes(desktop.tree);
+  return [...inTree, ...desktop.floats];
 }
 
 /** The first pane in tree order. */
