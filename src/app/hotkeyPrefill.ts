@@ -33,7 +33,8 @@ function selectedLabel(state: AppState): string | null {
  * line that wants one with nothing selected prints {@link NEED_SELECTION} and
  * changes nothing. Else the line lands in the input with a trailing space —
  * {@link caretBehind} is asked for first, so the caret follows the text into
- * the render it brings about — and the user finishes it in insert mode.
+ * the render it brings about — and the user finishes it in insert mode. A
+ * line that ends in `@` gets no trailing space, so the handle is typed on.
  */
 export function fillCommandLine(
   line: string,
@@ -49,7 +50,8 @@ export function fillCommandLine(
     }
     text = text.replaceAll(LABEL_PLACEHOLDER, label);
   }
-  const filled = `${text} `;
+  // A line that ends in `@` waits for the handle to be typed behind it.
+  const filled = text.endsWith('@') ? text : `${text} `;
   caretBehind(filled);
   context.setInput(filled);
   context.dispatch({ type: 'mode', mode: 'insert' });
