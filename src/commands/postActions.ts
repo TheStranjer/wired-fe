@@ -8,11 +8,14 @@
  * here too, so a click and the hotkey are one path. The exceptions are reply
  * (WFE-244), quote (WFE-262) and edit (WFE-268): `r`, `q` and `e` prefill for
  * the power user, but the buttons run `/reply a3`, `/quote a3` and `/edit a3`
- * with no text, which open a composer bound to the post. The other exception
- * is react (WFE-265): `Shift+e` prefills, but the button opens the emoji
+ * with no text, which open a composer bound to the post. The other exceptions
+ * are react (WFE-265): `Shift+e` prefills, but the button opens the emoji
  * picker, whose choice runs `/react a3 <emoji>` or `/unreact a3 <emoji>`; its
  * line is marked `picker`, and with no `/react` in the registry it has no line
- * and so no button.
+ * and so no button; and delete and block (WFE-266): `Shift+d` and `Shift+x`
+ * prefill, and Enter on the filled line is the confirmation, but a click on
+ * the `⋯` row asks in a dialog first, so their lines carry `confirm` instead
+ * of `prefill`.
  */
 
 import type { CommandDefinition, Registry } from './types';
@@ -50,6 +53,8 @@ type PostActionLine = {
   readonly prefill: boolean;
   /** True makes the click open the emoji picker rather than hand the line on. */
   readonly picker?: true;
+  /** Present when a click asks in a dialog before running the line. */
+  readonly confirm?: 'delete' | 'block';
 };
 
 /** The actions whose button runs its line although the command's hotkey prefills it. */
@@ -72,16 +77,23 @@ function prefills(name: PostActionName, definition: CommandDefinition): boolean 
   );
 }
 
-/** The line {@link name}'s button hands on, or opens the picker with, for the post {@link label}. */
+/**
+ * The line {@link name}'s button hands on, opens the picker with, or asks
+ * about in a dialog first, for the post {@link label}.
+ */
 function lineFor(
   name: PostActionName,
   definition: CommandDefinition,
   label: string,
 ): PostActionLine {
   const line = `/${name} ${label}`;
-  return OPENS_PICKER.has(name)
-    ? { line, prefill: false, picker: true }
-    : { line, prefill: prefills(name, definition) };
+  if (OPENS_PICKER.has(name)) {
+    return { line, prefill: false, picker: true };
+  }
+  if (name === 'delete' || name === 'block') {
+    return { line, prefill: false, confirm: name };
+  }
+  return { line, prefill: prefills(name, definition) };
 }
 
 /**

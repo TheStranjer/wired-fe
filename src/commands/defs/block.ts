@@ -4,7 +4,9 @@
  * instance's relationship answer is printed as `blocked @x`; what
  * {@link accountToggleRun} describes is the body, WBE-179 federating it on
  * Wired. `Shift+X` in navigation mode prefills the line — a click away from
- * sending, because a block is not a toggle to knock out by accident.
+ * sending, because a block is not a toggle to knock out by accident. A click
+ * on the card's `⋯` → Block asks in a dialog instead (WFE-266), then runs the
+ * same line.
  */
 
 import { accountToggleRun } from '../accountToggle';
