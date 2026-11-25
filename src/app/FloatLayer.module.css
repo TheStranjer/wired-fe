@@ -1,0 +1,37 @@
+/* The float layer: an overlay filling the desktop area that lets pointer
+   events through to the panes below; only the floats catch them. A float is
+   placed by custom properties set from its fractional rectangle, and wears a
+   1px --color-bg ring so its border reads against the panes behind it (no
+   shadow, decision 16). */
+
+.layer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.float {
+  position: absolute;
+  left: var(--float-x);
+  top: var(--float-y);
+  width: var(--float-w);
+  height: var(--float-h);
+  outline: 1px solid var(--color-bg);
+  pointer-events: auto;
+}
+
+.grip {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 1rem;
+  height: 1rem;
+  padding: 0;
+  border: 0;
+  border-top: var(--border-width) solid var(--color-border-focus);
+  border-left: var(--border-width) solid var(--color-border-focus);
+  background: var(--color-bg);
+  cursor: nwse-resize;
+  touch-action: none;
+}

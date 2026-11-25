@@ -4,31 +4,22 @@
  * its own window's content, so two panes can show two different scrollbacks.
  * The focused pane wears the focus frame; a pointer-down on any pane asks to
  * focus it. Between a split's halves sits a Divider that dispatches the new
- * ratio for the split's path (WFE-221).
+ * ratio for the split's path (WFE-221). Floats are drawn above the tree by the
+ * float layer.
  */
 import { useCallback, useRef } from 'react';
 import type { JSX, ReactNode } from 'react';
 
+import { Pane, windowOf } from './DesktopPane';
+import type { View } from './DesktopPane';
 import styles from './DesktopView.module.css';
-import { PaneActions } from './PaneActions';
-import { accountLabel } from './StatusBar';
-import { WindowBody, windowTopic } from './WindowBody';
-import type { AppState } from '../state/appState';
+import { FloatLayer } from './FloatLayer';
 import { useAppDispatch, useAppState } from '../state/StateContext';
 import { Divider } from '../ui/Divider';
-import { PaneFrame } from '../ui/PaneFrame';
 import { activeDesktop } from '../windows/desktops';
 import { MAX_RATIO, MIN_RATIO } from '../windows/splitRatio';
 import type { SplitPath } from '../windows/splitRatio';
 import type { PaneLeaf, SplitNode, SplitTree } from '../windows/splitTree';
-
-/** What every node of the tree needs to draw itself. */
-type View = {
-  readonly state: AppState;
-  readonly focusedPaneId: string | null;
-  readonly focus: (paneId: string) => void;
-  readonly setRatio: (path: SplitPath, ratio: number) => void;
-};
 
 /** One half of a split, taking `grow` of the room along the split's axis. */
 function Half(props: { readonly grow: number; readonly children: ReactNode }): JSX.Element {
@@ -46,27 +37,11 @@ function Half(props: { readonly grow: number; readonly children: ReactNode }): J
   );
 }
 
-/** A pane: a frame titled by its window, holding that window's content. */
-function Pane(props: { readonly leaf: PaneLeaf; readonly view: View }): JSX.Element | null {
+/** A tree pane: its window's frame, or nothing when the window is gone. */
+function TreePane(props: { readonly leaf: PaneLeaf; readonly view: View }): JSX.Element | null {
   const { leaf, view } = props;
-  const win = view.state.windows.windows.find((candidate) => candidate.id === leaf.windowId);
-  if (win === undefined) {
-    return null;
-  }
-  return (
-    <PaneFrame
-      title={win.title}
-      subtitle={accountLabel(view.state, win.ref.accountKey)}
-      topic={windowTopic(win, view.state)}
-      focused={leaf.paneId === view.focusedPaneId}
-      actions={<PaneActions paneId={leaf.paneId} title={win.title} />}
-      onFocusRequest={() => {
-        view.focus(leaf.paneId);
-      }}
-    >
-      <WindowBody win={win} state={view.state} />
-    </PaneFrame>
-  );
+  const win = windowOf(view, leaf.windowId);
+  return win === undefined ? null : <Pane paneId={leaf.paneId} win={win} view={view} />;
 }
 
 /** A split: its two halves with a divider between, sized by the ratio. */
@@ -107,7 +82,7 @@ function Node(props: {
 }): JSX.Element | null {
   const { tree, path, view } = props;
   return tree.type === 'pane' ? (
-    <Pane leaf={tree} view={view} />
+    <TreePane leaf={tree} view={view} />
   ) : (
     <Split tree={tree} path={path} view={view} />
   );
@@ -138,6 +113,7 @@ export function DesktopView(): JSX.Element {
       ) : (
         <Node tree={desktop.tree} path={[]} view={view} />
       )}
+      <FloatLayer floats={desktop.floats} view={view} />
     </div>
   );
 }
