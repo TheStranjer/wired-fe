@@ -5,7 +5,8 @@
  * confirmation after a send — in the scrollback below. The window's account
  * sets the limit and the audiences offered; picking another account moves the
  * window to it, and an audience that account's instance does not serve (`local`
- * on Mastodon) falls back to the reader's default.
+ * on Mastodon) falls back to the reader's default; an open poll is fitted to
+ * the new instance's poll limits (WFE-206).
  */
 
 import type { JSX } from 'react';
@@ -14,6 +15,7 @@ import styles from './ComposerWindow.module.css';
 import { PostAs } from './PostAs';
 import { useComposerSend } from './useComposerSend';
 import { composerLimits } from '../../state/composerActions';
+import { fitPoll } from '../../state/pollEditor';
 import { useAppDispatch, useAppState } from '../../state/StateContext';
 import { BufferView } from '../../views/BufferView';
 import { ComposerForm } from '../../views/ComposerForm';
@@ -30,6 +32,13 @@ export function ComposerWindow({ windowId }: { readonly windowId: string }): JSX
   function pick(key: string): void {
     const next = composerLimits(state, key);
     dispatch({ type: 'windows', action: { type: 'setAccount', id: windowId, accountKey: key } });
+    if (fields.poll !== undefined) {
+      dispatch({
+        type: 'composerEdit',
+        windowId,
+        patch: { poll: fitPoll(fields.poll, next.pollLimits) },
+      });
+    }
     if (fields.visibility === 'local' && !next.allowLocal) {
       dispatch({
         type: 'composerEdit',
@@ -51,6 +60,7 @@ export function ComposerWindow({ windowId }: { readonly windowId: string }): JSX
           dispatch({ type: 'composerEdit', windowId, patch });
         }}
         onSend={send}
+        pollLimits={limits.pollLimits}
         sending={sending}
       />
       <BufferView label={win?.title ?? 'compose'} windowId={windowId} />

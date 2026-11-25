@@ -71,6 +71,7 @@ describe(composerLimits, () => {
     expect(composerLimits(session(true), ACCOUNT.key)).toStrictEqual({
       maxCharacters: 30,
       allowLocal: true,
+      pollLimits: DEFAULT_POLL_LIMITS,
     });
   });
 
@@ -78,6 +79,7 @@ describe(composerLimits, () => {
     expect(composerLimits(session(false), ACCOUNT.key)).toStrictEqual({
       maxCharacters: 500,
       allowLocal: false,
+      pollLimits: DEFAULT_POLL_LIMITS,
     });
   });
 
@@ -85,6 +87,7 @@ describe(composerLimits, () => {
     expect(composerLimits(session(true), null)).toStrictEqual({
       maxCharacters: 500,
       allowLocal: false,
+      pollLimits: DEFAULT_POLL_LIMITS,
     });
   });
 });
