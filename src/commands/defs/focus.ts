@@ -16,13 +16,22 @@ import type { CommandContext, CommandDefinition, CommandOutcome } from '../types
 /** The command's one form; a refused argument echoes it. */
 const USAGE = '/focus <left|right|up|down|next|prev>';
 
-/** The default bindings (decision 18): `Ctrl+B` then an arrow focuses that way, `o` the next pane. */
+/**
+ * The default bindings (decision 18): `Ctrl+B` then an arrow focuses that way,
+ * `o` the next pane; in navigation mode `w` then `h/j/k/l` focuses that way
+ * and `w w` the next pane.
+ */
 const BINDINGS: readonly CommandBinding[] = [
   ...tmuxBindings('ArrowLeft', 'left'),
   ...tmuxBindings('ArrowRight', 'right'),
   ...tmuxBindings('ArrowUp', 'up'),
   ...tmuxBindings('ArrowDown', 'down'),
   ...tmuxBindings('o', 'next'),
+  { mode: 'navigation', chord: 'w h', args: 'left' },
+  { mode: 'navigation', chord: 'w j', args: 'down' },
+  { mode: 'navigation', chord: 'w k', args: 'up' },
+  { mode: 'navigation', chord: 'w l', args: 'right' },
+  { mode: 'navigation', chord: 'w w', args: 'next' },
 ];
 
 /** Move focus by the one word of {@link args}; anything else echoes the usage. */

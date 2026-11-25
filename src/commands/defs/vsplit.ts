@@ -22,5 +22,5 @@ export const command: CommandDefinition = {
   usage: USAGE,
   summary: 'Split the focused pane side by side',
   run: splitRun('row', USAGE),
-  bindings: tmuxBindings('%', ''),
+  bindings: [...tmuxBindings('%', ''), { mode: 'navigation', chord: 'w v', args: '' }],
 };

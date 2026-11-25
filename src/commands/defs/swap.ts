@@ -30,5 +30,6 @@ export const command: CommandDefinition = {
   name: 'swap',
   usage: USAGE,
   summary: 'Swap the focused pane’s window with its neighbour',
+  bindings: [{ mode: 'navigation', chord: 'w x', args: 'right' }],
   run: syncRun(handle),
 };

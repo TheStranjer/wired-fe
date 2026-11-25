@@ -17,7 +17,7 @@ export const command: CommandDefinition = {
   name: 'only',
   usage: '/only',
   summary: 'Close every other pane and float; their windows stay open (unlike /close)',
-  bindings: tmuxBindings('z', ''),
+  bindings: [...tmuxBindings('z', ''), { mode: 'navigation', chord: 'w o', args: '' }],
   run: contextRun((context) => {
     const { layout } = context.state;
     if (activeDesktop(layout).focusedPaneId === null) {
