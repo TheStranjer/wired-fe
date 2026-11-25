@@ -1,0 +1,9 @@
+/* The one pane of a mobile desktop fills the whole desktop area. */
+
+.single {
+  display: grid;
+  grid-template: minmax(0, 1fr) / minmax(0, 1fr);
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}

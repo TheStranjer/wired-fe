@@ -6,6 +6,9 @@
   grid-template-rows: auto 1fr auto auto;
   grid-template-columns: minmax(0, 1fr);
   height: 100%;
+
+  /* The dynamic viewport height excludes the on-screen keyboard, keeping the command line visible. */
+  height: 100dvh;
 }
 
 .header {

@@ -1,0 +1,24 @@
+/* The mobile pane switcher: every button is a 44px touch target. */
+
+.switcher {
+  display: flex;
+  align-items: center;
+}
+
+.switcher button {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.step {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-fg);
+  font: inherit;
+  cursor: pointer;
+}
+
+.step:focus-visible {
+  outline: 1px solid var(--color-dim);
+}
