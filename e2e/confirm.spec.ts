@@ -1,13 +1,15 @@
 /**
- * The confirmation behind a card's `⋯` → Delete and Block (WFE-266): choosing
- * Delete on one of your own posts asks first, and confirming removes the card;
- * choosing Block on someone else's asks too, and cancelling leaves the thread
- * exactly as it was and sends nothing to the instance.
+ * The dialogs behind a card's `⋯` → Delete, Block and Mute (WFE-266, WFE-267):
+ * choosing Delete on one of your own posts asks first, and confirming removes
+ * the card; choosing Block on someone else's asks too, and cancelling leaves
+ * the thread exactly as it was and sends nothing to the instance; choosing Mute
+ * asks how long, and 1 hour mutes the author for 1h.
  */
 
 import { expect, test, type Locator, type Page } from '@playwright/test';
 
 import { logRegion, showWindow, signIn, submit, watchErrors } from './fixtures/session';
+import { json } from './fixtures/wire';
 
 /** The thread window the specs open from home: four posts, two of them lain's own. */
 const THREAD = 'thread/a0';
@@ -70,5 +72,44 @@ test('Block from the menu asks first, and cancelling changes nothing', async ({ 
   await expect(page.getByRole('dialog')).toHaveCount(0);
   await expect(log.locator('article')).toHaveCount(4);
   expect(blocks).toStrictEqual([]);
+  expect(errors).toStrictEqual([]);
+});
+
+/** Answers every `POST …/accounts/<id>/mute` as a mute, recording each request body. */
+async function routeMute(page: Page): Promise<unknown[]> {
+  const bodies: unknown[] = [];
+  await page.route('**/api/v1/accounts/*/mute', async (route) => {
+    bodies.push(route.request().postDataJSON());
+    await json(route, { id: 'AhZalic3Acc00000000000001', muting: true });
+  });
+  return bodies;
+}
+
+/** Opens alice's mute dialog from her card in {@link log}, checking it starts at Forever. */
+async function openMuteDialog(page: Page, log: Locator): Promise<Locator> {
+  await chooseRow(
+    page,
+    log.getByRole('article').filter({ hasText: 'She is here.' }),
+    'Mute author',
+  );
+  const dialog = page.getByRole('dialog', { name: /^Mute @alice@\S+\?$/ });
+  await expect(dialog.getByRole('radio', { name: 'Forever' })).toBeChecked();
+  await expect(dialog.getByRole('radio', { name: 'Forever' })).toBeFocused();
+  return dialog;
+}
+
+test('Mute from the menu asks how long, and 1 hour mutes for 1h', async ({ page }) => {
+  const errors = watchErrors(page);
+  const bodies = await routeMute(page);
+  await signIn(page);
+  const log = await openThread(page);
+
+  const dialog = await openMuteDialog(page, log);
+  await dialog.getByRole('radio', { name: '1 hour' }).check();
+  await dialog.getByRole('button', { name: 'Mute' }).click();
+
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(log).toContainText(/muted @alice\S* for 1h/u);
+  expect(bodies).toStrictEqual([{ duration: 3600 }]);
   expect(errors).toStrictEqual([]);
 });

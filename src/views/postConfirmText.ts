@@ -1,6 +1,6 @@
 /**
- * The words of the confirmation a click on a card's `⋯` → Delete or Block asks
- * (WFE-266): the title, the message and the confirm label, for one post.
+ * The words of the confirmation a click on a card's `⋯` → Delete, Block or Mute
+ * asks (WFE-266, WFE-267): the title, the message and the confirm label, for one post.
  * Pure: the post's label and view model go in, plain text comes out. The post's
  * body is hostile remote markup, so it only ever appears here as the plain
  * text {@link plainText} flattens it to, cut to {@link EXCERPT_LIMIT}.
@@ -44,13 +44,27 @@ function blockText(handle: string): PostConfirmText {
   };
 }
 
+/** The mute question for the author of the post; the duration choice sits under it. */
+function muteText(handle: string): PostConfirmText {
+  return {
+    title: `Mute ${handle}?`,
+    message: 'Their posts are hidden from you for as long as you choose.',
+    confirmLabel: 'Mute',
+  };
+}
+
 /** The confirmation of {@link kind} on the post labelled {@link label}, as {@link view} shows it. */
 export function postConfirmText(
-  kind: 'delete' | 'block',
+  kind: 'delete' | 'block' | 'mute',
   label: string,
   view: Pick<PostView, 'author' | 'contentHtml'>,
 ): PostConfirmText {
-  return kind === 'delete'
-    ? deleteText(label, view.contentHtml)
-    : blockText(view.author.fullHandle);
+  switch (kind) {
+    case 'delete':
+      return deleteText(label, view.contentHtml);
+    case 'block':
+      return blockText(view.author.fullHandle);
+    case 'mute':
+      return muteText(view.author.fullHandle);
+  }
 }

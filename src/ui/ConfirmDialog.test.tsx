@@ -78,3 +78,13 @@ describe(ConfirmDialog, () => {
     expect(screen.queryByRole('button', { name: 'Cancel' })).not.toBeInTheDocument();
   });
 });
+
+describe('the body slot', () => {
+  it('shows its children between the message and the buttons', () => {
+    renderDialog({ children: <p>Pick one</p> });
+
+    expect(screen.getByRole('dialog')).toHaveTextContent(
+      "This can't be undone.Pick oneCancelDelete",
+    );
+  });
+});

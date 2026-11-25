@@ -1,0 +1,21 @@
+/* The mute dialog's duration choices: one radio per line. */
+
+.group {
+  display: flex;
+  flex-direction: column;
+}
+
+.choice {
+  display: flex;
+  gap: var(--space);
+  align-items: center;
+  cursor: pointer;
+}
+
+.choice input {
+  accent-color: var(--color-accent);
+}
+
+.choice input:focus-visible {
+  outline: var(--border-width-focus) solid var(--color-accent);
+}

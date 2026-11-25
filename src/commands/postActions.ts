@@ -12,12 +12,15 @@
  * are react (WFE-265): `Shift+e` prefills, but the button opens the emoji
  * picker, whose choice runs `/react a3 <emoji>` or `/unreact a3 <emoji>`; its
  * line is marked `picker`, and with no `/react` in the registry it has no line
- * and so no button; and delete and block (WFE-266): `Shift+d` and `Shift+x`
+ * and so no button; delete and block (WFE-266): `Shift+d` and `Shift+x`
  * prefill, and Enter on the filled line is the confirmation, but a click on
  * the `⋯` row asks in a dialog first, so their lines carry `confirm` instead
- * of `prefill`. `media` (WFE-264) has no button of its own: its line is what a
- * click on a post's attachment runs, and with no `/media` in the registry the
- * attachment links stay the browser's.
+ * of `prefill`; and mute (WFE-267): `Shift+m` prefills so a duration can be
+ * typed after it, but a click on the `⋯` row opens a dialog that picks the
+ * duration, so its line carries `confirm: 'mute'` too and the dialog appends
+ * the duration word before running it. `media` (WFE-264) has no button of its
+ * own: its line is what a click on a post's attachment runs, and with no
+ * `/media` in the registry the attachment links stay the browser's.
  */
 
 import type { CommandDefinition, Registry } from './types';
@@ -57,7 +60,7 @@ type PostActionLine = {
   /** True makes the click open the emoji picker rather than hand the line on. */
   readonly picker?: true;
   /** Present when a click asks in a dialog before running the line. */
-  readonly confirm?: 'delete' | 'block';
+  readonly confirm?: 'delete' | 'block' | 'mute';
 };
 
 /** The actions whose button runs its line although the command's hotkey prefills it. */
@@ -93,7 +96,7 @@ function lineFor(
   if (OPENS_PICKER.has(name)) {
     return { line, prefill: false, picker: true };
   }
-  if (name === 'delete' || name === 'block') {
+  if (name === 'delete' || name === 'block' || name === 'mute') {
     return { line, prefill: false, confirm: name };
   }
   return { line, prefill: prefills(name, definition) };
