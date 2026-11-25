@@ -7,6 +7,7 @@
 
 import { activeDesktop } from '../../windows/desktops';
 import { OK, contextRun, fail } from '../outcome';
+import { tmuxBindings } from '../tmuxBindings';
 import type { CommandDefinition } from '../types';
 
 /** The refusal on a desktop with nothing focused. */
@@ -18,6 +19,7 @@ export const command: CommandDefinition = {
   aliases: ['pclose'],
   usage: '/unsplit',
   summary: 'Close the focused pane; its window stays open (unlike /close)',
+  bindings: tmuxBindings('x', ''),
   run: contextRun((context) => {
     const { layout } = context.state;
     if (activeDesktop(layout).focusedPaneId === null) {

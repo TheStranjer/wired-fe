@@ -7,12 +7,23 @@
  */
 
 import { wordsOf } from '../../lib/words';
+import type { CommandBinding } from '../bindingTypes';
 import { focusStepOf } from '../directionWords';
 import { OK, fail, syncRun } from '../outcome';
+import { tmuxBindings } from '../tmuxBindings';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** The command's one form; a refused argument echoes it. */
 const USAGE = '/focus <left|right|up|down|next|prev>';
+
+/** The default bindings (decision 18): `Ctrl+B` then an arrow focuses that way, `o` the next pane. */
+const BINDINGS: readonly CommandBinding[] = [
+  ...tmuxBindings('ArrowLeft', 'left'),
+  ...tmuxBindings('ArrowRight', 'right'),
+  ...tmuxBindings('ArrowUp', 'up'),
+  ...tmuxBindings('ArrowDown', 'down'),
+  ...tmuxBindings('o', 'next'),
+];
 
 /** Move focus by the one word of {@link args}; anything else echoes the usage. */
 function handle(args: string, context: CommandContext): CommandOutcome {
@@ -31,4 +42,5 @@ export const command: CommandDefinition = {
   usage: USAGE,
   summary: 'Focus the pane in a direction, or cycle through the panes',
   run: syncRun(handle),
+  bindings: BINDINGS,
 };

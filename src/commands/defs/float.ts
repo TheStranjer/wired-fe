@@ -13,6 +13,7 @@ import { findFloat } from '../../windows/floats';
 import { ADJUST_USAGE, adjustFloat } from '../floatAdjust';
 import { OK, fail } from '../outcome';
 import { VIEW_USAGE, placeShown, viewToShow } from '../splitRun';
+import { tmuxBindings } from '../tmuxBindings';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** Every form of the command: /help shows it, a bad view echoes it. */
@@ -55,6 +56,7 @@ export const command: CommandDefinition = {
   name: 'float',
   usage: USAGE,
   summary: 'Tear the focused pane off into a float, or open a view in a new one',
+  bindings: tmuxBindings('f', ''),
   run: async (args, context) => {
     const [first, ...rest] = wordsOf(args);
     const word = first?.toLowerCase();
