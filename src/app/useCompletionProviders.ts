@@ -7,7 +7,8 @@
  * commands to offer, and the rest stands on its own. `/display` arguments
  * (its keys and their values), `/desktop` and `/mvd` arguments, `/focus` and
  * `/swap` directions, and the view names after `/vsplit` and `/split` are
- * offered ahead of everything else.
+ * offered ahead of everything else, as are the subcommands, feed names and
+ * sources after `/feed`.
  */
 
 import { appRegistry } from './registry';
@@ -17,6 +18,7 @@ import { type Provider, commandProvider } from '../commands/complete';
 import { desktopProvider } from '../commands/desktopWords';
 import { directionProvider } from '../commands/directionWords';
 import { displayProvider } from '../commands/displayWords';
+import { feedProvider } from '../commands/feedWords';
 import { viewProvider } from '../commands/viewProvider';
 import { capabilitiesFor } from '../state/selectors';
 import { useAppState } from '../state/StateContext';
@@ -43,6 +45,7 @@ export function useCompletionProviders(): readonly Provider[] {
         desktopProvider(),
         directionProvider(),
         viewProvider(),
+        feedProvider(state),
         commandProvider(registry),
         ...seen,
       ]

@@ -7,7 +7,7 @@
 
 import { setDisplay } from './display';
 import type { DisplayChange } from './display';
-import { STATUS_WINDOW_ID, withAccountKey, withActive, windowId } from './model';
+import { STATUS_WINDOW_ID, withAccountKey, withActive, withTitle, windowId } from './model';
 import type { WindowRef, WindowsState, WindowState } from './model';
 import { activateNext, activateNumber, activatePrevious, moveWindow } from './navigation';
 import { markRead, markUnread } from './unread';
@@ -18,6 +18,7 @@ export type WindowsAction =
   | { readonly type: 'close'; readonly id: string }
   | { readonly type: 'activate'; readonly id: string }
   | { readonly type: 'setAccount'; readonly id: string; readonly accountKey: string }
+  | { readonly type: 'retitle'; readonly id: string; readonly title: string }
   | { readonly type: 'activateNumber'; readonly number: number }
   | { readonly type: 'next' }
   | { readonly type: 'previous' }
@@ -66,6 +67,8 @@ export function windowsReducer(state: WindowsState, action: WindowsAction): Wind
       return withActive(state, action.id);
     case 'setAccount':
       return withAccountKey(state, action.id, action.accountKey);
+    case 'retitle':
+      return withTitle(state, action.id, action.title);
     case 'setDisplay':
       return setDisplay(state, action.id, action.overrides);
   }
