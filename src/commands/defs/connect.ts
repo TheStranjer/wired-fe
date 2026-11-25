@@ -5,7 +5,9 @@
  * its options and an `open` build whatever the user typed — `wired.example`,
  * `https://wired.example` or `@lain@wired.example` all mean the same instance.
  * The argument is the only subject; on an unusable one nothing is registered
- * and nothing is saved. Otherwise the instance's app is registered or read from
+ * and nothing is saved. Otherwise the session's cached profile of the instance
+ * is dropped, so the next detection reads it afresh (decision 5), the
+ * instance's app is registered or read from
  * cache, the pending login is stored, and the browser is sent to the instance's
  * authorize page, where the callback handler picks the flow up again.
  */
@@ -14,6 +16,7 @@ import { beginLogin } from '../../accounts/beginLogin';
 import { redirectUriFor } from '../../accounts/callback';
 import { resolveInstanceOrigin } from '../../accounts/origin';
 import { describeApiError } from '../../api/errors';
+import { forgetProfile } from '../../capabilities/profileCache';
 import { OK, fail } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
@@ -31,6 +34,7 @@ async function handle(args: string, context: CommandContext): Promise<CommandOut
     return fail(instance.error);
   }
 
+  forgetProfile(context.stores.profiles, instance.value);
   const started = await beginLogin(
     { apps: context.stores.apps, login: context.stores.login },
     {

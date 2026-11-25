@@ -1,11 +1,10 @@
 /**
- * Tests for /react over the shared MSW server: a Unicode emoji and a
- * `:shortcode:` leave for the encoded reactions path — the shortcode without
- * its colons — and the answered status replaces the post in every scrollback
- * while the window prints `🔥 reacted to [a0]`; the selection and a boost's
- * line answer as targets, the printed label included. An instance that turns
- * the reaction down is reported as the API error it is and changes nothing.
- * The refusals that send nothing live in ./react.refusals.test.ts.
+ * Tests for /react over the shared MSW server: a Unicode emoji or a
+ * `:shortcode:` (sent without its colons) goes to the reactions path, the
+ * answered status replaces the post in every scrollback and the window prints
+ * `🔥 reacted to [a0]`; the selection and a boost's line work as targets. An
+ * instance that turns the reaction down is reported as the API error it is;
+ * a 404/501 also drops its cached profile. Refusals live in ./react.refusals.test.ts.
  */
 import { HttpResponse, http } from 'msw';
 import * as v from 'valibot';
@@ -13,10 +12,10 @@ import { describe, expect, it } from 'vitest';
 
 import { command } from './react';
 import type { StoredAccount } from '../../accounts/accountStore';
-import type { Status } from '../../api/schemas/status';
-import { StatusSchema } from '../../api/schemas/status';
+import { type Status, StatusSchema } from '../../api/schemas/status';
 import { type Capabilities, DEFAULT_POLL_LIMITS } from '../../capabilities/capabilities';
 import type { InstanceProfile } from '../../capabilities/detect';
+import { cacheProfile, readCachedProfile } from '../../capabilities/profileCache';
 import { type AppState, initialAppState } from '../../state/appState';
 import { appReducer } from '../../state/reducer';
 import { fakeCommandContext } from '../../test/commandContext';
@@ -195,5 +194,24 @@ describe('/react', () => {
     expect(outcome).toStrictEqual({ ok: false, message: 'HTTP 404: Record not found' });
     expect(context.dispatch).not.toHaveBeenCalled();
     expect(context.print).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    [404, false],
+    [501, false],
+    [500, true],
+  ])('after a %i the cache is kept: %s', async (code, kept) => {
+    server.use(
+      http.put(`${ORIGIN}/api/v1/pleroma/statuses/:id/reactions/:emoji`, () => {
+        return HttpResponse.json({ error: 'No' }, { status: code });
+      }),
+    );
+    const context = homeContext([POST]);
+    const { profiles } = context.stores;
+    cacheProfile(profiles, { origin: ORIGIN, title: 'Wired', capabilities: REACTING }, 1);
+
+    await command.run('a0 🔥', context);
+
+    expect(readCachedProfile(profiles, ORIGIN) !== undefined).toBe(kept);
   });
 });

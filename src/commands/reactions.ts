@@ -7,6 +7,8 @@
  * as Pleroma expects; a Unicode emoji travels exactly as typed. The status
  * the instance answers replaces the post in every scrollback, and the window
  * prints the emoji, the verb and the label of the line that showed the post.
+ * An instance that answers 404 or 501 to the send has the capability wrong:
+ * its cached profile is dropped, so the next load detects it afresh.
  */
 
 import { OK, fail } from './outcome';
@@ -17,6 +19,7 @@ import { react, unreact } from '../api/endpoints/reactions';
 import { type ApiError, describeApiError } from '../api/errors';
 import type { Status } from '../api/schemas/status';
 import { type Capabilities, type FeatureFlag, hasFeature } from '../capabilities/capabilities';
+import { forgetProfile } from '../capabilities/profileCache';
 import { type Result, err, ok } from '../lib/result';
 import { capabilitiesFor } from '../state/selectors';
 
@@ -73,6 +76,11 @@ function refusal(capabilities: Capabilities | null, emoji: Emoji): string | null
   return missing === undefined ? null : `Instance lacks ${missing}`;
 }
 
+/** Whether {@link error} says the instance has no such endpoint: 404 or 501 (decision 5). */
+function isUnsupported(error: ApiError): boolean {
+  return error.kind === 'http' && (error.status === 404 || error.status === 501);
+}
+
 /** Attach or detach {@link reaction}'s emoji on its post. */
 async function sendReaction(reaction: Reaction): Promise<Result<Status, ApiError>> {
   const { session } = reaction.target;
@@ -89,6 +97,9 @@ async function sendReaction(reaction: Reaction): Promise<Result<Status, ApiError
 async function apply(reaction: Reaction, context: CommandContext): Promise<CommandOutcome> {
   const answered = await sendReaction(reaction);
   if (!answered.ok) {
+    if (isUnsupported(answered.error)) {
+      forgetProfile(context.stores.profiles, reaction.target.session.origin);
+    }
     return fail(describeApiError(answered.error));
   }
   context.dispatch({ type: 'statusUpdated', status: answered.value });

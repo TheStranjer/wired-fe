@@ -19,6 +19,7 @@ async function rewritesAt(pathname: string): Promise<readonly string[]> {
       login: createStore('route-test-login', null),
       accounts: createAccountStore(createStore('route-test-accounts', null)),
       settings: createStore('route-test-settings', null),
+      profiles: createStore('route-test-profiles', null),
     },
     config: { appName: 'WIRED', instances: { mode: 'same-origin' } },
     now: () => new Date('2026-11-15T09:00:00.000Z'),

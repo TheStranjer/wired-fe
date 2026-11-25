@@ -13,6 +13,7 @@ import { navigateTo } from './navigate';
 import { appStores } from './stores';
 import type { StoredAccount } from '../accounts/accountStore';
 import { detectInstance } from '../capabilities/detect';
+import { refreshingDetect } from '../capabilities/profileCache';
 import { buildConfig } from '../config/config';
 import { AuthorizeBox } from '../features/authorize/AuthorizeBox';
 import { PasswordLoginForm } from '../features/authorize/PasswordLoginForm';
@@ -54,14 +55,14 @@ export function AuthorizeFlow(props: FlowProps): JSX.Element {
     return <SignedIn {...props} account={account} />;
   }
   const login = async (values: LoginValues): ReturnType<typeof loginForAuthorize> => {
-    const { accounts, apps } = appStores();
+    const { accounts, apps, profiles } = appStores();
     const outcome = await loginForAuthorize(values, {
       dispatch,
       accounts,
       apps,
       instances: buildConfig.instances,
       origin,
-      detect: detectInstance,
+      detect: refreshingDetect(profiles, detectInstance, () => Date.now()),
       now: () => new Date(),
     });
     if (outcome.kind === 'ok') {

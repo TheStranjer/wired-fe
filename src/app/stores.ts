@@ -1,15 +1,16 @@
 /**
- * The application's persisted stores (decision 8, decision 10): the four
+ * The application's persisted stores (decision 8, decision 10): the five
  * namespaces a command reaches through its context — the OAuth apps it has
- * registered, the login in flight, the signed-in accounts and the reader's
- * settings — each in its own namespace on top of `localStorage`. They are
+ * registered, the login in flight, the signed-in accounts, the reader's
+ * settings and the instance profiles detected this session — each in its own
+ * namespace, on top of `localStorage` (the profiles on `sessionStorage`). They are
  * created once, on first use, and shared by every mount: the storage module is
  * stateless by design, so one store per namespace is all the app ever needs.
  */
 
 import { createAccountStore } from '../accounts/accountStore';
 import type { CommandContext } from '../commands/types';
-import { createStore } from '../storage/store';
+import { createSessionStore, createStore } from '../storage/store';
 
 /** The stores the command context carries: one per namespace this app owns. */
 export type AppStores = CommandContext['stores'];
@@ -24,6 +25,7 @@ function create(): AppStores {
     login: createStore('login'),
     accounts: createAccountStore(createStore('accounts')),
     settings: createStore('settings'),
+    profiles: createSessionStore('profiles'),
   };
 }
 

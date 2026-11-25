@@ -50,6 +50,7 @@ describe('InstanceV1 schema', () => {
         maxExpiration: 2_592_000,
       },
       features: [],
+      postFormats: [],
     });
   });
 
@@ -65,7 +66,12 @@ describe('InstanceV1 schema', () => {
           min_expiration: 60,
           max_expiration: 86_400,
         },
-        pleroma: { metadata: { features: ['reactions', 'oauth_api', 'shout'] } },
+        pleroma: {
+          metadata: {
+            features: ['reactions', 'oauth_api', 'shout'],
+            post_formats: ['text/plain', 'text/markdown', 7],
+          },
+        },
       }),
     ).toStrictEqual({
       title: 'wired.example',
@@ -79,6 +85,7 @@ describe('InstanceV1 schema', () => {
         maxExpiration: 86_400,
       },
       features: ['reactions', 'oauth_api', 'shout'],
+      postFormats: ['text/plain', 'text/markdown'],
     });
   });
 
@@ -121,6 +128,7 @@ describe('InstanceV1 schema', () => {
       maxMediaAttachments: 2,
       pollLimits: null,
       features: [],
+      postFormats: [],
     });
   });
 
@@ -155,6 +163,7 @@ describe('InstanceV1 schema', () => {
       maxMediaAttachments: null,
       pollLimits: null,
       features: [],
+      postFormats: [],
     });
   });
 

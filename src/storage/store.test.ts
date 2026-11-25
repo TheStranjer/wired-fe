@@ -7,7 +7,7 @@
 import * as v from 'valibot';
 import { describe, expect, it, vi } from 'vitest';
 
-import { type StorageBackend, createStore } from './store';
+import { type StorageBackend, createSessionStore, createStore } from './store';
 
 const SettingsSchema = v.object({ theme: v.string(), volume: v.number() });
 const PLAYER = { theme: 'lain', volume: 11 };
@@ -181,5 +181,53 @@ describe(createStore, () => {
     ];
 
     expect(outcomes).toStrictEqual([false, undefined]);
+  });
+});
+
+describe(createSessionStore, () => {
+  it('keeps its values in sessionStorage, not localStorage, under the same key layout', () => {
+    const store = createSessionStore('profiles');
+
+    expect(store.set('seen', true)).toBe(true);
+    expect(globalThis.sessionStorage.getItem('wired:v1:profiles:seen')).toBe('true');
+    expect(globalThis.localStorage.getItem('wired:v1:profiles:seen')).toBeNull();
+    expect(store.get('seen', v.boolean())).toBe(true);
+
+    store.remove('seen');
+
+    expect(store.get('seen', v.boolean())).toBeUndefined();
+  });
+
+  it('behaves like no storage when reading sessionStorage throws', () => {
+    const original = Object.getOwnPropertyDescriptor(globalThis, 'sessionStorage');
+    Object.defineProperty(globalThis, 'sessionStorage', {
+      configurable: true,
+      get(): never {
+        throw new Error('SecurityError: sessionStorage is disabled');
+      },
+    });
+
+    try {
+      const store = createSessionStore('profiles');
+
+      expect([store.set('seen', true), store.get('seen', v.boolean())]).toStrictEqual([
+        false,
+        undefined,
+      ]);
+    } finally {
+      if (original !== undefined) {
+        Object.defineProperty(globalThis, 'sessionStorage', original);
+      }
+    }
+  });
+
+  it('behaves like no storage when sessionStorage is absent', () => {
+    vi.stubGlobal('sessionStorage', undefined);
+    const store = createSessionStore('profiles');
+
+    expect([store.set('seen', true), store.get('seen', v.boolean())]).toStrictEqual([
+      false,
+      undefined,
+    ]);
   });
 });

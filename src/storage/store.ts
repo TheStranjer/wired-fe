@@ -46,6 +46,15 @@ function resolveBackend(backend: StorageBackend | null | undefined): StorageBack
   }
 }
 
+/** `globalThis.sessionStorage`, or `null` where reading it throws or it is absent. */
+function sessionBackend(): StorageBackend | null {
+  try {
+    return optionalBackend(globalThis.sessionStorage);
+  } catch {
+    return null;
+  }
+}
+
 /** Read `fullKey`, parse it as JSON and validate it; `undefined` on any fault. */
 function read<T>(
   backend: StorageBackend | null,
@@ -113,4 +122,14 @@ export function createStore(namespace: string, backend?: StorageBackend | null):
       drop(storage, `${keyPrefix}${key}`);
     },
   };
+}
+
+/**
+ * A {@link Store} for one namespace that lives in `sessionStorage`: the same
+ * keys, validation and silent failures as {@link createStore}, but what it
+ * holds is gone when the tab closes. For what is true of a session only, such
+ * as what an instance turned out to be (decision 5).
+ */
+export function createSessionStore(namespace: string): Store {
+  return createStore(namespace, sessionBackend());
 }

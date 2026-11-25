@@ -14,25 +14,19 @@
 import { BANNER } from './banner';
 import { connectHint } from './connectHint';
 import { routeFromPath } from './routeFromPath';
+import { detectOrigins } from './startupDetect';
 import type { AppStores } from './stores';
 import type { StoredAccount } from '../accounts/accountStore';
 import { completeLogin } from '../accounts/completeLogin';
-import {
-  type ApiError,
-  type InstanceProfile,
-  detectInstance,
-  describeApiError,
-} from '../capabilities/detect';
+import type { Detect } from '../capabilities/detect';
 import type { WiredConfig } from '../config/schema';
-import type { Result } from '../lib/result';
 import type { LineLevel } from '../state/buffer';
 import { DEFAULT_SETTINGS, SettingsSchema } from '../state/settings';
 import { openStartupWindows } from '../state/startupWindows';
 import type { Dispatch } from '../state/StateContext';
 import { STATUS_WINDOW_ID } from '../windows/model';
 
-/** The read of what one instance turned out to be; {@link detectInstance} by default. */
-export type Detect = (origin: string) => Promise<Result<InstanceProfile, ApiError>>;
+export type { Detect };
 
 /** The pieces of the address bar startup reads and may rewrite. */
 export type StartupLocation = {
@@ -58,7 +52,7 @@ export type StartupDeps = {
   readonly now: () => Date;
   /** Where the page is, for finishing an OAuth login left in the URL (decision 8). */
   readonly location: StartupLocation;
-  /** How to read an instance; {@link detectInstance} unless a test says otherwise. */
+  /** How to read an instance, when the session cache has none; the real detection unless a test says otherwise. */
   readonly detect?: Detect;
 };
 
@@ -93,36 +87,6 @@ function loadSettings(deps: StartupDeps): void {
 /** The origins the accounts live on, distinct, in the order they were added. */
 function originsOf(accounts: readonly StoredAccount[]): readonly string[] {
   return [...new Set(accounts.map((account) => account.origin))];
-}
-
-/** The line naming what the instance at {@link profile}'s origin turned out to be. */
-function connectedLine(profile: InstanceProfile): string {
-  return `Connected to ${profile.title} (${profile.capabilities.backend}) at ${profile.origin}`;
-}
-
-/** Reports one detection: dispatches the profile and prints, or prints why not. */
-function reportDetection(
-  deps: StartupDeps,
-  origin: string,
-  outcome: Result<InstanceProfile, ApiError>,
-): void {
-  if (outcome.ok) {
-    deps.dispatch({ type: 'profile', profile: outcome.value });
-    printStatus(deps, connectedLine(outcome.value), 'info');
-    return;
-  }
-  printStatus(deps, `Could not reach ${origin}: ${describeApiError(outcome.error)}`, 'error');
-}
-
-/** Detects every origin concurrently (decision 5) and reports them in order. */
-async function detectOrigins(deps: StartupDeps, origins: readonly string[]): Promise<void> {
-  const detect = deps.detect ?? detectInstance;
-  const outcomes = await Promise.all(
-    origins.map(async (origin) => ({ origin, outcome: await detect(origin) })),
-  );
-  for (const { origin, outcome } of outcomes) {
-    reportDetection(deps, origin, outcome);
-  }
 }
 
 /** One line per account, the active one marked. */
