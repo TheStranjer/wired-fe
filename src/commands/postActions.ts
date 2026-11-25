@@ -6,9 +6,9 @@
  * no line, which is how its button goes missing. A command whose default
  * hotkey fills the line instead of running it (`Shift+e`, …) is a prefill
  * here too, so a click and the hotkey are one path. The exceptions are reply
- * (WFE-244) and quote (WFE-262): `r` and `q` prefill for the power user, but
- * the buttons run `/reply a3` and `/quote a3` with no text, which open a
- * composer bound to the post.
+ * (WFE-244), quote (WFE-262) and edit (WFE-268): `r`, `q` and `e` prefill for
+ * the power user, but the buttons run `/reply a3`, `/quote a3` and `/edit a3`
+ * with no text, which open a composer bound to the post.
  */
 
 import type { CommandDefinition, Registry } from './types';
@@ -47,7 +47,11 @@ type PostActionLine = {
 };
 
 /** The actions whose button runs its line although the command's hotkey prefills it. */
-const RUNS_ON_CLICK: ReadonlySet<PostActionName> = new Set<PostActionName>(['reply', 'quote']);
+const RUNS_ON_CLICK: ReadonlySet<PostActionName> = new Set<PostActionName>([
+  'reply',
+  'quote',
+  'edit',
+]);
 
 /** Whether {@link name}'s default navigation hotkey fills its line rather than running it. */
 function prefills(name: PostActionName, definition: CommandDefinition): boolean {

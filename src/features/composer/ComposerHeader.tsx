@@ -1,12 +1,14 @@
 /**
  * What sits above a composer's text: the "Post as" picker for a plain draft,
  * or the dim excerpt of the post a bound composer answers (./ReplyingTo,
- * WFE-244) or quotes (./QuotingPost, WFE-262) — those post as the account of
- * the line they came from, so they have no picker.
+ * WFE-244), quotes (./QuotingPost, WFE-262) or edits (./EditingPost, WFE-268)
+ * — those post as the account of the line they came from, so they have no
+ * picker.
  */
 
 import type { JSX } from 'react';
 
+import { EditingPost } from './EditingPost';
 import { PostAs } from './PostAs';
 import { QuotingPost } from './QuotingPost';
 import { ReplyingTo } from './ReplyingTo';
@@ -29,6 +31,9 @@ export function ComposerHeader(props: ComposerHeaderProps): JSX.Element {
   }
   if (fields.quoteOf !== undefined) {
     return <QuotingPost status={fields.quoteOf.status} />;
+  }
+  if (fields.editing !== undefined) {
+    return <EditingPost status={fields.editing.status} />;
   }
   return <PostAs accounts={props.accounts} onPick={props.onPick} value={props.accountKey} />;
 }

@@ -14,8 +14,8 @@ import { type ChangeEvent, type JSX, type KeyboardEvent, type ReactNode, useRef 
 import styles from './Composer.module.css';
 import { PollSection } from './PollSection';
 import { useAutoGrow } from './useAutoGrow';
+import { VisibilitySelect } from './VisibilitySelect';
 import type { PollLimits } from '../api/schemas/pollLimits';
-import type { Visibility } from '../api/schemas/status';
 import type { ComposerFields } from '../state/draft';
 import { pollBlocksSend } from '../state/pollEditor';
 
@@ -45,38 +45,6 @@ export type ComposerFormProps = {
   /** Controls to show under the text, such as the pane's attachments. */
   readonly attachments?: ReactNode;
 };
-
-/** The audiences the select offers, in order; `local` last, when served. */
-const BASE_VISIBILITIES: readonly Visibility[] = ['public', 'unlisted', 'private', 'direct'];
-
-/** The visibility choices for one instance. */
-function choices(allowLocal: boolean): readonly Visibility[] {
-  return allowLocal ? [...BASE_VISIBILITIES, 'local'] : BASE_VISIBILITIES;
-}
-
-/** Who may see the post, one select; a change it cannot name changes nothing. */
-function VisibilitySelect(props: ComposerFormProps): JSX.Element {
-  return (
-    <select
-      aria-label="Visibility"
-      className={styles['select']}
-      onChange={(event: ChangeEvent<HTMLSelectElement>) => {
-        const value = event.target.value;
-        const chosen = choices(props.allowLocal).find((name) => name === value);
-        if (chosen !== undefined) {
-          props.onChange({ visibility: chosen });
-        }
-      }}
-      value={props.fields.visibility}
-    >
-      {choices(props.allowLocal).map((name) => (
-        <option key={name} value={name}>
-          {name}
-        </option>
-      ))}
-    </select>
-  );
-}
 
 /** Whether {@link event} asks to send: Ctrl+Enter, or a bare Enter in the compact form. */
 function asksToSend(event: KeyboardEvent<HTMLTextAreaElement>, compact: boolean): boolean {
@@ -126,7 +94,11 @@ function Audience(props: ComposerFormProps): JSX.Element {
         type="text"
         value={props.fields.spoiler}
       />
-      <VisibilitySelect {...props} />
+      <VisibilitySelect
+        allowLocal={props.allowLocal}
+        fields={props.fields}
+        onChange={props.onChange}
+      />
     </>
   );
 }

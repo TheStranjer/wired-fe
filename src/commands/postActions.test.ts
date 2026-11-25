@@ -55,6 +55,12 @@ describe(postActionLines, () => {
     expect(lines.quote).toStrictEqual({ line: '/quote a3', prefill: false });
   });
 
+  it('runs edit with no text, which opens a composer, although its hotkey prefills', () => {
+    const lines = postActionLines(realRegistry(), 'a3');
+
+    expect(lines.edit).toStrictEqual({ line: '/edit a3', prefill: false });
+  });
+
   it('prefills the lines whose hotkey prefills them', () => {
     const lines = postActionLines(realRegistry(), 'a3');
 

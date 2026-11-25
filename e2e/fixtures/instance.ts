@@ -10,6 +10,7 @@
 
 import type { Page, Request, Route } from '@playwright/test';
 
+import { editedStatus, sourceOf } from './statusEdit';
 import { ORIGIN, json, type Json } from './wire';
 
 /** The NodeInfo 2.1 relation Wired and Pleroma link from their discovery list. */
@@ -58,6 +59,24 @@ function segments(url: string): readonly string[] {
     .map((segment) => decodeURIComponent(segment));
 }
 
+/** What a read or edit of a status answers: its context, source, edit or itself; null for none. */
+function statusAnswer(request: Request, content: InstanceContent): Json | null {
+  const path = segments(request.url());
+  const last = path.at(-1);
+  const id = path.at(last === 'context' || last === 'source' ? -2 : -1) ?? '';
+  const found = content.status(id);
+  if (last === 'context') {
+    return content.context(id);
+  }
+  if (found === null) {
+    return null;
+  }
+  if (last === 'source') {
+    return sourceOf(found);
+  }
+  return request.method() === 'PUT' ? editedStatus(found, postedText(request)) : found;
+}
+
 /** The session routes of {@link content}: the windows' reads and the post echo. */
 function routeSession(page: Page, content: InstanceContent): readonly Promise<unknown>[] {
   let posts = 0;
@@ -68,16 +87,8 @@ function routeSession(page: Page, content: InstanceContent): readonly Promise<un
       await json(route, content.create(postedText(request), posts));
       return;
     }
-    const path = segments(request.url());
-    const id = path.at(path.at(-1) === 'context' ? -2 : -1) ?? '';
-    const found = content.status(id);
-    if (path.at(-1) === 'context') {
-      await json(route, content.context(id));
-    } else if (found !== null) {
-      await json(route, found);
-    } else {
-      await json(route, { error: 'Record not found.' }, 404);
-    }
+    const answer = statusAnswer(request, content);
+    await json(route, answer ?? { error: 'Record not found.' }, answer === null ? 404 : 200);
   };
   return [
     page.route('**/api/v1/accounts/verify_credentials', async (route) => {

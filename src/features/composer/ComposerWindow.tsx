@@ -13,7 +13,9 @@
  * composer (WFE-244) is bound to the post it answers and a quote composer
  * (WFE-262) to the post it quotes: the picker gives way to the dim excerpt of
  * that post (./ComposerHeader), since the post goes out as the account of the
- * line it came from.
+ * line it came from. An edit composer (WFE-268) is bound to the post it
+ * rewrites the same way, its audience locked, and offers neither attachments
+ * nor a poll, since the edit keeps the post's own.
  */
 
 import type { JSX } from 'react';
@@ -42,18 +44,21 @@ export function ComposerWindow({ windowId }: { readonly windowId: string }): JSX
   const media = useComposerMedia(windowId, accountKey);
   const { dragging, ...drop } = usePaneDrop(media.add);
   const pick = useAccountPick(windowId, media.items.length > 0);
+  const editing = fields.editing !== undefined;
 
   return (
     <div className={[styles['window'], dragging ? styles['dropping'] : ''].join(' ')} {...drop}>
       <ComposerForm
         allowLocal={limits.allowLocal}
         attachments={
-          <MediaLines
-            items={media.items}
-            onDescribe={media.describe}
-            onFiles={media.add}
-            onRemove={media.remove}
-          />
+          editing ? null : (
+            <MediaLines
+              items={media.items}
+              onDescribe={media.describe}
+              onFiles={media.add}
+              onRemove={media.remove}
+            />
+          )
         }
         error={error}
         fields={{ ...fields, mediaIds: [...(fields.mediaIds ?? []), ...mediaIdsOf(media.items)] }}
@@ -70,7 +75,7 @@ export function ComposerWindow({ windowId }: { readonly windowId: string }): JSX
           dispatch({ type: 'composerEdit', windowId, patch });
         }}
         onSend={send}
-        pollLimits={limits.pollLimits}
+        {...(editing ? {} : { pollLimits: limits.pollLimits })}
         sending={sending}
       />
       <BufferView label={win?.title ?? 'compose'} windowId={windowId} />
