@@ -9,7 +9,7 @@ import { isDesktopNumber } from './desktopNumber';
 import { compareWords, wordsOf } from '../lib/words';
 
 /** The words `/desktop` takes in place of a number, in the order its usage names them. */
-const DESKTOP_FORMS: readonly string[] = ['list', 'next', 'prev', 'new', 'close'];
+const DESKTOP_FORMS: readonly string[] = ['list', 'next', 'prev', 'new', 'close', 'prune'];
 
 /** The word `/mvd` takes after the desktop number. */
 const FOLLOW_WORD = 'follow';

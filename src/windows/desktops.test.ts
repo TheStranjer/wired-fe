@@ -4,7 +4,7 @@
  */
 import { describe, expect, it } from 'vitest';
 
-import { three, treeOf, twoPanes } from './desktopFixtures';
+import { three, treeOf, twoPanes, withFloats } from './desktopFixtures';
 import { EMPTY_DESKTOP } from './desktopPanes';
 import {
   activeDesktop,
@@ -14,6 +14,7 @@ import {
   goToDesktop,
   initialDesktops,
   newDesktop,
+  pruneDesktops,
   stepDesktop,
 } from './desktops';
 
@@ -106,6 +107,52 @@ describe(newDesktop, () => {
 
     expect(state.desktops).toHaveLength(4);
     expect(state.active).toBe(3);
+  });
+});
+
+describe(pruneDesktops, () => {
+  it('removes the empty desktops, keeps the active one and fixes up the active index', () => {
+    const state = pruneDesktops({
+      ...three(),
+      desktops: [EMPTY_DESKTOP, ...three().desktops.slice(0, 1), EMPTY_DESKTOP, EMPTY_DESKTOP],
+      active: 3,
+    });
+
+    expect(state.desktops).toHaveLength(2);
+    expect(treeOf(state, 1)).toBe('row(p1:w1 p2:w2)');
+    expect(state.desktops[1]).toStrictEqual(EMPTY_DESKTOP);
+    expect(state.active).toBe(1);
+  });
+
+  it('keeps an empty-tree desktop that holds a float', () => {
+    const floating = { ...EMPTY_DESKTOP, floats: withFloats().floats };
+    const state = pruneDesktops({
+      ...three(),
+      desktops: [EMPTY_DESKTOP, floating, EMPTY_DESKTOP],
+      active: 2,
+    });
+
+    expect(state.desktops).toStrictEqual([floating, EMPTY_DESKTOP]);
+    expect(state.active).toBe(1);
+  });
+
+  it('leaves one desktop when everything but the active one is empty', () => {
+    const state = pruneDesktops({
+      ...three(),
+      desktops: [EMPTY_DESKTOP, EMPTY_DESKTOP],
+      active: 1,
+    });
+
+    expect(state.desktops).toStrictEqual([EMPTY_DESKTOP]);
+    expect(state.active).toBe(0);
+  });
+
+  it('is the same state when no desktop but the active one is empty', () => {
+    const first = twoPanes().desktops[0] ?? EMPTY_DESKTOP;
+    const full = { ...twoPanes(), desktops: [first, first], active: 0 };
+
+    expect(pruneDesktops(full)).toBe(full);
+    expect(pruneDesktops(initialDesktops('w1'))).toStrictEqual(initialDesktops('w1'));
   });
 });
 

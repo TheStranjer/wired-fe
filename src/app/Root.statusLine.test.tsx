@@ -96,4 +96,27 @@ describe('status line in Root', () => {
 
     expect(screen.getByRole('main', { name: 'Desktop 1' })).toBeInTheDocument();
   });
+
+  it('closes the active desktop with its ×, and then shows no × on the last one', () => {
+    renderRoot([{ type: 'layout', action: { type: 'goToDesktop', n: 2 } }]);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Close desktop 2' }));
+
+    expect(screen.getByRole('main', { name: 'Desktop 1' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /^Close desktop/u })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Desktop 2' })).not.toBeInTheDocument();
+  });
+
+  it('closes a desktop that is middle-clicked and stays on the one that was shown', () => {
+    renderRoot([{ type: 'layout', action: { type: 'goToDesktop', n: 3 } }]);
+
+    fireEvent(
+      screen.getByRole('button', { name: 'Desktop 2' }),
+      new MouseEvent('auxclick', { bubbles: true, button: 1 }),
+    );
+
+    expect(screen.getByRole('main', { name: 'Desktop 2' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Close desktop 2' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Desktop 3' })).not.toBeInTheDocument();
+  });
 });

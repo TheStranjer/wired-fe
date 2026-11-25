@@ -12,23 +12,25 @@ The command line at the bottom is always there and never required. Plain text po
 
 The screen is a desktop of panes split side by side or stacked. Each pane shows one window (a feed, a composer, a thread, a DM, notifications, a profile, search, the people list). Closing a pane keeps its window open and hidden; `/close` ends the window. Desktops are numbered from 1; the status line shows them as `[1] [2]` with the active one marked.
 
-| To                            | Command                           | tmux keys (both modes) | Vim keys (navigation mode) | Mouse                        |
-| ----------------------------- | --------------------------------- | ---------------------- | -------------------------- | ---------------------------- |
-| Split side by side            | `/vsplit [view]`                  | `Ctrl+B %`             | `w v`                      | `┃▾` in the pane's title bar |
-| Split stacked                 | `/split [view]`                   | `Ctrl+B "`             | `w s`                      | `━▾`                         |
-| Focus a neighbour             | `/focus left\|right\|up\|down`    | `Ctrl+B` + arrow       | `w h`, `w j`, `w k`, `w l` | click the pane               |
-| Cycle focus                   | `/focus next`                     | `Ctrl+B o`             | `w w`                      |                              |
-| Close the pane (window stays) | `/unsplit`                        | `Ctrl+B x`             | `w c`                      | `✕`                          |
-| Keep only this pane           | `/only`                           | `Ctrl+B z`             | `w o`                      |                              |
-| Equal shares                  | `/equalize`                       |                        | `w =`                      |                              |
-| Resize                        | `/resize width\|height +N\|-N\|N` |                        |                            | drag a divider; arrows on it |
-| Swap with the neighbour       | `/swap left\|right\|up\|down`     |                        | `w x`                      |                              |
-| Tear off into a float         | `/float [view]`                   | `Ctrl+B f`             | `w f`                      | `⧉▾`, then `This pane`       |
-| Dock a float                  | `/dock`                           | `Ctrl+B d`             | `w d`                      | `⊞`; Shift-drag over a pane  |
-| Go to desktop N               | `/desktop N`                      | `Ctrl+B N`             |                            | `Alt+1`..`Alt+9`             |
-| Previous or next desktop      | `/desktop prev`, `/desktop next`  | `Ctrl+B p`, `Ctrl+B n` |                            | `Alt+[`, `Alt+]`             |
-| New desktop                   | `/desktop new`                    | `Ctrl+B c`             |                            |                              |
-| Move the pane to a desktop    | `/mvd N [follow]`                 |                        |                            |                              |
+| To                            | Command                           | tmux keys (both modes) | Vim keys (navigation mode) | Mouse                                  |
+| ----------------------------- | --------------------------------- | ---------------------- | -------------------------- | -------------------------------------- |
+| Split side by side            | `/vsplit [view]`                  | `Ctrl+B %`             | `w v`                      | `┃▾` in the pane's title bar           |
+| Split stacked                 | `/split [view]`                   | `Ctrl+B "`             | `w s`                      | `━▾`                                   |
+| Focus a neighbour             | `/focus left\|right\|up\|down`    | `Ctrl+B` + arrow       | `w h`, `w j`, `w k`, `w l` | click the pane                         |
+| Cycle focus                   | `/focus next`                     | `Ctrl+B o`             | `w w`                      |                                        |
+| Close the pane (window stays) | `/unsplit`                        | `Ctrl+B x`             | `w c`                      | `✕`                                    |
+| Keep only this pane           | `/only`                           | `Ctrl+B z`             | `w o`                      |                                        |
+| Equal shares                  | `/equalize`                       |                        | `w =`                      |                                        |
+| Resize                        | `/resize width\|height +N\|-N\|N` |                        |                            | drag a divider; arrows on it           |
+| Swap with the neighbour       | `/swap left\|right\|up\|down`     |                        | `w x`                      |                                        |
+| Tear off into a float         | `/float [view]`                   | `Ctrl+B f`             | `w f`                      | `⧉▾`, then `This pane`                 |
+| Dock a float                  | `/dock`                           | `Ctrl+B d`             | `w d`                      | `⊞`; Shift-drag over a pane            |
+| Go to desktop N               | `/desktop N`                      | `Ctrl+B N`             |                            | `Alt+1`..`Alt+9`                       |
+| Previous or next desktop      | `/desktop prev`, `/desktop next`  | `Ctrl+B p`, `Ctrl+B n` |                            | `Alt+[`, `Alt+]`                       |
+| New desktop                   | `/desktop new`                    | `Ctrl+B c`             |                            |                                        |
+| Close desktop (windows stay)  | `/desktop close [N]`              | `Ctrl+B &`             |                            | `×` or middle-click in the status line |
+| Close all empty desktops      | `/desktop prune`                  |                        |                            |                                        |
+| Move the pane to a desktop    | `/mvd N [follow]`                 |                        |                            |                                        |
 
 `Alt+[` on desktop 1 wraps to the last desktop, and `Alt+]` on the last creates a new one. `Ctrl+W`, `Ctrl+T` and `Ctrl+N` are never bound, because browsers keep them. Every key is rebindable (`/binds`, `/bind`, `/unbind`), and a binding may be a sequence of chords (`Ctrl+B %`, `w v`).
 

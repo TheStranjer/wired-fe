@@ -32,10 +32,11 @@ const BASE_PROPS: StatusLineProps = {
   mode: 'insert',
   pendingKeys: null,
   onSelectDesktop: NOOP,
+  onCloseDesktop: NOOP,
   onSelectWindow: NOOP,
 };
 
-const FULL_LINE = '[23:07] [@lain@wired.example] [1] [2*:12] [3:1] │ 3:home(3) 7:dm/bob* [INS]';
+const FULL_LINE = '[23:07] [@lain@wired.example] [1] [2*:12]× [3:1] │ 3:home(3) 7:dm/bob* [INS]';
 
 /** Renders the status line with the base props changed, and returns the row. */
 function renderStatusLine(overrides: Partial<StatusLineProps>): HTMLElement {
@@ -48,7 +49,7 @@ describe(StatusLine, () => {
     const line = renderStatusLine({});
 
     expect(line.textContent).toBe(FULL_LINE);
-    expect(screen.getAllByRole('button')).toHaveLength(5);
+    expect(screen.getAllByRole('button')).toHaveLength(6);
   });
 
   it('labels every desktop with its number and state', () => {
@@ -75,13 +76,13 @@ describe(StatusLine, () => {
   it('shows a dash for the account and NAV in navigation mode', () => {
     const line = renderStatusLine({ accountLabel: null, mode: 'navigation' });
 
-    expect(line.textContent).toBe('[23:07] [-] [1] [2*:12] [3:1] │ 3:home(3) 7:dm/bob* [NAV]');
+    expect(line.textContent).toBe('[23:07] [-] [1] [2*:12]× [3:1] │ 3:home(3) 7:dm/bob* [NAV]');
   });
 
   it('shows no separator when no window has activity', () => {
     const line = renderStatusLine({ windows: [] });
 
-    expect(line.textContent).toBe('[23:07] [@lain@wired.example] [1] [2*:12] [3:1] [INS]');
+    expect(line.textContent).toBe('[23:07] [@lain@wired.example] [1] [2*:12]× [3:1] [INS]');
   });
 
   it('shows one bare active desktop for the default layout', () => {
@@ -128,7 +129,7 @@ describe(StatusLine, () => {
     const line = renderStatusLine({ pendingMedia: 2 });
 
     expect(line.textContent).toBe(
-      '[23:07] [@lain@wired.example] [1] [2*:12] [3:1] │ 3:home(3) 7:dm/bob* [+2 media] [INS]',
+      '[23:07] [@lain@wired.example] [1] [2*:12]× [3:1] │ 3:home(3) 7:dm/bob* [+2 media] [INS]',
     );
   });
 
@@ -136,7 +137,7 @@ describe(StatusLine, () => {
     const line = renderStatusLine({ pendingKeys: 'Ctrl+B' });
 
     expect(line.textContent).toBe(
-      '[23:07] [@lain@wired.example] [1] [2*:12] [3:1] │ 3:home(3) 7:dm/bob* [Ctrl+B …] [INS]',
+      '[23:07] [@lain@wired.example] [1] [2*:12]× [3:1] │ 3:home(3) 7:dm/bob* [Ctrl+B …] [INS]',
     );
   });
 
@@ -144,7 +145,7 @@ describe(StatusLine, () => {
     const line = renderStatusLine({ sync: 'pending' });
 
     expect(line.textContent).toBe(
-      '[23:07] [@lain@wired.example] [1] [2*:12] [3:1] │ 3:home(3) 7:dm/bob* ⇅ [INS]',
+      '[23:07] [@lain@wired.example] [1] [2*:12]× [3:1] │ 3:home(3) 7:dm/bob* ⇅ [INS]',
     );
     expect(screen.getByRole('img', { name: 'Sync pending' })).toHaveTextContent('⇅');
   });
