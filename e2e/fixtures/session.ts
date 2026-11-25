@@ -86,8 +86,18 @@ async function closeBox(page: Page): Promise<void> {
 }
 
 /**
+ * How long {@link windowNumber} keeps asking. Each try is two submitted lines
+ * and a read, up to a second of it waiting on the listing, so the default
+ * five-second expect budget fits only two or three tries on a loaded CI runner
+ * with two workers; this leaves room for several.
+ */
+const WINDOW_LOOKUP_TIMEOUT = 15_000;
+
+/**
  * The number of the window titled {@link title}, read from `/win list` in window 1:
  * the status line lists desktops, so a window without unread has no entry to find it by.
+ * Window 1 is on screen before the listing is asked for, so the listing lands
+ * in the log being read.
  */
 async function windowNumber(page: Page, title: string): Promise<number> {
   const entry = new RegExp(
@@ -96,17 +106,21 @@ async function windowNumber(page: Page, title: string): Promise<number> {
   );
   let number = 0;
   await expect
-    .poll(async () => {
-      await submit(page, '/win 1');
-      await submit(page, '/win list');
-      const line = await logRegion(page, 'status')
-        .getByText(entry)
-        .last()
-        .textContent({ timeout: 1000 })
-        .catch(() => null);
-      number = Number(entry.exec(line ?? '')?.[1] ?? 0);
-      return number;
-    })
+    .poll(
+      async () => {
+        await submit(page, '/win 1');
+        await expect(logRegion(page, 'status')).toBeVisible();
+        await submit(page, '/win list');
+        const line = await logRegion(page, 'status')
+          .getByText(entry)
+          .last()
+          .textContent({ timeout: 1000 })
+          .catch(() => null);
+        number = Number(entry.exec(line ?? '')?.[1] ?? 0);
+        return number;
+      },
+      { timeout: WINDOW_LOOKUP_TIMEOUT },
+    )
     .toBeGreaterThan(0);
   return number;
 }
