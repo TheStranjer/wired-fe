@@ -17,7 +17,13 @@ jobs:
   check:
     runs-on: ubuntu-latest
     steps:
+      # Full history, so the merge base with master exists for diff coverage.
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Make master resolvable
+        run: git fetch --no-tags origin master:refs/remotes/origin/master
 
       # Installs the Node and pnpm versions pinned in mise.toml.
       - uses: jdx/mise-action@v2

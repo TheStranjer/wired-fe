@@ -1,5 +1,5 @@
 dist/
-coverage/
+/coverage/
 test-results/
 playwright-report/
 pnpm-lock.yaml

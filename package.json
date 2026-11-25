@@ -16,7 +16,8 @@
     "lint": "eslint --max-warnings 0 . && stylelint \"src/**/*.css\"",
     "typecheck": "tsc -b",
     "test": "vitest run",
-    "e2e": "playwright test"
+    "e2e": "playwright test",
+    "diff-coverage": "node tooling/coverage/diffCoverage.ts"
   },
   "dependencies": {
     "dompurify": "3.4.17",

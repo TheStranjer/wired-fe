@@ -20,7 +20,7 @@ When a design choice is unclear, pick what an IRC power user would expect, then 
 
 ## The gate
 
-`scripts/ci.sh` runs every check: frozen-lockfile install, Prettier, TypeScript, ESLint, Stylelint, byte-size limits, Vitest with coverage thresholds, knip, the production build, a bundle size report (informational, no cap), and Playwright end-to-end tests against the built bundle. It keeps going after a failure, so one run reports everything that's broken, and exits 0 only when all checks pass. `.github/workflows/ci.yml` runs this same script. A change is not done until `scripts/ci.sh` exits 0, so write code that passes every check, including the Vitest tests and coverage thresholds and the ESLint and Stylelint rules. **Do not run the tests or the linters locally.** CI runs them for you; running them yourself only wastes time. To add a check, add it to the script, not the workflow.
+`scripts/ci.sh` runs every check: frozen-lockfile install, Prettier, TypeScript, ESLint, Stylelint, byte-size limits, Vitest with coverage thresholds, diff coverage (every statement, function and branch arm on a line changed since `master` must run in a test, and `v8 ignore`, `c8 ignore` and `istanbul ignore` comments are banned), knip, the production build, a bundle size report (informational, no cap), and Playwright end-to-end tests against the built bundle. It keeps going after a failure, so one run reports everything that's broken, and exits 0 only when all checks pass. `.github/workflows/ci.yml` runs this same script. A change is not done until `scripts/ci.sh` exits 0, so write code that passes every check, including the Vitest tests and coverage thresholds and the ESLint and Stylelint rules. **Do not run the tests or the linters locally.** CI runs them for you; running them yourself only wastes time. To add a check, add it to the script, not the workflow.
 
 ## Commands you may run
 
@@ -138,5 +138,5 @@ e2e/              Playwright tests against the production build
 - Unit tests (Vitest + Testing Library) sit next to the code. Test behaviour through the public function or the rendered UI (`getByRole` before `getByText`; never test IDs or class names).
 - **Never wait on real time.** No `setTimeout` sleeps or arbitrary delays in tests: use `vi.useFakeTimers()`, or await the specific promise or element (`findBy...`).
 - No real network in tests. API tests use recorded fixtures per backend (Wired, Mastodon, Pleroma) and assert that each adapter maps them to the same internal shape.
-- Every code path you add or change is covered: success, errors, edge cases.
+- Every code path you add or change is covered: every statement, function and branch arm on a changed line runs in a test, including success, error and edge cases. `scripts/ci.sh` enforces this with a diff-coverage check against `master` (100%, no exceptions); coverage-ignore comments are banned.
 - End-to-end tests (Playwright) run against `dist/`. Use them for whole flows and anything that needs a real browser (CSP, focus, keyboard).
