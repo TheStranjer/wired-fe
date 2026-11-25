@@ -23,35 +23,21 @@
 
 import { type NewStatus, createStatus } from '../../api/endpoints/statusWrite';
 import { describeApiError } from '../../api/errors';
-import type { Status } from '../../api/schemas/status';
 import { composerWindowFor } from '../../state/composerWindow';
 import { draftToNewStatus } from '../../state/draft';
-import { statusesAction } from '../../state/pageActions';
 import type { Placement } from '../../state/placement';
 import { replyDraft, replyFields } from '../../state/replyDraft';
 import { accountByKey } from '../../state/selectors';
-import { type WindowKind, activeWindow, windowId } from '../../windows/model';
+import { windowId } from '../../windows/model';
 import { openReplyWindow, splitPlacement } from '../openWindowRun';
 import { OK, fail } from '../outcome';
+import { addToActiveWindow, wantsComposer } from '../ownStream';
 import { targetLabel } from '../statusLabel';
 import { type StatusTarget, resolveStatusTarget } from '../targets';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** The command's grammar: /help shows it, a bare label echoes it. */
 const USAGE = '/reply [label] [text]';
-
-/** The window kinds that show one account's conversation and take posts. */
-const FEED_KINDS: ReadonlySet<WindowKind> = new Set<WindowKind>([
-  'home',
-  'local',
-  'federated',
-  'hashtag',
-  'thread',
-  'dm',
-]);
-
-/** Text that is only a `--in` flag, with or without its word: it asks for the composer, not a post. */
-const FLAG_ONLY = /^--in(?:\s+\S+)?$/u;
 
 /** The handle the {@link accountKey} account replies under; none while unknown. */
 function ownHandle(context: CommandContext, accountKey: string | null): string {
@@ -62,15 +48,6 @@ function ownHandle(context: CommandContext, accountKey: string | null): string {
 function answerWith(context: CommandContext, target: StatusTarget, text: string): NewStatus {
   const draft = replyDraft(target.status, ownHandle(context, target.accountKey), text);
   return draftToNewStatus(draft, context.state.settings.defaultVisibility);
-}
-
-/** Hand {@link created} to the active window when it shows this account's stream. */
-function addToActiveWindow(context: CommandContext, created: Status): void {
-  const win = activeWindow(context.state.windows);
-  if (!FEED_KINDS.has(win.ref.kind)) {
-    return;
-  }
-  context.dispatch(statusesAction(win.id, [created], 'newer'));
 }
 
 /** Open a composer window bound to {@link target}'s post, placed as {@link override} and the settings say. */
@@ -101,7 +78,7 @@ async function handle(args: string, context: CommandContext): Promise<CommandOut
   }
   const { status, rest, session } = target.value;
   const text = rest.trim();
-  if (text === '' || FLAG_ONLY.test(text)) {
+  if (wantsComposer(text)) {
     const placed = splitPlacement(text);
     return placed.ok
       ? openComposer(context, target.value, placed.value.placement)

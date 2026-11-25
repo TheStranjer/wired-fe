@@ -49,6 +49,12 @@ describe(postActionLines, () => {
     expect(lines.reply).toStrictEqual({ line: '/reply a3', prefill: false });
   });
 
+  it('runs quote with no text, which opens a composer, although its hotkey prefills', () => {
+    const lines = postActionLines(realRegistry(), 'a3');
+
+    expect(lines.quote).toStrictEqual({ line: '/quote a3', prefill: false });
+  });
+
   it('prefills the lines whose hotkey prefills them', () => {
     const lines = postActionLines(realRegistry(), 'a3');
 
@@ -74,6 +80,6 @@ describe(postActionLines, () => {
     const lines = postActionLines(registry, 'a3');
 
     expect(lines.react).toBeUndefined();
-    expect(lines.quote).toStrictEqual({ line: '/quote a3', prefill: true });
+    expect(lines.quote).toStrictEqual({ line: '/quote a3', prefill: false });
   });
 });

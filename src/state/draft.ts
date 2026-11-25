@@ -48,11 +48,11 @@ export function draftToNewStatus(draft: Draft, defaultVisibility: Visibility): N
   };
 }
 
-/** The post a reply composer answers (WFE-244) and the account of the line it was answered from. */
-type ReplyTarget = {
-  /** The answered post, shown dimly above the text; its id is the draft's `inReplyToId`. */
+/** The post a bound composer answers or quotes (WFE-244, WFE-262) and the account of the line it came from. */
+type BoundPost = {
+  /** The bound post, shown dimly above the text; its id is the draft's `inReplyToId` or `quoteId`. */
   readonly status: Status;
-  /** The account that fetched the line (decision 14); the one the answer is posted as. */
+  /** The account that fetched the line (decision 14); the one the post goes out as. */
   readonly accountKey: string | null;
 };
 
@@ -67,19 +67,22 @@ export type ComposerFields = {
   /** Ids of uploaded media the post carries; a poll and media exclude each other. */
   readonly mediaIds?: readonly string[] | undefined;
   /** The post this answers, for a reply composer; absent for a plain one (WFE-244). */
-  readonly inReplyTo?: ReplyTarget;
+  readonly inReplyTo?: BoundPost;
+  /** The post this quotes, for a quote composer; absent for a plain one (WFE-262). */
+  readonly quoteOf?: BoundPost;
 };
 
 /**
  * The draft the composer's fields stand for: the warning is dropped when
  * empty, the poll's options are trimmed, and no media list is sent when empty;
- * a reply composer's draft answers the post it is bound to.
+ * a reply composer's draft answers the post it is bound to and a quote composer's quotes it.
  */
 export function fieldsToDraft(fields: ComposerFields): Draft {
-  const { poll, mediaIds, inReplyTo } = fields;
+  const { poll, mediaIds, inReplyTo, quoteOf } = fields;
   return {
     text: fields.text,
     ...(inReplyTo === undefined ? {} : { inReplyToId: inReplyTo.status.id }),
+    ...(quoteOf === undefined ? {} : { quoteId: quoteOf.status.id }),
     ...(fields.spoiler === '' ? {} : { spoilerText: fields.spoiler }),
     visibility: fields.visibility,
     ...(mediaIds === undefined || mediaIds.length === 0 ? {} : { mediaIds }),

@@ -54,12 +54,12 @@ export function composerFields(state: AppState, windowId: string): ComposerField
   );
 }
 
-/** Whether window {@link windowId}'s draft holds nothing yet: no text, no warning, no poll, no media, and not bound to a post. */
+/** Whether window {@link windowId}'s draft holds nothing yet: no text, no warning, no poll, no media, and not bound to a post to answer or quote. */
 export function composerIsEmpty(state: AppState, windowId: string): boolean {
-  const { text, spoiler, poll, inReplyTo } = composerFields(state, windowId);
+  const { text, spoiler, poll, inReplyTo, quoteOf } = composerFields(state, windowId);
   const media = state.composerMedia.get(windowId) ?? [];
   const bare = text === '' && spoiler === '' && poll === undefined && media.length === 0;
-  return bare && inReplyTo === undefined;
+  return bare && inReplyTo === undefined && quoteOf === undefined;
 }
 
 /** {@link text} joined under {@link before} on a new line; alone when nothing is there yet. */

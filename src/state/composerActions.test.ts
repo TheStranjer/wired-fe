@@ -136,6 +136,15 @@ describe(composerIsEmpty, () => {
 
     expect(composerIsEmpty(bound, windowId)).toBe(false);
   });
+
+  it('is false for a quote composer, even before anything is typed', () => {
+    const [state, windowId] = withComposer(session(false));
+    const patch = { quoteOf: { status: status('7'), accountKey: null } };
+
+    const bound = appReducer(state, { type: 'composerEdit', windowId, patch });
+
+    expect(composerIsEmpty(bound, windowId)).toBe(false);
+  });
 });
 
 describe(composerReducer, () => {
