@@ -23,7 +23,7 @@ const SHORTCODE = /:[a-zA-Z0-9_]+:/gu;
 const CODE_TAGS: readonly string[] = ['CODE', 'PRE'];
 
 /** Whether `url` parses as an https: URL; junk and other schemes do not. */
-function isHttps(url: string): boolean {
+export function isHttps(url: string): boolean {
   try {
     return new URL(url).protocol === 'https:';
   } catch {

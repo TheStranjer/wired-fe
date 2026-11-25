@@ -9,9 +9,11 @@
  * tell assistive technology.
  */
 import { Fragment } from 'react';
-import type { JSX } from 'react';
+import type { JSX, ReactNode } from 'react';
 
 import styles from './PostMeta.module.css';
+import { ReactionChip } from './ReactionChip';
+import type { PostReaction } from './ReactionChip';
 
 /** The audiences a post can have: the ui twin of api's Visibility, which this
  * layer may not import (AGENTS.md "Layout"). */
@@ -31,13 +33,6 @@ type PostMine = {
   readonly bookmarked: boolean;
 };
 
-/** One emoji reaction on a post and its tally. */
-type PostReaction = {
-  readonly name: string;
-  readonly count: number;
-  readonly me: boolean;
-};
-
 /** Props of {@link PostMeta}: everything the row knows about a post after its
  * body. {@link PostRowProps} takes the whole set, so it is the one exported
  * type here. */
@@ -54,11 +49,11 @@ export type PostMetaProps = {
   readonly edited: boolean;
 };
 
-/** One piece of the suffix: its text, and whether the viewer's own mark lights
- * it up, in which case the words colour alone cannot carry come with it. */
+/** One piece of the suffix: what it shows, and whether the viewer's own mark
+ * lights it up, in which case the words colour alone cannot carry come with it. */
 type Token = {
   readonly key: string;
-  readonly text: string;
+  readonly text: ReactNode;
   readonly own: boolean;
   readonly title: string | null;
 };
@@ -79,12 +74,12 @@ const AUDIENCE: Record<Exclude<PostVisibility, 'public'>, Audience> = {
 };
 
 /** One tally piece that says nothing about the viewer. */
-function plain(key: string, text: string): Token {
+function plain(key: string, text: ReactNode): Token {
   return { key, text, own: false, title: null };
 }
 
 /** One tally piece the viewer's own mark lights up, naming itself to them. */
-function own(key: string, text: string, title: string): Token {
+function own(key: string, text: ReactNode, title: string): Token {
   return { key, text, own: true, title };
 }
 
@@ -115,7 +110,7 @@ function tallyTokens(counts: PostCounts, mine: PostMine): readonly Token[] {
 /** One reaction as its emoji followed by how many sent it. */
 function reactionToken(reaction: PostReaction): Token {
   const key = `reaction:${reaction.name}`;
-  const text = `${reaction.name}${String(reaction.count)}`;
+  const text = <ReactionChip reaction={reaction} />;
   return reaction.me ? own(key, text, `you reacted with ${reaction.name}`) : plain(key, text);
 }
 

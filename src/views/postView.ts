@@ -22,6 +22,7 @@ import type { Status, Visibility } from '../api/schemas/status';
 import type { EmojiRef } from '../ui/emojify';
 import type { MediaItem } from '../ui/MediaList';
 import type { PollViewData } from '../ui/PollView';
+import type { PostReaction } from '../ui/ReactionChip';
 
 /** Who is looking: the instance origin handles are rendered against, and the
  * id of the active account, or null when nobody is signed in. */
@@ -82,13 +83,10 @@ export type PostView = {
     readonly favourited: boolean;
     readonly bookmarked: boolean;
   };
-  /** The emoji reactions on the displayed status: the emoji, its tally, and
-   * whether the viewer sent one, in the order the backend sent them. */
-  readonly reactions: readonly {
-    readonly name: string;
-    readonly count: number;
-    readonly me: boolean;
-  }[];
+  /** The emoji reactions on the displayed status: the emoji (with its picture
+   * when custom), its tally, and whether the viewer sent one, in the order the
+   * backend sent them. */
+  readonly reactions: readonly PostReaction[];
   /** The poll the displayed status carries, as the row draws it under the
    * body; null when it carries none. */
   readonly poll: PollViewData | null;

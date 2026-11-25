@@ -1,0 +1,12 @@
+/* One reaction chip: the custom emoji picture is the size of the ones in a
+   post body, and the tally sits a little apart from it so a glyph or a
+   picture never runs into the number. */
+
+.emoji {
+  height: 1.2em;
+  vertical-align: middle;
+}
+
+.count {
+  margin-inline-start: 0.2em;
+}
