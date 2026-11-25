@@ -1,20 +1,20 @@
 /**
  * The status line wired to real state (AGENTS.md "Windows, like IRC
- * buffers"): the clock, the active account, every window numbered in display
- * order with its unread count, the pending media and the hotkey mode, and a
- * click on a window's entry activates it (decision 6). The topic bar shows an
- * account the same way, through {@link accountLabel}.
+ * buffers"): the clock, the active account, the desktops and the hidden
+ * windows with activity (./statusEntries), the pending media and the hotkey
+ * mode. A click on a desktop runs what `/desktop N` runs and a click on a
+ * window what `/win N` runs (decision 6). The topic bar shows an account the
+ * same way, through {@link accountLabel}.
  */
 
 import type { JSX } from 'react';
 
+import { statusEntries } from './statusEntries';
 import { useClock } from './useClock';
 import type { AppState } from '../state/appState';
 import { accountByKey } from '../state/selectors';
 import { useAppDispatch, useAppState } from '../state/StateContext';
 import { StatusLine } from '../ui/StatusLine';
-import type { StatusLineWindow } from '../ui/StatusLine';
-import { activeWindow } from '../windows/model';
 
 /** The account behind {@link key}, named the way the bars show it; null if none. */
 export function accountLabel(state: AppState, key: string | null): string | null {
@@ -22,19 +22,7 @@ export function accountLabel(state: AppState, key: string | null): string | null
   return account === null ? null : `@${account.handle}`;
 }
 
-/** The status line's entries: every window, numbered in display order. */
-function statusWindows(state: AppState): readonly StatusLineWindow[] {
-  const active = activeWindow(state.windows);
-  return state.windows.windows.map((win, index) => ({
-    number: index + 1,
-    title: win.title,
-    unread: win.unread,
-    highlight: win.highlight,
-    active: win.id === active.id,
-  }));
-}
-
-/** The status line: clock, active account, numbered windows, pending media, pending keys and hotkey mode. */
+/** The status line: clock, active account, desktops, hidden windows with activity, pending media, pending keys and hotkey mode. */
 export function StatusBar(props: {
   readonly pendingMedia: number;
   readonly pendingKeys: string | null;
@@ -42,14 +30,19 @@ export function StatusBar(props: {
   const state = useAppState();
   const dispatch = useAppDispatch();
   const clock = useClock(state.settings.clockFormat);
+  const entries = statusEntries(state.layout, state.windows);
   return (
     <StatusLine
       clock={clock}
       accountLabel={accountLabel(state, state.activeAccountKey)}
-      windows={statusWindows(state)}
+      desktops={entries.desktops}
+      windows={entries.windows}
       mode={state.mode}
       pendingMedia={props.pendingMedia}
       pendingKeys={props.pendingKeys}
+      onSelectDesktop={(n: number) => {
+        dispatch({ type: 'layout', action: { type: 'goToDesktop', n } });
+      }}
       onSelectWindow={(number: number) => {
         dispatch({ type: 'windows', action: { type: 'activateNumber', number } });
       }}
