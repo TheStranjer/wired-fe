@@ -10,11 +10,13 @@
  * Getting them in and out of storage is the storage module's business. The
  * reader's key overrides (WFE-130) ride along here too — stored and defaulted
  * like every knob, but deliberately absent from SETTING_KEYS: `/set` does not
- * list them, the `/bind` commands own them.
+ * list them, the `/bind` commands own them. The saved feeds (WFE-195) are
+ * stored and defaulted the same way and equally hidden from `/set`.
  */
 
 import * as v from 'valibot';
 
+import { type Feeds, FeedsSchema } from './feeds';
 import type { Visibility } from '../api/schemas/status';
 import type { KeyOverride } from '../lib/keyOverride';
 import type { ClockFormat } from '../lib/time';
@@ -39,6 +41,8 @@ export type Settings = {
   readonly effects: boolean;
   /** Whether media behind a content warning is shown without asking. */
   readonly expandMedia: boolean;
+  /** The reader's saved feeds (WFE-195, decision 14); stored and synced, not listed by `/set`. */
+  readonly feeds: Feeds;
   /** Whether attachments render inline, or as `[IMG …]` placeholder lines. */
   readonly images: boolean;
   /** The reader's own key bindings over the defaults (WFE-130, `/bind`). */
@@ -55,6 +59,7 @@ export const DEFAULT_SETTINGS: Settings = {
   density: 'cards',
   effects: false,
   expandMedia: false,
+  feeds: [],
   images: true,
   keyOverrides: [],
   theme: 'wired',
@@ -93,13 +98,14 @@ export const SettingsSchema: v.GenericSchema<unknown, Settings> = v.object({
   density: v.optional(v.picklist(DENSITIES), DEFAULT_SETTINGS.density),
   effects: v.optional(v.boolean(), DEFAULT_SETTINGS.effects),
   expandMedia: v.optional(v.boolean(), DEFAULT_SETTINGS.expandMedia),
+  feeds: v.optional(FeedsSchema, DEFAULT_SETTINGS.feeds),
   images: v.optional(v.boolean(), DEFAULT_SETTINGS.images),
   keyOverrides: v.optional(v.array(KeyOverrideSchema), DEFAULT_SETTINGS.keyOverrides),
   theme: v.optional(v.picklist(THEMES), DEFAULT_SETTINGS.theme),
 });
 
 /** The knobs `/set` lists and turns: every setting except the hidden key overrides. */
-type ListedSettingKey = Exclude<keyof Settings, 'keyOverrides'>;
+type ListedSettingKey = Exclude<keyof Settings, 'keyOverrides' | 'feeds'>;
 
 /** One knob the reader can set, as the `/set` command lists and checks it. */
 export type SettingKey = {

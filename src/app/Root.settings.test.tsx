@@ -57,6 +57,7 @@ describe('the shell persisting settings', () => {
       density: 'cards',
       effects: true,
       expandMedia: false,
+      feeds: [],
       images: true,
       keyOverrides: [],
       theme: 'wired',
