@@ -5,6 +5,9 @@
   display: grid;
   grid-template-rows: auto 1fr auto auto;
   grid-template-columns: minmax(0, 1fr);
+
+  /* Only panes scroll; the document never does. */
+  overflow: hidden;
   height: 100%;
 
   /* The dynamic viewport height excludes the on-screen keyboard, keeping the command line visible. */

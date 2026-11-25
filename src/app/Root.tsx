@@ -61,7 +61,8 @@ function failure<E>(loaded: Result<unknown, E>): E | null {
 /** Mirrors settings and window state out to storage, the theme and the tab title. */
 function useStateMirrors(state: AppState, ready: boolean): void {
   useSettingsPersistence(state.settings, appStores().settings);
-  useDeskPersistence(state, deskSource(), ready);
+  // A signed-out desk is never saved: the status-only desk would be restored after login and hide the stream.
+  useDeskPersistence(state, deskSource(), ready && state.accounts.length > 0);
   useDeskSync(ready);
   useTheme(state.settings.theme, state.settings.effects);
   useDocumentTitle(state.windows);

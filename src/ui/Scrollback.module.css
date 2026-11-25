@@ -1,4 +1,6 @@
 .scrollback {
+  /* Containing block for the absolutely positioned visually-hidden spans inside. */
+  position: relative;
   overflow-y: auto;
   height: 100%;
   padding: 0 var(--space);

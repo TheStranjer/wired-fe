@@ -45,6 +45,8 @@
 }
 
 .content {
+  /* Containing block for the absolutely positioned visually-hidden spans inside. */
+  position: relative;
   flex: 1;
   min-height: 0;
   overflow: auto;
