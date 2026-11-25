@@ -4,7 +4,7 @@ Numbered decisions. Tickets and code comments cite them as "decision N". To chan
 
 1. **Stack**: React 19 + TypeScript 6 (strict), built by Vite into a static bundle. Node and pnpm versions are pinned in `mise.toml` and `package.json` `packageManager`. TypeScript stays on 6.x until typescript-eslint supports 7.
 
-2. **Deliverable**: `dist/` holds `index.html`, one `wired.[hash].js` and one `wired.[hash].css` (no code splitting), plus the fixed files from `public/` (today only `favicon.png`, the icon `index.html` declares). Asset URLs are relative (`base: './'`), so the bundle can be hosted at any path on any static host. Under a sub-path, the build config's optional `basePath` (e.g. `/fe/`) tells `pathToHash` which prefix of wired-be's redirect paths to strip (decision 4).
+2. **Deliverable**: `dist/` holds `index.html`, one `wired.[hash].js` and one `wired.[hash].css` (no code splitting, but for one `emoji.[hash].js` chunk: the Unicode emoji list, a dynamic `import()` the emoji picker makes the first time it opens, WFE-265), plus the fixed files from `public/` (today only `favicon.png`, the icon `index.html` declares). Asset URLs are relative (`base: './'`), so the bundle can be hosted at any path on any static host. Under a sub-path, the build config's optional `basePath` (e.g. `/fe/`) tells `pathToHash` which prefix of wired-be's redirect paths to strip (decision 4).
 
 3. **Build-time configuration**: deployment settings (which instances the build may talk to, defaults, branding) are fixed when the bundle is built, from one typed and validated config file. There is no runtime config fetch. Instance modes:
    - `same-origin`: the backend sits behind the same origin (reverse proxy). The usual deployment.

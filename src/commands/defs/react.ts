@@ -4,7 +4,10 @@
  * {@link reactionRun} describes: a leading label or the navigation selection
  * names the post, the one word after it is the emoji — `🔥` sent as typed,
  * `:blob:` sent as the shortcode `blob`. `Shift+e` prefills the line with the
- * selected post's label; type the emoji and Enter sends it.
+ * selected post's label; type the emoji and Enter sends it. The card's `☺`
+ * button does not prefill (WFE-265, src/commands/postActions): it opens the
+ * emoji picker, and choosing there runs `/react <label> <emoji>` through the
+ * line runner, so the typed command, the hotkey and the click stay one path.
  */
 
 import { reactionRun } from '../reactions';

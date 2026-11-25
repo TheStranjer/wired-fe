@@ -5,6 +5,11 @@
     "gzip": true
   },
   {
+    "name": "Emoji chunk (loaded when a picker first opens)",
+    "path": "dist/emoji.*.js",
+    "gzip": true
+  },
+  {
     "name": "Stylesheet",
     "path": "dist/wired.*.css",
     "gzip": true

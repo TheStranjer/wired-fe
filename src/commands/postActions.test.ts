@@ -55,10 +55,15 @@ describe(postActionLines, () => {
     expect(lines.quote).toStrictEqual({ line: '/quote a3', prefill: false });
   });
 
+  it('opens the emoji picker from react although its hotkey prefills', () => {
+    const lines = postActionLines(realRegistry(), 'a3');
+
+    expect(lines.react).toStrictEqual({ line: '/react a3', prefill: false, picker: true });
+  });
+
   it('prefills the lines whose hotkey prefills them', () => {
     const lines = postActionLines(realRegistry(), 'a3');
 
-    expect(lines.react).toStrictEqual({ line: '/react a3', prefill: true });
     expect(lines.mute).toStrictEqual({ line: '/mute a3', prefill: true });
   });
 

@@ -12,10 +12,12 @@
  * click asks the one reducer for the transition. When the selection moves onto
  * the entry, the view keeps it in view. Clicking the nick opens the author's
  * profile window (WFE-106); a mention or hashtag link in the body opens its
- * profile or tag window the same way (WFE-156, ./openContentLink).
+ * profile or tag window the same way (WFE-156, ./openContentLink). A card's `☺`
+ * button opens the emoji picker (WFE-265, ./usePostPicker), fed by the window's
+ * own account and choosing through the same line runner as the command line.
  */
 import { useEffect, useRef } from 'react';
-import type { JSX } from 'react';
+import type { JSX, RefObject } from 'react';
 
 import { usePostActions, type PostActions } from './PostActionsContext';
 import {
@@ -26,8 +28,9 @@ import {
   type PostLineTarget,
 } from './postLineProps';
 import { postView } from './postView';
+import { usePostPicker } from './usePostPicker';
 import { labelForStatus } from '../state/bufferSelection';
-import { bufferFor, displayFor } from '../state/selectors';
+import { bufferFor, displayFor, windowAccountKey } from '../state/selectors';
 import { useAppDispatch, useAppState } from '../state/StateContext';
 import { PostCard } from '../ui/PostCard';
 import { PostRow } from '../ui/PostRow';
@@ -41,6 +44,17 @@ function scrollRowIntoView(row: HTMLElement | null): void {
   if (row !== null && 'scrollIntoView' in row) {
     row.scrollIntoView({ block: 'nearest' });
   }
+}
+
+/** The post's DOM node, which the view keeps in view whenever {@link selected} turns true. */
+function useRowRef(selected: boolean): RefObject<HTMLElement | null> {
+  const rowRef = useRef<HTMLElement | null>(null);
+  useEffect(() => {
+    if (selected) {
+      scrollRowIntoView(rowRef.current);
+    }
+  }, [selected]);
+  return rowRef;
 }
 
 /** The handler of a double-click on the post labelled {@link label}: run `/pop` on it. */
@@ -59,13 +73,8 @@ export function PostLine(props: PostLineTarget): JSX.Element {
   const view = postView(status, viewerFor(state, windowId), (id) => labelForStatus(buffer, id));
   const shared = sharedPostProps({ state, go: dispatch }, props, view);
   const actions = usePostActions();
-  const rowRef = useRef<HTMLElement | null>(null);
-  const { selected } = shared;
-  useEffect(() => {
-    if (selected) {
-      scrollRowIntoView(rowRef.current);
-    }
-  }, [selected]);
+  const rowRef = useRowRef(shared.selected);
+  const picker = usePostPicker(windowAccountKey(state, windowId), shared.label, actions.run);
   const display = displayFor(state, windowId);
   if (display.density === 'lines') {
     return (
@@ -88,6 +97,7 @@ export function PostLine(props: PostLineTarget): JSX.Element {
       ref={rowRef}
       actionLines={actions.linesFor(shared.label)}
       onAction={actions.run}
+      reactPicker={picker}
       showAvatar={display.avatars}
       showImages={display.images}
       {...dmCardProps(state, props, view)}

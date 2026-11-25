@@ -47,13 +47,15 @@ export default defineConfig({
         unsafe: true,
       },
     },
-    // The deliverable is index.html plus one JS and one CSS file.
+    // The deliverable is index.html plus one JS and one CSS file, and the
+    // chunk of the Unicode emoji list (WFE-265), the one dynamic import: it
+    // is fetched when a picker first opens, so it stays out of the main file.
     cssCodeSplit: false,
     modulePreload: false,
     rolldownOptions: {
       output: {
-        codeSplitting: false,
         entryFileNames: 'wired.[hash].js',
+        chunkFileNames: 'emoji.[hash].js',
         assetFileNames: 'wired.[hash][extname]',
       },
     },
