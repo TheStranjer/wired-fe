@@ -150,4 +150,8 @@ describe(loadWindowKinds, () => {
   it('includes the dm kind /query opens a window with', () => {
     expect([...loaded().keys()]).toContain('dm');
   });
+
+  it('includes the feedEditor kind /feed edit opens a window with', () => {
+    expect([...loaded().keys()]).toContain('feedEditor');
+  });
 });

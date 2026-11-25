@@ -50,6 +50,17 @@ describe('the desk snapshot schema', () => {
     expect(valid({ ...stored(), windows: [window] })).toBe(false);
   });
 
+  it('accepts a window of the feed editor kind, so an open editor does not lose the desk', () => {
+    const window = {
+      id: 'feedEditor:-:f1',
+      title: 'edit ~main',
+      ref: { kind: 'feedEditor', accountKey: null, target: 'f1' },
+      display: {},
+    };
+
+    expect(valid({ ...stored(), windows: [window] })).toBe(true);
+  });
+
   it('refuses a layout with no desktops or a bad active index', () => {
     const layout = { desktops: [], active: 0, nextPaneSeq: 1 };
 

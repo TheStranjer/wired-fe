@@ -88,17 +88,25 @@ describe('/feed new', () => {
     });
   });
 
-  it('refuses a name too long and a missing name', async () => {
+  it('refuses a name too long', async () => {
     const desk = feedDesk();
 
     await expect(desk.run(`new ${'x'.repeat(33)}`)).resolves.toStrictEqual({
       ok: false,
       message: 'A feed name is 1-32 characters',
     });
-    await expect(desk.run('new')).resolves.toStrictEqual({
-      ok: false,
-      message: 'Usage: /feed new <name> <source>…',
-    });
+  });
+
+  it('opens the editor of a new feed when given no words, saving nothing', async () => {
+    const desk = feedDesk();
+
+    await expect(desk.run('new')).resolves.toStrictEqual({ ok: true });
+
+    expect(desk.state().windows.windows.map((win) => win.title)).toStrictEqual([
+      'status',
+      'new feed',
+    ]);
+    expect(desk.feeds()).toStrictEqual([]);
   });
 });
 

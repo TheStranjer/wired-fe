@@ -5,7 +5,8 @@
  * list` prints every feed with its sources; `new`, `add`, `rm`, `rename` and
  * `delete` change them (and `delete` closes the windows showing the feed);
  * `open <name>` — or just `/feed <name>` — shows the feed's window, or
- * activates the one that already does. Feeds live in the settings, so changes
+ * activates the one that already does; `edit <name>` (and a bare `new`) opens
+ * the feed editor, a window that runs these same commands. Feeds live in the settings, so changes
  * are saved and synced with them. The subcommands are in src/commands/feedChange
  * and src/commands/feedManage; `/vsplit feed <name>` reads `open` too
  * (src/commands/viewSpec).
@@ -14,7 +15,7 @@
 import { wordsOf } from '../../lib/words';
 import { FEED_SUBCOMMANDS } from '../feedArgs';
 import { feedAdd, feedNew, feedRemove } from '../feedChange';
-import { feedDelete, feedList, feedOpen, feedRename } from '../feedManage';
+import { feedDelete, feedEdit, feedList, feedOpen, feedRename } from '../feedManage';
 import { syncRun } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 import { splitFirstWord } from '../words';
@@ -31,11 +32,12 @@ const SUBCOMMANDS: ReadonlyMap<string, Subcommand> = new Map<string, Subcommand>
   ['rename', feedRename],
   ['delete', feedDelete],
   ['open', feedOpen],
+  ['edit', feedEdit],
 ]);
 
 /** The command's forms: /help shows them. */
 const USAGE =
-  '/feed [list] | /feed <name> | /feed new|add|rm <name> <source>… | /feed rename <old> <new> | /feed delete <name>';
+  '/feed [list] | /feed <name> | /feed edit <name> | /feed new [<name> <source>…] | /feed add|rm <name> <source>… | /feed rename <old> <new> | /feed delete <name>';
 
 /** Run the subcommand the first word names; a first word that names none is a feed to open. */
 function handle(args: string, context: CommandContext): CommandOutcome {

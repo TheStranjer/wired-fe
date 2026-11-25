@@ -35,6 +35,7 @@ import { useDeskSync } from './useDeskSync';
 import { useDocumentTitle } from './useDocumentTitle';
 import { useDropAndPaste } from './useDropAndPaste';
 import { useHashRoute } from './useHashRoute';
+import { useLineRunnerApi } from './useLineRunnerApi';
 import { usePostActionsApi } from './usePostActionsApi';
 import { useRouteOverlays } from './useRouteOverlays';
 import { useSettingsPersistence } from './useSettingsPersistence';
@@ -44,6 +45,7 @@ import { usePendingKeys } from '../keys/useGlobalKeys';
 import type { Result } from '../lib/result';
 import { type AppState, printAction } from '../state/appState';
 import { useAppDispatch, useAppState } from '../state/StateContext';
+import { LineRunnerProvider } from '../views/LineRunnerContext';
 import { PostActionsProvider } from '../views/PostActionsContext';
 import { useStreams } from '../views/useStreams';
 import { STATUS_WINDOW_ID } from '../windows/model';
@@ -91,32 +93,36 @@ export function Root(): JSX.Element {
   useStateMirrors(state, ready);
   useStreams();
   const postActions = usePostActionsApi();
+  const lineRunner = useLineRunnerApi();
 
   useLoadFailures();
 
   return (
     <PostActionsProvider actions={postActions.actions}>
-      <Shell
-        header={<AppHeader />}
-        scrollback={<DesktopView />}
-        scrollbackLabel={`Desktop ${String(state.layout.active + 1)}`}
-        statusLine={
-          <StatusBar pendingMedia={attachments.pending.length} pendingKeys={pendingKeys.prefix} />
-        }
-        input={
-          <CommandLine
-            attachments={attachments}
-            pendingKeys={pendingKeys}
-            completion={providers}
-            openComposer={composer.openComposer}
-            registerRunner={postActions.register}
-          />
-        }
-      />
-      {composer.overlay}
-      {overlays}
-      {drop}
-      {attachments.input}
+      <LineRunnerProvider runner={lineRunner.runner}>
+        <Shell
+          header={<AppHeader />}
+          scrollback={<DesktopView />}
+          scrollbackLabel={`Desktop ${String(state.layout.active + 1)}`}
+          statusLine={
+            <StatusBar pendingMedia={attachments.pending.length} pendingKeys={pendingKeys.prefix} />
+          }
+          input={
+            <CommandLine
+              attachments={attachments}
+              pendingKeys={pendingKeys}
+              completion={providers}
+              openComposer={composer.openComposer}
+              registerRunner={postActions.register}
+              registerLineRunner={lineRunner.register}
+            />
+          }
+        />
+        {composer.overlay}
+        {overlays}
+        {drop}
+        {attachments.input}
+      </LineRunnerProvider>
     </PostActionsProvider>
   );
 }

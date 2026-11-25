@@ -1,0 +1,105 @@
+/* The feed editor window: a name field, a table of accounts by sources, the
+   hashtags of each account and the save and delete buttons. Tokens only. */
+
+.editor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space);
+  padding: var(--space);
+  font-family: var(--font-mono);
+  color: var(--color-fg);
+}
+
+.field {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space);
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  padding: 0 var(--space);
+  border: var(--border-width) solid var(--color-border);
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font: inherit;
+}
+
+.input:focus-visible {
+  outline: var(--border-width-focus) solid var(--color-accent);
+}
+
+.table {
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: 0 var(--space);
+  border: var(--border-width) solid var(--color-border);
+  text-align: left;
+}
+
+.cell {
+  text-align: center;
+}
+
+.tagRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space);
+}
+
+.button {
+  padding: 0 var(--space);
+  border: 0;
+  background: none;
+  color: var(--color-fg);
+  font: inherit;
+  cursor: pointer;
+}
+
+.button:focus-visible {
+  background: var(--color-fg);
+  color: var(--color-bg);
+  outline: var(--border-width-focus) solid var(--color-accent);
+}
+
+.button:disabled {
+  color: var(--color-dim);
+  cursor: default;
+}
+
+.button:hover:not(:disabled) {
+  background: var(--color-fg);
+  color: var(--color-bg);
+}
+
+.error {
+  margin: 0;
+  color: var(--color-error);
+}
+
+.notice {
+  margin: 0;
+  padding: 0 var(--space);
+  color: var(--color-dim);
+}

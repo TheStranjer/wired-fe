@@ -51,8 +51,8 @@ describe(feedProvider, () => {
     expect(candidates('/feed r')).toStrictEqual(['rename', 'rm']);
   });
 
-  it('offers feed names for the feed of open, add, rm, rename and delete', () => {
-    for (const sub of ['open', 'add', 'rm', 'rename', 'delete']) {
+  it('offers feed names for the feed of open, edit, add, rm, rename and delete', () => {
+    for (const sub of ['open', 'edit', 'add', 'rm', 'rename', 'delete']) {
       expect(candidates(`/feed ${sub} me`)).toStrictEqual(['Memes']);
     }
   });

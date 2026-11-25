@@ -114,7 +114,7 @@ describe(entryLine, () => {
     { id: 'home', command: 'vsplit', line: '/vsplit home', prefill: false },
     { id: 'composer', command: 'split', line: '/split composer', prefill: false },
     { id: 'feed:f2', command: 'vsplit', line: '/vsplit feed night owls', prefill: false },
-    { id: 'feed-new', command: 'split', line: '/feed new', prefill: true },
+    { id: 'feed-new', command: 'split', line: '/feed new', prefill: false },
     { id: 'tag', command: 'vsplit', line: '/vsplit tag', prefill: true },
     { id: 'search', command: 'split', line: '/split search', prefill: true },
     { id: 'whois', command: 'vsplit', line: '/vsplit whois @', prefill: true },

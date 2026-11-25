@@ -19,6 +19,7 @@ export type WindowKind =
   | 'search'
   | 'composer'
   | 'feed'
+  | 'feedEditor'
   | 'people';
 
 /** What a window shows. */
