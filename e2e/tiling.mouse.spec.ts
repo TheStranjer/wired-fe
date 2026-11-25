@@ -143,6 +143,8 @@ test('a middle-click closes a desktop, and the × on the active one closes that'
   page,
 }) => {
   await signIn(page);
+  await submit(page, '/desktop 2');
+  await submit(page, '/vsplit');
   await submit(page, '/desktop 3');
   const markers = page.getByRole('button', { name: /^Desktop \d/u });
   await expect(markers).toHaveCount(3);

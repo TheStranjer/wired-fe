@@ -61,12 +61,33 @@ describe(goToDesktop, () => {
     expect(goToDesktop(three(), 3).active).toBe(2);
   });
 
-  it('creates empty desktops up to a missing one', () => {
-    const state = goToDesktop(initialDesktops('w1'), 4);
+  it('makes the desktop just past the end when the last one is not empty', () => {
+    const state = goToDesktop(initialDesktops('w1'), 2);
 
-    expect(state.desktops).toHaveLength(4);
-    expect(state.active).toBe(3);
-    expect(state.desktops[2]).toStrictEqual(EMPTY_DESKTOP);
+    expect(state.desktops).toHaveLength(2);
+    expect(state.active).toBe(1);
+    expect(state.desktops[1]).toStrictEqual(EMPTY_DESKTOP);
+  });
+
+  it('refuses the desktop just past an empty last one', () => {
+    const state = three();
+
+    expect(goToDesktop(state, 4)).toBe(state);
+  });
+
+  it('refuses a number further past the end, whatever the last desktop holds', () => {
+    const full = initialDesktops('w1');
+    const empty = three();
+
+    expect(goToDesktop(full, 6)).toBe(full);
+    expect(goToDesktop(empty, empty.desktops.length + 5)).toBe(empty);
+  });
+
+  it('moves between existing empty desktops', () => {
+    const state = goToDesktop(three(), 3);
+
+    expect(state.active).toBe(2);
+    expect(goToDesktop(state, 2).active).toBe(1);
   });
 
   it('ignores numbers that are not 1 or more', () => {
@@ -92,21 +113,46 @@ describe(stepDesktop, () => {
     expect(stepDesktop(initialDesktops('w1'), -1).active).toBe(0);
   });
 
-  it('creates a new empty desktop when going right past the last', () => {
-    const state = stepDesktop(goToDesktop(three(), 3), 1);
+  it('creates a new empty desktop when going right past a last desktop with something on it', () => {
+    const state = stepDesktop(initialDesktops('w1'), 1);
 
-    expect(state.desktops).toHaveLength(4);
-    expect(state.active).toBe(3);
-    expect(state.desktops[3]).toStrictEqual(EMPTY_DESKTOP);
+    expect(state.desktops).toHaveLength(2);
+    expect(state.active).toBe(1);
+    expect(state.desktops[1]).toStrictEqual(EMPTY_DESKTOP);
+  });
+
+  it('makes a desktop past a last desktop that holds only a float', () => {
+    const [first = EMPTY_DESKTOP] = twoPanes().desktops;
+    const floating = { ...first, tree: null, floats: withFloats().floats };
+    const state = { ...twoPanes(), desktops: [floating], active: 0 };
+
+    expect(stepDesktop(state, 1).desktops).toHaveLength(2);
+  });
+
+  it('stays put going right past an empty last desktop', () => {
+    const state = goToDesktop(three(), 3);
+
+    expect(stepDesktop(state, 1)).toBe(state);
+  });
+
+  it('steps between existing empty desktops', () => {
+    expect(stepDesktop(three(), 1).active).toBe(2);
+    expect(stepDesktop(goToDesktop(three(), 3), -1).active).toBe(1);
   });
 });
 
 describe(newDesktop, () => {
-  it('appends an empty desktop and shows it', () => {
-    const state = newDesktop(three());
+  it('appends an empty desktop and shows it when the last one is not empty', () => {
+    const state = newDesktop(twoPanes());
 
-    expect(state.desktops).toHaveLength(4);
-    expect(state.active).toBe(3);
+    expect(state.desktops).toHaveLength(2);
+    expect(state.active).toBe(1);
+  });
+
+  it('is unchanged when the last desktop is empty', () => {
+    const state = three();
+
+    expect(newDesktop(state)).toBe(state);
   });
 });
 

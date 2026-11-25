@@ -1,15 +1,18 @@
 /**
  * `/desktop` (decision 6, alias `/d`; decisions 12 and 18): list the desktops,
- * switch to one by number (creating the missing ones), step to the next or
- * previous one (left of the first wraps to the last, right of the last makes a
- * new one), make a new one, close one (`Ctrl+B &`) or prune the empty ones.
- * Closing drops the desktop's panes but no window: they stay open, hidden. The
- * last desktop is never closed. The
- * layout reducer performs every change; this command reads the layout and
- * hands the matching action over.
+ * switch to one by number, step to the next or previous one (left of the first
+ * wraps to the last), make a new one, close one (`Ctrl+B &`) or prune the empty
+ * ones. A desktop is made (by `new`, `next` on the last, or the number just
+ * past the end) only when the last desktop is not empty; otherwise the command
+ * fails with the reason, so no empty desktops pile up. Closing drops the
+ * desktop's panes but no window: they stay open, hidden. The last desktop is
+ * never closed. The layout reducer performs every change; this command reads
+ * the layout, refuses by the same rule (`appendRefusal`) and hands the matching
+ * action over.
  */
 
 import { wordsOf } from '../../lib/words';
+import { appendRefusal } from '../../windows/desktopAppend';
 import { isEmptyDesktop } from '../../windows/desktopPanes';
 import type { LayoutAction } from '../../windows/layoutAction';
 import type { CommandBinding } from '../bindingTypes';
@@ -64,6 +67,24 @@ function layout(context: CommandContext, action: LayoutAction): CommandOutcome {
   return OK;
 }
 
+/** Show desktop `n` (1-based), or fail with why the append rule refuses it. */
+function goTo(context: CommandContext, n: number): CommandOutcome {
+  const refusal = appendRefusal(context.state.layout, n);
+  return refusal === null ? layout(context, { type: 'goToDesktop', n }) : fail(refusal);
+}
+
+/** Step right, or fail when that would make a desktop past an empty last one. */
+function next(context: CommandContext): CommandOutcome {
+  const refusal = appendRefusal(context.state.layout, context.state.layout.active + 2);
+  return refusal === null ? layout(context, { type: 'stepDesktop', step: 1 }) : fail(refusal);
+}
+
+/** Make a desktop, or fail when the last one is empty. */
+function make(context: CommandContext): CommandOutcome {
+  const refusal = appendRefusal(context.state.layout, context.state.layout.desktops.length + 1);
+  return refusal === null ? layout(context, { type: 'newDesktop' }) : fail(refusal);
+}
+
 /** Print one line per desktop, `*` on the active one. */
 function list(context: CommandContext): CommandOutcome {
   for (const line of desktopLines(context.state.layout, context.windows)) {
@@ -110,13 +131,13 @@ function handle(args: string, context: CommandContext): CommandOutcome {
     return list(context);
   }
   if (word === 'next') {
-    return layout(context, { type: 'stepDesktop', step: 1 });
+    return next(context);
   }
   if (word === 'prev' || word === 'previous') {
     return layout(context, { type: 'stepDesktop', step: -1 });
   }
   if (word === 'new') {
-    return layout(context, { type: 'newDesktop' });
+    return make(context);
   }
   if (word === 'close') {
     return close(context, second);
@@ -125,7 +146,7 @@ function handle(args: string, context: CommandContext): CommandOutcome {
     return prune(context);
   }
   const n = desktopNumber(word, USAGE_ERROR);
-  return typeof n === 'number' ? layout(context, { type: 'goToDesktop', n }) : n;
+  return typeof n === 'number' ? goTo(context, n) : n;
 }
 
 /** The `/desktop` (alias `/d`) definition. */
@@ -134,7 +155,7 @@ export const command: CommandDefinition = {
   aliases: ['d'],
   usage: USAGE,
   summary:
-    'List, switch (Alt+1..9, Alt+[ and Alt+]), create, close (Ctrl+B &, a × or a middle-click on the status line) or prune empty desktops',
+    'List, switch (Alt+1..9, Alt+[ and Alt+]), create (only past a desktop with something on it), close (Ctrl+B &, a × or a middle-click on the status line) or prune empty desktops',
   run: syncRun(handle),
   bindings: BINDINGS,
 };

@@ -31,7 +31,8 @@ describe(statusEntries, () => {
   });
 
   it('lists several desktops and marks the one on screen', () => {
-    const layout = goToDesktop(goToDesktop(layoutOf('status'), 3), 2);
+    const second = splitFocused(goToDesktop(layoutOf('status'), 2), 'row', A);
+    const layout = goToDesktop(goToDesktop(second, 3), 2);
 
     const entries = statusEntries(layout, fourWindows());
 

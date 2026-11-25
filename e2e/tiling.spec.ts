@@ -72,12 +72,11 @@ test('Alt+digit jumps to a desktop and Alt+[ steps back, wrapping from the first
 
 test('Alt+[ from the first desktop lands on the last one', async ({ page }) => {
   await signIn(page);
-  await press(page, 'Alt+3', 'Alt+1');
+  await press(page, 'Alt+2', 'Alt+1');
   await expect(desktopButton(page, 1)).toHaveAttribute('aria-current', 'true');
   await press(page, 'Alt+[');
-  await expect(desktopButton(page, 3)).toHaveAttribute('aria-current', 'true');
-  await expect(desktopButton(page, 3)).toHaveText('[3*]');
-  await expect(desktopButton(page, 2)).toHaveText('[2]');
+  await expect(desktopButton(page, 2)).toHaveAttribute('aria-current', 'true');
+  await expect(desktopButton(page, 2)).toHaveText('[2*]');
   await expect(desktopButton(page, 1)).not.toHaveAttribute('aria-current', 'true');
 });
 

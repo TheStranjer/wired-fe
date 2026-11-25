@@ -11,11 +11,11 @@ import { layoutReducer } from './layoutReducer';
 
 describe(layoutReducer, () => {
   describe('desktop actions', () => {
-    it('goToDesktop shows a desktop, creating missing ones', () => {
-      const state = layoutReducer(initialDesktops('w1'), { type: 'goToDesktop', n: 3 });
+    it('goToDesktop shows a desktop, making the one just past the end', () => {
+      const state = layoutReducer(initialDesktops('w1'), { type: 'goToDesktop', n: 2 });
 
-      expect(state.desktops).toHaveLength(3);
-      expect(state.active).toBe(2);
+      expect(state.desktops).toHaveLength(2);
+      expect(state.active).toBe(1);
     });
 
     it('goToDesktop keeps the state when the desktop is already shown', () => {
