@@ -12,6 +12,7 @@ import { initialAppState } from '../../state/appState';
 import type { AppState } from '../../state/appState';
 import { peopleWindowId, peopleWindowOpen } from '../../state/peopleWindow';
 import { appReducer } from '../../state/reducer';
+import { DEFAULT_SETTINGS, type Settings } from '../../state/settings';
 import { fakeCommandContext } from '../../test/commandContext';
 import { activeDesktop, focusedWindowId } from '../../windows/desktops';
 import { activeWindow, windowId } from '../../windows/model';
@@ -23,9 +24,9 @@ import type { CommandContext } from '../types';
 /** The window the tests watch. */
 const NOTES: WindowRef = { kind: 'search', accountKey: null, target: 'notes' };
 
-/** A session with {@link NOTES} open, shown and focused. */
-function watching(): AppState {
-  return appReducer(initialAppState(), {
+/** A session with {@link NOTES} open, shown and focused, under {@link settings}. */
+function watching(settings: Settings = DEFAULT_SETTINGS): AppState {
+  return appReducer(initialAppState(settings), {
     type: 'windows',
     action: { type: 'open', ref: NOTES, title: 'search/notes' },
   });
@@ -124,6 +125,52 @@ describe('/people', () => {
     });
 
     expect(current()).toBe(inPeople);
+  });
+
+  it('opens the people window where --in says, not in its own split', async () => {
+    const { context, current } = playing(watching());
+
+    await expect(command.run('--in float', context)).resolves.toStrictEqual({ ok: true });
+
+    const { floats, tree } = activeDesktop(current().layout);
+
+    expect(floats.map((float) => float.windowId)).toStrictEqual([
+      peopleWindowId(activeWindow(context.windows)),
+    ]);
+    expect(tree).toMatchObject({ type: 'pane', windowId: windowId(NOTES) });
+  });
+
+  it('opens the people window where the people kind’s own setting says', async () => {
+    const { context, current } = playing(
+      watching({ ...DEFAULT_SETTINGS, openInByKind: { people: 'hidden' } }),
+    );
+
+    await command.run('', context);
+
+    expect(current().windows.windows.map((win) => win.title)).toContain('people:search/notes');
+    expect(current().windows.activeId).toBe(windowId(NOTES));
+    expect(treeOf(current())).toMatchObject({ type: 'pane', windowId: windowId(NOTES) });
+  });
+
+  it('keeps its own split whatever the default placement is', async () => {
+    const { context, current } = playing(watching({ ...DEFAULT_SETTINGS, openIn: 'float' }));
+
+    await command.run('', context);
+
+    expect(treeOf(current())).toMatchObject({ type: 'split', dir: 'row' });
+    expect(activeDesktop(current().layout).floats).toHaveLength(0);
+  });
+
+  it('refuses a placement it does not know, changing nothing', async () => {
+    const state = watching();
+    const { context, current } = playing(state);
+
+    await expect(command.run('--in sideways', context)).resolves.toStrictEqual({
+      ok: false,
+      message: '--in takes here|vsplit|split|float|hidden',
+    });
+
+    expect(current()).toBe(state);
   });
 
   it('is the /people command', () => {

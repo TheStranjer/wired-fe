@@ -41,6 +41,8 @@ const CHOSEN: Settings = {
   feeds: [{ id: 'f1', name: 'main', sources: [{ accountKey: 'a#1', source: 'tag:rust' }] }],
   images: false,
   keyOverrides: OVERRIDES,
+  openIn: 'float',
+  openInByKind: { thread: 'vsplit', dm: 'hidden' },
   streamMade: true,
   theme: 'lain',
 };
@@ -62,6 +64,8 @@ describe('the settings a session starts from', () => {
       feeds: [],
       images: true,
       keyOverrides: [],
+      openIn: 'here',
+      openInByKind: {},
       streamMade: false,
       theme: 'wired',
     });
@@ -78,6 +82,8 @@ describe('the settings a session starts from', () => {
       'feeds',
       'images',
       'keyOverrides',
+      'openIn',
+      'openInByKind',
       'streamMade',
       'theme',
     ]);
@@ -177,6 +183,7 @@ describe('the setting metadata /set reads', () => {
       'effects',
       'expandMedia',
       'images',
+      'openIn',
       'theme',
     ];
 
@@ -200,11 +207,11 @@ describe('the setting metadata /set reads', () => {
     expect(keys).not.toContain('streamMade');
   });
 
-  it('gives the four enum knobs their values', () => {
+  it('gives the five enum knobs their values', () => {
     const enums = SETTING_KEYS.filter((meta) => meta.kind === 'enum');
     const keys = enums.map((meta) => meta.key);
 
-    expect(keys).toStrictEqual(['clockFormat', 'defaultVisibility', 'density', 'theme']);
+    expect(keys).toStrictEqual(['clockFormat', 'defaultVisibility', 'density', 'openIn', 'theme']);
 
     for (const meta of enums) {
       expect(meta.values?.length).toBeGreaterThan(0);

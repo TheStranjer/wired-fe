@@ -14,13 +14,10 @@ import { lookupCommand } from './registry';
 import type { CommandContext, CommandDefinition, CommandOutcome } from './types';
 import { type ViewSpec, VIEW_WORDS, parseViewSpec } from './viewSpec';
 import { type Result, err, ok } from '../lib/result';
+import type { OpenAction } from '../state/placement';
 import type { LayoutAction } from '../windows/layoutAction';
 import { windowId } from '../windows/model';
-import type { WindowsAction } from '../windows/reducer';
 import type { SplitDir } from '../windows/splitTree';
-
-/** The `open` kind of window action: what the open commands ask the window list for. */
-type OpenAction = Extract<WindowsAction, { readonly type: 'open' }>;
 
 /** What the new pane shows: the window's id, and the `open` that creates it when it is not yet open. */
 export type Shown = { readonly windowId: string; readonly open: OpenAction | null };
@@ -55,6 +52,7 @@ async function runOpen(
   const asked: OpenAction[] = [];
   const outcome = await definition.run(spec.args, {
     ...context,
+    placedByCaller: true,
     dispatchWindows: (action) => {
       if (action.type === 'open') {
         asked.push(action);

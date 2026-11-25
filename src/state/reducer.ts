@@ -18,6 +18,7 @@ import { bufferReducer, type BufferAction } from './bufferActions';
 import { type ComposerAction, composerReducer, withLiveComposers } from './composerActions';
 import { type ComposerMediaAction, composerMediaReducer } from './composerMedia';
 import { type RestoreAction, restoreReducer } from './deskRestore';
+import { type PlaceAction, placeReducer } from './placeAction';
 import { type SignInAction, signInReducer } from './signIn';
 import { type SyncAction, syncReducer } from './syncStatus';
 
@@ -27,6 +28,7 @@ export type AppAction =
   | RestoreAction
   | SignInAction
   | SyncAction
+  | PlaceAction
   | BufferAction
   | ComposerAction
   | ComposerMediaAction;
@@ -72,6 +74,9 @@ export function appReducer(state: AppState, action: AppAction): AppState {
   }
   if (action.type === 'sync' || action.type === 'syncUnsupported') {
     return syncReducer(state, action);
+  }
+  if (action.type === 'openPlaced') {
+    return withLiveComposers(placeReducer(state, action));
   }
   return withLiveComposers(coreReducer(state, action));
 }
