@@ -1,15 +1,19 @@
 /**
- * `/help` (decision 6): the command list and the details of one command,
- * generated from the registry so every command documents itself by being
- * defined. No argument prints one line per command in registry order; one
- * argument (a leading slash allowed and ignored, any case, matched against
- * names and aliases) prints that command's usage, summary, aliases and
- * default keys. Words beyond the first are ignored. Only the commands the
- * active account's backend can do are listed (WFE-172); asking about one it
- * cannot do says why.
+ * `/help` (decision 6): the command list, the details of one command and the
+ * help topics, generated from the registry so every command documents itself
+ * by being defined. No argument prints one line per command in registry
+ * order and the topic names; one argument (a leading slash allowed and
+ * ignored, any case) prints a topic of that name (`layout`, `feeds`, `sync`:
+ * src/commands/helpTopics.ts) or else that command's usage, summary, aliases
+ * and default keys, matched against names and aliases. A topic wins over a
+ * command of the same name (`/help sync` is the topic), and lists that command's
+ * summary among its own.
+ * Words beyond the first are ignored. Only the commands the active account's
+ * backend can do are listed (WFE-172); asking about one it cannot do says why.
  */
 
 import { unavailableRefusal } from '../available';
+import { HELP_TOPICS, type HelpTopic, findTopic } from '../helpTopics';
 import { OK, fail, syncRun } from '../outcome';
 import { lookupCommand } from '../registry';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
@@ -37,7 +41,20 @@ function listAll(context: CommandContext): CommandOutcome {
   for (const definition of context.registry.commands) {
     context.print(`  /${definition.name} — ${definition.summary}`);
   }
+  context.print(`Topics: ${HELP_TOPICS.map((topic) => topic.name).join(', ')} (/help <topic>)`);
   context.print(FOOTER);
+  return OK;
+}
+
+/** Print a topic's paragraph, then the summary of each command it covers that this backend has. */
+function showTopic(topic: HelpTopic, context: CommandContext): CommandOutcome {
+  context.print(`${topic.name} — ${topic.text}`);
+  for (const name of topic.commands) {
+    const definition = lookupCommand(context.registry, name);
+    if (definition !== undefined) {
+      context.print(`  /${definition.name} — ${definition.summary}`);
+    }
+  }
   return OK;
 }
 
@@ -72,17 +89,20 @@ function showDetails(definition: CommandDefinition, context: CommandContext): Co
   return OK;
 }
 
-/** Do what one argument text asks: list every command, or detail exactly one. */
+/** Do what one argument text asks: list every command, or detail one command or topic. */
 function handle(args: string, context: CommandContext): CommandOutcome {
   const subject = subjectOf(args);
   if (subject === undefined) {
     return listAll(context);
   }
-  const definition = lookupCommand(context.registry, subject.toLowerCase());
+  const word = subject.toLowerCase();
+  const topic = findTopic(word);
+  if (topic !== undefined) {
+    return showTopic(topic, context);
+  }
+  const definition = lookupCommand(context.registry, word);
   if (definition === undefined) {
-    return fail(
-      unavailableRefusal(context, subject.toLowerCase()) ?? `No such command: /${subject}`,
-    );
+    return fail(unavailableRefusal(context, word) ?? `No such command: /${subject}`);
   }
   return showDetails(definition, context);
 }
@@ -91,7 +111,7 @@ function handle(args: string, context: CommandContext): CommandOutcome {
 export const command: CommandDefinition = {
   name: 'help',
   aliases: ['h'],
-  usage: '/help [command]',
+  usage: '/help [command|topic]',
   summary: 'List commands, or show help for one',
   run: syncRun(handle),
   bindings: [{ mode: 'navigation', chord: '?', args: '' }],

@@ -1,8 +1,72 @@
 # wired-fe
 
-The web frontend for Wired, a fediverse server ([wired-be](https://github.com/TheStranjer/wired-be)). It also works against Mastodon and Pleroma servers. It looks and behaves like a 1990s IRC or Battle.net client: a command line you post from, numbered windows, hotkeys for everything.
+The web frontend for Wired, a fediverse server ([wired-be](https://github.com/TheStranjer/wired-be)). It also works against Mastodon and Pleroma servers. It looks and behaves like the 1990s internet of _Serial Experiments Lain_: a tiling desktop of panes, a terminal-style command line that is always there and never required, and post cards like a modern social client.
 
-What it does today: sign in with OAuth (password login, invite sign-up, password reset, third-party app authorization and external-login consent), read home, local, federated, notification, thread, DM, hashtag, profile and search windows, and post, reply, favourite, boost and follow from the command line, with several accounts at once. Every action is a command, a hotkey and a click.
+What it does today: sign in with OAuth (password login, invite sign-up, password reset, third-party app authorization and external-login consent), read feeds that mix any accounts, and home, local, federated, notification, thread, DM, hashtag, profile and search windows, in any pane or float, and post, reply, favourite, boost and follow with several accounts at once. Every action is a command, a hotkey and a click.
+
+## Using WiredFE
+
+The input line at the bottom takes commands (`/help` lists them, `/help <command>` details one) and plain text, which posts to the focused window; `//text` posts a literal leading slash. `Esc` enters navigation mode, where single keys act; `i` or `Enter` goes back to typing. Everything below is a command, a key and a click; `/help layout`, `/help feeds` and `/help sync` print the short forms. Keys are defaults and rebindable (`/bind`, `/binds`).
+
+### Desktops and panes
+
+A desktop is a tree of panes split side by side or stacked, plus floating windows above it. A pane shows one window; a window can be in several panes or none (it stays in `/win`). Desktops are numbered from 1; the status line shows them as `[1] [2]` with the active one marked.
+
+| To                            | Command                                        | tmux keys (both modes) | vim keys, or others          | Mouse                                                        |
+| ----------------------------- | ---------------------------------------------- | ---------------------- | ---------------------------- | ------------------------------------------------------------ |
+| Split side by side            | `/vsplit [view]`                               | `Ctrl+B %`             | `w v`                        | `┃▾` in the pane's title                                     |
+| Split stacked                 | `/split [view]`                                | `Ctrl+B "`             | `w s`                        | `━▾` in the pane's title                                     |
+| Focus a neighbour             | `/focus left\|right\|up\|down`                 | `Ctrl+B` + arrow       | `w h` `w j` `w k` `w l`      | click the pane                                               |
+| Focus the next pane           | `/focus next`                                  | `Ctrl+B o`             | `w w`                        | click the pane                                               |
+| Close the pane (window stays) | `/unsplit`                                     | `Ctrl+B x`             | `w c`                        | `✕`                                                          |
+| Keep only this pane           | `/only`                                        | `Ctrl+B z`             | `w o`                        |                                                              |
+| Swap with the right-hand pane | `/swap right`                                  |                        | `w x`                        |                                                              |
+| Resize                        | `/resize width\|height +N\|-N\|N`, `/equalize` |                        | `w =` equalizes              | drag a divider; arrows on a focused one; double-click resets |
+| Float the pane                | `/float`                                       | `Ctrl+B f`             | `w f`                        | `⧉▾` then "This pane"                                        |
+| Dock a float                  | `/dock`                                        | `Ctrl+B d`             | `w d`                        | `⊞`, or Shift-drag it onto a pane                            |
+| Go to desktop N               | `/desktop N`                                   | `Ctrl+B 0..9`          | `Alt+1..9` (typing mode)     |                                                              |
+| Next, previous, new desktop   | `/desktop next\|prev\|new`                     | `Ctrl+B n` `p` `c`     | `Alt+]` `Alt+[` (both modes) |                                                              |
+| Move the pane to a desktop    | `/mvd N [follow]`                              |                        |                              |                                                              |
+
+The vim keys work in navigation mode (`Esc` first); the `Ctrl+B` keys work in both modes. `Alt+[` from desktop 1 wraps to the last desktop; `Alt+]` past the last makes a new one. `/vsplit` and `/split` take a view (`/vsplit feed stream`, `/vsplit tag rust`, `/vsplit composer`, `/vsplit win 3`) and show it in the new pane; without one the new pane shows the same window. The `┃▾` and `━▾` menus offer the same views.
+
+### Floats
+
+A float is a window in a free rectangle above the panes, kept inside the viewport. Drag its title bar to move it and the corner grip to resize it; `/float move <dx> <dy>` and `/float size <dw> <dh>` nudge it in percent of the viewport, and `/raise` brings it to the top. `/float <view>` (or `⧉▾` then a view) opens a view in a new float. `/pop [label]` (`p`, or double-click a post) pops a post's thread out into one. Closing a float leaves its window open as a hidden buffer.
+
+### Feeds
+
+A feed merges sources from any signed-in accounts into one stream, newest first; a post several accounts see shows once. The first run makes a feed named `stream` (home, mentions, DMs and notifications of every account) and opens it alone in desktop 1. While you have not edited it, accounts you sign in later join it.
+
+- `/feed` lists feeds, `/feed <name>` opens one (`/vsplit feed <name>` puts it in a new pane).
+- `/feed new <name> <source>…`, `add`, `rm`, `rename` and `delete` change feeds. A source is `<who>:<kind>`: `who` is `*` (every account) or `@handle`; `kind` is `home`, `mentions`, `dms`, `notifications`, `local`, `federated` or `tag:<name>`, so `/feed add stream @me@x.example:tag:rust`.
+- The feed editor is the GUI for the same commands: `/feed edit <name>`, `/feed new` with no arguments, or the `✎` button in a feed's title.
+- Commands acting on a post (`/fav a3`) act as the account that fetched it.
+
+### Cards and lines
+
+Posts draw as cards (avatar, name, body, inline images, an action bar) or as IRC lines. `/set density cards|lines`, `/set avatars on|off` and `/set images on|off` choose for every window; `/display density lines`, `/display avatars off`, `/display images off` override this window only, `/display reset` clears the overrides, and `◐▾` in the title bar does the same. Images are never autoplayed, and sensitive media stays covered until opened. Every post has a short label (`[a3]`) that commands take: `/fav a3`, `/thread a3`, `/pop a3`.
+
+### The composer pane and replies
+
+`/compose [text]` (`Ctrl+E`, or `c` in navigation mode) opens a composer window, floating over the feed by default; plain text on the input line posts to the focused window. `/reply a3` with no text (`Shift+r`, or the card's reply button) opens a composer bound to the post, with the mentions, audience and content warning filled in and the parent quoted above the textarea; it posts as the account that fetched the post and closes its pane after sending. `/reply a3 some text` posts at once, and `r` fills the input line with `/reply a3 ` for you to finish.
+
+### Placement
+
+Commands that open a window (`/home`, `/tag`, `/thread`, `/whois`, `/compose`, …) accept `--in here|vsplit|split|float|hidden`. Without it the setting decides: `/set openIn <placement>` for everything (default `here`), `/set openIn.thread vsplit` for one kind (`default` takes it back), `/set replyIn <placement>` for reply composers (default `split`). A composer defaults to `float` and `/people` to a split on the right. On a click that opens a window (a nick, hashtag or mention, a notification) a plain click follows the setting, Ctrl/Cmd+click floats it, Shift+click opens a side-by-side split and middle-click opens it hidden. `/people` (`Shift+p`) toggles the list of who is in the focused window.
+
+### Sync
+
+Your desk (windows, desktops, floats, feeds, settings; never post buffers) is saved in the browser per device class, `desktop` (Windows, macOS, Linux, ChromeOS) or `mobile` (Android, iOS, iPadOS), and synced through the settings store of one account, so another browser of the same class finds it as you left it. The newer copy wins; a change is pushed three seconds after the last one.
+
+- `/sync` shows what is on, which account holds the desk, and the last pull, push and error. `/sync primary <handle>` chooses the primary, `/sync fallback add|rm|up <handle>` orders the fallbacks (the first signed-in account with a working token whose server has the store is used), `/sync now` pulls and pushes at once, `/sync off` and `/sync on` switch it.
+- The store is `/api/v1/pleroma/settings/wired-fe`, which Wired, Pleroma and Akkoma serve. **Mastodon has no such store**: an account there keeps the desk on this device only, and with only Mastodon accounts nothing syncs.
+- The server caps the whole store at 1 MiB, so the synced copy is limited to 384 KiB per device class. Over that, the synced copy leaves out windows no pane shows, then empty desktops, then key overrides past 200, and warns; this device keeps everything. If that is not enough, sync pauses with a warning.
+- The status line shows `⇅` while a push waits and `⇅!` after an error.
+
+### Mobile mode
+
+On a phone or tablet (detected from the browser; Macs with a touch screen count as iPads) the layout model is the same, but one pane or float shows at a time, full screen, with no dividers and no float dragging. The title bar carries a switcher `‹ 2/4 ›`: the arrows step through the panes (as `/focus next` and `/focus prev`), and the counter opens a menu to jump to one. The mobile desk is saved and synced separately from the desktop one.
 
 ## Requirements
 
