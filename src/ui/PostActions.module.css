@@ -1,0 +1,38 @@
+/* The action bar of a post card: a row of small framed buttons in the dim card
+   colour. A pressed toggle (the viewer's own boost, favourite or bookmark) is
+   inverted in the accent colour, so it never rests on colour alone: the glyph
+   fills and aria-pressed says it too. */
+
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space);
+  margin-block-start: var(--space);
+}
+
+.button {
+  padding: 0 var(--space);
+  border: var(--border-width) solid var(--color-dim);
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font: inherit;
+  cursor: pointer;
+}
+
+.button[data-count]::after {
+  content: ' ' attr(data-count);
+}
+
+.button:hover {
+  border-color: var(--color-border);
+}
+
+.button:focus-visible {
+  outline: var(--border-width-focus) solid var(--color-accent);
+}
+
+.on {
+  background: var(--color-accent);
+  color: var(--color-bg);
+}
