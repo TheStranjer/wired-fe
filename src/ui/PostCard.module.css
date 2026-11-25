@@ -1,0 +1,67 @@
+/* One post as a card. The frame is dim so the pane borders stay the loudest
+   lime; the selected card gets a heavier left rule and its label inverted, so
+   selection never rests on colour alone. Who boosted it and who it answers
+   are metadata, dimmed like the label. */
+
+.card {
+  display: block;
+  box-sizing: border-box;
+  margin-block-end: var(--space);
+  border: var(--border-width) solid var(--color-dim);
+  padding: var(--space);
+  overflow-wrap: anywhere;
+}
+
+.selected {
+  border-inline-start: calc(var(--border-width-focus) * 2) solid var(--color-fg);
+  background: var(--color-bar-bg);
+}
+
+.head {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space);
+}
+
+.label {
+  color: var(--color-dim);
+}
+
+.labelSelected {
+  background: var(--color-fg);
+  color: var(--color-bg);
+}
+
+.boost {
+  display: flex;
+  align-items: center;
+  gap: var(--space);
+  color: var(--color-dim);
+}
+
+.main {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space);
+}
+
+.text {
+  flex: 1;
+  min-width: 0;
+}
+
+.name {
+  font-weight: bold;
+}
+
+.handle {
+  color: var(--color-dim);
+}
+
+.reply {
+  color: var(--color-dim);
+}
+
+.body {
+  white-space: pre-wrap;
+}
