@@ -20,6 +20,7 @@ import {
 import type { DesktopsState } from './desktops';
 import type { DesktopAction, FloatAction, LayoutAction, PaneAction } from './layoutAction';
 import { floatReducer, treeReducer } from './layoutTreeReducer';
+import { moveFocus } from './paneFocus';
 
 const DESKTOP_TYPES: ReadonlySet<string> = new Set<DesktopAction['type']>([
   'goToDesktop',
@@ -31,6 +32,7 @@ const DESKTOP_TYPES: ReadonlySet<string> = new Set<DesktopAction['type']>([
 
 const PANE_TYPES: ReadonlySet<string> = new Set<PaneAction['type']>([
   'focusPane',
+  'focusStep',
   'split',
   'closePane',
   'float',
@@ -64,6 +66,8 @@ function paneReducer(state: DesktopsState, action: PaneAction): DesktopsState {
   switch (action.type) {
     case 'focusPane':
       return focusPane(state, action.paneId);
+    case 'focusStep':
+      return moveFocus(state, action.step);
     case 'split':
       return splitFocused(state, action.dir, action.windowId);
     case 'closePane':
