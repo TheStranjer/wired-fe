@@ -75,6 +75,7 @@ function targetless(accountKeyOf: string | null): WindowState {
     title: '#',
     unread: 0,
     highlight: false,
+    display: {},
   };
 }
 

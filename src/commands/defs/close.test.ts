@@ -16,6 +16,7 @@ const HOME: WindowState = {
   title: 'home',
   unread: 0,
   highlight: false,
+  display: {},
 };
 
 /** The status window plus a home window, with the home window active. */

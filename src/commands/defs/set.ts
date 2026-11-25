@@ -24,21 +24,12 @@ import {
   THEMES,
   VISIBILITIES,
 } from '../../state/settings';
+import { BOOLEAN_MEANINGS, BOOLEAN_WORDS, shown } from '../booleanWords';
 import { OK, fail, syncRun } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** The command's one form. */
 const USAGE = '/set [key [value]]';
-
-/** The words a boolean knob takes and the value each means. */
-const MEANINGS: ReadonlyMap<string, boolean> = new Map([
-  ['on', true],
-  ['true', true],
-  ['yes', true],
-  ['off', false],
-  ['false', false],
-  ['no', false],
-]);
 
 /** One knob turned: the patch for the reducer and the word that prints. */
 type Turn = { readonly patch: Partial<Settings>; readonly word: string };
@@ -47,14 +38,6 @@ type Turn = { readonly patch: Partial<Settings>; readonly word: string };
 function isOneOf<T extends string>(values: readonly T[], raw: string): raw is T {
   const words: readonly string[] = values;
   return words.includes(raw);
-}
-
-/** How a value reads: booleans say on and off, the rest speak for themselves. */
-function shown(value: string | boolean): string {
-  if (typeof value === 'boolean') {
-    return value ? 'on' : 'off';
-  }
-  return value;
 }
 
 /** The listed line of {@link meta}, taken from {@link context}'s state. */
@@ -84,7 +67,7 @@ function booleanPatch(key: BooleanKey, value: boolean): Partial<Settings> {
 
 /** Turn a boolean knob: the word's meaning becomes the patch, printed as on or off. */
 function booleanTurn(key: BooleanKey, raw: string): Turn | null {
-  const value = MEANINGS.get(raw);
+  const value = BOOLEAN_MEANINGS.get(raw);
   if (value === undefined) {
     return null;
   }
@@ -140,7 +123,7 @@ function setOne(context: CommandContext, meta: SettingKey, raw: string): Command
   const turned = turnOf(meta, raw);
   if (turned === null) {
     const words = wordsFor(context, meta);
-    const list = words === undefined ? 'on|off|true|false|yes|no' : words.join('|');
+    const list = words === undefined ? BOOLEAN_WORDS : words.join('|');
     return fail(`${meta.key} takes ${list}`);
   }
   context.dispatch({ type: 'settings', settings: turned.patch });

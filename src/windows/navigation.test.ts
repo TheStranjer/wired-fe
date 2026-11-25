@@ -24,7 +24,7 @@ function ref(
 
 /** The clean window `open` would make for a view. */
 function windowFor(view: WindowRef, title: string = view.kind): WindowState {
-  return { id: windowId(view), ref: view, title, unread: 0, highlight: false };
+  return { id: windowId(view), ref: view, title, unread: 0, highlight: false, display: {} };
 }
 
 /** The window at a position in a list the test built itself. */

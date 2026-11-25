@@ -30,8 +30,12 @@ const WORD_SEPARATOR = ' ';
 export type Provider = {
   /** True when this provider handles a word with this prefix character, e.g. '@', ':', '#', '/'. */
   readonly accepts: (word: string, isFirstWord: boolean, line?: string) => boolean;
-  /** Every full replacement word for {@link word}, sorted; empty when none match. */
-  readonly candidates: (word: string) => readonly string[];
+  /**
+   * Every full replacement word for {@link word}, sorted; empty when none
+   * match. {@link before} is the line's text in front of the word, for
+   * providers whose words depend on the ones already typed.
+   */
+  readonly candidates: (word: string, before?: string) => readonly string[];
 };
 
 /**
@@ -114,7 +118,7 @@ export function startCompletion(
   if (chosen === undefined) {
     return null;
   }
-  const candidates = chosen.candidates(word);
+  const candidates = chosen.candidates(word, text.slice(0, wordStart));
   const first = candidates[0];
   if (first === undefined) {
     return null;
