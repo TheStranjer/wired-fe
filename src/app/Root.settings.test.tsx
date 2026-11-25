@@ -51,10 +51,13 @@ describe('the shell persisting settings', () => {
 
     expect(echo).toBeInTheDocument();
     expect(settingsStore.get('settings', SettingsSchema)).toStrictEqual({
+      avatars: true,
       clockFormat: '24h',
       defaultVisibility: 'public',
+      density: 'cards',
       effects: true,
       expandMedia: false,
+      images: true,
       keyOverrides: [],
       theme: 'wired',
     });

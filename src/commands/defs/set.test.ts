@@ -5,7 +5,8 @@
  * dispatches the settings action and prints `key = value` back — booleans
  * normalize on/off/true/false/yes/no to on and off; and a refused word lists
  * the words that would have passed. Nothing a refusal touches reaches state.
- * The theme knob's own turning and listing lives in ./set.theme.test.ts.
+ * The theme knob's own turning and listing lives in ./set.theme.test.ts, the
+ * density, avatars and images knobs' in ./set.display.test.ts.
  */
 import { describe, expect, it, vi, type Mock } from 'vitest';
 
@@ -15,12 +16,15 @@ import { DEFAULT_SETTINGS, type Settings } from '../../state/settings';
 import { fakeCommandContext } from '../../test/commandContext';
 import type { CommandContext } from '../types';
 
-/** The four listing lines as a default session reads them. */
+/** The listing lines as a default session reads them. */
 const LINES = [
+  '  avatars = on  — Show author avatars on posts',
   '  clockFormat = 24h  — How timestamps print: 24-hour or 12-hour',
   '  defaultVisibility = public  — The audience new posts aim at by default',
+  '  density = cards  — How posts render: as cards or as IRC lines',
   '  effects = off  — The CRT/glitch effects (they never flash)',
   '  expandMedia = off  — Media behind a content warning starts open',
+  '  images = on  — Show attachments inline instead of [IMG …] lines',
   '  theme = wired  — The colors the shell is painted in',
 ];
 
@@ -61,10 +65,13 @@ describe('/set', () => {
     await command.run('', context);
 
     expect(print.mock.calls).toStrictEqual([
+      [LINES[0]],
       ['  clockFormat = 12h  — How timestamps print: 24-hour or 12-hour'],
-      [LINES[1]],
-      ['  effects = on  — The CRT/glitch effects (they never flash)'],
+      [LINES[2]],
       [LINES[3]],
+      ['  effects = on  — The CRT/glitch effects (they never flash)'],
+      [LINES[5]],
+      [LINES[6]],
       ['  theme = lain  — The colors the shell is painted in'],
     ]);
   });
@@ -76,7 +83,7 @@ describe('/set', () => {
 
     expect(outcome).toStrictEqual({ ok: true });
     expect(print).toHaveBeenCalledTimes(1);
-    expect(print).toHaveBeenCalledWith(LINES[1]);
+    expect(print).toHaveBeenCalledWith(LINES[2]);
     expect(context.dispatch).not.toHaveBeenCalled();
   });
 

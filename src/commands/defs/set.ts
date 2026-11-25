@@ -17,6 +17,7 @@ import { availableVisibilities } from '../../capabilities/visibilities';
 import { capabilitiesFor } from '../../state/selectors';
 import {
   CLOCK_FORMATS,
+  DENSITIES,
   SETTING_KEYS,
   type SettingKey,
   type Settings,
@@ -62,7 +63,24 @@ function listed(context: CommandContext, meta: SettingKey): string {
 }
 
 /** The listed keys whose value is a word, and the ones whose value is a switch. */
-type BooleanKey = 'effects' | 'expandMedia';
+type BooleanKey = 'avatars' | 'effects' | 'expandMedia' | 'images';
+
+/** The listed keys whose value is one of a few words. */
+type EnumKey = 'clockFormat' | 'defaultVisibility' | 'density' | 'theme';
+
+/** The patch turning the boolean knob {@link key} to {@link value}. */
+function booleanPatch(key: BooleanKey, value: boolean): Partial<Settings> {
+  switch (key) {
+    case 'avatars':
+      return { avatars: value };
+    case 'effects':
+      return { effects: value };
+    case 'expandMedia':
+      return { expandMedia: value };
+    case 'images':
+      return { images: value };
+  }
+}
 
 /** Turn a boolean knob: the word's meaning becomes the patch, printed as on or off. */
 function booleanTurn(key: BooleanKey, raw: string): Turn | null {
@@ -70,23 +88,35 @@ function booleanTurn(key: BooleanKey, raw: string): Turn | null {
   if (value === undefined) {
     return null;
   }
-  return {
-    patch: key === 'effects' ? { effects: value } : { expandMedia: value },
-    word: shown(value),
-  };
+  return { patch: booleanPatch(key, value), word: shown(value) };
+}
+
+/** Turn an enum knob: the word, if the knob lists it, becomes the patch and prints as itself. */
+function enumTurn(key: EnumKey, raw: string): Turn | null {
+  switch (key) {
+    case 'clockFormat':
+      return isOneOf(CLOCK_FORMATS, raw) ? { patch: { clockFormat: raw }, word: raw } : null;
+    case 'defaultVisibility':
+      return isOneOf(VISIBILITIES, raw) ? { patch: { defaultVisibility: raw }, word: raw } : null;
+    case 'density':
+      return isOneOf(DENSITIES, raw) ? { patch: { density: raw }, word: raw } : null;
+    case 'theme':
+      return isOneOf(THEMES, raw) ? { patch: { theme: raw }, word: raw } : null;
+  }
 }
 
 /** Turn {@link meta} to {@link raw}: the patch and print word, or null to refuse. */
 function turnOf(meta: SettingKey, raw: string): Turn | null {
   switch (meta.key) {
     case 'clockFormat':
-      return isOneOf(CLOCK_FORMATS, raw) ? { patch: { clockFormat: raw }, word: raw } : null;
     case 'defaultVisibility':
-      return isOneOf(VISIBILITIES, raw) ? { patch: { defaultVisibility: raw }, word: raw } : null;
+    case 'density':
     case 'theme':
-      return isOneOf(THEMES, raw) ? { patch: { theme: raw }, word: raw } : null;
+      return enumTurn(meta.key, raw);
+    case 'avatars':
     case 'effects':
     case 'expandMedia':
+    case 'images':
       return booleanTurn(meta.key, raw);
   }
 }
