@@ -96,7 +96,24 @@ export function paneMenuEntries(registry: Registry, feeds: Feeds): readonly Pane
   return [...offered(registry, HEAD), ...feedEntries(registry, feeds), ...offered(registry, TAIL)];
 }
 
+/** The commands whose menus share the view list: the two splits and the pop-out. */
+export type ViewCommand = 'vsplit' | 'split' | 'float';
+
+/** The pop-out menu's first row: float the pane itself (`/float`). */
+const THIS_PANE: PaneMenuEntry = {
+  id: 'this',
+  label: 'This pane',
+  text: '',
+  literal: false,
+  prefill: false,
+};
+
+/** The rows of the pop-out menu: `This pane`, then {@link entries} less `Same window`, which `This pane` replaces. */
+export function popOutEntries(entries: readonly PaneMenuEntry[]): readonly PaneMenuEntry[] {
+  return [THIS_PANE, ...entries.filter((entry) => entry.id !== 'same')];
+}
+
 /** The command line {@link entry} runs or fills when chosen from the `/`{@link command} button. */
-export function entryLine(entry: PaneMenuEntry, command: 'vsplit' | 'split'): string {
+export function entryLine(entry: PaneMenuEntry, command: ViewCommand): string {
   return entry.literal ? entry.text : `/${command} ${entry.text}`.trim();
 }

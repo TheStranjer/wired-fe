@@ -4,27 +4,31 @@
  * the command line lends the views, exactly as a hotkey or a typed command
  * would. `┃▾` and `━▾` split that pane side by side or stacked with a view
  * chosen from a menu (`/vsplit <view>`, `/split <view>`); `◐▾` sets how its
- * posts are drawn; `✕` closes it. Later tickets add their float button here.
+ * posts are drawn; `✕` closes it. A tree pane also has `⧉▾`, which pops it
+ * (`This pane`) or a view out into a float (`/float [view]`); a float has `⊞`
+ * (`/dock`) instead, and no split buttons (WFE-230).
  */
 import { useCallback, useMemo } from 'react';
 import type { JSX } from 'react';
 
 import { displayItems, displayLine, showsPosts } from './displayMenu';
 import styles from './PaneActions.module.css';
-import { entryLine, paneMenuEntries } from './paneMenu';
-import type { PaneMenuEntry } from './paneMenu';
+import { entryLine, paneMenuEntries, popOutEntries } from './paneMenu';
+import type { PaneMenuEntry, ViewCommand } from './paneMenu';
 import { useAvailableRegistry } from './useAvailableRegistry';
 import { useAppDispatch, useAppState } from '../state/StateContext';
 import { MenuButton } from '../ui/MenuButton';
 import type { PostActionLine } from '../ui/postActionTypes';
 import { usePostActions } from '../views/PostActionsContext';
+import { activeDesktop } from '../windows/desktops';
+import { findFloat } from '../windows/floats';
 import type { WindowState } from '../windows/model';
 
-/** One of the two split buttons: its glyph, accessible name and command. */
+/** One of the view-menu buttons: its glyph, accessible name and command. */
 type SplitButton = {
   readonly glyph: string;
   readonly label: string;
-  readonly command: 'vsplit' | 'split';
+  readonly command: ViewCommand;
 };
 
 /** The split buttons, side by side first. */
@@ -32,6 +36,9 @@ const SPLIT_BUTTONS: readonly SplitButton[] = [
   { glyph: '┃▾', label: 'Split side by side', command: 'vsplit' },
   { glyph: '━▾', label: 'Split stacked', command: 'split' },
 ];
+
+/** The pop-out button, which takes `This pane` as well as the views. */
+const POP_OUT: SplitButton = { glyph: '⧉▾', label: 'Pop out', command: 'float' };
 
 /** A function that focuses pane `paneId`, then runs or fills a command line for it. */
 function useRunOnPane(paneId: string): (line: PostActionLine) => void {
@@ -67,7 +74,7 @@ function DisplayMenu(props: { readonly paneId: string; readonly win: WindowState
   );
 }
 
-/** One split button over the shared {@link entries}. */
+/** One view-menu button over {@link entries}. */
 function SplitMenu(props: {
   readonly button: SplitButton;
   readonly entries: readonly PaneMenuEntry[];
@@ -82,28 +89,60 @@ function SplitMenu(props: {
   return <MenuButton label={button.label} glyph={button.glyph} items={entries} onSelect={select} />;
 }
 
+/** The `⊞` button of a float: puts it back in the tree. */
+function DockButton(props: { readonly paneId: string; readonly win: WindowState }): JSX.Element {
+  const { paneId, win } = props;
+  const runOnPane = useRunOnPane(paneId);
+  return (
+    <button
+      type="button"
+      className={styles['button']}
+      aria-label={`Dock ${win.title}`}
+      onClick={() => {
+        runOnPane({ line: '/dock', prefill: false });
+      }}
+    >
+      ⊞
+    </button>
+  );
+}
+
+/** The split and pop-out buttons of a tree pane. */
+function TreeButtons(props: { readonly paneId: string }): JSX.Element {
+  const registry = useAvailableRegistry();
+  const { settings } = useAppState();
+  const runOnPane = useRunOnPane(props.paneId);
+  const entries = useMemo(
+    () => paneMenuEntries(registry, settings.feeds),
+    [registry, settings.feeds],
+  );
+  const popOut = useMemo(() => popOutEntries(entries), [entries]);
+  return (
+    <>
+      {SPLIT_BUTTONS.map((button) => (
+        <SplitMenu key={button.command} button={button} entries={entries} runOnPane={runOnPane} />
+      ))}
+      <SplitMenu button={POP_OUT} entries={popOut} runOnPane={runOnPane} />
+    </>
+  );
+}
+
 /** The title-bar buttons of the pane `paneId`, which shows the window `win`. */
 export function PaneActions(props: {
   readonly paneId: string;
   readonly win: WindowState;
 }): JSX.Element {
   const { paneId, win } = props;
-  const registry = useAvailableRegistry();
-  const { settings } = useAppState();
+  const { layout } = useAppState();
+  const floating = findFloat(activeDesktop(layout).floats, paneId) !== null;
   const runOnPane = useRunOnPane(paneId);
-  const entries = useMemo(
-    () => paneMenuEntries(registry, settings.feeds),
-    [registry, settings.feeds],
-  );
   const close = useCallback(() => {
     runOnPane({ line: '/unsplit', prefill: false });
   }, [runOnPane]);
   return (
     <>
       {showsPosts(win) ? <DisplayMenu paneId={paneId} win={win} /> : null}
-      {SPLIT_BUTTONS.map((button) => (
-        <SplitMenu key={button.command} button={button} entries={entries} runOnPane={runOnPane} />
-      ))}
+      {floating ? <DockButton paneId={paneId} win={win} /> : <TreeButtons paneId={paneId} />}
       <button
         type="button"
         className={styles['button']}

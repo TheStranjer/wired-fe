@@ -4,7 +4,7 @@
  */
 import { describe, expect, it } from 'vitest';
 
-import { entryLine, paneMenuEntries } from './paneMenu';
+import { entryLine, paneMenuEntries, popOutEntries } from './paneMenu';
 import type { PaneMenuEntry } from './paneMenu';
 import { OK } from '../commands/outcome';
 import { buildRegistry } from '../commands/registry';
@@ -122,10 +122,23 @@ describe(entryLine, () => {
     { id: 'people', command: 'vsplit', line: '/people', prefill: false },
     { id: 'people', command: 'split', line: '/people', prefill: false },
     { id: 'win', command: 'vsplit', line: '/vsplit win', prefill: true },
+    { id: 'home', command: 'float', line: '/float home', prefill: false },
+    { id: 'tag', command: 'float', line: '/float tag', prefill: true },
   ] as const)('$id from $command is $line', ({ id, command, line, prefill }) => {
     const found = entry(entries, id);
 
     expect(entryLine(found, command)).toBe(line);
     expect(found.prefill).toBe(prefill);
+  });
+});
+
+describe(popOutEntries, () => {
+  it('puts This pane, which runs /float, where Same window was', () => {
+    const popped = popOutEntries(paneMenuEntries(ALL, []));
+
+    expect(popped.map((item) => item.id)).not.toContain('same');
+    expect(popped[0]?.label).toBe('This pane');
+    expect(popped[0] === undefined ? '' : entryLine(popped[0], 'float')).toBe('/float');
+    expect(popped.map((item) => item.id)).toContain('home');
   });
 });
