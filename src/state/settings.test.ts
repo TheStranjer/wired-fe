@@ -38,6 +38,7 @@ const CHOSEN: Settings = {
   density: 'lines',
   effects: true,
   expandMedia: true,
+  feeds: [{ id: 'f1', name: 'main', sources: [{ accountKey: 'a#1', source: 'tag:rust' }] }],
   images: false,
   keyOverrides: OVERRIDES,
   theme: 'lain',
@@ -57,6 +58,7 @@ describe('the settings a session starts from', () => {
       density: 'cards',
       effects: false,
       expandMedia: false,
+      feeds: [],
       images: true,
       keyOverrides: [],
       theme: 'wired',
@@ -71,6 +73,7 @@ describe('the settings a session starts from', () => {
       'density',
       'effects',
       'expandMedia',
+      'feeds',
       'images',
       'keyOverrides',
       'theme',
@@ -110,6 +113,14 @@ describe('the stored settings schema', () => {
 
   it('reads the reader’s own key overrides back, bound and unbound', () => {
     expect(parse({ keyOverrides: OVERRIDES }).keyOverrides).toStrictEqual(OVERRIDES);
+  });
+
+  it('reads the saved feeds back, and defaults them to none', () => {
+    expect(parse({ feeds: CHOSEN.feeds }).feeds).toStrictEqual(CHOSEN.feeds);
+    expect(parse({}).feeds).toStrictEqual([]);
+    expect(
+      v.safeParse(SettingsSchema, { feeds: [{ id: 'f', name: '', sources: [] }] }).success,
+    ).toBe(false);
   });
 
   it('defaults the overrides to none', () => {
@@ -170,6 +181,8 @@ describe('the setting metadata /set reads', () => {
 
     expect(Object.hasOwn(DEFAULT_SETTINGS, 'keyOverrides')).toBe(true);
     expect(keys).not.toContain('keyOverrides');
+    expect(Object.hasOwn(DEFAULT_SETTINGS, 'feeds')).toBe(true);
+    expect(keys).not.toContain('feeds');
   });
 
   it('gives the four enum knobs their values', () => {

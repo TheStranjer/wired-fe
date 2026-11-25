@@ -117,6 +117,7 @@ describe(mergedSettings, () => {
       density: 'cards',
       effects: true,
       expandMedia: false,
+      feeds: [],
       images: true,
       keyOverrides: [],
       theme: 'wired',
@@ -154,6 +155,15 @@ describe(mergedSettings, () => {
 
     expect(mergedSettings(DEFAULT_SETTINGS, { keyOverrides }).keyOverrides).toStrictEqual(
       keyOverrides,
+    );
+  });
+
+  it('takes a fresh list of saved feeds, and keeps the very same record for the same list', () => {
+    const feeds = [{ id: 'f1', name: 'main', sources: [] }];
+
+    expect(mergedSettings(DEFAULT_SETTINGS, { feeds }).feeds).toStrictEqual(feeds);
+    expect(mergedSettings(DEFAULT_SETTINGS, { feeds: DEFAULT_SETTINGS.feeds })).toBe(
+      DEFAULT_SETTINGS,
     );
   });
 

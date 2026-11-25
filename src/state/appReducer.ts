@@ -122,6 +122,28 @@ export function putProfile(
   return new Map(profiles).set(profile.origin, profile);
 }
 
+/** Whether the knobs that change how things look are the same in both. */
+function sameLook(a: Settings, b: Settings): boolean {
+  return (
+    a.avatars === b.avatars &&
+    a.clockFormat === b.clockFormat &&
+    a.density === b.density &&
+    a.images === b.images &&
+    a.theme === b.theme
+  );
+}
+
+/** Whether the knobs that change what is stored or shown are the same in both. */
+function sameBehaviour(a: Settings, b: Settings): boolean {
+  return (
+    a.defaultVisibility === b.defaultVisibility &&
+    a.effects === b.effects &&
+    a.expandMedia === b.expandMedia &&
+    a.feeds === b.feeds &&
+    a.keyOverrides === b.keyOverrides
+  );
+}
+
 /**
  * The settings with {@link patch} laid over {@link current} — a patch only
  * names the knobs it turns. The current object when the patch asked for what
@@ -129,18 +151,5 @@ export function putProfile(
  */
 export function mergedSettings(current: Settings, patch: Partial<Settings>): Settings {
   const merged: Settings = { ...current, ...patch };
-  if (
-    merged.avatars === current.avatars &&
-    merged.clockFormat === current.clockFormat &&
-    merged.defaultVisibility === current.defaultVisibility &&
-    merged.density === current.density &&
-    merged.effects === current.effects &&
-    merged.expandMedia === current.expandMedia &&
-    merged.images === current.images &&
-    merged.keyOverrides === current.keyOverrides &&
-    merged.theme === current.theme
-  ) {
-    return current;
-  }
-  return merged;
+  return sameLook(merged, current) && sameBehaviour(merged, current) ? current : merged;
 }

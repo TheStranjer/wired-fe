@@ -183,6 +183,7 @@ describe('the settings', () => {
       density: 'cards',
       effects: false,
       expandMedia: true,
+      feeds: [],
       images: true,
       keyOverrides: [],
       theme: 'wired',

@@ -26,6 +26,7 @@ const CHOSEN: Settings = {
   density: 'lines',
   effects: true,
   expandMedia: false,
+  feeds: [{ id: 'f1', name: 'main', sources: [{ accountKey: 'a#1', source: 'home' }] }],
   images: false,
   keyOverrides: [{ mode: 'navigation', chord: 'Ctrl+e', line: '/fav' }],
   theme: 'bnet',
