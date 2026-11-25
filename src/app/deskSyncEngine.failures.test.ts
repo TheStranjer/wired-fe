@@ -64,6 +64,7 @@ describe('desk sync failures', () => {
       .mockResolvedValueOnce(err({ kind: 'forbidden' }))
       .mockResolvedValueOnce(err({ kind: 'forbidden' }))
       .mockResolvedValueOnce(err({ kind: 'tooLarge' }))
+      .mockResolvedValueOnce(err({ kind: 'tooLarge' }))
       .mockResolvedValue(ok({}));
 
     edit(world, TO_DESKTOP_2, 10_000);

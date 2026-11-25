@@ -9,34 +9,18 @@
  * the sync goes quiet. Nothing here logs a token or the contents of a desk.
  */
 import { readStamp, writeStamp } from './deskStamp';
+import { fail } from './deskSyncFail';
 import { type SyncDeps, report, say, target, warnOnce } from './deskSyncKit';
-import type { StoredAccount } from '../accounts/accountStore';
-import { forgetIfUnsupported } from '../capabilities/forgetIfUnsupported';
-import { readSettings, writeSettings } from '../features/sync/settingsAccess';
-import type { SettingsStoreError } from '../features/sync/settingsAccess';
+import { send } from './deskSyncSend';
+import { readSettings } from '../features/sync/settingsAccess';
 import {
   type SyncDecision,
   type SyncSnapshot,
   decideSync,
   deskBody,
   fromSyncSnapshot,
-  syncPatch,
-  toSyncSnapshot,
 } from '../state/deskSync';
-import { INVALID_REMOTE_TEXT, describeSyncError } from '../state/syncError';
-
-/** Handles a refusal of {@link account}'s server: quiet for a missing store, a warning once per kind otherwise. */
-function fail(deps: SyncDeps, account: StoredAccount, error: SettingsStoreError): void {
-  const text = describeSyncError(error);
-  if (error.kind === 'unsupported') {
-    forgetIfUnsupported(deps.profiles, account.origin, error);
-    deps.dispatch({ type: 'syncUnsupported', origin: account.origin });
-    report(deps, { failed: false, lastError: text });
-    return;
-  }
-  warnOnce(deps, error.kind, text);
-  report(deps, { failed: true, lastError: text });
-}
+import { INVALID_REMOTE_TEXT } from '../state/syncError';
 
 /** Puts the server's {@link snapshot} in place of the desk and the settings, and remembers what was put. */
 function apply(deps: SyncDeps, snapshot: SyncSnapshot): void {
@@ -77,29 +61,6 @@ export async function pullOnce(deps: SyncDeps): Promise<SyncDecision['kind'] | n
   const decision = decideSync(readStamp(deps.source), got.value[deps.source.deviceClass]);
   settle(deps, decision);
   return decision.kind;
-}
-
-/** The stamp the pushed snapshot carries: the local one, or now when nothing has changed here yet. */
-function stampOf(deps: SyncDeps): number {
-  const saved = readStamp(deps.source);
-  if (saved > 0) {
-    return saved;
-  }
-  const now = deps.now();
-  writeStamp(deps.source, now);
-  return now;
-}
-
-/** Writes the desk to {@link account}'s settings store; answers whether the server took it. */
-async function send(deps: SyncDeps, account: StoredAccount): Promise<boolean> {
-  const snapshot = toSyncSnapshot(deps.getState(), stampOf(deps));
-  const sent = await writeSettings(account, syncPatch(deps.source.deviceClass, snapshot));
-  if (!sent.ok) {
-    fail(deps, account, sent.error);
-    return false;
-  }
-  report(deps, { failed: false, lastPush: deps.now() });
-  return true;
 }
 
 /**
