@@ -28,6 +28,7 @@ import {
   type PostLineTarget,
 } from './postLineProps';
 import { postView } from './postView';
+import { usePostConfirm } from './usePostConfirm';
 import { usePostPicker } from './usePostPicker';
 import { labelForStatus } from '../state/bufferSelection';
 import { bufferFor, displayFor, windowAccountKey } from '../state/selectors';
@@ -75,6 +76,7 @@ export function PostLine(props: PostLineTarget): JSX.Element {
   const actions = usePostActions();
   const rowRef = useRowRef(shared.selected);
   const picker = usePostPicker(windowAccountKey(state, windowId), shared.label, actions.run);
+  const confirm = usePostConfirm(actions, shared.label, view);
   const display = displayFor(state, windowId);
   if (display.density === 'lines') {
     return (
@@ -89,18 +91,21 @@ export function PostLine(props: PostLineTarget): JSX.Element {
   }
   const author = { ...view.author, ...cardName(status) };
   return (
-    <PostCard
-      {...shared}
-      author={author}
-      boostedBy={view.boostedBy}
-      onPop={popOf(actions, shared.label)}
-      ref={rowRef}
-      actionLines={actions.linesFor(shared.label)}
-      onAction={actions.run}
-      reactPicker={picker}
-      showAvatar={display.avatars}
-      showImages={display.images}
-      {...dmCardProps(state, props, view)}
-    />
+    <>
+      <PostCard
+        {...shared}
+        author={author}
+        boostedBy={view.boostedBy}
+        onPop={popOf(actions, shared.label)}
+        ref={rowRef}
+        actionLines={actions.linesFor(shared.label)}
+        onAction={confirm.onAction}
+        reactPicker={picker}
+        showAvatar={display.avatars}
+        showImages={display.images}
+        {...dmCardProps(state, props, view)}
+      />
+      {confirm.dialog}
+    </>
   );
 }
