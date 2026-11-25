@@ -8,7 +8,7 @@
  * src/keys/useGlobalKeys — the listener is attached to the box itself here,
  * with the latest `onClose` kept in a ref.
  */
-import { useEffect, useRef } from 'react';
+import { useEffect, useLayoutEffect, useRef } from 'react';
 import type { JSX, ReactNode } from 'react';
 
 import styles from './Overlay.module.css';
@@ -88,7 +88,10 @@ export function Overlay(props: OverlayProps): JSX.Element {
     onCloseRef.current = props.onClose;
   }, [props.onClose]);
 
-  useEffect(() => {
+  // A layout effect, not a passive one: the box owns focus and Escape in the
+  // same commit that puts it on the page, so a key pressed the moment it
+  // appears can never land behind it.
+  useLayoutEffect(() => {
     const box = boxRef.current;
     if (box === null) {
       return;
