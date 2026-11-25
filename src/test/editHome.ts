@@ -15,6 +15,7 @@ import type { Status } from '../api/schemas/status';
 import type { CommandContext } from '../commands/types';
 import { type AppState, initialAppState } from '../state/appState';
 import { type AppAction, appReducer } from '../state/reducer';
+import { DEFAULT_SETTINGS, type Settings } from '../state/settings';
 import { type WindowRef, windowId } from '../windows/model';
 
 /** The instance every `/edit` test talks to. */
@@ -47,9 +48,10 @@ type Profile = Extract<AppAction, { type: 'profile' }>['profile'];
 function homeState(
   profile: Profile,
   posts: readonly Status[],
-  selectedId: string | null,
+  options: { readonly selectedId: string | null; readonly settings: Settings },
 ): AppState {
-  const signedIn = appReducer(initialAppState(), {
+  const { selectedId, settings } = options;
+  const signedIn = appReducer(initialAppState(settings), {
     type: 'accounts',
     accounts: [LAIN],
     activeKey: LAIN.key,
@@ -71,14 +73,30 @@ function homeState(
   return appReducer(filled, { type: 'select', windowId: HOME_ID, key: `post:${selectedId}` });
 }
 
+/** What a home context can be asked for besides the posts: the selected one and the settings. */
+type HomeOptions = {
+  readonly selectedId?: string | null;
+  readonly settings?: Settings;
+};
+
+/** A context on {@link profile} whose active window shows {@link posts}, as {@link options} say. */
+export function homeContextWith(
+  profile: Profile,
+  posts: readonly Status[],
+  options: HomeOptions,
+): CommandContext {
+  const { selectedId = null, settings = DEFAULT_SETTINGS } = options;
+  const state = homeState(profile, posts, { selectedId, settings });
+  return fakeCommandContext({ state, windows: state.windows });
+}
+
 /** A context on {@link profile} whose active window shows {@link posts}, {@link selectedId} selected. */
 export function homeContext(
   profile: Profile,
   posts: readonly Status[],
   selectedId: string | null = null,
 ): CommandContext {
-  const state = homeState(profile, posts, selectedId);
-  return fakeCommandContext({ state, windows: state.windows });
+  return homeContextWith(profile, posts, { selectedId });
 }
 
 /**

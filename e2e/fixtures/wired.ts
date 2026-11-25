@@ -23,7 +23,7 @@ import { NODEINFO_REL_21, routeInstance } from './instance';
 import { ORIGIN, json } from './wire';
 
 /** The feature strings Wired advertises in NodeInfo and its v1 document. */
-const FEATURES = ['pleroma_api', 'chat', 'pleroma_emoji_reactions', 'quote_posting'];
+const FEATURES = ['pleroma_api', 'chat', 'pleroma_emoji_reactions', 'quote_posting', 'editing'];
 
 /** The post formats Wired lists in its v1 document; Markdown among them turns `markdown` on. */
 const POST_FORMATS = ['text/plain', 'text/html', 'text/markdown'];

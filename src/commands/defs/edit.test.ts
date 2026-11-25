@@ -5,7 +5,7 @@
  * while the window prints `✎ edited [a0]` — the navigation selection and a
  * boost's line answer as targets, the printed label included. An instance that
  * turns the edit down is reported as the API error it is and changes nothing.
- * Filling the line from the post's source lives in ./edit.source.test.ts, the
+ * The composer opened with no text lives in ./edit.source.test.ts, the
  * refusals that send nothing in ./edit.refusals.test.ts, the media and poll the
  * edit keeps in ./edit.keeps.test.ts.
  */

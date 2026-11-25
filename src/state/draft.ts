@@ -48,7 +48,7 @@ export function draftToNewStatus(draft: Draft, defaultVisibility: Visibility): N
   };
 }
 
-/** The post a bound composer answers or quotes (WFE-244, WFE-262) and the account of the line it came from. */
+/** The post a bound composer answers, quotes or edits (WFE-244, WFE-262, WFE-268) and the account of the line it came from. */
 type BoundPost = {
   /** The bound post, shown dimly above the text; its id is the draft's `inReplyToId` or `quoteId`. */
   readonly status: Status;
@@ -70,6 +70,8 @@ export type ComposerFields = {
   readonly inReplyTo?: BoundPost;
   /** The post this quotes, for a quote composer; absent for a plain one (WFE-262). */
   readonly quoteOf?: BoundPost;
+  /** The own post this rewrites, for an edit composer; absent for a plain one (WFE-268). */
+  readonly editing?: BoundPost;
 };
 
 /**

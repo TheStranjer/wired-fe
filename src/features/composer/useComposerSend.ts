@@ -11,14 +11,18 @@
  * (WFE-262) once its quote is: success closes the window and says so in the
  * status window. The draft goes out as the window's account, which a bound
  * composer was opened for — the account of the line it came from — and
- * {@link fieldsToDraft} carries the `inReplyToId` or `quoteId`.
+ * {@link fieldsToDraft} carries the `inReplyToId` or `quoteId`. An edit
+ * composer (WFE-268) saves the post instead of creating one, through
+ * src/state/editPost: the new text and content warning over what the post
+ * keeps; it closes on success with `✎ edited [a4]` in the status window, and a
+ * failure keeps the text and shows the message.
  */
 
 import { useState } from 'react';
 
 import type { Status } from '../../api/schemas/status';
 import { type Result, err } from '../../lib/result';
-import { printAction } from '../../state/appState';
+import { type AppState, printAction } from '../../state/appState';
 import { composerFields } from '../../state/composerActions';
 import { composerMediaOf, draftWithMedia } from '../../state/composerMedia';
 import { describeMedia } from '../../state/describeMedia';
@@ -28,6 +32,7 @@ import {
   type Draft,
   fieldsToDraft,
 } from '../../state/draft';
+import { editPost, editedNote } from '../../state/editPost';
 import { createPost } from '../../state/postStatus';
 import { useRefreshDeps } from '../../state/RefreshContext';
 import { type Dispatch, useAppDispatch, useAppState } from '../../state/StateContext';
@@ -53,25 +58,33 @@ async function publish(
   return refused === null ? await createPost(context, accountKey, what.draft) : err(refused);
 }
 
-/** The composer window that sent, and the fields it sent from. */
-type SentWindow = { readonly windowId: string; readonly fields: ComposerFields };
+/** The composer window that sent, the fields it sent from and the app state it sent in. */
+type SentWindow = {
+  readonly windowId: string;
+  readonly fields: ComposerFields;
+  readonly state: AppState;
+};
 
 /** The line a bound composer leaves in the status window once its post is up; null for a plain one. */
-function closingNote(fields: ComposerFields, created: Status): string | null {
+function closingNote(origin: SentWindow, created: Status): string | null {
+  const { fields, state } = origin;
   if (fields.inReplyTo !== undefined) {
     return `↳ replied to @${created.account.acct}`;
+  }
+  if (fields.editing !== undefined) {
+    return editedNote(state, fields.editing.status);
   }
   return fields.quoteOf === undefined ? null : `❝ quoted @${fields.quoteOf.status.account.acct}`;
 }
 
 /**
- * What a successful send leaves behind: a reply or quote composer closes (its
- * post is up, WFE-244, WFE-262) and says so in the status window; any other
- * clears its fields and attachments and confirms in its own scrollback.
+ * What a successful send leaves behind: a reply, quote or edit composer closes
+ * (its post is up, WFE-244, WFE-262, WFE-268) and says so in the status window;
+ * any other clears its fields and attachments and confirms in its own scrollback.
  */
 function sent(dispatch: Dispatch, origin: SentWindow, created: Status): void {
-  const { windowId, fields } = origin;
-  const note = closingNote(fields, created);
+  const { windowId } = origin;
+  const note = closingNote(origin, created);
   if (note !== null) {
     dispatch({ type: 'windows', action: { type: 'close', id: windowId } });
     dispatch(printAction(STATUS_WINDOW_ID, 'info', note));
@@ -98,17 +111,25 @@ export function useComposerSend(windowId: string, accountKey: string | null): Co
 
   async function submit(): Promise<void> {
     setSending(true);
-    const created = await publish({ state, dispatch, refresh }, accountKey, {
-      draft: draftWithMedia(fieldsToDraft(fields), media),
-      media,
-    });
+    const context = { state, dispatch, refresh };
+    const created =
+      fields.editing === undefined
+        ? await publish(context, accountKey, {
+            draft: draftWithMedia(fieldsToDraft(fields), media),
+            media,
+          })
+        : await editPost(context, accountKey, {
+            status: fields.editing.status,
+            draft: fieldsToDraft(fields),
+            now: new Date(),
+          });
     setSending(false);
     if (!created.ok) {
       setError(created.error);
       return;
     }
     setError(null);
-    sent(dispatch, { windowId, fields }, created.value);
+    sent(dispatch, { windowId, fields, state }, created.value);
   }
 
   return {

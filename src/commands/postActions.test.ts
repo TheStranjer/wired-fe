@@ -61,6 +61,12 @@ describe(postActionLines, () => {
     expect(lines.react).toStrictEqual({ line: '/react a3', prefill: false, picker: true });
   });
 
+  it('runs edit with no text, which opens a composer, although its hotkey prefills', () => {
+    const lines = postActionLines(realRegistry(), 'a3');
+
+    expect(lines.edit).toStrictEqual({ line: '/edit a3', prefill: false });
+  });
+
   it('prefills the lines whose hotkey prefills them', () => {
     const lines = postActionLines(realRegistry(), 'a3');
 

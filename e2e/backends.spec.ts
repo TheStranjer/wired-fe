@@ -51,7 +51,7 @@ const CASES: readonly BackendCase[] = [
       'backend: wired',
       'posts: up to 5000 characters, 4 attachments',
       'polls: 4 options of 50 characters, 5m–30d',
-      'features: emojiReactions, quotePosting, localOnlyPosts, passwordResetApi, settingsStore, markdown',
+      'features: emojiReactions, quotePosting, editing, localOnlyPosts, passwordResetApi, settingsStore, markdown',
       'device: desktop',
     ],
   },

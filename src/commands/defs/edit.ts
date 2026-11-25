@@ -6,12 +6,15 @@
  * boosted author's text, so it is not this account's to revise.
  *
  * `e` prefills the line with the selected post's label; typing the new text
- * after it and Enter sends it. With no text the command instead reads the
- * post's source — the plain text its author wrote, not the HTML the timeline
- * renders — and fills `/edit a3 <that text>` into the command line, so what is
- * retyped is what was written. A send carries the new text and the rest of the
+ * after it and Enter sends it. A send carries the new text and the rest of the
  * post as it stands (see ./editFields): the line holds no place for the
  * content warning, media or poll, and Mastodon drops what an edit leaves out.
+ * With no text — `/edit a3`, the card's `⋯` → Edit — the command instead reads
+ * the post's source (the plain text its author wrote, not the HTML the timeline
+ * renders) and opens a composer window bound to the post (WFE-268), as the
+ * line's account, holding that text and the post's content warning, where
+ * `--in`, `openIn.composer` or `replyIn` (default `split`) say; the composer's
+ * send saves the edit and keeps the media and the poll.
  */
 
 import { getStatusSource } from '../../api/endpoints/statusSource';
@@ -19,8 +22,13 @@ import { editStatus } from '../../api/endpoints/statusWrite';
 import { describeApiError } from '../../api/errors';
 import type { Capabilities } from '../../capabilities/capabilities';
 import { requireFeature } from '../../capabilities/requireFeature';
+import { composerWindowFor } from '../../state/composerWindow';
+import type { Placement } from '../../state/placement';
+import { windowId } from '../../windows/model';
 import { editFields } from '../editFields';
+import { openReplyWindow, splitPlacement } from '../openWindowRun';
 import { OK, fail } from '../outcome';
+import { wantsComposer } from '../ownStream';
 import { printedLabel } from '../statusLabel';
 import { type StatusTarget, resolveOwnStatusTarget } from '../targets';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
@@ -46,17 +54,36 @@ async function send(
   return OK;
 }
 
-/** Fill the command line with the post's own source text so it can be retyped. */
-async function refill(target: StatusTarget, context: CommandContext): Promise<CommandOutcome> {
+/**
+ * Open a composer window bound to {@link target}'s post, placed as
+ * {@link override} and the settings say, holding the post's source text and
+ * content warning. A source read the instance turns down opens nothing.
+ */
+async function openComposer(
+  context: CommandContext,
+  target: StatusTarget,
+  override: Placement | null,
+): Promise<CommandOutcome> {
   const source = await getStatusSource(target.session, target.status.id);
   if (!source.ok) {
     return fail(describeApiError(source.error));
   }
-  context.setInput(`/edit ${printedLabel(context, target.status)} ${source.value.text}`);
+  const open = composerWindowFor(target.accountKey, context.windows.windows);
+  openReplyWindow(context, open, override);
+  context.dispatch({
+    type: 'composerEdit',
+    windowId: windowId(open.ref),
+    patch: {
+      text: source.value.text,
+      spoiler: source.value.spoiler_text,
+      visibility: target.status.visibility,
+      editing: { status: target.status, accountKey: target.accountKey },
+    },
+  });
   return OK;
 }
 
-/** Resolve this account's own editable post, then send its new text or refill. */
+/** Resolve this account's own editable post, then send its new text or open the composer. */
 async function handle(args: string, context: CommandContext): Promise<CommandOutcome> {
   const target = resolveOwnStatusTarget(args, context, 'edit');
   if (!target.ok) {
@@ -67,16 +94,20 @@ async function handle(args: string, context: CommandContext): Promise<CommandOut
     return fail(editing.error);
   }
   const text = target.value.rest.trim();
-  return text === ''
-    ? await refill(target.value, context)
-    : await send(target.value, text, { context, capabilities: editing.value });
+  if (!wantsComposer(text)) {
+    return await send(target.value, text, { context, capabilities: editing.value });
+  }
+  const placed = splitPlacement(text);
+  return placed.ok
+    ? await openComposer(context, target.value, placed.value.placement)
+    : fail(placed.error);
 }
 
 /** The `/edit` definition. */
 export const command: CommandDefinition = {
   name: 'edit',
-  usage: '/edit [label] [text]',
-  summary: 'Edit one of your own posts',
+  usage: '/edit [label] [text]; with no text, opens a composer',
+  summary: 'Edit one of your own posts; with no text, open a composer (e prefills)',
   requires: 'editing',
   run: async (args, context) => await handle(args, context),
   bindings: [{ mode: 'navigation', chord: 'e', args: '{label}', prefill: true }],
