@@ -1,0 +1,24 @@
+{
+  "empty": {},
+  "withData": {
+    "version": 1,
+    "desktop": {
+      "updatedAt": 1790000000000,
+      "desktops": [{ "id": "d1", "panes": ["p1"] }],
+      "feeds": []
+    },
+    "mobile": { "updatedAt": 1789000000000, "desktops": [] }
+  },
+  "patchEcho": {
+    "version": 1,
+    "desktop": {
+      "updatedAt": 1790000005000,
+      "desktops": [{ "id": "d2", "panes": ["p1", "p2"] }],
+      "feeds": []
+    },
+    "mobile": { "updatedAt": 1789000000000, "desktops": [] }
+  },
+  "tooLarge": { "error": "settings_store: too large" },
+  "notFound": { "error": "Record not found" },
+  "forbidden": { "error": "Insufficient permissions: write:accounts." }
+}
