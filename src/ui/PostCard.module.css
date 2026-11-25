@@ -65,3 +65,8 @@
 .body {
   white-space: pre-wrap;
 }
+
+/* The audience glyph, the reactions and the edit mark, above the action bar. */
+.meta {
+  color: var(--color-dim);
+}
