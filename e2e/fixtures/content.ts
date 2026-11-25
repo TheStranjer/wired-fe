@@ -8,7 +8,9 @@
 
 import {
   HOST,
+  ORIGIN,
   accountJson,
+  conversationJson,
   escapeHtml,
   notificationJson,
   statusJson,
@@ -23,6 +25,9 @@ export const HANDLE = `lain@${HOST}`;
 
 /** The plain text the specs post, so typing and asserting share one string. */
 export const POSTED_TEXT = 'present day, present time';
+
+/** The description of the one image the fixture posts carry, which the specs look it up by. */
+export const IMAGE_ALT = 'The Wired mascot';
 
 /** The instance's two locals: the account the session owns, and the one it reads. */
 const LAIN: Person = { id: 'AhZlainAcc00000000000001', name: 'lain', display: 'Lain Iwakura' };
@@ -43,12 +48,25 @@ const LAN = 'AhZst4tus00000000000000002';
 const WIRED = 'AhZst4tus00000000000000004';
 const SLEEP = 'AhZst4tus00000000000000005';
 const CALL = 'AhZst4tus00000000000000006';
+const DM = 'AhZst4tus00000000000000007';
 
 /** The posts, in conversation order: the thread first, then the rest of home. */
 const POSTS: readonly Post[] = [
   { id: EYES, who: LAIN, html: '<p>close the world. open your eyes.</p>', at: moment('08:55') },
   { id: HERE, who: ALICE, html: '<p>She is here.</p>', at: moment('08:58'), replies: 2 },
-  { id: LAN, who: ALICE, html: '<p>the LAN is all one network</p>', at: moment('09:00') },
+  {
+    id: LAN,
+    who: ALICE,
+    html: '<p>the LAN is all one network</p>',
+    at: moment('09:45'),
+    pictures: [
+      {
+        id: 'AhZmedia0000000000000001',
+        url: `${ORIGIN}/images/mascot.png`,
+        description: IMAGE_ALT,
+      },
+    ],
+  },
   {
     id: WIRED,
     who: LAIN,
@@ -70,6 +88,14 @@ const POSTS: readonly Post[] = [
     html: `<p><span class="mention">@${HANDLE}</span> are you there?</p>`,
     at: moment('09:30'),
     answers: { to: WIRED, who: LAIN },
+  },
+  {
+    id: DM,
+    who: ALICE,
+    html: '<p>meet me where the wired ends.</p>',
+    at: moment('09:20'),
+    visibility: 'direct',
+    mentions: [LAIN],
   },
 ];
 
@@ -101,6 +127,11 @@ export function contextById(id: string): Json {
     return { ancestors: [], descendants: [] };
   }
   return { ancestors: [post(EYES)], descendants: [post(WIRED), post(SLEEP)] };
+}
+
+/** GET /api/v1/conversations: the one direct-message thread, with alice, its last word a DM. */
+export function conversations(): readonly Json[] {
+  return [conversationJson('AhZconvers0000000000001', [ALICE], post(DM))];
 }
 
 /** The notices the account has waiting, newest first as Wired serves them. */

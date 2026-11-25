@@ -61,6 +61,8 @@ export function PaneSwitcher(props: {
 }): JSX.Element {
   const { entries, index } = props;
   const { step, jump } = useFocusMoves();
+  // The visible `2/4` is part of the name, so voice control can say what it sees.
+  const count = `${String(index + 1)}/${String(entries.length)}`;
   const items: readonly MenuItem[] = entries.map((entry, at) => ({
     id: entry.paneId,
     label: entry.title,
@@ -75,12 +77,7 @@ export function PaneSwitcher(props: {
           step('prev');
         }}
       />
-      <MenuButton
-        label="Switch pane"
-        glyph={`${String(index + 1)}/${String(entries.length)}`}
-        items={items}
-        onSelect={jump}
-      />
+      <MenuButton label={`Switch pane, ${count}`} glyph={count} items={items} onSelect={jump} />
       <Step
         label="Next pane"
         glyph="›"

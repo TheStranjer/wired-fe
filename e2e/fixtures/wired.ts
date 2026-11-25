@@ -12,6 +12,7 @@ import type { Page } from '@playwright/test';
 
 import {
   contextById,
+  conversations,
   homeTimeline,
   notifications,
   postedStatusJson,
@@ -64,6 +65,7 @@ export async function routeWired(page: Page): Promise<void> {
       self: SELF,
       home: homeTimeline,
       notices: notifications,
+      conversations,
       status: statusById,
       context: contextById,
       create: postedStatusJson,
