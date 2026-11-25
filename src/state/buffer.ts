@@ -8,6 +8,7 @@
  * given, so the app reducer can compose these freely.
  */
 
+import type { FeedData } from './feedItem';
 import type { PageCursor } from '../api/pagination';
 import type { Notification } from '../api/schemas/notification';
 import type { Status } from '../api/schemas/status';
@@ -75,6 +76,8 @@ export type Buffer = {
   readonly exhausted: boolean;
   /** Bumped to ask the window to load older items; kept until handled. */
   readonly olderRequests: number;
+  /** A feed window's merged items (those held back included) and its sources' paging; absent elsewhere. */
+  readonly feed?: FeedData;
 };
 
 /** The most lines one buffer holds; older lines drop off the top to make room. */

@@ -1,12 +1,12 @@
 /**
  * One load of a feed window (decision 14): ask a set of its sources for a page
- * in parallel, each as its own account, fold what arrives into everything
- * loaded so far with the merge engine, and show the part of it that paging has
- * made safe to show. A source that fails prints one client message into the
- * window and is skipped — it counts as exhausted from then on — while the rest
- * still load. The window's items and per-source paging state live with the
- * caller (./useFeed) and are read and written through the job, so two loads in
- * flight never overwrite each other's pages.
+ * in parallel, each as its own account, and hand what arrives to the window's
+ * buffer, which folds it into everything loaded so far with the merge engine
+ * and shows the part of it that paging has made safe to show. A source that
+ * fails prints one client message into the window and is skipped — it counts as
+ * exhausted from then on — while the rest still load. The window's items and
+ * per-source paging state live in its buffer, where the streams also deliver
+ * to them, so a page and a live post never overwrite each other.
  */
 
 import { type SourcePage, fetchSourcePage } from './fetchSource';
@@ -14,8 +14,8 @@ import type { StoredAccount } from '../../accounts/accountStore';
 import { describeApiError } from '../../api/errors';
 import type { PageRequest } from '../../api/page';
 import { printAction } from '../../state/appState';
-import type { FeedCursorState, FeedItem } from '../../state/feedItem';
-import { blockingSources, mergeItems, oldestBoundary, sourceKey } from '../../state/feedMerge';
+import type { FeedData } from '../../state/feedItem';
+import { blockingSources, sourceKey } from '../../state/feedMerge';
 import type { FeedSourceRef } from '../../state/feeds';
 import { feedAction, loadAction } from '../../state/pageActions';
 import { type RefreshDeps, withFreshToken } from '../../state/refreshSession';
@@ -24,16 +24,7 @@ import type { Dispatch } from '../../state/StateContext';
 /** How many items one source page asks for. */
 const FEED_PAGE_SIZE = 40;
 
-/** Everything a feed window has loaded: its merged items and where each source has paged to. */
-export type FeedData = {
-  readonly items: readonly FeedItem[];
-  readonly cursors: FeedCursorState;
-};
-
-/** A feed window that has loaded nothing yet. */
-export const EMPTY_FEED: FeedData = { items: [], cursors: {} };
-
-/** One load: the window, how it reaches each account, and where its data is kept. */
+/** One load: the window, how it reaches each account, and how it reads what the window has loaded. */
 export type FeedJob = {
   readonly windowId: string;
   readonly signal: AbortSignal;
@@ -41,10 +32,8 @@ export type FeedJob = {
   readonly refresh: RefreshDeps;
   /** The signed-in accounts, to name a source in a message. */
   readonly accounts: readonly StoredAccount[];
-  /** The window's loaded data as it is now. */
+  /** The window's loaded data as the app state holds it now. */
   readonly read: () => FeedData;
-  /** Replace the window's loaded data. */
-  readonly write: (data: FeedData) => void;
 };
 
 /** Which sources a load asks, chosen from the data loaded so far. */
@@ -83,20 +72,14 @@ async function askSource(job: FeedJob, ref: FeedSourceRef, data: FeedData): Prom
   return { ref, result };
 }
 
-/**
- * {@link data} with what {@link outcomes} brought merged in and each asked
- * source's paging state moved on; a failed source is exhausted.
- */
-function advance(data: FeedData, outcomes: readonly Outcome[]): FeedData {
-  const incoming = outcomes.flatMap(({ result }) => (result.ok ? result.value.items : []));
+/** What {@link outcomes} brought: the items to merge in, and each asked source's paging moved on (a failed one is exhausted). */
+function arrivals(outcomes: readonly Outcome[]): FeedData {
+  const items = outcomes.flatMap(({ result }) => (result.ok ? result.value.items : []));
   const moved = outcomes.map(({ ref, result }) => {
     const next = result.ok ? result.value.links.next : null;
     return [sourceKey(ref), { cursor: next, exhausted: next === null }] as const;
   });
-  return {
-    items: mergeItems(data.items, incoming),
-    cursors: { ...data.cursors, ...Object.fromEntries(moved) },
-  };
+  return { items, cursors: Object.fromEntries(moved) };
 }
 
 /** Print one client message for every source that failed. */
@@ -123,10 +106,11 @@ export async function runFeed(job: FeedJob, choose: ChooseSources): Promise<void
   if (job.signal.aborted) {
     return;
   }
-  const data = advance(job.read(), outcomes);
-  job.write(data);
+  const { items, cursors } = arrivals(outcomes);
+  job.dispatch(feedAction(job.windowId, items, cursors));
   reportFailures(job, outcomes);
-  job.dispatch(feedAction(job.windowId, oldestBoundary(data.items, data.cursors).visible));
-  const exhausted = Object.values(data.cursors).every((cursor) => cursor.exhausted);
-  job.dispatch(loadAction(job.windowId, 'loaded', { exhausted }));
+  const paging = Object.values({ ...job.read().cursors, ...cursors });
+  job.dispatch(
+    loadAction(job.windowId, 'loaded', { exhausted: paging.every((cursor) => cursor.exhausted) }),
+  );
 }

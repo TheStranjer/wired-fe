@@ -3,16 +3,18 @@
  * source of the feed its ref names is asked for a first page in parallel; each
  * time the buffer asks for older history, only the sources that hold the
  * paging boundary back are asked for the next page (./feedLoad does the
- * asking, merging and showing). The merged items and each source's paging
- * state are kept here, in a ref, because the scrollback only holds the part
- * that is safe to show. A feed whose spec was removed says so into the window
- * and closes the load; unmounting aborts the pages in flight.
+ * asking). The merged items and each source's paging state are kept on the
+ * window's buffer, because the scrollback only holds the part that is safe to
+ * show, and the streams deliver to the same feed. A feed whose spec was removed
+ * says so into the window and closes the load; unmounting aborts the pages in
+ * flight.
  */
 
 import { useCallback, useEffect, useRef } from 'react';
 
-import { type ChooseSources, EMPTY_FEED, type FeedData, blockingRefs, runFeed } from './feedLoad';
+import { type ChooseSources, blockingRefs, runFeed } from './feedLoad';
 import { printAction } from '../../state/appState';
+import { EMPTY_FEED, type FeedData } from '../../state/feedItem';
 import { feedById } from '../../state/feeds';
 import { loadAction } from '../../state/pageActions';
 import { useRefreshDeps } from '../../state/RefreshContext';
@@ -22,24 +24,20 @@ import { useAppDispatch, useAppState } from '../../state/StateContext';
 /** What a window says when the feed it showed is gone. */
 const MISSING = 'This feed no longer exists';
 
-/** Start a load of the sources a chooser picks; the data and the page in flight are kept across renders. */
+/** Start a load of the sources a chooser picks; the page in flight is kept across renders. */
 function useRunner(windowId: string): (choose: ChooseSources) => void {
   const dispatch = useAppDispatch();
   const refresh = useRefreshDeps();
   const { accounts } = useAppState();
-  const dataRef = useRef<FeedData>(EMPTY_FEED);
   const inflightRef = useRef<AbortController | null>(null);
   useEffect(() => () => inflightRef.current?.abort(), []);
   return useCallback(
     (choose) => {
       const controller = new AbortController();
       inflightRef.current = controller;
-      const write = (data: FeedData): void => {
-        dataRef.current = data;
-      };
-      const read = (): FeedData => dataRef.current;
+      const read = (): FeedData => bufferFor(refresh.getState(), windowId).feed ?? EMPTY_FEED;
       void runFeed(
-        { windowId, signal: controller.signal, dispatch, refresh, accounts, read, write },
+        { windowId, signal: controller.signal, dispatch, refresh, accounts, read },
         choose,
       );
     },

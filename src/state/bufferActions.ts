@@ -14,12 +14,12 @@
 import { putBuffer } from './appReducer';
 import type { AppState } from './appState';
 import type { Buffer, BufferLoad } from './buffer';
-import { setFeedLines } from './bufferFeed';
+import { deleteStatus, editStatus } from './bufferFeed';
 import { addNotificationsAs } from './bufferNotifications';
-import { addStatusesAs, removeStatus, replaceStatus, type Where } from './bufferPosts';
+import { addStatusesAs, type Where } from './bufferPosts';
 import { selectEdge, selectKey, selectRelative, toggleRevealed } from './bufferSelection';
 import { addedLines, markArrivals } from './bufferUnread';
-import type { FeedItem } from './feedItem';
+import { type FeedAction, applyFeedAction } from './feedActions';
 import { windowAccountKey } from './selectors';
 import type { PageCursor } from '../api/pagination';
 import type { Notification } from '../api/schemas/notification';
@@ -39,7 +39,7 @@ export type BufferAction =
       readonly notifications: readonly Notification[];
       readonly where: Where;
     }
-  | { readonly type: 'feed'; readonly windowId: string; readonly items: readonly FeedItem[] }
+  | FeedAction
   | { readonly type: 'statusUpdated'; readonly status: Status }
   | { readonly type: 'statusDeleted'; readonly id: string }
   | { readonly type: 'select'; readonly windowId: string; readonly key: string | null }
@@ -65,7 +65,7 @@ type LoadAction = Extract<BufferAction, { readonly type: 'load' }>;
 type BroadcastAction = Extract<BufferAction, { readonly type: 'statusUpdated' | 'statusDeleted' }>;
 
 /** Anything that happens to the window the action names. */
-type WindowAction = Exclude<BufferAction, BroadcastAction>;
+type WindowAction = Exclude<BufferAction, BroadcastAction | FeedAction>;
 
 /** The broadcast types, every one named, so a new action must say where it goes. */
 const BROADCAST_TYPES: Record<BroadcastAction['type'], true> = {
@@ -78,6 +78,9 @@ export function bufferReducer(state: AppState, action: BufferAction): AppState {
   if (isBroadcast(action)) {
     return applyBroadcast(state, action);
   }
+  if (action.type === 'feed' || action.type === 'feedLive') {
+    return applyFeedAction(state, action);
+  }
   return applyInWindow(state, action);
 }
 
@@ -89,8 +92,8 @@ function isBroadcast(action: BufferAction): action is BroadcastAction {
 /** An edited or deleted status, reported to every scrollback showing it. */
 function applyBroadcast(state: AppState, action: BroadcastAction): AppState {
   return action.type === 'statusUpdated'
-    ? applyEveryBuffer(state, (buffer) => replaceStatus(buffer, action.status))
-    : applyEveryBuffer(state, (buffer) => removeStatus(buffer, action.id));
+    ? applyEveryBuffer(state, (buffer) => editStatus(buffer, action.status))
+    : applyEveryBuffer(state, (buffer) => deleteStatus(buffer, action.id));
 }
 
 /** What the one window the action names does with its buffer. */
@@ -99,8 +102,6 @@ function applyInWindow(state: AppState, action: WindowAction): AppState {
     case 'statuses':
     case 'notifications':
       return applyPage(state, action);
-    case 'feed':
-      return applyToBuffer(state, action, (buffer) => setFeedLines(buffer, action.items));
     case 'select':
       return applyToBuffer(state, action, (buffer) => selectKey(buffer, action.key));
     case 'selectRelative':

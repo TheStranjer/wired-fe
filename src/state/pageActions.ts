@@ -8,7 +8,7 @@
 import type { BufferLoad } from './buffer';
 import type { BufferAction } from './bufferActions';
 import type { Where } from './bufferPosts';
-import type { FeedItem } from './feedItem';
+import type { FeedCursorState, FeedItem } from './feedItem';
 import type { PageCursor } from '../api/pagination';
 import type { Status } from '../api/schemas/status';
 
@@ -36,9 +36,16 @@ export function statusesAction(
   return { type: 'statuses', windowId, statuses, where };
 }
 
-/** The action that shows a feed window's merged stream, newest first, on its scrollback. */
-export function feedAction(windowId: string, items: readonly FeedItem[]): FeedAction {
-  return { type: 'feed', windowId, items };
+/**
+ * The action that merges a fetched page of items into a feed window's feed and
+ * moves the paging of the sources it came from ({@link cursors}).
+ */
+export function feedAction(
+  windowId: string,
+  items: readonly FeedItem[],
+  cursors: FeedCursorState,
+): FeedAction {
+  return { type: 'feed', windowId, items, cursors };
 }
 
 /** The feed action, named for {@link feedAction}'s return. */

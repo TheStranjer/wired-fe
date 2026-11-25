@@ -14,7 +14,9 @@
  * joins its account's notifications window, and when that window is not what
  * the reader is looking at and the notification is a mention, the fact is
  * printed where they are: `*** @ally@wired.example mentioned you [see notifs]`,
- * the sentence the window itself would have shown (src/views).
+ * the sentence the window itself would have shown (src/views). Feed windows,
+ * which have no account, hear both kinds of frame through their sources
+ * (./streamFeeds).
  */
 
 import { type AppState, printAction } from './appState';
@@ -22,6 +24,7 @@ import type { BufferAction } from './bufferActions';
 import { statusesAction } from './pageActions';
 import type { AppAction } from './reducer';
 import { accountByKey } from './selectors';
+import { liveFeedActions } from './streamFeeds';
 import { type Update, updateTargets } from './streamTargets';
 import { fullHandle } from '../accounts/handle';
 import type { Notification } from '../api/schemas/notification';
@@ -115,9 +118,15 @@ export function streamActions(
 ): readonly AppAction[] {
   switch (event.kind) {
     case 'update':
-      return updateActions(state, accountKey, event);
+      return [
+        ...updateActions(state, accountKey, event),
+        ...liveFeedActions(state, accountKey, event),
+      ];
     case 'notification':
-      return notificationActions(state, accountKey, event);
+      return [
+        ...notificationActions(state, accountKey, event),
+        ...liveFeedActions(state, accountKey, event),
+      ];
     case 'statusUpdate':
       return [{ type: 'statusUpdated', status: event.status }];
     case 'delete':

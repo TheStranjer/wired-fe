@@ -1,13 +1,13 @@
 /**
  * Tests for the pieces of a feed load the loader's own tests cannot reach: a
- * load whose window closed while the instances were thinking reports nothing
- * and keeps nothing, and the sources worth paging are the ones holding the
+ * load whose window closed while the instances were thinking reports nothing,
+ * and the sources worth paging are the ones holding the
  * boundary back.
  */
 import { describe, expect, it, vi } from 'vitest';
 
-import { EMPTY_FEED, type FeedJob, blockingRefs, runFeed } from './feedLoad';
-import type { FeedCursorState } from '../../state/feedItem';
+import { type FeedJob, blockingRefs, runFeed } from './feedLoad';
+import { EMPTY_FEED, type FeedCursorState } from '../../state/feedItem';
 import { sourceKey } from '../../state/feedMerge';
 import { A_HOME, B_HOME, C_LOCAL, post } from '../../test/feedItems';
 import { A_ACCOUNT, feedState } from '../../test/feedWindow';
@@ -23,20 +23,18 @@ function abortedJob(): { readonly job: FeedJob; readonly dispatch: ReturnType<ty
     refresh: { refresher: null, dispatch, getState: () => state },
     accounts: [A_ACCOUNT],
     read: () => EMPTY_FEED,
-    write: vi.fn(),
   };
   return { job, dispatch };
 }
 
 describe(runFeed, () => {
-  it('reports nothing and keeps nothing for a load that was cancelled', async () => {
+  it('reports nothing for a load that was cancelled', async () => {
     const { job, dispatch } = abortedJob();
     const source = { accountKey: A_ACCOUNT.key, source: 'home' } as const;
 
     await runFeed(job, () => [source]);
 
     expect(dispatch).not.toHaveBeenCalled();
-    expect(job.write).not.toHaveBeenCalled();
   });
 });
 
