@@ -7,9 +7,10 @@
  * useHotkeys.prefill.test.tsx.
  */
 import { renderHook } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
-import { useCaretToEnd } from './hotkeyPrefill';
+import { fillCommandLine, useCaretToEnd } from './hotkeyPrefill';
+import { fakeCommandContext } from '../test/commandContext';
 
 /** A real input in the document, so focus and selection behave as in the app. */
 function attachedInput(value: string): HTMLInputElement {
@@ -85,5 +86,26 @@ describe(useCaretToEnd, () => {
     rerender();
 
     expect(document.activeElement).toBe(focused);
+  });
+});
+
+describe(fillCommandLine, () => {
+  it('fills a line with a space behind it and enters insert mode', () => {
+    const context = fakeCommandContext();
+    const caretBehind = vi.fn();
+
+    fillCommandLine('/vsplit tag', context, caretBehind);
+
+    expect(context.setInput).toHaveBeenCalledWith('/vsplit tag ');
+    expect(caretBehind).toHaveBeenCalledWith('/vsplit tag ');
+    expect(context.dispatch).toHaveBeenCalledWith({ type: 'mode', mode: 'insert' });
+  });
+
+  it('leaves no space behind a line that ends in @, for the handle to be typed on', () => {
+    const context = fakeCommandContext();
+
+    fillCommandLine('/vsplit dm @', context, vi.fn());
+
+    expect(context.setInput).toHaveBeenCalledWith('/vsplit dm @');
   });
 });

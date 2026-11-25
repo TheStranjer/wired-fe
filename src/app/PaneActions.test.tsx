@@ -12,38 +12,11 @@ import { DesktopView } from './DesktopView';
 import { command as unsplit } from '../commands/defs/unsplit';
 import { dispatchInput } from '../commands/dispatch';
 import { buildRegistry } from '../commands/registry';
-import { initialAppState } from '../state/appState';
-import type { AppState } from '../state/appState';
-import { appReducer } from '../state/reducer';
 import { AppStateProvider, useAppDispatch, useAppState } from '../state/StateContext';
 import { fakeCommandContext } from '../test/commandContext';
+import { twoPanes } from '../test/phantomPanes';
 import { PostActionsProvider } from '../views/PostActionsContext';
 import type { PostActions } from '../views/PostActionsContext';
-import { windowId } from '../windows/model';
-import type { WindowKind, WindowRef } from '../windows/model';
-
-/** A window of a kind no shipped feature implements, named by `target`. */
-function phantom(target: string): WindowRef {
-  return { kind: 'phantom' as unknown as WindowKind, accountKey: null, target };
-}
-
-/** `phantom/a` and `phantom/b` side by side, with b focused. */
-function twoPanes(): AppState {
-  const open = (state: AppState, target: string): AppState =>
-    appReducer(state, {
-      type: 'windows',
-      action: { type: 'open', ref: phantom(target), title: `phantom/${target}` },
-    });
-  const both = open(open(initialAppState(), 'a'), 'b');
-  const back = appReducer(both, {
-    type: 'windows',
-    action: { type: 'activate', id: windowId(phantom('a')) },
-  });
-  return appReducer(back, {
-    type: 'layout',
-    action: { type: 'split', dir: 'row', windowId: windowId(phantom('b')) },
-  });
-}
 
 /** Lends the views a runner that runs lines through the real `/unsplit` over the live state. */
 function Runner(props: { readonly children: JSX.Element }): JSX.Element {
