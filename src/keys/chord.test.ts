@@ -59,6 +59,32 @@ const EVENT_CASES: readonly EventCase[] = [
   },
   { label: 'a function key', event: keyEvent('F12'), chord: 'F12' },
   { label: 'the plus key', event: keyEvent('+'), chord: '+' },
+  { label: 'Alt+[', event: keyEvent('[', { altKey: true }), chord: 'Alt+[' },
+  {
+    label: 'macOS Alt+[ read from its code',
+    event: keyEvent('\u201c', { altKey: true, code: 'BracketLeft' }),
+    chord: 'Alt+[',
+  },
+  {
+    label: 'macOS Alt+] read from its code',
+    event: keyEvent('\u2018', { altKey: true, code: 'BracketRight' }),
+    chord: 'Alt+]',
+  },
+  {
+    label: 'Alt+Shift+] read from its code',
+    event: keyEvent('\u2019', { altKey: true, shiftKey: true, code: 'BracketRight' }),
+    chord: 'Alt+]',
+  },
+  {
+    label: 'a bracket without Alt, whatever its code',
+    event: keyEvent('[', { code: 'BracketLeft' }),
+    chord: '[',
+  },
+  {
+    label: 'another key with Alt keeps its key',
+    event: keyEvent('2', { altKey: true, code: 'Digit2' }),
+    chord: 'Alt+2',
+  },
 ];
 
 const UNBOUNDABLE_EVENTS: readonly { readonly label: string; readonly key: string }[] = [

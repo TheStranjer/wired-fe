@@ -1,5 +1,5 @@
 /**
- * Window navigation: `/win N`, `Alt+1..9`, `Alt+ArrowLeft/ArrowRight` and
+ * Window navigation: `/win N`, bare digits, `Alt+ArrowLeft/ArrowRight` and
  * `/win move` (AGENTS.md "Windows, like IRC buffers"). One pure function per
  * reducer action; each hands back the very same state when the request names
  * no move to make. Activation always goes through `withActive`, so every path

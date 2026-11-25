@@ -10,6 +10,7 @@
 
 import { wordsOf } from '../../lib/words';
 import type { LayoutAction } from '../../windows/layoutAction';
+import type { CommandBinding } from '../bindingTypes';
 import { desktopLines } from '../desktopList';
 import { desktopNumber } from '../desktopNumber';
 import { OK, fail, syncRun } from '../outcome';
@@ -18,6 +19,26 @@ import type { CommandContext, CommandDefinition, CommandOutcome } from '../types
 /** Every form of the command: /help shows it, a bad argument echoes it. */
 const USAGE =
   '/desktop [list] | /desktop <number> | /desktop next | /desktop prev | /desktop new | /desktop close [number]';
+
+/** The digits whose Alt+N binding jumps straight to desktop N. */
+const DESKTOP_DIGITS: readonly string[] = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
+
+/**
+ * The default bindings (decision 18): `Alt+1..9` jump, `Alt+0` standing for
+ * desktop 10, in insert mode; `Alt+[` and `Alt+]` step left and right in both.
+ */
+const BINDINGS: readonly CommandBinding[] = [
+  ...DESKTOP_DIGITS.map((digit): CommandBinding => ({
+    mode: 'insert',
+    chord: `Alt+${digit}`,
+    args: digit,
+  })),
+  { mode: 'insert', chord: 'Alt+0', args: '10' },
+  { mode: 'insert', chord: 'Alt+[', args: 'prev' },
+  { mode: 'insert', chord: 'Alt+]', args: 'next' },
+  { mode: 'navigation', chord: 'Alt+[', args: 'prev' },
+  { mode: 'navigation', chord: 'Alt+]', args: 'next' },
+];
 
 /** The argument text matched none of the command's forms. */
 const USAGE_ERROR = fail(`Usage: ${USAGE}`);
@@ -81,6 +102,7 @@ export const command: CommandDefinition = {
   name: 'desktop',
   aliases: ['d'],
   usage: USAGE,
-  summary: 'List, switch, create or close desktops',
+  summary: 'List, switch (Alt+1..9, Alt+[ and Alt+]), create or close desktops',
   run: syncRun(handle),
+  bindings: BINDINGS,
 };

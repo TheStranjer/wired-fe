@@ -48,6 +48,25 @@ describe('/desktop', () => {
     expect(command.usage).toContain('/desktop close [number]');
   });
 
+  it('drives wrap and creation from its Alt hotkeys', async () => {
+    const session = desktopSession();
+    const argsOf = (chord: string): string =>
+      command.bindings?.find((binding) => binding.chord === chord)?.args ?? '';
+
+    await session.run(command, argsOf('Alt+]'));
+
+    expect(where(session)).toStrictEqual({ shown: 2, count: 2 });
+
+    await session.run(command, argsOf('Alt+['));
+    await session.run(command, argsOf('Alt+['));
+
+    expect(where(session)).toStrictEqual({ shown: 2, count: 2 });
+
+    await session.run(command, argsOf('Alt+0'));
+
+    expect(where(session)).toStrictEqual({ shown: 10, count: 10 });
+  });
+
   it('lists number, pane count and windows, with a star on the active one', async () => {
     const session = twoPanes();
     await session.run(command, '3');

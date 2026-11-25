@@ -36,7 +36,7 @@ describe('the context’s key-binding helpers', () => {
   it('hands commands the shipped registry’s defaults as one keymap', () => {
     const { keymap } = renderContext([]).keys;
 
-    expect(keymap.insert.get('Alt+3')).toStrictEqual({ line: '/win 3', prefill: false });
+    expect(keymap.insert.get('Alt+3')).toStrictEqual({ line: '/desktop 3', prefill: false });
     expect(keymap.navigation.get('r')).toStrictEqual({
       line: '/reply {label}',
       prefill: true,
