@@ -1,15 +1,18 @@
 /**
- * `/help` (decision 6): the command list and the details of one command,
- * generated from the registry so every command documents itself by being
- * defined. No argument prints one line per command in registry order; one
- * argument (a leading slash allowed and ignored, any case, matched against
- * names and aliases) prints that command's usage, summary, aliases and
- * default keys. Words beyond the first are ignored. Only the commands the
- * active account's backend can do are listed (WFE-172); asking about one it
- * cannot do says why.
+ * `/help` (decision 6): the command list, the details of one command and the
+ * topic pages, generated from the registry so every command documents itself
+ * by being defined. No argument prints one line per command in registry order
+ * and the topic names; one argument (a leading slash allowed and ignored, any
+ * case, matched against names and aliases) prints that command's usage,
+ * summary, aliases and default keys, except that a topic name typed without a
+ * slash (`/help layout`, `/help sync`) prints the topic: its paragraph and
+ * the commands it covers (helpTopics.ts). Words beyond the first are ignored.
+ * Only the commands the active account's backend can do are listed (WFE-172);
+ * asking about one it cannot do says why.
  */
 
 import { unavailableRefusal } from '../available';
+import { HELP_TOPICS, type HelpTopic, lookupTopic } from '../helpTopics';
 import { OK, fail, syncRun } from '../outcome';
 import { lookupCommand } from '../registry';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
@@ -18,17 +21,10 @@ import type { CommandContext, CommandDefinition, CommandOutcome } from '../types
 const HEADER = 'Commands:';
 const FOOTER = 'Type /help <command> for details.';
 
-/**
- * The first whitespace-separated word of {@link args} with a leading slash
- * removed; undefined when the argument text holds no word at all.
- */
-function subjectOf(args: string): string | undefined {
-  const trimmed = args.trim();
-  if (trimmed === '') {
-    return undefined;
-  }
-  const [word = ''] = trimmed.split(/\s+/u);
-  return word.startsWith('/') ? word.slice(1) : word;
+/** The first whitespace-separated word of {@link args}; undefined when there is none. */
+function firstWord(args: string): string | undefined {
+  const [word = ''] = args.trim().split(/\s+/u);
+  return word === '' ? undefined : word;
 }
 
 /** Print the header, one line per command in registry order, then the footer. */
@@ -36,6 +32,22 @@ function listAll(context: CommandContext): CommandOutcome {
   context.print(HEADER);
   for (const definition of context.registry.commands) {
     context.print(`  /${definition.name} — ${definition.summary}`);
+  }
+  context.print(FOOTER);
+  context.print(
+    `Topics: ${HELP_TOPICS.map((topic) => topic.name).join(', ')}. Type /help <topic>.`,
+  );
+  return OK;
+}
+
+/** Print {@link topic}'s paragraph, then one line per covered command this backend has. */
+function showTopic(topic: HelpTopic, context: CommandContext): CommandOutcome {
+  context.print(topic.text);
+  for (const name of topic.commands) {
+    const definition = lookupCommand(context.registry, name);
+    if (definition !== undefined) {
+      context.print(`  /${definition.name} — ${definition.summary}`);
+    }
   }
   context.print(FOOTER);
   return OK;
@@ -74,10 +86,15 @@ function showDetails(definition: CommandDefinition, context: CommandContext): Co
 
 /** Do what one argument text asks: list every command, or detail exactly one. */
 function handle(args: string, context: CommandContext): CommandOutcome {
-  const subject = subjectOf(args);
-  if (subject === undefined) {
+  const word = firstWord(args);
+  if (word === undefined) {
     return listAll(context);
   }
+  const topic = lookupTopic(word.toLowerCase());
+  if (topic !== undefined) {
+    return showTopic(topic, context);
+  }
+  const subject = word.startsWith('/') ? word.slice(1) : word;
   const definition = lookupCommand(context.registry, subject.toLowerCase());
   if (definition === undefined) {
     return fail(
@@ -91,7 +108,7 @@ function handle(args: string, context: CommandContext): CommandOutcome {
 export const command: CommandDefinition = {
   name: 'help',
   aliases: ['h'],
-  usage: '/help [command]',
+  usage: '/help [command | topic]',
   summary: 'List commands, or show help for one',
   run: syncRun(handle),
   bindings: [{ mode: 'navigation', chord: '?', args: '' }],
