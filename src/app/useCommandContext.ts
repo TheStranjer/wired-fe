@@ -6,7 +6,8 @@
  * `window.location`, the command line's text back through the `setInput` the
  * caller passes in, the composer overlay through its `openComposer`, the
  * pending media (WFE-126) through the `attachments` Root's useAttachments
- * hands down, and the key-binding helpers (WFE-130) from src/keys: the
+ * hands down, the registry narrowed to what the active account's backend can
+ * do (WFE-172), and the key-binding helpers (WFE-130) from src/keys: the
  * effective keymap — the registry's defaults under the reader's overrides —
  * flattened into the bindings `/binds` prints. Posting is the active window's
  * kind's decision (AGENTS.md "The command line is the composer"): plain text
@@ -16,10 +17,10 @@
 
 import { useMemo } from 'react';
 
-import { appRegistry } from './registry';
 import { appStores } from './stores';
+import { useAvailableRegistry } from './useAvailableRegistry';
 import { loadWindowKinds } from './windowKinds';
-import type { CommandContext, PrintLevel, Registry } from '../commands/types';
+import type { CommandContext, PrintLevel } from '../commands/types';
 import { buildConfig } from '../config/config';
 import { blocksTyping, parseChord } from '../keys/chord';
 import { buildKeymap } from '../keys/keymap';
@@ -34,9 +35,6 @@ import type { WindowKind, WindowState } from '../windows/model';
 /** What the shell says when the active window's kind takes no posts. */
 const NO_POST = "You can't post in this window. Try /home";
 
-/** The commands a context carries when the definitions could not be loaded. */
-const NO_COMMANDS: Registry = { commands: [], byName: new Map() };
-
 /** The kinds the loader collected; no kinds at all when that load failed. */
 function loadedKinds(): ReadonlyMap<WindowKind, WindowKindDefinition> {
   const kinds = loadWindowKinds();
@@ -45,12 +43,6 @@ function loadedKinds(): ReadonlyMap<WindowKind, WindowKindDefinition> {
 
 /** The self-registered kinds, once, since posting goes through them. */
 const KINDS = loadedKinds();
-
-/** The indexed commands; none at all when the definitions could not be loaded. */
-function loadedRegistry(): Registry {
-  const built = appRegistry();
-  return built.ok ? built.value : NO_COMMANDS;
-}
 
 /**
  * What posting in {@link win} means: its kind's own post handler, given the
@@ -115,7 +107,7 @@ export function useCommandContext(
   const active = activeWindow(state.windows);
   const refresh = useRefreshDeps();
   const now = (): Date => new Date();
-  const registry = loadedRegistry();
+  const registry = useAvailableRegistry();
   const overrides = state.settings.keyOverrides;
   const keymap = useMemo(() => buildKeymap(registry, overrides), [registry, overrides]);
 

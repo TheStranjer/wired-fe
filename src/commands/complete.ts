@@ -29,7 +29,7 @@ const WORD_SEPARATOR = ' ';
  */
 export type Provider = {
   /** True when this provider handles a word with this prefix character, e.g. '@', ':', '#', '/'. */
-  readonly accepts: (word: string, isFirstWord: boolean) => boolean;
+  readonly accepts: (word: string, isFirstWord: boolean, line?: string) => boolean;
   /** Every full replacement word for {@link word}, sorted; empty when none match. */
   readonly candidates: (word: string) => readonly string[];
 };
@@ -110,7 +110,7 @@ export function startCompletion(
   if (word === '') {
     return null;
   }
-  const chosen = providers.find((provider) => provider.accepts(word, wordStart === 0));
+  const chosen = providers.find((provider) => provider.accepts(word, wordStart === 0, text));
   if (chosen === undefined) {
     return null;
   }

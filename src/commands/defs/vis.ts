@@ -7,12 +7,15 @@
  * action and prints the new default back. `followers` reads as `private`, the
  * Mastodon name for the same audience. `local` is Wired's instance-only
  * audience and needs the active account's `localOnlyPosts` capability
- * (decision 5); without one the command refuses. The dispatch reaches storage
+ * (decision 5); without one the command refuses and /help does not list the
+ * word (WFE-172). The dispatch reaches storage
  * through the app's settings persistence (WFE-129).
  */
 
 import type { Visibility } from '../../api/schemas/status';
+import type { Capabilities } from '../../capabilities/capabilities';
 import { requireFeature } from '../../capabilities/requireFeature';
+import { availableVisibilities } from '../../capabilities/visibilities';
 import { OK, fail, syncRun } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
@@ -28,6 +31,11 @@ const AUDIENCES: ReadonlyMap<string, Visibility> = new Map([
   ['direct', 'direct'],
   ['local', 'local'],
 ]);
+
+/** The usage on a backend with {@link capabilities}: `local` is listed only where it exists. */
+function usageFor(capabilities: Capabilities | null): string {
+  return `/vis [${availableVisibilities(capabilities).join('|')}]`;
+}
 
 /** The line that answers both showing and setting: what new posts now are. */
 function report(context: CommandContext, visibility: Visibility): void {
@@ -67,5 +75,6 @@ export const command: CommandDefinition = {
   aliases: ['visibility'],
   usage: USAGE,
   summary: 'Show or set the default audience for new posts',
+  usageFor,
   run: syncRun(handle),
 };

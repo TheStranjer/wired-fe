@@ -199,10 +199,12 @@ describe(useCommandContext, () => {
     expect(context.config).toBe(buildConfig);
   });
 
-  it('carries the one registry, the one stores and a live clock', () => {
+  it('carries every command while nobody is signed in, the one stores and a live clock', () => {
     const { context } = renderContext([], vi.fn()).result.current;
 
-    expect(context.registry).toBe(registry());
+    expect(context.registry.commands.map((definition) => definition.name)).toStrictEqual(
+      registry().commands.map((definition) => definition.name),
+    );
     expect(context.stores).toBe(appStores());
     expect(context.now()).toBeInstanceOf(Date);
     expect(context.state).toStrictEqual(stateAfter([]));

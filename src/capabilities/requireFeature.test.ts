@@ -19,6 +19,7 @@ const ALL_FLAGS: Readonly<Record<FeatureFlag, true>> = {
   editing: true,
   localOnlyPosts: true,
   markdown: true,
+  passwordResetApi: true,
 };
 
 const FLAGS = Object.keys(ALL_FLAGS) as FeatureFlag[];

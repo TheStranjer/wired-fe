@@ -6,6 +6,7 @@
  * active window as an error; nothing escapes as an exception.
  */
 
+import { unavailableRefusal } from './available';
 import { parseInput } from './parseInput';
 import { lookupCommand } from './registry';
 import type { CommandContext, CommandOutcome } from './types';
@@ -25,11 +26,15 @@ function reportOutcome(outcome: CommandOutcome, context: CommandContext): void {
   }
 }
 
-/** Look the command up and run it. An unknown name and a throw are printed, not rethrown. */
+/**
+ * Look the command up and run it. An unknown name, a command the active
+ * account's backend cannot do (WFE-172) and a throw are printed, not rethrown.
+ */
 async function runCommand(name: string, rest: string, context: CommandContext): Promise<void> {
   const definition = lookupCommand(context.registry, name);
   if (definition === undefined) {
-    context.print(`Unknown command: /${name}. Try /help`, 'error');
+    const refusal = unavailableRefusal(context, name);
+    context.print(refusal ?? `Unknown command: /${name}. Try /help`, 'error');
     return;
   }
   try {

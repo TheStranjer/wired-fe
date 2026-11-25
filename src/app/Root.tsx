@@ -24,6 +24,7 @@ import { SidePane } from './SidePane';
 import { StatusBar, accountLabel } from './StatusBar';
 import { appStores } from './stores';
 import { useAttachments } from './useAttachments';
+import { useCompletionProviders } from './useCompletionProviders';
 import { useComposerOverlay } from './useComposerOverlay';
 import { useDocumentTitle } from './useDocumentTitle';
 import { useDropAndPaste } from './useDropAndPaste';
@@ -33,7 +34,6 @@ import { useSettingsPersistence } from './useSettingsPersistence';
 import { useStartup } from './useStartup';
 import { useTheme } from './useTheme';
 import { loadWindowKinds } from './windowKinds';
-import { type Provider, commandProvider } from '../commands/complete';
 import type { Result } from '../lib/result';
 import type { ClockFormat } from '../lib/time';
 import { type AppState, printAction } from '../state/appState';
@@ -42,8 +42,6 @@ import type { WindowKindDefinition } from '../state/windowKind';
 import { Scrollback } from '../ui/Scrollback';
 import { SystemLine } from '../ui/SystemLine';
 import { TopicBar } from '../ui/TopicBar';
-import { emojiProvider, handleProvider, tagProvider } from '../views/completionProviders';
-import { useCustomEmojis } from '../views/useCustomEmojis';
 import { useStreams } from '../views/useStreams';
 import { STATUS_WINDOW_ID, activeWindow } from '../windows/model';
 import type { WindowKind, WindowState } from '../windows/model';
@@ -69,20 +67,6 @@ type RegionProps = {
 /** Why {@link loaded} could not be loaded, or null when it could. */
 function failure<E>(loaded: Result<unknown, E>): E | null {
   return loaded.ok ? null : loaded.error;
-}
-
-/** The active account's instance's custom emoji list, as ./useCustomEmojis answers it. */
-type EmojiList = ReturnType<typeof useCustomEmojis>;
-
-/**
- * The words Tab may complete to (decision 6, WFE-124): commands from the one
- * registry first, then what the buffers have seen and what the account's
- * instance serves; without a loadable registry there are no commands to
- * offer, and the rest stands on its own.
- */
-function completionProviders(state: AppState, emojis: EmojiList): readonly Provider[] {
-  const seen = [handleProvider(state), tagProvider(state), emojiProvider(emojis)];
-  return REGISTRY.ok ? [commandProvider(REGISTRY.value), ...seen] : seen;
 }
 
 /** The topic bar: the window's title, its account and its kind's topic. */
@@ -131,7 +115,7 @@ export function Root(): JSX.Element {
   const state = useAppState();
   const dispatch = useAppDispatch();
   const active = activeWindow(state.windows);
-  const emojis = useCustomEmojis(state.activeAccountKey);
+  const providers = useCompletionProviders();
   const attachments = useAttachments();
   const drop = useDropAndPaste(attachments);
   const composer = useComposerOverlay(attachments);
@@ -159,7 +143,7 @@ export function Root(): JSX.Element {
         input={
           <CommandLine
             attachments={attachments}
-            completion={completionProviders(state, emojis)}
+            completion={providers}
             openComposer={composer.openComposer}
           />
         }

@@ -18,7 +18,7 @@ Numbered decisions. Tickets and code comments cite them as "decision N". To chan
 
 5. **Backends: capabilities, not brands.** WiredFE talks to Wired, Mastodon and Pleroma/Akkoma. On connect it reads NodeInfo (`software.name`, `metadata.features`), `/api/v1/instance` and `/api/v2/instance` once, and builds one typed `Capabilities` object. UI and commands check capabilities (`caps.emojiReactions`), never the backend's name; only `src/capabilities` reads the brand. A capability that is advertised but answers 404/501 is treated as absent. The detected profile is cached per origin in `sessionStorage` (`capabilities/profileCache.ts`), so a reload does not detect again; `/connect` and a 404/501 from a capability-gated request drop the cached entry.
 
-6. **One command registry.** Every user action is a registry entry: name, aliases, argument grammar, required capability, help text, default hotkey, and the handler. The command line, `/help`, tab completion, the keymap and click targets are all generated from it.
+6. **One command registry.** Every user action is a registry entry: name, aliases, argument grammar, required capability, help text, default hotkey, and the handler. The command line, `/help`, tab completion, the keymap and click targets are all generated from it. An entry's `requires` names the capability flags (decision 5) the backend must carry; for the active account the help, completion, keymap and `/binds` list only the entries it can do, and typing a hidden one prints why it is refused.
 
 7. **Wired's shapes are the internal model.** API responses are parsed with valibot schemas in `src/api`. Mastodon and Pleroma responses go through adapters that map them onto Wired's entity shapes; the rest of the app sees one model.
 

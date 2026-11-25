@@ -35,12 +35,13 @@ type Serving = { readonly status?: number; readonly hold?: () => Promise<void> }
 /** The feature strings a Wired instance advertises in its NodeInfo metadata. */
 const WIRED_FEATURES: readonly string[] = ['pleroma_emoji_reactions', 'quote_posting', 'editing'];
 
-/** The flags {@link WIRED_FEATURES} turns on, plus the dialect's `localOnlyPosts`. */
+/** The flags {@link WIRED_FEATURES} turns on, plus the dialect's `localOnlyPosts` and `passwordResetApi`. */
 const WIRED_FLAGS: readonly FeatureFlag[] = [
   'emojiReactions',
   'quotePosting',
   'editing',
   'localOnlyPosts',
+  'passwordResetApi',
 ];
 
 /** The capabilities of a {@link backend} that advertises {@link flags} and no limits. */
@@ -224,7 +225,9 @@ describe(detectInstance, () => {
 
     const result = await detectInstance(ORIGIN);
 
-    expect(result).toStrictEqual(ok(profile(TITLE, capsWith('wired', ['localOnlyPosts']))));
+    expect(result).toStrictEqual(
+      ok(profile(TITLE, capsWith('wired', ['localOnlyPosts', 'passwordResetApi']))),
+    );
   });
 
   it('names the instance by its hostname when nothing carries a title', async () => {

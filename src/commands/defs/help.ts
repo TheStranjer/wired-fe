@@ -4,9 +4,12 @@
  * defined. No argument prints one line per command in registry order; one
  * argument (a leading slash allowed and ignored, any case, matched against
  * names and aliases) prints that command's usage, summary, aliases and
- * default keys. Words beyond the first are ignored.
+ * default keys. Words beyond the first are ignored. Only the commands the
+ * active account's backend can do are listed (WFE-172); asking about one it
+ * cannot do says why.
  */
 
+import { unavailableRefusal } from '../available';
 import { OK, fail, syncRun } from '../outcome';
 import { lookupCommand } from '../registry';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
@@ -77,7 +80,9 @@ function handle(args: string, context: CommandContext): CommandOutcome {
   }
   const definition = lookupCommand(context.registry, subject.toLowerCase());
   if (definition === undefined) {
-    return fail(`No such command: /${subject}`);
+    return fail(
+      unavailableRefusal(context, subject.toLowerCase()) ?? `No such command: /${subject}`,
+    );
   }
   return showDetails(definition, context);
 }

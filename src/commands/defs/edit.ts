@@ -77,6 +77,7 @@ export const command: CommandDefinition = {
   name: 'edit',
   usage: '/edit [label] [text]',
   summary: 'Edit one of your own posts',
+  requires: 'editing',
   run: async (args, context) => await handle(args, context),
   bindings: [{ mode: 'navigation', chord: 'e', args: '{label}', prefill: true }],
 };
