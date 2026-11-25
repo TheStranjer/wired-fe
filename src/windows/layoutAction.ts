@@ -3,6 +3,7 @@
  * plain data: the actions of the layout reducer, in four groups so each
  * group's reducer stays small and its switch stays exhaustive.
  */
+import type { FocusStep } from './paneFocus';
 import type { Direction } from './splitGeometry';
 import type { SplitPath } from './splitRatio';
 import type { SplitDir } from './splitTree';
@@ -18,6 +19,7 @@ export type DesktopAction =
 /** Actions on the panes of the active desktop. */
 export type PaneAction =
   | { readonly type: 'focusPane'; readonly paneId: string }
+  | { readonly type: 'focusStep'; readonly step: FocusStep }
   | { readonly type: 'split'; readonly dir: SplitDir; readonly windowId: string }
   | { readonly type: 'closePane' }
   | { readonly type: 'float' }
@@ -49,7 +51,11 @@ export type TreeAction =
       readonly delta: number;
     }
   | { readonly type: 'equalize' }
-  | { readonly type: 'swap'; readonly direction: Direction }
+  | {
+      /** Exchanges the focused pane's window with its neighbour's; focus follows the window. */
+      readonly type: 'swap';
+      readonly direction: Direction;
+    }
   | { readonly type: 'only' };
 
 /** Everything the layout reducer understands. */

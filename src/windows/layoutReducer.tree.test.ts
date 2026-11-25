@@ -113,6 +113,7 @@ describe(layoutReducer, () => {
       const state = layoutReducer(twoPanes(), { type: 'swap', direction: 'left' });
 
       expect(treeOf(state, 1)).toBe('row(p1:w2 p2:w1)');
+      expect(activeDesktop(state).focusedPaneId).toBe('p1');
     });
 
     it('swap keeps the state at the edge, with a float or with no focus', () => {

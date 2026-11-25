@@ -76,6 +76,18 @@ describe(layoutReducer, () => {
       expect(activeDesktop(state).focusedPaneId).toBe('p1');
     });
 
+    it('focusStep moves focus to the neighbouring pane', () => {
+      const state = layoutReducer(twoPanes(), { type: 'focusStep', step: 'left' });
+
+      expect(activeDesktop(state).focusedPaneId).toBe('p1');
+    });
+
+    it('focusStep keeps the state at the edge', () => {
+      const state = twoPanes();
+
+      expect(layoutReducer(state, { type: 'focusStep', step: 'right' })).toBe(state);
+    });
+
     it('focusPane keeps the state for an unknown pane', () => {
       const state = twoPanes();
 
