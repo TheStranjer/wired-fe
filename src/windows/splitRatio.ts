@@ -62,6 +62,19 @@ function nearestSplit(tree: SplitTree, paneId: string, dir: SplitDir): Ancestor 
 }
 
 /**
+ * The share of its nearest `dir` split the pane has now, 0..1: the ratio on
+ * the `a` side, its complement on the `b` side. Null when the pane is unknown
+ * or has no such split, i.e. when {@link resizePane} would change nothing.
+ */
+export function paneShare(tree: SplitTree, paneId: string, dir: SplitDir): number | null {
+  const found = nearestSplit(tree, paneId, dir);
+  if (found === null) {
+    return null;
+  }
+  return found.side === 'a' ? found.node.ratio : 1 - found.node.ratio;
+}
+
+/**
  * Grows the pane along `dir` when `delta` is positive, shrinks it when
  * negative, by moving the ratio of its nearest ancestor split with that `dir`.
  * On the `b` side the ratio moves the other way. Clamped; unchanged when the

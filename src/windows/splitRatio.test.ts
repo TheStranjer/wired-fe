@@ -4,7 +4,7 @@
  */
 import { describe, expect, it } from 'vitest';
 
-import { MAX_RATIO, MIN_RATIO, equalize, resizePane, setSplitRatio } from './splitRatio';
+import { MAX_RATIO, MIN_RATIO, equalize, paneShare, resizePane, setSplitRatio } from './splitRatio';
 import type { SplitPath } from './splitRatio';
 import { singlePane } from './splitTree';
 import type { SplitTree } from './splitTree';
@@ -197,5 +197,21 @@ describe(equalize, () => {
 
   it('keeps the shape', () => {
     expect(shape(equalize(nestedTree()))).toBe(shape(nestedTree()));
+  });
+});
+
+describe(paneShare, () => {
+  it('is the ratio for the a side and its complement for the b side', () => {
+    const tree = setSplitRatio(unbalanced(), [], 0.3);
+
+    expect(paneShare(tree, 'p1', 'row')).toBeCloseTo(0.3);
+    expect(paneShare(tree, 'p2', 'row')).toBeCloseTo(0.5);
+    expect(paneShare(tree, 'p3', 'row')).toBeCloseTo(0.5);
+  });
+
+  it('is null without a split in that direction or for an unknown pane', () => {
+    expect(paneShare(unbalanced(), 'p1', 'column')).toBeNull();
+    expect(paneShare(unbalanced(), 'p9', 'row')).toBeNull();
+    expect(paneShare(singlePane('p1', 'w1'), 'p1', 'row')).toBeNull();
   });
 });
