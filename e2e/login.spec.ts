@@ -11,7 +11,7 @@
 import { expect, test, type Page } from '@playwright/test';
 
 import { POSTED_TEXT } from './fixtures/content';
-import { logRegion, signIn, submit, watchErrors, windowEntry } from './fixtures/session';
+import { logRegion, signIn, submit, watchErrors } from './fixtures/session';
 
 /** The two posts the fixture's home timeline serves, oldest first on screen. */
 const FIXTURE_POSTS = ['She is here.', 'the LAN is all one network'];
@@ -37,8 +37,7 @@ test('connect, log in, read home, post', async ({ page }) => {
   const errors = watchErrors(page);
   await signIn(page);
 
-  await expect(windowEntry(page, 'status')).toBeVisible();
-  await expect(windowEntry(page, 'notifs')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Desktop 1, active' })).toBeVisible();
   await readHome(page);
   await postFromHome(page);
 

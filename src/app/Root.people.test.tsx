@@ -155,7 +155,7 @@ describe('the people window in the shell', () => {
     await run('/people');
     fireEvent.click(within(peoplePane()).getByRole('button', { name: '@alice@m.example' }));
 
-    expect(screen.getByRole('button', { name: 'Window 4: @alice@m.example' })).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: /^@alice@m\.example/u })).toBeInTheDocument();
   });
 
   it('says "window closed" once the watched window is closed', async () => {
