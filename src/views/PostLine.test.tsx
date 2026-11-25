@@ -6,8 +6,10 @@
  */
 import { fireEvent, render, screen } from '@testing-library/react';
 import type { JSX } from 'react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
+import { PostActionsProvider } from './PostActionsContext';
+import type { PostActions } from './PostActionsContext';
 import { PostLine } from './PostLine';
 import type { StoredAccount } from '../accounts/accountStore';
 import type { Status } from '../api/schemas/status';
@@ -116,5 +118,24 @@ describe(PostLine, () => {
 
     expect(proceeded).toBe(true);
     expect(screen.getByRole('region', { name: 'windows' })).not.toHaveTextContent('hashtag');
+  });
+
+  it('runs the line of an action button through the app actions', () => {
+    const boost = { line: '/boost a3', prefill: false };
+    const actions: PostActions = {
+      linesFor: vi.fn<PostActions['linesFor']>().mockReturnValue({ boost }),
+      run: vi.fn<PostActions['run']>(),
+    };
+    render(
+      <AppStateProvider initial={seeded()}>
+        <PostActionsProvider actions={actions}>
+          <PostLine lineKey="p1" status={POST} windowId={HOME} />
+        </PostActionsProvider>
+      </AppStateProvider>,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /^Boost post/u }));
+
+    expect(actions.run).toHaveBeenCalledWith(boost);
   });
 });
