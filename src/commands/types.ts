@@ -10,6 +10,7 @@
  * key-binding types live in bindingTypes.ts.
  */
 
+import type { CommandBinding, Keymap } from './bindingTypes';
 import type { AccountStore } from '../accounts/accountStore';
 import type { MediaAttachment } from '../api/schemas/mediaAttachment';
 import type { Capabilities, FeatureFlag } from '../capabilities/capabilities';
@@ -21,7 +22,6 @@ import type { AppAction } from '../state/reducer';
 import type { Store } from '../storage/store';
 import type { WindowsState } from '../windows/model';
 import type { WindowsAction } from '../windows/reducer';
-import type { CommandBinding, Keymap } from './bindingTypes';
 
 /** What running a command achieved: success, or a message to show the user. */
 export type CommandOutcome =
