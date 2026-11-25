@@ -36,10 +36,31 @@ const NO_COUNTS = { replies: 0, boosts: 0, favourites: 0 };
 /** No marks of the viewer's own: the action bar's pressed buttons show them. */
 const NO_MARKS = { boosted: false, favourited: false, bookmarked: false };
 
+/** The attachments: a grid of images, or the row's placeholder lines without images. */
+function CardMedia(props: PostCardProps): JSX.Element {
+  const { media, spoilerText, revealed, onOpenMedia, autoExpand, sensitive } = props;
+  return props.showImages ? (
+    <MediaGrid
+      autoExpand={autoExpand}
+      items={media}
+      onOpenMedia={onOpenMedia}
+      sensitive={sensitive}
+      warned={spoilerText !== '' && !revealed}
+    />
+  ) : (
+    <MediaList
+      autoExpand={autoExpand}
+      items={media}
+      onOpenMedia={onOpenMedia}
+      sensitive={sensitive}
+    />
+  );
+}
+
 /** Everything under the identity: the body, the quote, the poll, the
  * attachments, the metadata and the action bar. */
 function CardContent(props: PostCardProps): JSX.Element {
-  const { quote, poll, media, spoilerText, revealed, onToggleReveal } = props;
+  const { quote, poll, spoilerText, revealed, onToggleReveal } = props;
   return (
     <>
       <div className={styles['body']}>
@@ -56,16 +77,7 @@ function CardContent(props: PostCardProps): JSX.Element {
       {poll === null ? undefined : (
         <PollView clockFormat={props.clockFormat} label={props.label} poll={poll} />
       )}
-      {props.showImages ? (
-        <MediaGrid
-          autoExpand={props.autoExpand}
-          items={media}
-          sensitive={props.sensitive}
-          warned={spoilerText !== '' && !revealed}
-        />
-      ) : (
-        <MediaList autoExpand={props.autoExpand} items={media} sensitive={props.sensitive} />
-      )}
+      <CardMedia {...props} />
       <div className={styles['meta']}>
         <PostMeta
           counts={NO_COUNTS}

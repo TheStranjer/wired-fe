@@ -14,6 +14,7 @@ import type { JSX, Ref } from 'react';
 
 import { BoostLine } from './BoostLine';
 import type { EmojiRef } from './emojify';
+import type { OpenMedia } from './mediaClick';
 import { MediaList } from './MediaList';
 import type { MediaItem } from './MediaList';
 import { PollView } from './PollView';
@@ -81,6 +82,9 @@ export type PostRowProps = {
   readonly sensitive: boolean;
   /** Whether media starts open (the reader's `expandMedia` setting). */
   readonly autoExpand: boolean;
+  /** Opens the attachment at a zero-based index in the media window (WFE-264);
+   * absent leaves every attachment link to the browser. */
+  readonly onOpenMedia?: OpenMedia | undefined;
   /** True for the row the user is on; marks it with aria-current. */
   readonly selected: boolean;
   /** Called when the content-warning button is pressed. */
@@ -106,6 +110,7 @@ type LineProps = Omit<
   | 'media'
   | 'sensitive'
   | 'autoExpand'
+  | 'onOpenMedia'
   | 'selected'
   | 'onSelect'
   | 'onPop'
@@ -152,7 +157,8 @@ function PostLine(props: LineProps): JSX.Element {
 
 /** One post as a chat line; clicking the row selects it, clicking the nick opens the author. */
 export function PostRow(props: PostRowProps): JSX.Element {
-  const { boostedBy, poll, media, sensitive, autoExpand, selected, ref, ...line } = props;
+  const { boostedBy, poll, media, sensitive, autoExpand, onOpenMedia, selected, ref, ...line } =
+    props;
   const { onSelect, onPop, onContentLink } = line;
 
   return (
@@ -173,7 +179,12 @@ export function PostRow(props: PostRowProps): JSX.Element {
       {poll === null ? undefined : (
         <PollView clockFormat={line.clockFormat} label={line.label} poll={poll} />
       )}
-      <MediaList autoExpand={autoExpand} items={media} sensitive={sensitive} />
+      <MediaList
+        autoExpand={autoExpand}
+        items={media}
+        onOpenMedia={onOpenMedia}
+        sensitive={sensitive}
+      />
     </article>
   );
 }

@@ -6,13 +6,17 @@
  * does: its lines say `[SENSITIVE]` and stay shut until opened by hand. Which
  * lines are open is this component's own state, like a buffer's scroll position:
  * the CW reveal is app state because commands drive it, placeholders are not.
+ * With `onOpenMedia`, a plain click on an opened image or file link opens the
+ * attachment in the media window (WFE-264) instead of the raw file; the link
+ * keeps its `href`, so a middle or modified click still reaches the file.
  * Purely presentational (AGENTS.md "Layout"): api's MediaAttachment reaches it
  * through views/postView as plain data, never as an API type, and no media here
- * preloads, autoplays, or opens a window back to the remote file.
+ * preloads or autoplays.
  */
 import { useState } from 'react';
-import type { JSX } from 'react';
+import type { JSX, ReactNode } from 'react';
 
+import { mediaClick, type OpenMedia } from './mediaClick';
 import styles from './MediaList.module.css';
 
 /** One attachment as the list draws it: the ui twin of api's MediaAttachment,
@@ -41,11 +45,37 @@ function placeholder(item: MediaItem, index: number, total: number): string {
   return `[${KIND_LABEL[item.type]} ${String(index + 1)}/${String(total)}: ${description}]`;
 }
 
+/** The link to one file: native to the browser, or a plain click opens the
+ * attachment {@link index} in the media window when there is a handler. */
+function FileLink(props: {
+  readonly url: string;
+  readonly index: number;
+  readonly onOpenMedia: OpenMedia | undefined;
+  readonly children: ReactNode;
+}): JSX.Element {
+  const { url, index, onOpenMedia, children } = props;
+  return (
+    <a
+      className={styles['link']}
+      href={url}
+      onClick={mediaClick(onOpenMedia, index)}
+      rel="noopener noreferrer"
+      target="_blank"
+    >
+      {children}
+    </a>
+  );
+}
+
 /** What an opened line shows: the file itself where the browser can play or
  * draw it, a plain link where it cannot. Captions are the markup contract the
  * accessibility gate asks of every media element, not a promise of a track. */
-function ExpandedMedia(props: { readonly item: MediaItem }): JSX.Element {
-  const { item } = props;
+function ExpandedMedia(props: {
+  readonly item: MediaItem;
+  readonly index: number;
+  readonly onOpenMedia: OpenMedia | undefined;
+}): JSX.Element {
+  const { item, index, onOpenMedia } = props;
   const { url } = item;
   if (url === null) {
     return <span className={styles['unavailable']}>[no usable link]</span>;
@@ -54,13 +84,13 @@ function ExpandedMedia(props: { readonly item: MediaItem }): JSX.Element {
     case 'image':
     case 'gifv':
       return (
-        <a className={styles['link']} href={url} rel="noopener noreferrer" target="_blank">
+        <FileLink index={index} onOpenMedia={onOpenMedia} url={url}>
           <img
             alt={item.description ?? ''}
             className={styles['image']}
             src={item.previewUrl ?? url}
           />
-        </a>
+        </FileLink>
       );
     case 'video':
       return (
@@ -76,9 +106,9 @@ function ExpandedMedia(props: { readonly item: MediaItem }): JSX.Element {
       );
     case 'unknown':
       return (
-        <a className={styles['link']} href={url} rel="noopener noreferrer" target="_blank">
+        <FileLink index={index} onOpenMedia={onOpenMedia} url={url}>
           {url}
-        </a>
+        </FileLink>
       );
   }
 }
@@ -86,6 +116,8 @@ function ExpandedMedia(props: { readonly item: MediaItem }): JSX.Element {
 /** Props of {@link MediaLine}: one attachment, its placeholder, and its state. */
 type MediaLineProps = {
   readonly item: MediaItem;
+  readonly index: number;
+  readonly onOpenMedia: OpenMedia | undefined;
   readonly text: string;
   readonly sensitive: boolean;
   readonly expanded: boolean;
@@ -94,7 +126,7 @@ type MediaLineProps = {
 
 /** One placeholder line: the `[IMG …]` button and, once open, the file. */
 function MediaLine(props: MediaLineProps): JSX.Element {
-  const { item, text, sensitive, expanded, onToggle } = props;
+  const { item, index, onOpenMedia, text, sensitive, expanded, onToggle } = props;
   return (
     <div className={styles['line']}>
       <button
@@ -106,7 +138,7 @@ function MediaLine(props: MediaLineProps): JSX.Element {
         {sensitive ? <span className={styles['sensitive']}>[SENSITIVE]</span> : undefined}
         {sensitive ? ` ${text}` : text}
       </button>
-      {expanded ? <ExpandedMedia item={item} /> : undefined}
+      {expanded ? <ExpandedMedia index={index} item={item} onOpenMedia={onOpenMedia} /> : undefined}
     </div>
   );
 }
@@ -119,8 +151,10 @@ export function MediaList(props: {
   readonly items: readonly MediaItem[];
   readonly sensitive: boolean;
   readonly autoExpand: boolean;
+  /** Opens the attachment at a zero-based index in the media window. */
+  readonly onOpenMedia?: OpenMedia | undefined;
 }): JSX.Element | null {
-  const { items, sensitive, autoExpand } = props;
+  const { items, sensitive, autoExpand, onOpenMedia } = props;
   const [open, setOpen] = useState<ReadonlySet<string>>(() =>
     autoExpand && !sensitive ? new Set(items.map((item) => item.id)) : new Set<string>(),
   );
@@ -148,7 +182,9 @@ export function MediaList(props: {
         <MediaLine
           key={item.id}
           expanded={open.has(item.id)}
+          index={index}
           item={item}
+          onOpenMedia={onOpenMedia}
           onToggle={() => {
             toggle(item.id);
           }}
