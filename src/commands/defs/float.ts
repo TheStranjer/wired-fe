@@ -55,6 +55,7 @@ export const command: CommandDefinition = {
   name: 'float',
   usage: USAGE,
   summary: 'Tear the focused pane off into a float, or open a view in a new one',
+  bindings: [{ mode: 'navigation', chord: 'w f', args: '' }],
   run: async (args, context) => {
     const [first, ...rest] = wordsOf(args);
     const word = first?.toLowerCase();

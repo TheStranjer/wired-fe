@@ -18,4 +18,5 @@ export const command: CommandDefinition = {
   usage: USAGE,
   summary: 'Split the focused pane stacked',
   run: splitRun('column', USAGE),
+  bindings: [{ mode: 'navigation', chord: 'w s', args: '' }],
 };

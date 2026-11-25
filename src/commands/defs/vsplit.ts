@@ -21,4 +21,5 @@ export const command: CommandDefinition = {
   usage: USAGE,
   summary: 'Split the focused pane side by side',
   run: splitRun('row', USAGE),
+  bindings: [{ mode: 'navigation', chord: 'w v', args: '' }],
 };

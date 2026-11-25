@@ -30,5 +30,12 @@ export const command: CommandDefinition = {
   name: 'focus',
   usage: USAGE,
   summary: 'Focus the pane in a direction, or cycle through the panes',
+  bindings: [
+    { mode: 'navigation', chord: 'w h', args: 'left' },
+    { mode: 'navigation', chord: 'w j', args: 'down' },
+    { mode: 'navigation', chord: 'w k', args: 'up' },
+    { mode: 'navigation', chord: 'w l', args: 'right' },
+    { mode: 'navigation', chord: 'w w', args: 'next' },
+  ],
   run: syncRun(handle),
 };

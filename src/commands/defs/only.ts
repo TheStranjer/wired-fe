@@ -16,6 +16,7 @@ export const command: CommandDefinition = {
   name: 'only',
   usage: '/only',
   summary: 'Close every other pane and float; their windows stay open (unlike /close)',
+  bindings: [{ mode: 'navigation', chord: 'w o', args: '' }],
   run: contextRun((context) => {
     const { layout } = context.state;
     if (activeDesktop(layout).focusedPaneId === null) {

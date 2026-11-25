@@ -5,7 +5,7 @@
  * the navigation selection name the post's author instead, a boost its
  * boosted author; a failed lookup or nothing to resolve says so and asks for
  * no window, and so does nobody being signed in. The definition also declares
- * the grammar and the navigation `w` binding the keymap generates.
+ * the grammar and the navigation `Shift+w` binding the keymap generates.
  */
 import { HttpResponse, http } from 'msw';
 import { describe, expect, it } from 'vitest';
@@ -126,11 +126,11 @@ describe('/whois', () => {
     expect(context.dispatchWindows).not.toHaveBeenCalled();
   });
 
-  it('is also /wi and /profile, bound to navigation w', () => {
+  it('is also /wi and /profile, bound to navigation Shift+w', () => {
     expect(command.name).toBe('whois');
     expect(command.aliases).toStrictEqual(['wi', 'profile']);
     expect(command.usage).toBe('/whois [label | @user@host]');
     expect(command.summary).toBe("Open an account's profile window");
-    expect(command.bindings).toStrictEqual([{ mode: 'navigation', chord: 'w', args: '' }]);
+    expect(command.bindings).toStrictEqual([{ mode: 'navigation', chord: 'Shift+w', args: '' }]);
   });
 });

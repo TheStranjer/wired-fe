@@ -16,6 +16,7 @@ export const command: CommandDefinition = {
   name: 'dock',
   usage: '/dock',
   summary: 'Dock the focused float into the tiled panes',
+  bindings: [{ mode: 'navigation', chord: 'w d', args: '' }],
   run: contextRun((context) => {
     if (focusedFloat(context) === null) {
       return NOT_A_FLOAT;
