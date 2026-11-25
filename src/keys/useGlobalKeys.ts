@@ -15,6 +15,7 @@ import { useEffect, useRef, useState } from 'react';
 
 import { chordFromEvent } from './chord';
 import type { InputMode } from './mode';
+import { ownsDividerKey } from '../lib/dividerRatio';
 
 /** Return true when the chord was handled: the event's default is then prevented. */
 export type ChordHandler = (chord: string, event: KeyboardEvent) => boolean;
@@ -30,12 +31,26 @@ function insideDialog(event: KeyboardEvent): boolean {
 }
 
 /**
+ * True when {@link event} is an arrow, `Home` or `End` pressed on a focused
+ * pane divider (WFE-221): the divider resizes with those keys, so they are
+ * not hotkeys while it has focus.
+ */
+function ownedByDivider(event: KeyboardEvent): boolean {
+  const { target } = event;
+  return (
+    target instanceof Element &&
+    target.closest('[role="separator"]') !== null &&
+    ownsDividerKey(event)
+  );
+}
+
+/**
  * Listens for global keydowns while mounted and passes each chord to the
  * latest `handler`. Handled chords have their default prevented and their
  * propagation stopped; IME composing events, events without a chord
- * (bare modifiers, unnameable keys) and events pressed inside an open modal
- * dialog or dropdown menu — which own their keys (WFE-125, WFE-190) — never
- * reach the handler.
+ * (bare modifiers, unnameable keys), events pressed inside an open modal
+ * dialog or dropdown menu — which own their keys (WFE-125, WFE-190) — and
+ * the resize keys of a focused pane divider never reach the handler.
  */
 export function useGlobalKeys(handler: ChordHandler): void {
   const handlerRef = useRef(handler);
@@ -46,7 +61,7 @@ export function useGlobalKeys(handler: ChordHandler): void {
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent): void => {
-      if (event.isComposing || insideDialog(event)) {
+      if (event.isComposing || insideDialog(event) || ownedByDivider(event)) {
         return;
       }
       const chord = chordFromEvent(event);

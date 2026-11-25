@@ -1,0 +1,41 @@
+/* The divider between two panes: a 1px border-coloured line, its hit area
+   widened to about 6px by an invisible ::after, so it is easy to grab. */
+
+.vertical,
+.horizontal {
+  position: relative;
+  flex: none;
+  background: var(--color-border);
+  touch-action: none;
+  user-select: none;
+}
+
+.vertical {
+  width: 1px;
+  cursor: col-resize;
+}
+
+.horizontal {
+  height: 1px;
+  cursor: row-resize;
+}
+
+.vertical::after,
+.horizontal::after {
+  content: '';
+  position: absolute;
+  z-index: 1;
+}
+
+.vertical::after {
+  inset: 0 -2.5px;
+}
+
+.horizontal::after {
+  inset: -2.5px 0;
+}
+
+.vertical:focus-visible,
+.horizontal:focus-visible {
+  outline: var(--border-width-focus) solid var(--color-accent);
+}
