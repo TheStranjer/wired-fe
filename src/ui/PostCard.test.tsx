@@ -189,7 +189,7 @@ describe(PostCard, () => {
 
     expect(screen.getByText(/the wired is all one network\./u)).toBeInTheDocument();
     expect(screen.getByText(/10 votes/u)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '[IMG 1/1: a wall]' })).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: 'a wall' })).toBeInTheDocument();
   });
 
   it('shows the author avatar, as the still image, when showAvatar is on', () => {

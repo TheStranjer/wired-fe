@@ -12,7 +12,7 @@ import type { JSX } from 'react';
 import { Avatar } from './Avatar';
 import { BoostLine } from './BoostLine';
 import type { EmojiRef } from './emojify';
-import { MediaList } from './MediaList';
+import { MediaGrid } from './MediaGrid';
 import { Nick } from './Nick';
 import { PollView } from './PollView';
 import { PostBody } from './PostBody';
@@ -129,7 +129,12 @@ function CardContent(props: PostCardProps): JSX.Element {
       {poll === null ? undefined : (
         <PollView clockFormat={props.clockFormat} label={props.label} poll={poll} />
       )}
-      <MediaList autoExpand={props.autoExpand} items={media} sensitive={props.sensitive} />
+      <MediaGrid
+        autoExpand={props.autoExpand}
+        items={media}
+        sensitive={props.sensitive}
+        warned={spoilerText !== '' && !revealed}
+      />
       <PostMeta
         counts={props.counts}
         edited={props.edited}
