@@ -7,9 +7,13 @@
  * ./notificationText spells out, on the notification's own clock. Since
  * WFE-106 the actor's handle leads that sentence as a click target, opening
  * their profile window; the kinds whose sentence names no actor stay plain.
+ * When the window's density is `cards` (decision 15, WFE-233) the notification
+ * is drawn by ./NotificationCard instead.
  */
 import type { JSX } from 'react';
 
+import { openActor, withoutActor } from './notificationActor';
+import { NotificationCard } from './NotificationCard';
 import { hasWords } from './notificationExcerpt';
 import styles from './NotificationLine.module.css';
 import { notificationText } from './notificationText';
@@ -20,8 +24,7 @@ import type { Status } from '../api/schemas/status';
 import type { AppState } from '../state/appState';
 import type { NotificationLineData } from '../state/buffer';
 import { labelForStatus } from '../state/bufferSelection';
-import { profileWindowOpen } from '../state/profileWindow';
-import { bufferFor, windowAccountKey } from '../state/selectors';
+import { bufferFor, displayFor } from '../state/selectors';
 import { useAppDispatch, useAppState } from '../state/StateContext';
 import { SystemLine } from '../ui/SystemLine';
 
@@ -54,11 +57,6 @@ function mentionRow(props: NotificationLineProps, status: Status): JSX.Element {
   );
 }
 
-/** One sentence with its leading actor {@link handle} taken off; null if it has none. */
-function withoutActor(sentence: string, handle: string): string | null {
-  return sentence.startsWith(`${handle} `) ? sentence.slice(handle.length + 1) : null;
-}
-
 /** The post a mention shows as its own row: one with words; none for the rest. */
 function mentionedPost(notification: NotificationLineData['notification']): Status | null {
   const { status } = notification;
@@ -84,12 +82,7 @@ function NotificationMessage(props: NotificationLineProps): JSX.Element {
       ? undefined
       : {
           handle,
-          onSelect: () => {
-            dispatch({
-              type: 'windows',
-              action: profileWindowOpen(notification.account, windowAccountKey(state, windowId)),
-            });
-          },
+          onSelect: openActor({ state, go: dispatch }, windowId, notification.account),
         };
   return (
     <SystemLine
@@ -103,10 +96,10 @@ function NotificationMessage(props: NotificationLineProps): JSX.Element {
 }
 
 /**
- * One notification line: a mention with words as its post, a quote as its
+ * One IRC notification line: a mention with words as its post, a quote as its
  * sentence over the quoting post, anything else as a client message.
  */
-export function NotificationLine(props: NotificationLineProps): JSX.Element {
+function IrcNotification(props: NotificationLineProps): JSX.Element {
   const { notification } = props.line;
   const shown = mentionedPost(notification);
   if (shown !== null) {
@@ -121,4 +114,13 @@ export function NotificationLine(props: NotificationLineProps): JSX.Element {
     );
   }
   return <NotificationMessage {...props} />;
+}
+
+/** One notification: a card or an IRC line, as the window's resolved density says. */
+export function NotificationLine(props: NotificationLineProps): JSX.Element {
+  const state = useAppState();
+  if (displayFor(state, props.windowId).density === 'cards') {
+    return <NotificationCard {...props} />;
+  }
+  return <IrcNotification {...props} />;
 }
