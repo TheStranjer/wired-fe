@@ -6,13 +6,18 @@
  * fields — the overlay in local state (./Composer), the composer window in the
  * app state — and decides what a send does, so both show exactly the same
  * thing. Ctrl+Enter or the button asks to send, but only while the draft is
- * sendable: text, within the limit, nothing in flight.
+ * sendable: text, within the limit, a poll (when one is open) with every
+ * option fine, nothing in flight. The poll editor (./PollSection) shows only
+ * where the owner passes the instance's poll limits.
  */
 import type { ChangeEvent, JSX, KeyboardEvent, ReactNode } from 'react';
 
 import styles from './Composer.module.css';
+import { PollSection } from './PollSection';
+import type { PollLimits } from '../api/schemas/pollLimits';
 import type { Visibility } from '../api/schemas/status';
 import type { ComposerFields } from '../state/draft';
+import { pollBlocksSend } from '../state/pollEditor';
 
 /** What the form shows and the callbacks it drives. */
 export type ComposerFormProps = {
@@ -29,6 +34,8 @@ export type ComposerFormProps = {
   readonly onChange: (patch: Partial<ComposerFields>) => void;
   /** Send the draft; only asked while it is sendable. */
   readonly onSend: () => void;
+  /** The posting instance's poll limits; given, the form offers the poll editor (WFE-206). */
+  readonly pollLimits?: PollLimits;
   /** Controls to show above the text, such as the "Post as" picker. */
   readonly header?: ReactNode;
 };
@@ -119,10 +126,28 @@ function OptionsRow(
   );
 }
 
+/** The poll toggle and editor, where the form was given poll limits. */
+function Poll(props: ComposerFormProps): JSX.Element | null {
+  const { pollLimits, fields, onChange } = props;
+  return pollLimits === undefined ? null : (
+    <PollSection
+      limits={pollLimits}
+      mediaCount={fields.mediaIds?.length ?? 0}
+      onChange={(poll) => {
+        onChange({ poll });
+      }}
+      poll={fields.poll}
+    />
+  );
+}
+
 /** The composer's fields over its options, with the last failure below. */
 export function ComposerForm(props: ComposerFormProps): JSX.Element {
-  const { text } = props.fields;
-  const sendable = text.trim() !== '' && text.length <= props.maxCharacters && !props.sending;
+  const { text, poll, mediaIds } = props.fields;
+  const pollBlocks =
+    props.pollLimits !== undefined && pollBlocksSend(poll, mediaIds?.length ?? 0, props.pollLimits);
+  const sendable =
+    text.trim() !== '' && text.length <= props.maxCharacters && !props.sending && !pollBlocks;
   const send = (): void => {
     if (sendable) {
       props.onSend();
@@ -132,6 +157,7 @@ export function ComposerForm(props: ComposerFormProps): JSX.Element {
     <div className={styles['composer']}>
       {props.header}
       <PostText {...props} send={send} />
+      <Poll {...props} />
       <OptionsRow {...props} sendable={sendable} send={send} />
       {props.error === null ? null : (
         <p aria-live="polite" className={styles['error']}>

@@ -45,7 +45,11 @@ export function useComposerSend(windowId: string, accountKey: string | null): Co
       return;
     }
     setError(null);
-    dispatch({ type: 'composerEdit', windowId, patch: { text: '', spoiler: '' } });
+    dispatch({
+      type: 'composerEdit',
+      windowId,
+      patch: { text: '', spoiler: '', poll: undefined, mediaIds: undefined },
+    });
     dispatch(printAction(windowId, 'info', `Posted as @${created.value.account.acct}`));
   }
 

@@ -6,6 +6,7 @@
  * the app would have shown it.
  */
 import { accountKey, type StoredAccount } from '../../accounts/accountStore';
+import type { PollLimits } from '../../api/schemas/pollLimits';
 import {
   type Capabilities,
   DEFAULT_POLL_LIMITS,
@@ -35,13 +36,26 @@ export function accountOf(origin: string, id: string, handle: string): StoredAcc
 export const LAIN = accountOf(WIRED, '1', 'lain@wired.example');
 export const BOB = accountOf(MASTO, '2', 'bob@mastodon.example');
 
-/** What an instance serves: its post length and whether `local` is an audience. */
-function capabilities(backend: Capabilities['backend'], max: number, local: boolean): Capabilities {
+/** What bob's instance allows a poll: three short options, one hour to one day. */
+export const MASTO_POLL_LIMITS: PollLimits = {
+  maxOptions: 3,
+  maxCharactersPerOption: 10,
+  minExpiration: 3600,
+  maxExpiration: 86_400,
+};
+
+/** What an instance serves: its post length, whether `local` is an audience, its poll limits. */
+function capabilities(
+  backend: Capabilities['backend'],
+  max: number,
+  options: { readonly local: boolean; readonly pollLimits: PollLimits },
+): Capabilities {
+  const { local, pollLimits } = options;
   return {
     backend,
     maxCharacters: max,
     maxMediaAttachments: 4,
-    pollLimits: DEFAULT_POLL_LIMITS,
+    pollLimits,
     features: new Set<FeatureFlag>(local ? ['localOnlyPosts'] : []),
   };
 }
@@ -52,11 +66,19 @@ export function openedComposer(extra: readonly AppAction[] = []): AppState {
     { type: 'accounts', accounts: [LAIN, BOB], activeKey: LAIN.key },
     {
       type: 'profile',
-      profile: { origin: WIRED, title: 'wired', capabilities: capabilities('wired', 30, true) },
+      profile: {
+        origin: WIRED,
+        title: 'wired',
+        capabilities: capabilities('wired', 30, { local: true, pollLimits: DEFAULT_POLL_LIMITS }),
+      },
     },
     {
       type: 'profile',
-      profile: { origin: MASTO, title: 'masto', capabilities: capabilities('mastodon', 20, false) },
+      profile: {
+        origin: MASTO,
+        title: 'masto',
+        capabilities: capabilities('mastodon', 20, { local: false, pollLimits: MASTO_POLL_LIMITS }),
+      },
     },
   ];
   const signedIn = base.reduce(appReducer, initialAppState());
