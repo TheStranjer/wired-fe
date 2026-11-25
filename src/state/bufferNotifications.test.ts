@@ -36,7 +36,12 @@ function systemLine(seq: number): SystemLineData {
 
 /** A notification line keyed `notif:<id>`, as addNotifications builds them. */
 function notifLine(id: string, shown: Status | null): NotificationLineData {
-  return { kind: 'notification', key: `notif:${id}`, notification: notification(id, shown) };
+  return {
+    kind: 'notification',
+    key: `notif:${id}`,
+    notification: notification(id, shown),
+    accountKey: null,
+  };
 }
 
 /** A buffer holding one client line, so the notifications join around something. */
@@ -176,7 +181,7 @@ describe(removeNotification, () => {
         systemLine(0),
         notifLine('gone', null),
         notifLine('keep', status('s')),
-        { kind: 'post', key: 'post:gone', status: status('gone') },
+        { kind: 'post', key: 'post:gone', status: status('gone'), accountKey: null },
       ],
     };
 

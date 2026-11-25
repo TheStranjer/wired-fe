@@ -14,7 +14,12 @@ import { notification, status } from '../test/fixtures';
 
 /** A notification line keyed `nt:<id>`, as the notifications window holds them. */
 function notificationLine(id: string, shown: Status | null): NotificationLineData {
-  return { kind: 'notification', key: `nt:${id}`, notification: notification(id, shown) };
+  return {
+    kind: 'notification',
+    key: `nt:${id}`,
+    notification: notification(id, shown),
+    accountKey: null,
+  };
 }
 
 describe('statusForLabel with quotes', () => {

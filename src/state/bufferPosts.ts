@@ -68,6 +68,7 @@ export function shownQuote(status: Status): Status | null {
 function labelLines(
   labels: LabelBook,
   chronological: readonly Status[],
+  accountKey: string | null,
 ): readonly [PostLineData[], LabelBook] {
   const lines: PostLineData[] = [];
   let book = labels;
@@ -77,7 +78,7 @@ function labelLines(
     if (quoted !== null) {
       [book] = assignLabel(book, quoted.id);
     }
-    lines.push({ kind: 'post', key: postKey(status.id), status });
+    lines.push({ kind: 'post', key: postKey(status.id), status, accountKey });
   }
   return [lines, book];
 }
@@ -88,17 +89,25 @@ function labelLines(
  * are reversed into chronological order, labelled in the order they are added,
  * and appended under the existing lines (`newer`) or prepended above them
  * (`older`); the result is capped. The same buffer comes back when nothing new
- * arrived.
+ * arrived. Every line that joins records `accountKey`, the account that
+ * fetched it (decision 14); {@link addStatuses} is this for an unknown account.
  */
-export function addStatuses(buffer: Buffer, statuses: readonly Status[], where: Where): Buffer {
-  const chronological = freshStatuses(buffer.lines, statuses).toReversed();
-  if (chronological.length === 0) {
-    return buffer;
-  }
-  const [lines, labels] = labelLines(buffer.labels, chronological);
-  const merged = where === 'newer' ? [...buffer.lines, ...lines] : [...lines, ...buffer.lines];
-  return { ...buffer, labels, lines: capLines(merged) };
+export function addStatusesAs(
+  accountKey: string | null,
+): (buffer: Buffer, statuses: readonly Status[], where: Where) => Buffer {
+  return (buffer, statuses, where) => {
+    const chronological = freshStatuses(buffer.lines, statuses).toReversed();
+    if (chronological.length === 0) {
+      return buffer;
+    }
+    const [lines, labels] = labelLines(buffer.labels, chronological, accountKey);
+    const merged = where === 'newer' ? [...buffer.lines, ...lines] : [...lines, ...buffer.lines];
+    return { ...buffer, labels, lines: capLines(merged) };
+  };
 }
+
+/** {@link addStatusesAs} for lines whose fetching account is unknown (`accountKey` null). */
+export const addStatuses = addStatusesAs(null);
 
 /**
  * Report a changed status to the scrollback: every line showing it directly

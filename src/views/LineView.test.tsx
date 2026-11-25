@@ -228,9 +228,14 @@ describe(LineView, () => {
   });
 
   it('shows no label for a status this window never labelled', () => {
-    const ghost: PostLineData = { kind: 'post', key: 'post:ghost', status: status('ghost') };
+    const p: PostLineData = {
+      kind: 'post',
+      key: 'post:ghost',
+      status: status('ghost'),
+      accountKey: null,
+    };
 
-    const { container } = renderLine(seeded(), ghost);
+    const { container } = renderLine(seeded(), p);
 
     expect(screen.getByText('[]')).toBeInTheDocument();
     expect(container.textContent).toMatch(/^\[\] \d\d:\d\d <lain@wired\.example> ghost$/u);

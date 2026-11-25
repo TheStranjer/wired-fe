@@ -19,11 +19,25 @@ import { idForLabel, labelForId } from '../windows/labels';
  * message, because there is nothing to show and nothing to select.
  */
 export function statusOfLine(line: LineData): Status | null {
+  return lineStatusOf(line)?.status ?? null;
+}
+
+/** A status as one line shows it, with the account that line was fetched by (decision 14). */
+export type LineStatus = {
+  readonly status: Status;
+  /** The account that fetched the line; null when unknown, so the window's account stands. */
+  readonly accountKey: string | null;
+};
+
+/** {@link statusOfLine} with the account that fetched the line; null where there is no status. */
+function lineStatusOf(line: LineData): LineStatus | null {
   switch (line.kind) {
     case 'post':
-      return line.status;
+      return { status: line.status, accountKey: line.accountKey };
     case 'notification':
-      return line.notification.status;
+      return line.notification.status === null
+        ? null
+        : { status: line.notification.status, accountKey: line.accountKey };
     case 'system':
       return null;
   }
@@ -118,15 +132,13 @@ export function toggleRevealed(buffer: Buffer, key: string): Buffer {
  * carries none — including when it has scrolled out from under the selection.
  */
 export function selectedStatus(buffer: Buffer): Status | null {
-  const { selectedKey } = buffer;
-  if (selectedKey === null) {
-    return null;
-  }
-  const line = buffer.lines.find((entry) => entry.key === selectedKey);
-  if (line === undefined) {
-    return null;
-  }
-  return statusOfLine(line);
+  return selectedLineStatus(buffer)?.status ?? null;
+}
+
+/** {@link selectedStatus} with the account that fetched the selected line. */
+export function selectedLineStatus(buffer: Buffer): LineStatus | null {
+  const line = buffer.lines.find((entry) => entry.key === buffer.selectedKey);
+  return line === undefined ? null : lineStatusOf(line);
 }
 
 /**
@@ -137,24 +149,35 @@ export function selectedStatus(buffer: Buffer): Status | null {
  * while the label stayed in the book.
  */
 export function statusForLabel(buffer: Buffer, label: string): Status | null {
+  return lineStatusForLabel(buffer, label)?.status ?? null;
+}
+
+/** {@link statusForLabel} with the account that fetched the line the label stands on. */
+export function lineStatusForLabel(buffer: Buffer, label: string): LineStatus | null {
   const id = idForLabel(buffer.labels, label);
   if (id === undefined) {
     return null;
   }
   for (const line of buffer.lines) {
-    const status = statusOfLine(line);
-    if (status === null) {
+    const found = lineStatusOf(line);
+    if (found === null) {
       continue;
     }
-    if (status.id === id) {
-      return status;
-    }
-    const quoted = shownQuote(status);
-    if (quoted !== null && quoted.id === id) {
-      return quoted;
+    const shown = withId(found.status, id);
+    if (shown !== null) {
+      return { status: shown, accountKey: found.accountKey };
     }
   }
   return null;
+}
+
+/** The status `id` as {@link status} shows it: itself, or the quote shown on it; else null. */
+function withId(status: Status, id: string): Status | null {
+  if (status.id === id) {
+    return status;
+  }
+  const quoted = shownQuote(status);
+  return quoted !== null && quoted.id === id ? quoted : null;
 }
 
 /**

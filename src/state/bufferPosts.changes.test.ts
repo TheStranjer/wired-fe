@@ -24,7 +24,7 @@ function systemLine(seq: number): SystemLineData {
 
 /** A post line keyed `post:<id>`, as addStatuses builds them. */
 function postLine(id: string, shown: Status): PostLineData {
-  return { kind: 'post', key: `post:${id}`, status: shown };
+  return { kind: 'post', key: `post:${id}`, status: shown, accountKey: null };
 }
 
 /** The buffer's line keys, top to bottom. */

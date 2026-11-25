@@ -57,12 +57,12 @@ const ON_HOME = opened(HOME_ID);
 
 /** A post line, as the buffer's own transitions would key it. */
 function postLine(shown: Status): LineData {
-  return { kind: 'post', key: `post:${shown.id}`, status: shown };
+  return { kind: 'post', key: `post:${shown.id}`, status: shown, accountKey: null };
 }
 
 /** A notification line, as the buffer's own transitions would key it. */
 function notifLine(note: Notification): LineData {
-  return { kind: 'notification', key: `notif:${note.id}`, notification: note };
+  return { kind: 'notification', key: `notif:${note.id}`, notification: note, accountKey: null };
 }
 
 /** A buffer holding {@link lines}. */

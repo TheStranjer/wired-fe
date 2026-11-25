@@ -37,12 +37,17 @@ function warning(id: string): Status {
 
 /** A post line keyed `post:<id>`, as addStatuses builds them. */
 function postLine(shown: Status): PostLineData {
-  return { kind: 'post', key: `post:${shown.id}`, status: shown };
+  return { kind: 'post', key: `post:${shown.id}`, status: shown, accountKey: null };
 }
 
 /** A notification line keyed `nt:<id>`, as the notifications window holds them. */
 function notificationLine(id: string, shown: Status | null): NotificationLineData {
-  return { kind: 'notification', key: `nt:${id}`, notification: notification(id, shown) };
+  return {
+    kind: 'notification',
+    key: `nt:${id}`,
+    notification: notification(id, shown),
+    accountKey: null,
+  };
 }
 
 /** A client message keyed `sys:<seq>`. */
