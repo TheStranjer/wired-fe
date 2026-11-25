@@ -73,3 +73,35 @@
 .send:focus-visible {
   outline: 1px solid var(--color-accent);
 }
+
+/* The compact box (WFE-207): the text growing from one line to six beside its
+   counter and send button, a failed send on a line of its own below. */
+
+.compact {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space);
+}
+
+.textCompact {
+  flex: 1;
+  min-width: 0;
+  max-height: calc(var(--line-height) * 6em + var(--space) * 2);
+  padding: var(--space);
+  overflow-y: auto;
+  border: 1px solid var(--color-dim);
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font: inherit;
+  line-height: var(--line-height);
+  resize: none;
+}
+
+.textCompact:focus-visible {
+  outline: 1px solid var(--color-accent);
+}
+
+.compact .error {
+  flex-basis: 100%;
+}

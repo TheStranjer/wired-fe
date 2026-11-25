@@ -1,6 +1,6 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
-import { formatClock } from './time';
+import { currentMoment, formatClock } from './time';
 
 // Local-time constructor arguments, so the tests never depend on the
 // machine's time zone.
@@ -31,5 +31,16 @@ describe(formatClock, () => {
 
   it('shows the last minute of the day as 11:59pm in 12h format', () => {
     expect(formatClock(new Date(2026, 0, 2, 23, 59), '12h')).toBe('11:59pm');
+  });
+});
+
+describe(currentMoment, () => {
+  it('is the moment it is asked at', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(2026, 0, 2, 3, 4));
+
+    expect(currentMoment()).toStrictEqual(new Date(2026, 0, 2, 3, 4));
+
+    vi.useRealTimers();
   });
 });

@@ -1,0 +1,13 @@
+/* The DM window: the messages scroll in the top row, the input box stays
+   docked in the bottom one. */
+
+.window {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  height: 100%;
+}
+
+.input {
+  padding: var(--space);
+  border-top: 1px solid var(--color-dim);
+}
