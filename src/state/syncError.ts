@@ -11,6 +11,11 @@ import { describeApiError } from '../api/errors';
 export const INVALID_REMOTE_TEXT =
   'Sync: the desk saved on the server is not readable and was ignored; this one is kept';
 
+/** The warning for a desk that went to the server without {@link dropped} (the phrases of `fitSnapshot`); this device keeps everything. */
+export function describeTrimmed(dropped: readonly string[]): string {
+  return `Sync: the desk is large, so the copy on the server leaves out ${dropped.join(', ')}; this device keeps them`;
+}
+
 /** The one line that says why {@link error} stopped the sync. */
 export function describeSyncError(error: SettingsStoreError): string {
   if (error.kind === 'tooLarge') {

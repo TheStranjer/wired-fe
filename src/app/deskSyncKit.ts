@@ -10,6 +10,7 @@ import type { SyncPrefs } from '../accounts/syncPrefs';
 import type { ProfileStorage } from '../capabilities/profileCache';
 import { type AppState, printAction } from '../state/appState';
 import type { LineLevel } from '../state/buffer';
+import { SYNC_BUDGET_BYTES } from '../state/deskFit';
 import { accountByKey } from '../state/selectors';
 import type { Dispatch } from '../state/StateContext';
 import { pickSyncAccount } from '../state/syncAccount';
@@ -54,6 +55,8 @@ export type SyncSession = {
   readonly warned: Set<string>;
   /** The text of the desk and settings as last seen, for telling a change from none. */
   readonly baseline: Cell<string | null>;
+  /** The bytes a pushed snapshot may take; halved once when the server still says it is too large. */
+  readonly budget: Cell<number>;
 };
 
 /** A session that has done nothing yet. */
@@ -63,6 +66,7 @@ export function newSession(): SyncSession {
     pulledKey: cell<string | null>(null),
     warned: new Set(),
     baseline: cell<string | null>(null),
+    budget: cell(SYNC_BUDGET_BYTES),
   };
 }
 
