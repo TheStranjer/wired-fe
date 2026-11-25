@@ -7,25 +7,28 @@
  * when the action changes nothing; the pieces live in ./appReducer.
  */
 
+import { withPrinted } from './appPrint';
+import type { PrintLine } from './appPrint';
 import {
   isBlank,
-  knownActiveKey,
   mergedSettings,
-  printTarget,
   putBuffer,
   putProfile,
-  sameAccounts,
-  stillExpired,
   syncBuffers,
+  withAccounts,
   withExpired,
 } from './appReducer';
-import { type Buffer, EMPTY_BUFFER, appendSystem, clearBuffer, type LineLevel } from './buffer';
+import { type Buffer, clearBuffer, type LineLevel } from './buffer';
 import type { ComposerFields } from './draft';
 import { DEFAULT_SETTINGS, type Settings } from './settings';
 import type { StoredAccount } from '../accounts/accountStore';
 import type { InstanceProfile } from '../capabilities/detect';
+import { initialDesktops } from '../windows/desktops';
+import type { DesktopsState } from '../windows/desktops';
+import type { LayoutAction } from '../windows/layoutAction';
+import { layoutReducer } from '../windows/layoutReducer';
 import type { WindowsState } from '../windows/model';
-import { initialWindowsState } from '../windows/model';
+import { STATUS_WINDOW_ID, initialWindowsState } from '../windows/model';
 import { windowsReducer } from '../windows/reducer';
 import type { WindowsAction } from '../windows/reducer';
 
@@ -40,6 +43,8 @@ export type InputModeState = 'insert' | 'navigation';
 export type AppState = {
   /** The numbered windows and which one is shown (src/windows). */
   readonly windows: WindowsState;
+  /** The desktops: split trees of panes and floats, one active (src/windows). */
+  readonly layout: DesktopsState;
   /** One scrollback per window, by window id; always holds the status window's. */
   readonly buffers: ReadonlyMap<string, Buffer>;
   /** The signed-in accounts, in the order they were added. */
@@ -61,16 +66,8 @@ export type AppState = {
 /** One thing that can happen to the application as a whole. */
 export type CoreAction =
   | { readonly type: 'windows'; readonly action: WindowsAction }
-  | {
-      readonly type: 'print';
-      /** The window to print in, or null for the active one; unknown means window 1. */
-      readonly windowId: string | null;
-      readonly date: Date;
-      readonly level: LineLevel;
-      readonly text: string;
-      /** Decorative ASCII art (WFE-135): the view hides it from assistive technology. */
-      readonly decorative?: boolean;
-    }
+  | { readonly type: 'layout'; readonly action: LayoutAction }
+  | ({ readonly type: 'print' } & PrintLine)
   | { readonly type: 'clear'; readonly windowId: string }
   | {
       readonly type: 'accounts';
@@ -99,6 +96,7 @@ export function initialAppState(settings: Settings = DEFAULT_SETTINGS): AppState
   const windows = initialWindowsState();
   return {
     windows,
+    layout: initialDesktops(STATUS_WINDOW_ID),
     buffers: syncBuffers(windows.windows, new Map<string, Buffer>()),
     accounts: [],
     activeAccountKey: null,
@@ -116,18 +114,20 @@ export function coreReducer(state: AppState, action: CoreAction): AppState {
   switch (action.type) {
     case 'windows':
       return applyWindows(state, action.action);
+    case 'layout':
+      return applyLayout(state, action.action);
     case 'print':
-      return applyPrint(state, action);
+      return withPrinted(state, action);
     case 'clear':
       return applyClear(state, action.windowId);
     case 'accounts':
-      return applyAccounts(state, action.accounts, action.activeKey);
+      return withAccounts(state, action.accounts, action.activeKey);
     case 'accountExpired':
       return { ...state, expired: withExpired(state.expired, action.accountKey) };
     case 'profile':
       return applyProfile(state, action.profile);
     case 'mode':
-      return state.mode === action.mode ? state : { ...state, mode: action.mode };
+      return applyMode(state, action.mode);
     case 'settings':
       return applySettings(state, action.settings);
   }
@@ -143,16 +143,10 @@ function applyWindows(state: AppState, action: WindowsAction): AppState {
   return { ...state, windows, buffers };
 }
 
-/** One client message at the bottom of the window that takes it, keyed by `seq`. */
-function applyPrint(state: AppState, action: PrintAction): AppState {
-  const id = printTarget(state.windows, action.windowId);
-  const { date, level, text, decorative } = action;
-  const buffer = appendSystem(
-    state.buffers.get(id) ?? EMPTY_BUFFER,
-    { date, level, text, ...(decorative === true ? { decorative } : {}) },
-    state.seq,
-  );
-  return { ...state, buffers: putBuffer(state.buffers, id, buffer), seq: state.seq + 1 };
+/** A layout action: the desktops moved along, the same state when they did not change. */
+function applyLayout(state: AppState, action: LayoutAction): AppState {
+  const layout = layoutReducer(state.layout, action);
+  return layout === state.layout ? state : { ...state, layout };
 }
 
 /** Everything a window shows, wiped from its scrollback; `/clear` and Ctrl+L. */
@@ -164,21 +158,6 @@ function applyClear(state: AppState, windowId: string): AppState {
   return { ...state, buffers: putBuffer(state.buffers, windowId, clearBuffer(buffer)) };
 }
 
-/** The signed-in accounts and the active pointer, stale pointers dropped. */
-function applyAccounts(
-  state: AppState,
-  accounts: readonly StoredAccount[],
-  activeKey: string | null,
-): AppState {
-  const key = knownActiveKey(accounts, activeKey);
-  const expired = stillExpired(state.expired, state.accounts, accounts);
-  const same = key === state.activeAccountKey && sameAccounts(state.accounts, accounts);
-  if (same && expired === state.expired) {
-    return state;
-  }
-  return { ...state, accounts, activeAccountKey: key, expired };
-}
-
 /** What one instance turned out to be, stored under its origin. */
 function applyProfile(state: AppState, profile: InstanceProfile): AppState {
   const profiles = putProfile(state.profiles, profile);
@@ -186,6 +165,11 @@ function applyProfile(state: AppState, profile: InstanceProfile): AppState {
     return state;
   }
   return { ...state, profiles };
+}
+
+/** The mode the keyboard is in. */
+function applyMode(state: AppState, mode: InputModeState): AppState {
+  return state.mode === mode ? state : { ...state, mode };
 }
 
 /** The reader's settings, with {@link patch} laid over them. */

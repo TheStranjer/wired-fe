@@ -43,8 +43,11 @@ export function focusedWindowId(state: DesktopsState): string | null {
   return focusedWindow(activeDesktop(state));
 }
 
-/** Applies `change` to the active desktop. */
-function updateActive(state: DesktopsState, change: (desktop: Desktop) => Desktop): DesktopsState {
+/** Applies `change` to the active desktop; the same state when it returns the desktop it was given. */
+export function updateActive(
+  state: DesktopsState,
+  change: (desktop: Desktop) => Desktop,
+): DesktopsState {
   const current = activeDesktop(state);
   const next = change(current);
   if (next === current) {
@@ -66,7 +69,7 @@ function padDesktops(desktops: readonly Desktop[], count: number): readonly Desk
 
 /** Shows desktop `n` (1-based), creating empty desktops up to it when missing. */
 export function goToDesktop(state: DesktopsState, n: number): DesktopsState {
-  if (!isDesktopNumber(n)) {
+  if (!isDesktopNumber(n) || n === state.active + 1) {
     return state;
   }
   return { ...state, desktops: padDesktops(state.desktops, n), active: n - 1 };
@@ -75,10 +78,7 @@ export function goToDesktop(state: DesktopsState, n: number): DesktopsState {
 /** Steps one desktop left or right: left of the first wraps to the last, right of the last creates one. */
 export function stepDesktop(state: DesktopsState, step: 1 | -1): DesktopsState {
   const target = state.active + step;
-  if (target < 0) {
-    return { ...state, active: state.desktops.length - 1 };
-  }
-  return goToDesktop(state, target + 1);
+  return goToDesktop(state, target < 0 ? state.desktops.length : target + 1);
 }
 
 /** Appends an empty desktop and shows it. */
@@ -107,7 +107,7 @@ export function focusPane(state: DesktopsState, paneId: string): DesktopsState {
 export function splitFocused(state: DesktopsState, dir: SplitDir, windowId: string): DesktopsState {
   const paneId = `p${String(state.nextPaneSeq)}`;
   const split = updateActive(state, (desktop) => splitDesktop(desktop, dir, paneId, windowId));
-  return { ...split, nextPaneSeq: state.nextPaneSeq + 1 };
+  return split === state ? state : { ...split, nextPaneSeq: state.nextPaneSeq + 1 };
 }
 
 /** Closes the focused pane or float; focus goes to its sibling, else the topmost float, else nothing. */

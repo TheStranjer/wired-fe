@@ -94,7 +94,7 @@ export function sameAccounts(
  * replaced (a refresh, a fresh login), is no longer expired. The same set
  * when nothing drops.
  */
-export function stillExpired(
+function stillExpired(
   expired: ReadonlySet<string>,
   before: readonly StoredAccount[],
   after: readonly StoredAccount[],
@@ -104,6 +104,27 @@ export function stillExpired(
     return now !== undefined && before.find((account) => account.key === key)?.token === now.token;
   });
   return kept.length === expired.size ? expired : new Set(kept);
+}
+
+/** What the signed-in accounts own of the app state. */
+export type AccountsSlice = {
+  readonly accounts: readonly StoredAccount[];
+  readonly activeAccountKey: string | null;
+  readonly expired: ReadonlySet<string>;
+};
+
+/** The state with the accounts and active pointer set, stale pointers dropped; the same state when nothing moved. */
+export function withAccounts<S extends AccountsSlice>(
+  state: S,
+  accounts: readonly StoredAccount[],
+  activeKey: string | null,
+): S {
+  const key = knownActiveKey(accounts, activeKey);
+  const expired = stillExpired(state.expired, state.accounts, accounts);
+  const same = key === state.activeAccountKey && sameAccounts(state.accounts, accounts);
+  return same && expired === state.expired
+    ? state
+    : { ...state, accounts, activeAccountKey: key, expired };
 }
 
 /** The expired keys with {@link key} added; the same set when it is already there. */

@@ -13,7 +13,24 @@ import { resolveDisplay, type ResolvedDisplay } from './resolveDisplay';
 import type { StoredAccount } from '../accounts/accountStore';
 import type { ApiSession } from '../api/session';
 import type { Capabilities } from '../capabilities/capabilities';
+import { findPlaced } from '../windows/desktopPanes';
+import type { Desktop, PlacedPane } from '../windows/desktopPanes';
+import { activeDesktop as activeDesktopOf } from '../windows/desktops';
 import { activeWindow } from '../windows/model';
+
+/** The desktop being shown. */
+export function activeDesktop(state: AppState): Desktop {
+  return activeDesktopOf(state.layout);
+}
+
+/**
+ * The focused pane or float of the active desktop (`rect` is null for a tree
+ * pane); null when the desktop is empty.
+ */
+export function focusedPane(state: AppState): PlacedPane | null {
+  const desktop = activeDesktop(state);
+  return desktop.focusedPaneId === null ? null : findPlaced(desktop, desktop.focusedPaneId);
+}
 
 /** The account stored under {@link key}; null for a null key or no such account. */
 export function accountByKey(state: AppState, key: string | null): StoredAccount | null {
