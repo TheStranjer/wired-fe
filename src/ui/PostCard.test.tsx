@@ -1,9 +1,6 @@
 /**
- * Tests for the post card: the label, clock, display name (custom emoji
- * included), handle and reply marker, the boost line, the body and its CW
- * toggle, the quote, poll and media parts, the avatars shown or hidden by
- * showAvatar, the selected marking, and click routing between the card, the
- * nick and the body's links.
+ * Tests for the post card: header parts, boost line, body and CW toggle,
+ * quote, poll and media, avatars, selected marking, and click routing.
  */
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
@@ -44,6 +41,8 @@ const BASE_PROPS: PostCardProps = {
   selected: false,
   showAvatar: true,
   showImages: true,
+  recipients: [],
+  chat: null,
   onToggleReveal: vi.fn<() => void>(),
   onSelect: vi.fn<() => void>(),
   onSelectAuthor: vi.fn<() => void>(),

@@ -1,0 +1,23 @@
+/* The top line of a card: the label, the clock and, for a direct message, the
+   strip naming who it is between. The strip is words and a glyph, so it never
+   rests on colour alone. */
+
+.head {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space);
+}
+
+.label {
+  color: var(--color-dim);
+}
+
+.labelSelected {
+  background: var(--color-fg);
+  color: var(--color-bg);
+}
+
+.dm {
+  flex: 1;
+  min-width: 0;
+}

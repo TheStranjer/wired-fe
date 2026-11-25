@@ -22,11 +22,13 @@ type PostArticleInput = RowClickHandlers & {
   readonly fullHandle: string;
   /** True for the post the user is on. */
   readonly selected: boolean;
+  /** True for a direct message, which is named so; a plain post leaves it out. */
+  readonly direct?: boolean;
 };
 
 /**
  * The attributes both a post row and a post card put on their `article`: the
- * selection mark, the accessible name ("Post a3 by …") and the click routing.
+ * selection mark, the accessible name ("Post a3 by …", or "Direct message a3 from …") and the click routing.
  * The click is mouse-only on purpose: keyboard selection lives in the
  * navigation keymap, one action for every post, not a tab stop per post. The
  * strict jsx-a11y gate reads the onClick name alone, never its semantics, so
@@ -37,10 +39,12 @@ export function postArticleProps(input: PostArticleInput): {
   readonly 'aria-label': string;
   readonly onClickCapture: (event: MouseEvent<HTMLElement>) => void;
 } {
-  const { label, fullHandle, selected, ...handlers } = input;
+  const { label, fullHandle, selected, direct = false, ...handlers } = input;
   return {
     'aria-current': selected ? 'true' : undefined,
-    'aria-label': `Post ${label} by ${fullHandle}`,
+    'aria-label': direct
+      ? `Direct message ${label} from ${fullHandle}`
+      : `Post ${label} by ${fullHandle}`,
     onClickCapture: (event) => {
       routeRowClick(event, handlers);
     },
