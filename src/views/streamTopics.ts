@@ -51,6 +51,7 @@ const NEEDS: Record<WindowKind, Needs> = {
   feed: NOTHING, // a feed has no account: its sources ask, see feedNeeds
   feedEditor: NOTHING,
   people: NOTHING,
+  media: NOTHING,
 };
 
 /** The sources that take no argument, each with the stream that carries it. */

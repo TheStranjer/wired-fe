@@ -150,7 +150,7 @@ describe('/set openIn.<kind>', () => {
 
       expect(outcome).toStrictEqual({
         ok: false,
-        message: `No window kind ${kind}. Kinds: home, local, federated, notifications, thread, hashtag, profile, dm, search, composer, feed, people`,
+        message: `No window kind ${kind}. Kinds: home, local, federated, notifications, thread, hashtag, profile, dm, search, composer, feed, people, media`,
       });
       expect(context.dispatch).not.toHaveBeenCalled();
     },

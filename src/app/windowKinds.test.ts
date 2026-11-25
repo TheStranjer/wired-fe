@@ -154,4 +154,8 @@ describe(loadWindowKinds, () => {
   it('includes the feedEditor kind /feed edit opens a window with', () => {
     expect([...loaded().keys()]).toContain('feedEditor');
   });
+
+  it('includes the media kind /media opens a window with', () => {
+    expect([...loaded().keys()]).toContain('media');
+  });
 });

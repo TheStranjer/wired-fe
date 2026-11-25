@@ -61,6 +61,19 @@ describe('the desk snapshot schema', () => {
     expect(valid({ ...stored(), windows: [window] })).toBe(true);
   });
 
+  it('accepts a window of the media kind and keeps it through a parse', () => {
+    const window = {
+      id: 'media:k:109:2',
+      title: 'media [c1] 2/3',
+      ref: { kind: 'media', accountKey: 'k', target: '109:2' },
+      display: {},
+    };
+    const snapshot = { ...stored(), windows: [window] };
+
+    expect(valid(snapshot)).toBe(true);
+    expect(v.parse(DeskSnapshotSchema, snapshot).windows).toStrictEqual([window]);
+  });
+
   it('refuses a layout with no desktops or a bad active index', () => {
     const layout = { desktops: [], active: 0, nextPaneSeq: 1 };
 
