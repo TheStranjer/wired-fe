@@ -17,6 +17,7 @@
 
 import { useMemo } from 'react';
 
+import { DEVICE_CLASS } from './readDeviceClass';
 import { appStores } from './stores';
 import { useAvailableRegistry } from './useAvailableRegistry';
 import { loadWindowKinds } from './windowKinds';
@@ -135,6 +136,7 @@ export function useCommandContext(
       window.location.assign(url);
     },
     page: { origin: window.location.origin, pathname: window.location.pathname },
+    deviceClass: DEVICE_CLASS,
     config: buildConfig,
     stores: appStores(),
   };

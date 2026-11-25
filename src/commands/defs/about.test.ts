@@ -100,6 +100,7 @@ describe('/about', () => {
       ['  posts: up to 5000 characters, 6 attachments'],
       ['  polls: 20 options of 200 characters, 5m–365d'],
       ['  features: emojiReactions, localOnlyPosts, markdown'],
+      ['  device: desktop'],
     ]);
   });
 
@@ -115,6 +116,7 @@ describe('/about', () => {
       ['  posts: up to 500 characters, 4 attachments'],
       ['  polls: 4 options of 50 characters, 5m–30d'],
       ['  features: editing'],
+      ['  device: desktop'],
     ]);
   });
 
@@ -130,7 +132,18 @@ describe('/about', () => {
       ['  posts: up to 1000 characters, 2 attachments'],
       ['  polls: 4 options of 50 characters, 0s–1h'],
       ['  features: none'],
+      ['  device: desktop'],
     ]);
+  });
+
+  it('shows the mobile device class of the context', async () => {
+    const state = signedInState(profileAt('Wired Example', WIRED));
+    const print: Mock<CommandContext['print']> = vi.fn();
+    const context = fakeCommandContext({ state, print, deviceClass: 'mobile' });
+
+    await command.run('', context);
+
+    expect(print).toHaveBeenLastCalledWith('  device: mobile');
   });
 
   it('refuses while nobody is signed in', async () => {

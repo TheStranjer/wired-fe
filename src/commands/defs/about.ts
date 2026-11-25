@@ -2,13 +2,14 @@
  * `/about` (decision 6): what the active account's instance is and what it
  * can do, read from the {@link InstanceProfile} detection built on connect
  * (decision 5) — title and origin, backend family, post and poll limits, and
- * the feature flags it advertised. Arguments are ignored: the active
+ * the feature flags it advertised, and the device class (decision 17). Arguments are ignored: the active
  * account's origin is the only subject. Without an account, or without its
  * instance having been detected, there is nothing to report.
  */
 
 import type { Capabilities } from '../../capabilities/capabilities';
 import type { InstanceProfile } from '../../capabilities/detect';
+import type { DeviceClass } from '../../lib/deviceClass';
 import { formatDuration } from '../../lib/duration';
 import { activeAccount } from '../../state/selectors';
 import { OK, contextRun } from '../outcome';
@@ -26,8 +27,8 @@ function featuresLine(capabilities: Capabilities): string {
   return `  features: ${names.length === 0 ? 'none' : names.join(', ')}`;
 }
 
-/** The five report lines of {@link profile}, as the scrollback shows them. */
-function reportLines(profile: InstanceProfile): readonly string[] {
+/** The six report lines of {@link profile} on a {@link device}, as the scrollback shows them. */
+function reportLines(profile: InstanceProfile, device: DeviceClass): readonly string[] {
   const { backend, maxCharacters, maxMediaAttachments, pollLimits } = profile.capabilities;
   const span = `${formatDuration(pollLimits.minExpiration)}–${formatDuration(pollLimits.maxExpiration)}`;
   return [
@@ -36,6 +37,7 @@ function reportLines(profile: InstanceProfile): readonly string[] {
     `  posts: up to ${String(maxCharacters)} characters, ${String(maxMediaAttachments)} attachments`,
     `  polls: ${String(pollLimits.maxOptions)} options of ${String(pollLimits.maxCharactersPerOption)} characters, ${span}`,
     featuresLine(profile.capabilities),
+    `  device: ${device}`,
   ];
 }
 
@@ -46,7 +48,7 @@ function handle(context: CommandContext): CommandOutcome {
   if (profile === undefined) {
     return NOT_CONNECTED;
   }
-  for (const line of reportLines(profile)) {
+  for (const line of reportLines(profile, context.deviceClass)) {
     context.print(line);
   }
   return OK;
