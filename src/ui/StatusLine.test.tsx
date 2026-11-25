@@ -140,6 +140,31 @@ describe(StatusLine, () => {
     );
   });
 
+  it('shows ⇅ with an accessible name while a push is pending', () => {
+    const line = renderStatusLine({ sync: 'pending' });
+
+    expect(line.textContent).toBe(
+      '[23:07] [@lain@wired.example] [1] [2*:12] [3:1] │ 3:home(3) 7:dm/bob* ⇅ [INS]',
+    );
+    expect(screen.getByRole('img', { name: 'Sync pending' })).toHaveTextContent('⇅');
+  });
+
+  it('shows ⇅! with an accessible name after a sync error', () => {
+    renderStatusLine({ sync: 'error' });
+
+    expect(screen.getByRole('img', { name: 'Sync failed' })).toHaveTextContent('⇅!');
+  });
+
+  it.each<Partial<StatusLineProps>>([{}, { sync: null }])(
+    'shows no sync marker for %j',
+    (props) => {
+      const line = renderStatusLine(props);
+
+      expect(line.textContent).toBe(FULL_LINE);
+      expect(screen.queryByRole('img')).not.toBeInTheDocument();
+    },
+  );
+
   it('shows no media group while nothing waits', () => {
     const line = renderStatusLine({ pendingMedia: 0 });
 

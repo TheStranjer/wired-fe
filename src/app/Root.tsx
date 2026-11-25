@@ -31,6 +31,7 @@ import { useAttachments } from './useAttachments';
 import { useCompletionProviders } from './useCompletionProviders';
 import { useComposerOverlay } from './useComposerOverlay';
 import { useDeskPersistence } from './useDeskPersistence';
+import { useDeskSync } from './useDeskSync';
 import { useDocumentTitle } from './useDocumentTitle';
 import { useDropAndPaste } from './useDropAndPaste';
 import { useHashRoute } from './useHashRoute';
@@ -59,6 +60,7 @@ function failure<E>(loaded: Result<unknown, E>): E | null {
 function useStateMirrors(state: AppState, ready: boolean): void {
   useSettingsPersistence(state.settings, appStores().settings);
   useDeskPersistence(state, deskSource(), ready);
+  useDeskSync(ready);
   useTheme(state.settings.theme, state.settings.effects);
   useDocumentTitle(state.windows);
 }

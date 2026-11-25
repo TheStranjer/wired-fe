@@ -7,6 +7,8 @@
  */
 
 import type { SyncPrefs } from '../accounts/syncPrefs';
+import { formatClock } from '../lib/time';
+import type { AppState } from '../state/appState';
 import { type SyncWorld, pickSyncAccount, skipReason } from '../state/syncAccount';
 
 /** `@handle` for the account with {@link key}, or the bare key when it is not signed in. */
@@ -29,13 +31,28 @@ function inUseLine(prefs: SyncPrefs, world: SyncWorld): string {
   return `In use: ${key === null ? 'none' : accountLabel(world, key)}`;
 }
 
+/** What `/sync` reads: the accounts and what is known of them, the sync's own status and the clock format. */
+type SyncReportWorld = SyncWorld & Pick<AppState, 'sync' | 'settings'>;
+
+/** The lines of what the sync has done so far: when it last pulled and pushed, and the last error; none before it did anything. */
+function historyLines(world: SyncReportWorld): readonly string[] {
+  const { lastPull, lastPush, lastError } = world.sync;
+  const clock = (moment: number): string =>
+    formatClock(new Date(moment), world.settings.clockFormat);
+  return [
+    ...(lastPull === null ? [] : [`Last pull: ${clock(lastPull)}`]),
+    ...(lastPush === null ? [] : [`Last push: ${clock(lastPush)}`]),
+    ...(lastError === null ? [] : [`Last error: ${lastError}`]),
+  ];
+}
+
 /** The lines `/sync` prints for {@link prefs} over {@link world}. */
-export function syncReport(prefs: SyncPrefs, world: SyncWorld): readonly string[] {
+export function syncReport(prefs: SyncPrefs, world: SyncReportWorld): readonly string[] {
   if (!prefs.syncEnabled) {
     return ['Sync: off. Type /sync on to switch it back on'];
   }
   const listed = prefs.syncAccounts.map((key, index) => listedLine(world, key, index));
   const chosen =
     listed.length === 0 ? ['Primary: none chosen (the first usable account is used)'] : listed;
-  return ['Sync: on', ...chosen, inUseLine(prefs, world)];
+  return ['Sync: on', ...chosen, inUseLine(prefs, world), ...historyLines(world)];
 }

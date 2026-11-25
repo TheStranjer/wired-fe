@@ -94,6 +94,10 @@ function routeSession(page: Page, content: InstanceContent): readonly Promise<un
     page.route('**/api/v1/custom_emojis', async (route) => {
       await json(route, []);
     }),
+    // The settings store the desk sync reads and writes (decision 17): always empty.
+    page.route('**/api/v1/pleroma/settings/wired-fe', async (route) => {
+      await json(route, {});
+    }),
     page.route(/\/api\/v1\/statuses/, statuses),
     // The streaming socket (WFE-121): accepted and left silent, so the page's
     // live connection opens without an instance behind it.

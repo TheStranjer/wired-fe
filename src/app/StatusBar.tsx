@@ -22,7 +22,15 @@ export function accountLabel(state: AppState, key: string | null): string | null
   return account === null ? null : `@${account.handle}`;
 }
 
-/** The status line: clock, active account, desktops, hidden windows with activity, pending media, pending keys and hotkey mode. */
+/** What the status line's sync marker shows: the error beats a waiting push; nothing when idle (decision 17). */
+function syncMarker(sync: AppState['sync']): 'pending' | 'error' | null {
+  if (sync.failed) {
+    return 'error';
+  }
+  return sync.pending ? 'pending' : null;
+}
+
+/** The status line: clock, active account, desktops, hidden windows with activity, pending media, pending keys, sync marker and hotkey mode. */
 export function StatusBar(props: {
   readonly pendingMedia: number;
   readonly pendingKeys: string | null;
@@ -40,6 +48,7 @@ export function StatusBar(props: {
       mode={state.mode}
       pendingMedia={props.pendingMedia}
       pendingKeys={props.pendingKeys}
+      sync={syncMarker(state.sync)}
       onSelectDesktop={(n: number) => {
         dispatch({ type: 'layout', action: { type: 'goToDesktop', n } });
       }}

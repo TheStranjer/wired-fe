@@ -4,21 +4,24 @@
  * and why the others are skipped; `primary <handle>` makes a signed-in
  * account the primary (and switches sync on); `fallback add|rm|up <handle>`
  * edits the ordered fallbacks behind it; `off` empties the list and turns
- * sync off, `on` turns it back on. The choice is local only (it decides where
- * sync goes) and signing an account out drops it from the list.
+ * sync off, `on` turns it back on; `now` pulls from the primary and pushes at
+ * once. Every change to the list has the sync pull from the account now in
+ * use. The choice is local only (it decides where sync goes) and signing an
+ * account out drops it from the list.
  */
 
 import { findAccount } from '../../accounts/findAccount';
 import { movedUp, withPrimary, withoutKey } from '../../accounts/syncList';
 import type { SyncPrefs } from '../../accounts/syncPrefs';
 import { wordsOf } from '../../lib/words';
+import { pickSyncAccount } from '../../state/syncAccount';
 import { OK, fail, syncRun } from '../outcome';
 import { accountLabel, syncReport } from '../syncReport';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** Every form of the command: /help shows it, a bad argument echoes it. */
 const USAGE =
-  '/sync | /sync primary <handle> | /sync fallback add|rm|up <handle> | /sync off | /sync on';
+  '/sync | /sync primary <handle> | /sync fallback add|rm|up <handle> | /sync off | /sync on | /sync now';
 
 /** The argument text matched none of the command's forms. */
 const USAGE_ERROR = fail(`Usage: ${USAGE}`);
@@ -35,10 +38,11 @@ function report(context: CommandContext): CommandOutcome {
   return OK;
 }
 
-/** Store {@link prefs} and say {@link text}. */
+/** Store {@link prefs}, say {@link text} and have the sync look at the (maybe new) primary. */
 function save(context: CommandContext, prefs: SyncPrefs, text: string): CommandOutcome {
   context.stores.sync.write(prefs);
   context.print(text);
+  context.requestSync('pull');
   return OK;
 }
 
@@ -112,6 +116,23 @@ function fallback(words: readonly string[], context: CommandContext): CommandOut
   return change(query, context, edit);
 }
 
+/** `now`: pull from the primary, then push; refused when no account can hold the desk. */
+function syncNow(context: CommandContext): CommandOutcome {
+  if (pickSyncAccount(context.stores.sync.read(), context.state) === null) {
+    return fail('No account can hold the synced desk. Type /sync to see why');
+  }
+  context.print('Syncing…');
+  context.requestSync('now');
+  return OK;
+}
+
+/** The forms that are one word and nothing else. */
+const BARE_FORMS: ReadonlyMap<string, (context: CommandContext) => CommandOutcome> = new Map([
+  ['on', (context: CommandContext) => switchTo(true, context)],
+  ['off', (context: CommandContext) => switchTo(false, context)],
+  ['now', syncNow],
+]);
+
 /** Read the argument words and do the one thing they ask for. */
 function handle(args: string, context: CommandContext): CommandOutcome {
   const [word, ...rest] = wordsOf(args);
@@ -124,10 +145,8 @@ function handle(args: string, context: CommandContext): CommandOutcome {
   if (word === 'fallback') {
     return fallback(rest, context);
   }
-  if ((word === 'on' || word === 'off') && rest.length === 0) {
-    return switchTo(word === 'on', context);
-  }
-  return USAGE_ERROR;
+  const bare = rest.length === 0 ? BARE_FORMS.get(word) : undefined;
+  return bare === undefined ? USAGE_ERROR : bare(context);
 }
 
 /** The `/sync` definition. */

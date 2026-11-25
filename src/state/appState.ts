@@ -24,6 +24,7 @@ import type { ComposerFields, ComposerMedia } from './draft';
 import { applyLayoutAction, applyWindowsAction } from './layoutSync';
 import { DEFAULT_SETTINGS, type Settings } from './settings';
 import { dropSignedOut } from './signedOut';
+import { INITIAL_SYNC, type SyncStatus } from './syncStatus';
 import type { StoredAccount } from '../accounts/accountStore';
 import type { InstanceProfile } from '../capabilities/detect';
 import { initialDesktops } from '../windows/desktops';
@@ -62,6 +63,8 @@ export type AppState = {
   readonly composerMedia: ReadonlyMap<string, readonly ComposerMedia[]>;
   readonly mode: InputModeState;
   readonly settings: Settings;
+  /** What the desk sync reports about itself (decision 17). */
+  readonly sync: SyncStatus;
   /** The client-message counter: every printed line is keyed by its value. */
   readonly seq: number;
 };
@@ -109,6 +112,7 @@ export function initialAppState(settings: Settings = DEFAULT_SETTINGS): AppState
     composerMedia: new Map<string, readonly ComposerMedia[]>(),
     mode: 'insert',
     settings,
+    sync: INITIAL_SYNC,
     seq: 0,
   };
 }

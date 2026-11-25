@@ -20,6 +20,7 @@ import type { DeviceClass } from '../lib/deviceClass';
 import type { AppState } from '../state/appState';
 import type { Draft } from '../state/draft';
 import type { AppAction } from '../state/reducer';
+import type { SyncRequest } from '../state/syncStatus';
 import type { Store } from '../storage/store';
 import type { WindowsState } from '../windows/model';
 import type { WindowsAction } from '../windows/reducer';
@@ -96,6 +97,8 @@ export type CommandContext = {
   readonly page: { readonly origin: string; readonly pathname: string };
   /** The class of the device running the app (decision 17). */
   readonly deviceClass: DeviceClass;
+  /** Asks the desk sync for something: a pull from the primary, or a pull then a push (decision 17). */
+  readonly requestSync: (request: SyncRequest) => void;
   /** The build-time configuration of this bundle (decision 3). */
   readonly config: WiredConfig;
   /** The persisted stores a command may read and write (decision 10). */
