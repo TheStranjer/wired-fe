@@ -9,6 +9,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 
+import { deskSource } from './deskSource';
 import { type StartupDeps, type StartupLocation, runStartup } from './startup';
 import { appStores } from './stores';
 import { buildConfig } from '../config/config';
@@ -58,6 +59,7 @@ export function useStartup(): boolean {
       config: buildConfig,
       now: () => new Date(),
       location: appLocation(),
+      desk: deskSource(),
     };
     bootOnce(
       startedRef.current,
