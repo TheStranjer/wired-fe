@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # scripts/ci.sh — the whole gate in one command: dependency install check,
 # Prettier, TypeScript, ESLint, Stylelint, file-size limits, unit tests with
-# coverage thresholds, the production build, the bundle size report, dead-code
+# coverage thresholds, diff coverage (100% of the lines changed since master),
+# the production build, the bundle size report, dead-code
 # detection (knip) and the end-to-end tests against the built bundle.
 # .github/workflows/ci.yml runs this same script, so a clean run here is a
 # green pipeline there.
@@ -96,7 +97,10 @@ step 'ESLint' pnpm exec eslint --max-warnings 0 .
 step 'Stylelint' pnpm exec stylelint --max-warnings 0 --formatter unix 'src/**/*.css'
 step 'file sizes' scripts/check-file-sizes.sh
 step 'unit tests + coverage' pnpm exec vitest run --reporter=dot --silent=passed-only \
-  --coverage --coverage.reporter=text --coverage.skipFull
+  --coverage --coverage.reporter=text --coverage.reporter=json --coverage.skipFull
+# Every statement, function and branch arm on a line changed since master must
+# have run, and no coverage-ignore comment may exist. Needs the JSON just written.
+step 'diff coverage' pnpm run --silent diff-coverage
 step 'knip (unused files, exports, dependencies)' pnpm exec knip --reporter compact --no-progress
 
 if step 'build' pnpm exec vite build; then

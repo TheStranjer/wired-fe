@@ -68,6 +68,8 @@ export default defineConfig({
     unstubEnvs: true,
     coverage: {
       provider: 'v8',
+      // json writes coverage/coverage-final.json, which tooling/coverage/diffCoverage.ts reads.
+      reporter: ['text', 'html', 'clover', 'json'],
       include: ['src/**/*.{ts,tsx}'],
       exclude: ['src/**/*.test.{ts,tsx}', 'src/test/**', 'src/app/main.tsx'],
       thresholds: { statements: 95, branches: 90, functions: 95, lines: 95 },
