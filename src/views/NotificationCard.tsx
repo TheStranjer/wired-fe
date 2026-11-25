@@ -19,12 +19,15 @@ import { viewerFor } from './postLineProps';
 import { viaFor } from './via';
 import { fullHandle } from '../accounts/handle';
 import type { Notification, NotificationKind } from '../api/schemas/notification';
+import type { ClickModifiers } from '../lib/clickModifiers';
 import type { NotificationLineData } from '../state/buffer';
 import { labelForStatus } from '../state/bufferSelection';
+import { clickOpen } from '../state/placementFromClick';
 import { bufferFor, displayFor, windowAccountKey } from '../state/selectors';
 import { useAppDispatch, useAppState } from '../state/StateContext';
 import { threadWindowOpen } from '../state/threadWindow';
 import { Avatar } from '../ui/Avatar';
+import { onMiddleClick } from '../ui/middleClick';
 import { Timestamp } from '../ui/Timestamp';
 import { ViaMark } from '../ui/ViaMark';
 
@@ -90,6 +93,21 @@ function entryOf(notification: Notification, origin: string): Entry {
   return { glyph, text: rest ?? sentence, actor: rest !== null };
 }
 
+/** The `@handle` that leads a sentence: a button asking for the actor's profile window. */
+function ActorButton(props: {
+  readonly handle: string;
+  readonly open: (click: ClickModifiers) => void;
+}): JSX.Element {
+  return (
+    <button
+      className={styles['actor']}
+      onAuxClick={onMiddleClick(props.open)}
+      onClick={props.open}
+      type="button"
+    >{`@${props.handle}`}</button>
+  );
+}
+
 /**
  * The notification's header: avatar, glyph, who did what, the account of a
  * multi-account feed it came through when `marked`, and the clock.
@@ -119,11 +137,10 @@ function Header(props: NotificationCardProps & { readonly marked: boolean }): JS
       </span>
       <span className={styles['text']}>
         {entry.actor ? (
-          <button
-            className={styles['actor']}
-            onClick={openActor({ state, go: dispatch }, windowId, account)}
-            type="button"
-          >{`@${handle}`}</button>
+          <ActorButton
+            handle={handle}
+            open={openActor({ state, go: dispatch }, windowId, account)}
+          />
         ) : undefined}
         {entry.actor ? ' ' : undefined}
         {entry.text}
@@ -145,12 +162,15 @@ function Excerpt(props: NotificationCardProps): JSX.Element | null {
   }
   const label = labelForStatus(bufferFor(state, windowId), status.id) ?? status.id;
   const accountKey = windowAccountKey(state, windowId);
+  const open = (click: ClickModifiers): void => {
+    const thread = threadWindowOpen(status.id, accountKey, label);
+    dispatch(clickOpen(state.settings, thread, click));
+  };
   return (
     <button
       className={styles['excerpt']}
-      onClick={() => {
-        dispatch({ type: 'windows', action: threadWindowOpen(status.id, accountKey, label) });
-      }}
+      onAuxClick={onMiddleClick(open)}
+      onClick={open}
       type="button"
     >
       {join([excerpt(status)])}

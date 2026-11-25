@@ -11,8 +11,10 @@ import type { PostView, Viewer } from './postView';
 import { viaFor } from './via';
 import type { Account } from '../api/schemas/account';
 import type { Status } from '../api/schemas/status';
+import type { ClickModifiers } from '../lib/clickModifiers';
 import type { AppState } from '../state/appState';
 import { labelForStatus } from '../state/bufferSelection';
+import { clickOpen } from '../state/placementFromClick';
 import { profileWindowOpen } from '../state/profileWindow';
 import { accountByKey, bufferFor, windowAccountKey } from '../state/selectors';
 import type { Dispatch } from '../state/StateContext';
@@ -38,14 +40,16 @@ type Acting = { readonly state: AppState; readonly windowId: string };
 
 /**
  * The nick click's move: a handler asking for {@link status}'s author's
- * profile window, owned by the window's own account (src/state/profileWindow).
+ * profile window, owned by the window's own account (src/state/profileWindow)
+ * and placed as the click says (src/state/placementFromClick).
  */
-function openAuthor(status: Status, acting: Acting, go: Dispatch): () => void {
-  return () => {
-    go({
-      type: 'windows',
-      action: profileWindowOpen(authorOf(status), windowAccountKey(acting.state, acting.windowId)),
-    });
+function openAuthor(status: Status, acting: Acting, go: Dispatch): (click: ClickModifiers) => void {
+  return (click) => {
+    const open = profileWindowOpen(
+      authorOf(status),
+      windowAccountKey(acting.state, acting.windowId),
+    );
+    go(clickOpen(acting.state.settings, open, click));
   };
 }
 
@@ -120,7 +124,10 @@ export function sharedPostProps(
     reactions: view.reactions,
     replyTo: view.replyTo,
     visibility: view.visibility,
-    onContentLink: openContentLink(view.links, windowAccountKey(state, windowId), go),
+    onContentLink: openContentLink(view.links, windowAccountKey(state, windowId), {
+      settings: state.settings,
+      go,
+    }),
     onSelect: () => {
       go({ type: 'select', windowId, key: lineKey });
     },

@@ -5,7 +5,9 @@
  * from the window the notification is shown in. Pure: state in, plain values out.
  */
 import type { Account } from '../api/schemas/account';
+import type { ClickModifiers } from '../lib/clickModifiers';
 import type { AppState } from '../state/appState';
+import { clickOpen } from '../state/placementFromClick';
 import { profileWindowOpen } from '../state/profileWindow';
 import { windowAccountKey } from '../state/selectors';
 import type { Dispatch } from '../state/StateContext';
@@ -15,16 +17,17 @@ export function withoutActor(sentence: string, handle: string): string | null {
   return sentence.startsWith(`${handle} `) ? sentence.slice(handle.length + 1) : null;
 }
 
-/** A handler asking for {@link account}'s profile window, owned by the window's account. */
+/**
+ * A handler asking for {@link account}'s profile window, owned by the window's
+ * account and placed as the click says (WFE-238).
+ */
 export function openActor(
   app: { readonly state: AppState; readonly go: Dispatch },
   windowId: string,
   account: Account,
-): () => void {
-  return () => {
-    app.go({
-      type: 'windows',
-      action: profileWindowOpen(account, windowAccountKey(app.state, windowId)),
-    });
+): (click: ClickModifiers) => void {
+  return (click) => {
+    const open = profileWindowOpen(account, windowAccountKey(app.state, windowId));
+    app.go(clickOpen(app.state.settings, open, click));
   };
 }

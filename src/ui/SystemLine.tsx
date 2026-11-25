@@ -9,9 +9,11 @@
  */
 import type { JSX } from 'react';
 
+import { onMiddleClick } from './middleClick';
 import styles from './SystemLine.module.css';
 import { Timestamp } from './Timestamp';
 import { type Via, ViaMark } from './ViaMark';
+import type { ClickModifiers } from '../lib/clickModifiers';
 import type { ClockFormat } from '../lib/time';
 
 /** Props of {@link SystemLine}. */
@@ -26,7 +28,8 @@ export type SystemLineProps = {
   readonly text: string;
   /** The account the message is about: its `@handle` leads {@link text} as a
    * button, e.g. to open the account's profile. Omitted for plain messages. */
-  readonly actor?: { readonly handle: string; readonly onSelect: () => void } | undefined;
+  readonly actor?:
+    { readonly handle: string; readonly onSelect: (click: ClickModifiers) => void } | undefined;
   /** The text is decorative ASCII art (WFE-135): the whole line is hidden from
    * assistive technology and rendered unwrapped, so the art keeps its shape. */
   readonly decorative?: boolean | undefined;
@@ -74,7 +77,12 @@ export function SystemLine(props: SystemLineProps): JSX.Element {
         )}
         {actor === undefined ? undefined : (
           <>
-            <button type="button" className={styles['actor']} onClick={actor.onSelect}>
+            <button
+              type="button"
+              className={styles['actor']}
+              onAuxClick={onMiddleClick(actor.onSelect)}
+              onClick={actor.onSelect}
+            >
               {actor.handle}
             </button>{' '}
           </>

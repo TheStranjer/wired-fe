@@ -15,6 +15,7 @@ import type { JSX } from 'react';
 
 import { PEOPLE_TITLES, listedPeople } from './peopleList';
 import styles from './PeopleWindow.module.css';
+import { clickOpen } from '../../state/placementFromClick';
 import { profileWindowOpen } from '../../state/profileWindow';
 import { accountByKey, bufferFor, windowAccountKey } from '../../state/selectors';
 import { useAppDispatch, useAppState } from '../../state/StateContext';
@@ -42,8 +43,8 @@ function People({ watched }: { readonly watched: WindowState }): JSX.Element {
     <NickList
       title={title}
       accounts={accounts}
-      onSelect={(account) => {
-        dispatch({ type: 'windows', action: profileWindowOpen(account, key) });
+      onSelect={(account, click) => {
+        dispatch(clickOpen(state.settings, profileWindowOpen(account, key), click));
       }}
     />
   );

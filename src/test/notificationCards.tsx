@@ -9,6 +9,7 @@ import type { ComponentType, JSX } from 'react';
 import * as v from 'valibot';
 
 import { status, TEST_DATE } from './fixtures';
+import { PlacementProbe } from './placementProbe';
 import type { StoredAccount } from '../accounts/accountStore';
 import { type Notification, NotificationSchema } from '../api/schemas/notification';
 import { type AppState, coreReducer, initialAppState } from '../state/appState';
@@ -108,6 +109,7 @@ export function renderLine(Line: LineComponent, state: AppState, id: string = NO
     <AppStateProvider initial={state}>
       <Line line={lineOf(state)} windowId={id} />
       <WindowTitles />
+      <PlacementProbe />
     </AppStateProvider>,
   );
 }

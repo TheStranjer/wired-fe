@@ -7,6 +7,7 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { Nick } from './Nick';
 import type { NickProps } from './Nick';
+import type { ClickModifiers } from '../lib/clickModifiers';
 
 const BASE_PROPS: NickProps = {
   handle: 'alice',
@@ -43,6 +44,27 @@ describe(Nick, () => {
     fireEvent.click(screen.getByRole('button', { name: '@alice@m.example' }));
 
     expect(onSelect).toHaveBeenCalledTimes(1);
+  });
+
+  it('passes the click with its modifiers to onSelect', () => {
+    const onSelect = vi.fn<(click: ClickModifiers) => void>();
+    render(<Nick {...BASE_PROPS} onSelect={onSelect} />);
+
+    fireEvent.click(screen.getByRole('button', { name: '@alice@m.example' }), { shiftKey: true });
+
+    expect(onSelect).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ shiftKey: true }));
+  });
+
+  it('calls onSelect for a middle click, which the browser reports as an auxiliary click', () => {
+    const onSelect = vi.fn<(click: ClickModifiers) => void>();
+    render(<Nick {...BASE_PROPS} onSelect={onSelect} />);
+
+    fireEvent(
+      screen.getByRole('button', { name: '@alice@m.example' }),
+      new MouseEvent('auxclick', { bubbles: true, cancelable: true, button: 1 }),
+    );
+
+    expect(onSelect).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ button: 1 }));
   });
 
   it('renders plain text without onSelect', () => {

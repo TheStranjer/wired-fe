@@ -9,6 +9,7 @@ import type { JSX } from 'react';
 
 import { Nick } from './Nick';
 import styles from './NickList.module.css';
+import type { ClickModifiers } from '../lib/clickModifiers';
 
 /** One account on the list: the ui twin (AGENTS.md "Layout": this layer never
  * sees api types) of a line's author, enough to draw its nick and to report a
@@ -30,14 +31,14 @@ export type NickListProps = {
   readonly title: string;
   /** The accounts to list, in display order. */
   readonly accounts: readonly ListedAccount[];
-  /** Called with the account whose nick was clicked. */
-  readonly onSelect: (account: ListedAccount) => void;
+  /** Called with the account whose nick was clicked, and the click. */
+  readonly onSelect: (account: ListedAccount, click: ClickModifiers) => void;
 };
 
 /** One entry: the account's nick, which reports its own account when clicked. */
 function NickEntry(props: {
   readonly account: ListedAccount;
-  readonly onSelect: (account: ListedAccount) => void;
+  readonly onSelect: NickListProps['onSelect'];
 }): JSX.Element {
   const { account, onSelect } = props;
   return (
@@ -47,8 +48,8 @@ function NickEntry(props: {
         handle={account.acct}
         fullHandle={account.fullHandle}
         self={account.self}
-        onSelect={() => {
-          onSelect(account);
+        onSelect={(click) => {
+          onSelect(account, click);
         }}
       />
     </li>

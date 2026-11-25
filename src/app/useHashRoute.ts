@@ -6,7 +6,8 @@
  * the `/connect` hint printed; the effect runs again the moment an account
  * appears and finds the hash still there. An opened route is taken out of the
  * address bar with the page's own replace, so a reload never opens it a second
- * time. A hash that is not a route is left alone.
+ * time. A hash that is not a route is left alone. A route always opens `here`,
+ * in the focused pane, whatever the placement settings say (WFE-238).
  */
 
 import { useEffect } from 'react';
