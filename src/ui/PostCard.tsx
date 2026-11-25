@@ -13,13 +13,16 @@
 import type { JSX } from 'react';
 
 import { Avatar } from './Avatar';
+import { CardBoost } from './CardBoost';
+import { cardClassKeys, dmStrip } from './cardDm';
+import { CardHead } from './CardHead';
 import { MediaGrid } from './MediaGrid';
 import { MediaList } from './MediaList';
 import { PollView } from './PollView';
 import { PostActions } from './PostActions';
 import { PostBody } from './PostBody';
 import styles from './PostCard.module.css';
-import { CardBoost, CardHead, CardIdentity } from './PostCardParts';
+import { CardIdentity } from './PostCardParts';
 import type { PostCardProps } from './postCardTypes';
 import { PostMeta } from './PostMeta';
 import { QuoteBlock } from './QuoteBlock';
@@ -84,42 +87,57 @@ function CardContent(props: PostCardProps): JSX.Element {
   );
 }
 
+/** The author's picture beside the text; a chat bubble goes without one. */
+function CardAvatar(
+  props: Pick<PostCardProps, 'author' | 'showAvatar' | 'chat'>,
+): JSX.Element | null {
+  const { author, showAvatar, chat } = props;
+  if (!showAvatar || chat !== null) {
+    return null;
+  }
+  return (
+    <Avatar
+      animate={false}
+      handle={author.fullHandle}
+      size="medium"
+      src={author.avatar.src}
+      staticSrc={author.avatar.staticSrc}
+    />
+  );
+}
+
 /** One post as a card; clicking it selects it, clicking the nick opens the author. */
 export function PostCard(props: PostCardProps): JSX.Element {
-  const { author, selected, showAvatar, ref } = props;
-  const { avatar } = author;
+  const { author, selected, chat, ref } = props;
   return (
     <article
       {...postArticleProps({
         label: props.label,
         fullHandle: author.fullHandle,
         selected,
+        direct: props.visibility === 'direct',
         onSelect: props.onSelect,
         onContentLink: props.onContentLink,
       })}
-      className={[styles['card'], selected ? styles['selected'] : undefined].join(' ')}
+      className={cardClassKeys(props, selected)
+        .map((key) => styles[key])
+        .join(' ')}
       ref={ref}
     >
       <CardHead
         clockFormat={props.clockFormat}
         date={props.date}
+        dm={dmStrip(props)}
         label={props.label}
         selected={selected}
       />
-      <CardBoost boostedBy={props.boostedBy} showAvatar={showAvatar} />
+      <CardBoost boostedBy={props.boostedBy} showAvatar={props.showAvatar} />
       <div className={styles['main']}>
-        {showAvatar ? (
-          <Avatar
-            animate={false}
-            handle={author.fullHandle}
-            size="medium"
-            src={avatar.src}
-            staticSrc={avatar.staticSrc}
-          />
-        ) : undefined}
+        <CardAvatar author={author} chat={chat} showAvatar={props.showAvatar} />
         <div className={styles['text']}>
           <CardIdentity
             author={author}
+            chat={chat}
             onSelectAuthor={props.onSelectAuthor}
             replyTo={props.replyTo}
           />

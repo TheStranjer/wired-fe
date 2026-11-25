@@ -46,6 +46,8 @@ export const BASE_PROPS: PostCardProps = {
   selected: false,
   showAvatar: true,
   showImages: true,
+  recipients: [],
+  chat: null,
   onToggleReveal: vi.fn<() => void>(),
   onSelect: vi.fn<() => void>(),
   onSelectAuthor: vi.fn<() => void>(),

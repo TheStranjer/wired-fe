@@ -12,31 +12,26 @@
   overflow-wrap: anywhere;
 }
 
+/* A direct message is dashed, so it differs by shape and not colour alone. */
+.direct {
+  border-style: dashed;
+}
+
 .selected {
   border-inline-start: calc(var(--border-width-focus) * 2) solid var(--color-fg);
   background: var(--color-bar-bg);
 }
 
-.head {
-  display: flex;
-  justify-content: space-between;
-  gap: var(--space);
+/* In a DM window a card is a compact chat bubble: the other side's on the
+   left, the reader's own pushed to the right. */
+.bubble {
+  max-inline-size: 80%;
+  padding-block: 0;
 }
 
-.label {
-  color: var(--color-dim);
-}
-
-.labelSelected {
-  background: var(--color-fg);
-  color: var(--color-bg);
-}
-
-.boost {
-  display: flex;
-  align-items: center;
-  gap: var(--space);
-  color: var(--color-dim);
+.own {
+  margin-inline-start: auto;
+  text-align: end;
 }
 
 .main {
