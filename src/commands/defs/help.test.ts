@@ -41,7 +41,7 @@ function stubContext(): {
 
 /** Every line the detail block of /help itself consists of, in order. */
 const HELP_DETAILS: readonly (readonly [string])[] = [
-  ['/help [command]'],
+  ['/help [command | topic]'],
   ['  List commands, or show help for one'],
   ['  Aliases: /h'],
   ['  Keys: ? (navigation)'],
@@ -59,6 +59,7 @@ describe('/help', () => {
       ['  /fake — Do a fake thing'],
       ['  /help — List commands, or show help for one'],
       ['Type /help <command> for details.'],
+      ['Topics: layout, feeds, sync. Type /help <topic>.'],
     ]);
   });
 

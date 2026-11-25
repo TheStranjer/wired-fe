@@ -1,8 +1,77 @@
 # wired-fe
 
-The web frontend for Wired, a fediverse server ([wired-be](https://github.com/TheStranjer/wired-be)). It also works against Mastodon and Pleroma servers. It looks and behaves like a 1990s IRC or Battle.net client: a command line you post from, numbered windows, hotkeys for everything.
+The web frontend for Wired, a fediverse server ([wired-be](https://github.com/TheStranjer/wired-be)). It also works against Mastodon and Pleroma/Akkoma servers, with fewer features. It feels like a tiling window manager crossed with a terminal and a modern social client: a desktop of panes, feeds that mix any accounts, posts drawn as cards, and a command line at the bottom that can do everything the mouse can.
 
-What it does today: sign in with OAuth (password login, invite sign-up, password reset, third-party app authorization and external-login consent), read home, local, federated, notification, thread, DM, hashtag, profile and search windows, and post, reply, favourite, boost and follow from the command line, with several accounts at once. Every action is a command, a hotkey and a click.
+What it does today: sign in with OAuth (password login, invite sign-up, password reset, third-party app authorization and external-login consent), read feeds, notifications, threads, DMs, hashtags, profiles and search, and post, reply, favourite, boost and follow, with several accounts at once. Every action is a command, a hotkey and a click.
+
+## Using WiredFE
+
+The command line at the bottom is always there and never required. Plain text posts to the focused window; `//text` posts a literal leading slash; `/help` lists the commands, `/help <command>` shows one, and `/help layout`, `/help feeds` and `/help sync` explain the three topics below. Press `Esc` for navigation mode (vim-style keys; `i` or `Enter` goes back to typing).
+
+### Desktops and panes
+
+The screen is a desktop of panes split side by side or stacked. Each pane shows one window (a feed, a composer, a thread, a DM, notifications, a profile, search, the people list). Closing a pane keeps its window open and hidden; `/close` ends the window. Desktops are numbered from 1; the status line shows them as `[1] [2]` with the active one marked.
+
+| To                            | Command                           | tmux keys (both modes) | Vim keys (navigation mode) | Mouse                        |
+| ----------------------------- | --------------------------------- | ---------------------- | -------------------------- | ---------------------------- |
+| Split side by side            | `/vsplit [view]`                  | `Ctrl+B %`             | `w v`                      | `┃▾` in the pane's title bar |
+| Split stacked                 | `/split [view]`                   | `Ctrl+B "`             | `w s`                      | `━▾`                         |
+| Focus a neighbour             | `/focus left\|right\|up\|down`    | `Ctrl+B` + arrow       | `w h`, `w j`, `w k`, `w l` | click the pane               |
+| Cycle focus                   | `/focus next`                     | `Ctrl+B o`             | `w w`                      |                              |
+| Close the pane (window stays) | `/unsplit`                        | `Ctrl+B x`             | `w c`                      | `✕`                          |
+| Keep only this pane           | `/only`                           | `Ctrl+B z`             | `w o`                      |                              |
+| Equal shares                  | `/equalize`                       |                        | `w =`                      |                              |
+| Resize                        | `/resize width\|height +N\|-N\|N` |                        |                            | drag a divider; arrows on it |
+| Swap with the neighbour       | `/swap left\|right\|up\|down`     |                        | `w x`                      |                              |
+| Tear off into a float         | `/float [view]`                   | `Ctrl+B f`             | `w f`                      | `⧉▾`, then `This pane`       |
+| Dock a float                  | `/dock`                           | `Ctrl+B d`             | `w d`                      | `⊞`; Shift-drag over a pane  |
+| Go to desktop N               | `/desktop N`                      | `Ctrl+B N`             |                            | `Alt+1`..`Alt+9`             |
+| Previous or next desktop      | `/desktop prev`, `/desktop next`  | `Ctrl+B p`, `Ctrl+B n` |                            | `Alt+[`, `Alt+]`             |
+| New desktop                   | `/desktop new`                    | `Ctrl+B c`             |                            |                              |
+| Move the pane to a desktop    | `/mvd N [follow]`                 |                        |                            |                              |
+
+`Alt+[` on desktop 1 wraps to the last desktop, and `Alt+]` on the last creates a new one. `Ctrl+W`, `Ctrl+T` and `Ctrl+N` are never bound, because browsers keep them. Every key is rebindable (`/binds`, `/bind`, `/unbind`), and a binding may be a sequence of chords (`Ctrl+B %`, `w v`).
+
+### Floats
+
+A float is a window in a free rectangle above the panes, dragged by its title bar and kept inside the viewport. `/float` tears the focused pane off; `/float thread a3` opens a view straight into a float; `/float move <dx> <dy>` and `/float size <dw> <dh>` adjust it and `/raise` brings it to the top. Double-clicking a post, `p` or `/pop [label]` pops that post's thread out into a float.
+
+### Feeds
+
+A feed mixes any sources from any signed-in accounts into one stream, newest first, with a post several accounts see shown once. A source is `home`, `mentions`, `dms`, `notifications`, `local`, `federated` or `tag:<name>` of one account. Feeds stream live.
+
+The first run makes a feed called `stream` (home, mentions, DMs and notifications of every account) and opens it alone in desktop 1. While you have not edited it, an account you sign in later is added to it; deleting it is permanent, and it is not made again.
+
+- `/feed` lists feeds, `/feed <name>` opens one, `/feed new`, `/feed edit <name>` and the `✎` button in a feed pane's title bar open the editor, and `/feed add|rm|rename|delete` change feeds from the command line.
+- `/home`, `/local`, `/federated`, `/notifications`, `/tag <name>` and `/search <text>` still open single-source windows.
+- Every post has a short label like `[a3]` and commands take it: `/fav a3`, `/boost a3`, `/thread a3`, `/pop a3`. A command acts as the account that fetched that post; `/as @me@other.example <text>` acts as another account for one command.
+
+### Cards and lines
+
+Posts are cards by default: avatar, name, body, inline images and an action bar. A direct message is a card with a `✉ DM from → to` header and a dashed border. Sensitive media stays covered until opened, and nothing autoplays. `/display` shows or overrides, for the focused window only, `density` (`cards` or `lines`, the IRC-line look), `avatars` and `images`: `/display density lines`, `/display avatars off`, `/display reset`. `/set density lines`, `/set avatars off` and `/set images off` change the default for every window, and the `◐▾` button in a pane's title bar does the same per window.
+
+### The composer pane and replies
+
+`/compose [text]` (`Ctrl+E`, or `c` in navigation mode) opens a composer window, a float by default; it takes the half-typed line with it. The composer pane has the text, content warning, visibility, media and poll fields, and sends with its button or `Ctrl+Enter`. `/attach` while it is focused attaches to it.
+
+Replies: `/reply a3 some text` posts at once. `/reply a3` with no text, the card's reply button and `Shift+r` open a composer bound to that post, with the mentions, visibility and content warning filled in and the post shown above the text; it closes itself after sending. `r` instead prefills the command line with `/reply a3 ` for a one-line answer, and `q` does the same for `/quote`.
+
+### Placement
+
+Every command that opens a window takes `--in here|vsplit|split|float|hidden` at the end (`/thread a3 --in float`, `/dm @alice --in vsplit`). Without it, the setting decides: `openIn` is the default (`here`, the focused pane), `openIn.<kind>` overrides it for one kind (`/set openIn.thread vsplit`; `/set openIn.thread default` takes it back), and `replyIn` places reply composers (default `split`). The composer defaults to `float` and `/people` to a split on the right. Clicks follow the same settings: a plain click uses the configured placement, **Ctrl/Cmd+click** opens a float, **Shift+click** a side-by-side split and **middle-click** a hidden window. A link in the address bar (`/#/notice/<id>`) opens in the focused pane.
+
+### Sync
+
+Your desktops, floats, open windows, feeds and settings are saved in this browser and synced through your server's settings store (`/api/v1/pleroma/settings/wired-fe`, served by Wired, Pleroma and Akkoma), so your desk follows you from one browser to the next.
+
+- `/sync` shows the state. `/sync primary <handle>` picks the account whose server holds the synced copy, `/sync fallback add|rm|up <handle>` orders the accounts that take over when it has no settings store or its token no longer works, `/sync now` pulls and pushes at once, and `/sync off` and `/sync on` switch it. The choice stays in this browser. Signing an account out drops it from the list.
+- Desktop browsers (Windows, macOS, Linux, ChromeOS) and mobile ones (Android, iOS, iPadOS) keep separate layouts, so a phone never rewrites your desk. The newer copy wins. A change is pushed three seconds after the last edit.
+- The server caps the whole store at 1 MiB. WiredFE pushes at most 384 KiB per device class; a bigger desk leaves hidden windows, empty desktops and key overrides past 200 out of the synced copy only, and says so. If even that is too big, sync pauses and says so.
+- **Mastodon has no settings store.** An account there keeps its desk in this browser only; add a Wired, Pleroma or Akkoma account to the list to sync.
+
+### Mobile mode
+
+On a phone or tablet only one pane shows at a time, full screen, with no dividers or float dragging. The title bar has a switcher, `‹ 2/4 ›`: the arrows step through the desktop's panes (`/focus prev`, `/focus next`) and the counter opens a menu of all of them. The layout model is the same, and the mobile layout is its own synced snapshot.
 
 ## Requirements
 
