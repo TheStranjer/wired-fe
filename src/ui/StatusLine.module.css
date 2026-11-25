@@ -5,8 +5,8 @@
   overflow: hidden;
 }
 
-/* A window entry is a button made to look like the rest of the line; an
-   inactive window with nothing waiting stays dim. */
+/* A desktop or window entry is a button made to look like the rest of the
+   line; one with nothing waiting stays dim. */
 .entry {
   border: 0;
   padding: 0;
@@ -16,17 +16,19 @@
   cursor: pointer;
 }
 
-.active {
-  color: var(--color-accent);
-  font-weight: bold;
-}
-
 .unread {
   color: var(--color-fg);
 }
 
 .highlighted {
   color: var(--color-warn);
+}
+
+/* The desktop on screen is inverted and bold, whatever else it holds. */
+.entry.activeDesktop {
+  background: var(--color-accent);
+  color: var(--color-bg);
+  font-weight: bold;
 }
 
 .entry:focus-visible {

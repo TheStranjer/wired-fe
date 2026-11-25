@@ -1,32 +1,41 @@
 /**
- * Tests for the status line: the four groups, the window entries, their
- * accessible names, aria-current and clicking an entry.
+ * Tests for the status line: the groups, the desktop entries and the hidden
+ * window entries, their accessible names, aria-current and clicking an entry.
  */
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 import { StatusLine } from './StatusLine';
-import type { StatusLineProps, StatusLineWindow } from './StatusLine';
+import type { StatusLineProps } from './StatusLine';
+import type { StatusLineDesktop, StatusLineWindow } from './statusLineTypes';
 
 const NOOP = (): undefined => undefined;
 
-/** One plain window, one with unread posts, one waiting for a reply. */
+/** Three desktops: the second on screen with unread, the third holding a highlight. */
+const DESKTOPS: readonly StatusLineDesktop[] = [
+  { number: 1, unread: 0, highlight: false, active: false },
+  { number: 2, unread: 12, highlight: false, active: true },
+  { number: 3, unread: 1, highlight: true, active: false },
+];
+
+/** One window with unread posts, one waiting for a reply. */
 const WINDOWS: readonly StatusLineWindow[] = [
-  { number: 1, title: 'status', unread: 0, highlight: false, active: true },
-  { number: 2, title: 'home', unread: 3, highlight: false, active: false },
-  { number: 3, title: 'dm/bob', unread: 0, highlight: true, active: false },
+  { number: 3, title: 'home', unread: 3, highlight: false },
+  { number: 7, title: 'dm/bob', unread: 0, highlight: true },
 ];
 
 const BASE_PROPS: StatusLineProps = {
   clock: '23:07',
   accountLabel: '@lain@wired.example',
+  desktops: DESKTOPS,
   windows: WINDOWS,
   mode: 'insert',
   pendingKeys: null,
+  onSelectDesktop: NOOP,
   onSelectWindow: NOOP,
 };
 
-const FULL_LINE = '[23:07] [@lain@wired.example] [1:status 2:home(3) 3:dm/bob*] [INS]';
+const FULL_LINE = '[23:07] [@lain@wired.example] [1] [2*:12] [3:1] │ 3:home(3) 7:dm/bob* [INS]';
 
 /** Renders the status line with the base props changed, and returns the row. */
 function renderStatusLine(overrides: Partial<StatusLineProps>): HTMLElement {
@@ -35,75 +44,91 @@ function renderStatusLine(overrides: Partial<StatusLineProps>): HTMLElement {
 }
 
 describe(StatusLine, () => {
-  it('renders clock, account, windows and mode as one bracketed line', () => {
+  it('renders clock, account, desktops, hidden windows and mode as one line', () => {
     const line = renderStatusLine({});
 
     expect(line.textContent).toBe(FULL_LINE);
-    expect(screen.getAllByRole('button')).toHaveLength(3);
+    expect(screen.getAllByRole('button')).toHaveLength(5);
   });
 
-  it('labels every entry with its number, title and state', () => {
+  it('labels every desktop with its number and state', () => {
     renderStatusLine({});
 
-    expect(screen.getByRole('button', { name: 'Window 1: status' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Window 2: home, 3 unread' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Desktop 1' })).toBeInTheDocument();
     expect(
-      screen.getByRole('button', { name: 'Window 3: dm/bob, highlighted' }),
+      screen.getByRole('button', { name: 'Desktop 2, active, 12 unread' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Desktop 3, 1 unread, highlighted' }),
+    ).toBeInTheDocument();
+  });
+
+  it('labels every hidden window with its number, title and state', () => {
+    renderStatusLine({});
+
+    expect(screen.getByRole('button', { name: 'Window 3: home, 3 unread' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Window 7: dm/bob, highlighted' }),
     ).toBeInTheDocument();
   });
 
   it('shows a dash for the account and NAV in navigation mode', () => {
     const line = renderStatusLine({ accountLabel: null, mode: 'navigation' });
 
-    expect(line.textContent).toBe('[23:07] [-] [1:status 2:home(3) 3:dm/bob*] [NAV]');
+    expect(line.textContent).toBe('[23:07] [-] [1] [2*:12] [3:1] │ 3:home(3) 7:dm/bob* [NAV]');
   });
 
-  it('renders empty brackets when there are no windows', () => {
+  it('shows no separator when no window has activity', () => {
     const line = renderStatusLine({ windows: [] });
 
-    expect(line.textContent).toBe('[23:07] [@lain@wired.example] [] [INS]');
+    expect(line.textContent).toBe('[23:07] [@lain@wired.example] [1] [2*:12] [3:1] [INS]');
   });
 
-  it('calls onSelectWindow with the number of the clicked entry', () => {
+  it('shows one bare active desktop for the default layout', () => {
+    const line = renderStatusLine({
+      desktops: [{ number: 1, unread: 0, highlight: false, active: true }],
+      windows: [],
+    });
+
+    expect(line.textContent).toBe('[23:07] [@lain@wired.example] [1*] [INS]');
+  });
+
+  it('calls onSelectDesktop with the number of the clicked desktop', () => {
+    const onSelectDesktop = vi.fn<(number: number) => void>();
+    renderStatusLine({ onSelectDesktop });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Desktop 3, 1 unread, highlighted' }));
+
+    expect(onSelectDesktop).toHaveBeenCalledWith(3);
+  });
+
+  it('calls onSelectWindow with the number of the clicked window', () => {
     const onSelectWindow = vi.fn<(number: number) => void>();
     renderStatusLine({ onSelectWindow });
 
-    fireEvent.click(screen.getByRole('button', { name: 'Window 2: home, 3 unread' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Window 7: dm/bob, highlighted' }));
 
-    expect(onSelectWindow).toHaveBeenCalledWith(2);
+    expect(onSelectWindow).toHaveBeenCalledWith(7);
   });
 
-  it('marks only the active entry with aria-current', () => {
+  it('marks only the active desktop with aria-current', () => {
     renderStatusLine({});
 
-    expect(screen.getByRole('button', { name: 'Window 1: status' })).toHaveAttribute(
+    expect(screen.getByRole('button', { name: 'Desktop 2, active, 12 unread' })).toHaveAttribute(
       'aria-current',
       'true',
     );
-    expect(screen.getByRole('button', { name: 'Window 2: home, 3 unread' })).not.toHaveAttribute(
+    expect(screen.getByRole('button', { name: 'Desktop 1' })).not.toHaveAttribute('aria-current');
+    expect(screen.getByRole('button', { name: 'Window 3: home, 3 unread' })).not.toHaveAttribute(
       'aria-current',
     );
-    expect(
-      screen.getByRole('button', { name: 'Window 3: dm/bob, highlighted' }),
-    ).not.toHaveAttribute('aria-current');
-  });
-
-  it('lists every state of a window that is active, unread and highlighted', () => {
-    const line = renderStatusLine({
-      windows: [{ number: 4, title: 'dm/eop', unread: 2, highlight: true, active: true }],
-    });
-
-    const entry = screen.getByRole('button', { name: 'Window 4: dm/eop, 2 unread, highlighted' });
-
-    expect(line.textContent).toBe('[23:07] [@lain@wired.example] [4:dm/eop(2)*] [INS]');
-    expect(entry).toHaveAttribute('aria-current', 'true');
   });
 
   it('shows pending media as its own group before the mode', () => {
     const line = renderStatusLine({ pendingMedia: 2 });
 
     expect(line.textContent).toBe(
-      '[23:07] [@lain@wired.example] [1:status 2:home(3) 3:dm/bob*] [+2 media] [INS]',
+      '[23:07] [@lain@wired.example] [1] [2*:12] [3:1] │ 3:home(3) 7:dm/bob* [+2 media] [INS]',
     );
   });
 
@@ -111,7 +136,7 @@ describe(StatusLine, () => {
     const line = renderStatusLine({ pendingKeys: 'Ctrl+B' });
 
     expect(line.textContent).toBe(
-      '[23:07] [@lain@wired.example] [1:status 2:home(3) 3:dm/bob*] [Ctrl+B …] [INS]',
+      '[23:07] [@lain@wired.example] [1] [2*:12] [3:1] │ 3:home(3) 7:dm/bob* [Ctrl+B …] [INS]',
     );
   });
 

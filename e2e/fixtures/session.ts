@@ -2,7 +2,7 @@
  * The session every end-to-end spec starts from: a fake instance of ./wired,
  * ./mastodon or ./pleroma under the built bundle, `/connect` walked through the
  * OAuth redirect (decision 8), and the locators the specs share — the command
- * line, the status line's window entries, a window's log region — over the two
+ * line, a window's log region — over the two
  * hotkey modes (AGENTS.md "Two hotkey modes"). The assertions stay in the
  * specs; this module only gets the reader logged in and moves them between
  * windows.
@@ -72,11 +72,6 @@ function pattern(text: string): string {
   return text.replaceAll(/[.*+?^${}()|[\]\\]/gu, '\\$&');
 }
 
-/** The status line's entry for the window titled {@link title}, whatever its number. */
-export function windowEntry(page: Page, title: string): Locator {
-  return page.getByRole('button', { name: new RegExp(`Window \\d+: ${pattern(title)}`) });
-}
-
 /** The scrollback of the window whose log region is named {@link name}. */
 export function logRegion(page: Page, name: string): Locator {
   return page.getByRole('log', { name });
@@ -90,10 +85,37 @@ async function closeBox(page: Page): Promise<void> {
   }
 }
 
+/**
+ * The number of the window titled {@link title}, read from `/win list` in window 1:
+ * the status line lists desktops, so a window without unread has no entry to find it by.
+ */
+async function windowNumber(page: Page, title: string): Promise<number> {
+  const entry = new RegExp(
+    `(\\d+):\\s${pattern(title)}(?:\\s\\(\\d+ unread\\))?(?:\\s\\*)?\\s*$`,
+    'u',
+  );
+  let number = 0;
+  await expect
+    .poll(async () => {
+      await submit(page, '/win 1');
+      await submit(page, '/win list');
+      const line = await logRegion(page, 'status')
+        .getByText(entry)
+        .last()
+        .textContent({ timeout: 1000 })
+        .catch(() => null);
+      number = Number(entry.exec(line ?? '')?.[1] ?? 0);
+      return number;
+    })
+    .toBeGreaterThan(0);
+  return number;
+}
+
 /** The window {@link title} becomes the one the reader is looking at. */
 export async function showWindow(page: Page, title: string, log = title): Promise<void> {
   await closeBox(page);
-  await windowEntry(page, title).click();
+  const number = title === 'status' ? 1 : await windowNumber(page, title);
+  await submit(page, `/win ${String(number)}`);
   await expect(logRegion(page, log)).toBeVisible();
 }
 
@@ -106,14 +128,14 @@ async function connect(page: Page): Promise<void> {
 
 /**
  * Logs in through the fixture flow of {@link instance} (the fake Wired one by
- * default) and waits for what startup opens: the status line's windows, the
- * login line in window 1 and the fixture posts in home — the reader ends up
+ * default) and waits for what startup opens: the login line in window 1 and the
+ * fixture posts in home — the reader ends up
  * looking at home, ready to move.
  */
 export async function signIn(page: Page, instance: Instance = WIRED): Promise<void> {
   await instance.route(page);
   await connect(page);
-  await expect(windowEntry(page, 'notifs')).toBeVisible();
+  await expect(page.getByText(`[@${instance.handle}]`, { exact: true })).toBeVisible();
   await showWindow(page, 'status');
   await expect(logRegion(page, 'status')).toContainText(
     `Logged in to ${ORIGIN} as @${instance.handle}`,
