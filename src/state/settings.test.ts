@@ -41,6 +41,7 @@ const CHOSEN: Settings = {
   feeds: [{ id: 'f1', name: 'main', sources: [{ accountKey: 'a#1', source: 'tag:rust' }] }],
   images: false,
   keyOverrides: OVERRIDES,
+  streamMade: true,
   theme: 'lain',
 };
 
@@ -61,6 +62,7 @@ describe('the settings a session starts from', () => {
       feeds: [],
       images: true,
       keyOverrides: [],
+      streamMade: false,
       theme: 'wired',
     });
   });
@@ -76,6 +78,7 @@ describe('the settings a session starts from', () => {
       'feeds',
       'images',
       'keyOverrides',
+      'streamMade',
       'theme',
     ]);
   });
@@ -121,6 +124,11 @@ describe('the stored settings schema', () => {
     expect(
       v.safeParse(SettingsSchema, { feeds: [{ id: 'f', name: '', sources: [] }] }).success,
     ).toBe(false);
+  });
+
+  it('reads whether the stream feed was made, and defaults it to not yet', () => {
+    expect(parse({ streamMade: true }).streamMade).toBe(true);
+    expect(parse({}).streamMade).toBe(false);
   });
 
   it('defaults the overrides to none', () => {
@@ -183,6 +191,13 @@ describe('the setting metadata /set reads', () => {
     expect(keys).not.toContain('keyOverrides');
     expect(Object.hasOwn(DEFAULT_SETTINGS, 'feeds')).toBe(true);
     expect(keys).not.toContain('feeds');
+  });
+
+  it('keeps the stream flag out of the listing too', () => {
+    const keys = SETTING_KEYS.map((meta) => meta.key);
+
+    expect(Object.hasOwn(DEFAULT_SETTINGS, 'streamMade')).toBe(true);
+    expect(keys).not.toContain('streamMade');
   });
 
   it('gives the four enum knobs their values', () => {

@@ -25,6 +25,12 @@ export type FeedSpec = {
   readonly id: string;
   readonly name: string;
   readonly sources: readonly FeedSourceRef[];
+  /**
+   * Set on the feed the client made itself (the `stream` of a first sign-in)
+   * and cleared by any edit of the reader's: only an automatic feed grows by
+   * itself when another account signs in.
+   */
+  readonly auto?: boolean | undefined;
 };
 
 /** The feeds a reader has saved, in the order they made them. */
@@ -61,6 +67,7 @@ const OneFeedSchema = v.object({
   id: v.pipe(v.string(), v.minLength(1)),
   name: v.pipe(v.string(), v.minLength(1), v.maxLength(MAX_FEED_NAME)),
   sources: v.array(FeedSourceRefSchema),
+  auto: v.optional(v.boolean()),
 });
 
 /** The stored feed list: every feed valid, names unique ignoring case, ids unique. */
@@ -107,6 +114,11 @@ function checkedName(feeds: Feeds, name: string, id: string): Result<string, str
   return ok(trimmed);
 }
 
+/** {@link feed} as a reader's edit leaves it: with {@link change} laid over it, and no longer automatic. */
+function edited(feed: FeedSpec, change: Partial<Pick<FeedSpec, 'name' | 'sources'>>): FeedSpec {
+  return { id: feed.id, name: feed.name, sources: feed.sources, ...change };
+}
+
 /** {@link feeds} with the feed {@link id} replaced by what {@link change} makes of it. */
 function mapFeed(feeds: Feeds, id: string, change: (feed: FeedSpec) => FeedSpec): Feeds {
   return feeds.map((feed) => (feed.id === id ? change(feed) : feed));
@@ -121,7 +133,7 @@ export function addFeed(feeds: Feeds, spec: FeedSpec): Result<Feeds, string> {
   if (!name.ok) {
     return name;
   }
-  return ok([...feeds, { id: spec.id, name: name.value, sources: deduped(spec.sources) }]);
+  return ok([...feeds, { ...spec, name: name.value, sources: deduped(spec.sources) }]);
 }
 
 /** {@link feeds} without the feed {@link id}; unchanged when there is none. */
@@ -138,20 +150,26 @@ export function renameFeed(feeds: Feeds, id: string, name: string): Result<Feeds
   if (!checked.ok) {
     return checked;
   }
-  return ok(mapFeed(feeds, id, (feed) => ({ ...feed, name: checked.value })));
+  return ok(mapFeed(feeds, id, (feed) => edited(feed, { name: checked.value })));
 }
 
 /** {@link feeds} with {@link refs} added to the feed {@link id}, identical sources kept once. */
 export function addSource(feeds: Feeds, id: string, refs: readonly FeedSourceRef[]): Feeds {
+  return mapFeed(feeds, id, (feed) =>
+    edited(feed, { sources: deduped([...feed.sources, ...refs]) }),
+  );
+}
+
+/** Like {@link addSource}, but the client's own doing: the feed stays automatic. */
+export function addAutoSources(feeds: Feeds, id: string, refs: readonly FeedSourceRef[]): Feeds {
   return mapFeed(feeds, id, (feed) => ({ ...feed, sources: deduped([...feed.sources, ...refs]) }));
 }
 
 /** {@link feeds} with {@link ref} taken out of the feed {@link id}. */
 export function removeSource(feeds: Feeds, id: string, ref: FeedSourceRef): Feeds {
-  return mapFeed(feeds, id, (feed) => ({
-    ...feed,
-    sources: feed.sources.filter((other) => !sameRef(other, ref)),
-  }));
+  return mapFeed(feeds, id, (feed) =>
+    edited(feed, { sources: feed.sources.filter((other) => !sameRef(other, ref)) }),
+  );
 }
 
 /** {@link feeds} without the sources of the account {@link accountKey}; feeds left empty stay. */

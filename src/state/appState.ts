@@ -23,6 +23,7 @@ import { type Buffer, clearBuffer, type LineLevel } from './buffer';
 import type { ComposerFields, ComposerMedia } from './draft';
 import { applyLayoutAction, applyWindowsAction } from './layoutSync';
 import { DEFAULT_SETTINGS, type Settings } from './settings';
+import { dropSignedOut } from './signedOut';
 import type { StoredAccount } from '../accounts/accountStore';
 import type { InstanceProfile } from '../capabilities/detect';
 import { initialDesktops } from '../windows/desktops';
@@ -124,7 +125,7 @@ export function coreReducer(state: AppState, action: CoreAction): AppState {
     case 'clear':
       return applyClear(state, action.windowId);
     case 'accounts':
-      return withAccounts(state, action.accounts, action.activeKey);
+      return dropSignedOut(state, withAccounts(state, action.accounts, action.activeKey));
     case 'accountExpired':
       return { ...state, expired: withExpired(state.expired, action.accountKey) };
     case 'profile':

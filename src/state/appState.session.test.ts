@@ -186,6 +186,7 @@ describe('the settings', () => {
       feeds: [],
       images: true,
       keyOverrides: [],
+      streamMade: false,
       theme: 'wired',
     });
   });

@@ -87,6 +87,10 @@ function routeSession(page: Page, content: InstanceContent): readonly Promise<un
     page.route('**/api/v1/notifications*', async (route) => {
       await json(route, content.notices());
     }),
+    // The conversations the stream feed's `dms` source reads (WFE-243): none.
+    page.route('**/api/v1/conversations*', async (route) => {
+      await json(route, []);
+    }),
     page.route('**/api/v1/custom_emojis', async (route) => {
       await json(route, []);
     }),

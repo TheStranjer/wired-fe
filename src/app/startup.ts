@@ -16,14 +16,14 @@ import { connectHint } from './connectHint';
 import { type DeskSource, restoreDesk } from './deskSource';
 import { routeFromPath } from './routeFromPath';
 import { detectOrigins } from './startupDetect';
+import { type SessionFacts, joinStreamAtStartup, openDefaultWindows } from './startupStream';
 import type { AppStores } from './stores';
 import type { StoredAccount } from '../accounts/accountStore';
 import { completeLogin } from '../accounts/completeLogin';
 import type { Detect } from '../capabilities/detect';
 import type { WiredConfig } from '../config/schema';
 import type { LineLevel } from '../state/buffer';
-import { DEFAULT_SETTINGS, SettingsSchema } from '../state/settings';
-import { openStartupWindows } from '../state/startupWindows';
+import { DEFAULT_SETTINGS, type Settings, SettingsSchema } from '../state/settings';
 import type { Dispatch } from '../state/StateContext';
 import { STATUS_WINDOW_ID } from '../windows/model';
 
@@ -81,10 +81,11 @@ function greet(deps: StartupDeps): void {
   printStatus(deps, 'Present day. Present time.', 'info');
 }
 
-/** The stored settings, or the defaults, restored before anything prints. */
-function loadSettings(deps: StartupDeps): void {
-  const stored = deps.stores.settings.get('settings', SettingsSchema);
-  deps.dispatch({ type: 'settings', settings: stored ?? DEFAULT_SETTINGS });
+/** The stored settings, or the defaults, restored before anything prints; the ones restored. */
+function loadSettings(deps: StartupDeps): Settings {
+  const settings = deps.stores.settings.get('settings', SettingsSchema) ?? DEFAULT_SETTINGS;
+  deps.dispatch({ type: 'settings', settings });
+  return settings;
 }
 
 /** The origins the accounts live on, distinct, in the order they were added. */
@@ -114,15 +115,16 @@ function loggedInLine(account: StoredAccount): string {
  * query to {@link completeLogin} before anything is restored, print what came
  * of it (nothing if ignored), and rewrite the address bar without its query
  * so a reload never replays `code` and `state`. No callback: left alone.
+ * Answers the account the login signed in, or null.
  */
-async function finishPendingLogin(deps: StartupDeps): Promise<void> {
+async function finishPendingLogin(deps: StartupDeps): Promise<StoredAccount | null> {
   const { apps, login, accounts } = deps.stores;
   const outcome = await completeLogin(
     { apps, login, accounts },
     { search: deps.location.search, appName: deps.config.appName, now: deps.now().getTime() },
   );
   if (outcome.kind === 'none') {
-    return;
+    return null;
   }
   if (outcome.kind === 'ok') {
     printStatus(deps, loggedInLine(outcome.account), 'info');
@@ -130,47 +132,45 @@ async function finishPendingLogin(deps: StartupDeps): Promise<void> {
     printStatus(deps, outcome.message, 'error');
   }
   deps.location.replaceUrl(deps.location.pathname + deps.location.hash);
+  return outcome.kind === 'ok' ? outcome.account : null;
 }
 
 /**
  * Put the desk in place (decision 17): the one saved for this device class when
- * there is one, else the default windows, a home and a notifications window per
+ * there is one, else the default windows — the `stream` feed when there is one
+ * to show (./startupStream), otherwise a home and a notifications window per
  * account.
  */
-function openDesk(
-  deps: StartupDeps,
-  accounts: readonly StoredAccount[],
-  activeKey: string | null,
-): void {
-  const desk = restoreDesk(deps.desk, accounts);
+function openDesk(deps: StartupDeps, facts: SessionFacts): void {
+  const desk = restoreDesk(deps.desk, facts.accounts);
   if (desk !== null) {
     deps.dispatch({ type: 'restore', ...desk });
     return;
   }
-  for (const action of openStartupWindows(accounts, activeKey)) {
-    deps.dispatch({ type: 'windows', action });
-  }
+  openDefaultWindows(deps, facts);
 }
 
 /**
  * Boot the session into the status window: load the stored settings, greet,
  * finish a login left in the URL, turn a path route into its hash route
  * (./routeFromPath), restore the stored accounts into the app state and put the
- * desk in place (the saved one, else each account's home and notifications
- * window), then either hint at `/connect`
+ * desk in place (the saved one, else the `stream` feed, else each account's
+ * home and notifications window; an account the login just signed in joins the
+ * stream first, WFE-243), then either hint at `/connect`
  * (no accounts, by instance mode) or detect each account's instance once
  * (concurrently, one report per origin) and announce every account, the
  * active one marked.
  */
 export async function runStartup(deps: StartupDeps): Promise<void> {
-  loadSettings(deps);
+  const loaded = loadSettings(deps);
   greet(deps);
-  await finishPendingLogin(deps);
+  const joined = await finishPendingLogin(deps);
   routeFromPath(deps.location, deps.config.basePath);
   const accounts = deps.stores.accounts.list();
   const activeKey = deps.stores.accounts.activeKey();
   deps.dispatch({ type: 'accounts', accounts, activeKey });
-  openDesk(deps, accounts, activeKey);
+  const settings = joinStreamAtStartup(deps, loaded, joined);
+  openDesk(deps, { settings, accounts, activeKey });
   if (accounts.length === 0) {
     printStatus(deps, connectHint(deps.config.instances), 'info');
     return;

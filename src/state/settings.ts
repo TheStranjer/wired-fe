@@ -11,7 +11,8 @@
  * reader's key overrides (WFE-130) ride along here too — stored and defaulted
  * like every knob, but deliberately absent from SETTING_KEYS: `/set` does not
  * list them, the `/bind` commands own them. The saved feeds (WFE-195) are
- * stored and defaulted the same way and equally hidden from `/set`.
+ * stored and defaulted the same way and equally hidden from `/set`, as is the
+ * flag that the first-run `stream` feed was made (WFE-243).
  */
 
 import * as v from 'valibot';
@@ -47,6 +48,8 @@ export type Settings = {
   readonly images: boolean;
   /** The reader's own key bindings over the defaults (WFE-130, `/bind`). */
   readonly keyOverrides: readonly KeyOverride[];
+  /** Whether the first-run `stream` feed has been made (WFE-243); once true it is never made again. */
+  readonly streamMade: boolean;
   /** Which theme paints the shell (src/theme/tokens.css, `/theme`). */
   readonly theme: Theme;
 };
@@ -62,6 +65,7 @@ export const DEFAULT_SETTINGS: Settings = {
   feeds: [],
   images: true,
   keyOverrides: [],
+  streamMade: false,
   theme: 'wired',
 };
 
@@ -101,11 +105,12 @@ export const SettingsSchema: v.GenericSchema<unknown, Settings> = v.object({
   feeds: v.optional(FeedsSchema, DEFAULT_SETTINGS.feeds),
   images: v.optional(v.boolean(), DEFAULT_SETTINGS.images),
   keyOverrides: v.optional(v.array(KeyOverrideSchema), DEFAULT_SETTINGS.keyOverrides),
+  streamMade: v.optional(v.boolean(), DEFAULT_SETTINGS.streamMade),
   theme: v.optional(v.picklist(THEMES), DEFAULT_SETTINGS.theme),
 });
 
 /** The knobs `/set` lists and turns: every setting except the hidden key overrides. */
-type ListedSettingKey = Exclude<keyof Settings, 'keyOverrides' | 'feeds'>;
+type ListedSettingKey = Exclude<keyof Settings, 'keyOverrides' | 'feeds' | 'streamMade'>;
 
 /** One knob the reader can set, as the `/set` command lists and checks it. */
 export type SettingKey = {

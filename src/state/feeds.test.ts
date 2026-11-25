@@ -15,6 +15,7 @@ import {
   type Feeds,
   FeedsSchema,
   MAX_FEED_NAME,
+  addAutoSources,
   addFeed,
   addSource,
   dropAccount,
@@ -182,5 +183,33 @@ describe(dropAccount, () => {
 
   it('changes nothing for an account no feed reads', () => {
     expect(dropAccount(FEEDS, 'https://c.example#3')).toStrictEqual(FEEDS);
+  });
+});
+
+describe('automatic feeds', () => {
+  const AUTO: Feeds = [{ ...MAIN, auto: true }];
+
+  it('reads the flag back from storage, and leaves it out when there is none', () => {
+    expect(v.parse(FeedsSchema, AUTO)).toStrictEqual(AUTO);
+    expect(Object.hasOwn(v.parse(FeedsSchema, [MAIN])[0] ?? {}, 'auto')).toBe(false);
+  });
+
+  it('keeps the flag when a feed is added with it', () => {
+    expect(valueOf(addFeed([], { ...MAIN, auto: true }))).toStrictEqual(AUTO);
+  });
+
+  it('loses the flag when the reader adds a source, removes one or renames the feed', () => {
+    expect(addSource(AUTO, 'f1', [LAIN_RUST])[0]?.auto).toBeUndefined();
+    expect(removeSource(AUTO, 'f1', LAIN_HOME)[0]?.auto).toBeUndefined();
+    expect(valueOf(renameFeed(AUTO, 'f1', 'Other'))[0]?.auto).toBeUndefined();
+  });
+
+  it('keeps the flag when the client adds sources itself or an account signs out', () => {
+    expect(addAutoSources(AUTO, 'f1', [LAIN_RUST])[0]).toStrictEqual({
+      ...MAIN,
+      sources: [LAIN_HOME, ALICE_HOME, LAIN_RUST],
+      auto: true,
+    });
+    expect(dropAccount(AUTO, ALICE_HOME.accountKey)[0]?.auto).toBe(true);
   });
 });

@@ -1,6 +1,7 @@
 /**
  * Startup opening a home window and a notifications window for every restored
- * account: the asks come after the accounts are in the state, each account's
+ * account of a reader who already has feeds (a first run opens the stream feed
+ * instead, startup.stream.test): the asks come after the accounts are in the state, each account's
  * notifications right after its home, every window titled the way its command
  * titles it — plain `home` and `notifs` for the active account,
  * `home/<username>` and `notifs/<username>` for the others — and the active
@@ -21,6 +22,7 @@ import { ok } from '../lib/result';
 import type { AppAction } from '../state/reducer';
 import type { Dispatch } from '../state/StateContext';
 import { createStore } from '../storage/store';
+import { memoryBackend } from '../test/memoryBackend';
 import { initialWindowsState, windowId } from '../windows/model';
 import type { WindowRef, WindowsState } from '../windows/model';
 import { windowsReducer } from '../windows/reducer';
@@ -82,13 +84,20 @@ function lounge(origin: string): InstanceProfile {
   };
 }
 
+/** The settings of a reader who already has a feed of their own: no stream is made for them (WFE-243). */
+function settingsWithFeed(): AppStores['settings'] {
+  const settings = createStore('startup-home-settings', memoryBackend());
+  settings.set('settings', { feeds: [{ id: 'f1', name: 'main', sources: [] }] });
+  return settings;
+}
+
 /** The four stores; the accounts one answers {@link accounts} and {@link activeKey}. */
 function fakeStores(accounts: readonly StoredAccount[], activeKey: string | null): AppStores {
   const inert = createStore('startup-home-test', null);
   return {
     apps: inert,
     login: inert,
-    settings: inert,
+    settings: settingsWithFeed(),
     profiles: inert,
     sync: createSyncStore(inert),
     accounts: {
