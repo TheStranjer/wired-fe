@@ -20,6 +20,7 @@ import type { JSX } from 'react';
 
 import { AppHeader } from './AppHeader';
 import { CommandLine } from './CommandLine';
+import { deskSource } from './deskSource';
 import { DesktopView } from './DesktopView';
 import { KINDS } from './loadedKinds';
 import { appRegistry } from './registry';
@@ -29,6 +30,7 @@ import { appStores } from './stores';
 import { useAttachments } from './useAttachments';
 import { useCompletionProviders } from './useCompletionProviders';
 import { useComposerOverlay } from './useComposerOverlay';
+import { useDeskPersistence } from './useDeskPersistence';
 import { useDocumentTitle } from './useDocumentTitle';
 import { useDropAndPaste } from './useDropAndPaste';
 import { useHashRoute } from './useHashRoute';
@@ -54,8 +56,9 @@ function failure<E>(loaded: Result<unknown, E>): E | null {
 }
 
 /** Mirrors settings and window state out to storage, the theme and the tab title. */
-function useStateMirrors(state: AppState): void {
+function useStateMirrors(state: AppState, ready: boolean): void {
   useSettingsPersistence(state.settings, appStores().settings);
+  useDeskPersistence(state, deskSource(), ready);
   useTheme(state.settings.theme, state.settings.effects);
   useDocumentTitle(state.windows);
 }
@@ -83,7 +86,7 @@ export function Root(): JSX.Element {
   const ready = useStartup();
   useHashRoute(ready);
   const overlays = useRouteOverlays(ready);
-  useStateMirrors(state);
+  useStateMirrors(state, ready);
   useStreams();
   const postActions = usePostActionsApi();
 

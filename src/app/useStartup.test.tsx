@@ -9,6 +9,7 @@ import { act, renderHook } from '@testing-library/react';
 import { StrictMode, type JSX, type ReactNode } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
+import { deskSource } from './deskSource';
 import { runStartup } from './startup';
 import { appStores } from './stores';
 import { bootOnce, useStartup } from './useStartup';
@@ -78,6 +79,17 @@ describe(useStartup, () => {
     expect(deps?.config).toBe(buildConfig);
     expect(deps?.detect).toBeUndefined();
     expect(deps?.now()).toBeInstanceOf(Date);
+  });
+
+  it('hands startup the source the saved desk is read from', () => {
+    renderHook(
+      () => {
+        useStartup();
+      },
+      { wrapper: withProvider },
+    );
+
+    expect(started.mock.calls[0]?.[0].desk).toBe(deskSource());
   });
 
   it('hands startup the live address bar', () => {

@@ -17,9 +17,11 @@ import { type AppState, type CoreAction, coreReducer } from './appState';
 import { bufferReducer, type BufferAction } from './bufferActions';
 import { type ComposerAction, composerReducer, withLiveComposers } from './composerActions';
 import { type ComposerMediaAction, composerMediaReducer } from './composerMedia';
+import { type RestoreAction, restoreReducer } from './deskRestore';
 
 /** One thing that can happen to the application as a whole. */
-export type AppAction = CoreAction | BufferAction | ComposerAction | ComposerMediaAction;
+export type AppAction =
+  CoreAction | RestoreAction | BufferAction | ComposerAction | ComposerMediaAction;
 
 /** The action types the buffer reducer owns, every one of them by name. */
 const BUFFER_ACTION_TYPES: Record<BufferAction['type'], true> = {
@@ -53,6 +55,9 @@ export function appReducer(state: AppState, action: AppAction): AppState {
   }
   if (isComposerMediaAction(action)) {
     return composerMediaReducer(state, action);
+  }
+  if (action.type === 'restore') {
+    return withLiveComposers(restoreReducer(state, action));
   }
   return withLiveComposers(coreReducer(state, action));
 }

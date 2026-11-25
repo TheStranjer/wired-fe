@@ -13,6 +13,7 @@
 
 import { BANNER } from './banner';
 import { connectHint } from './connectHint';
+import { type DeskSource, restoreDesk } from './deskSource';
 import { routeFromPath } from './routeFromPath';
 import { detectOrigins } from './startupDetect';
 import type { AppStores } from './stores';
@@ -54,6 +55,8 @@ export type StartupDeps = {
   readonly location: StartupLocation;
   /** How to read an instance, when the session cache has none; the real detection unless a test says otherwise. */
   readonly detect?: Detect;
+  /** Where the saved desk is read from; none means the default windows open (decision 17). */
+  readonly desk?: DeskSource;
 };
 
 /** One client message printed into the status window. */
@@ -130,10 +133,31 @@ async function finishPendingLogin(deps: StartupDeps): Promise<void> {
 }
 
 /**
+ * Put the desk in place (decision 17): the one saved for this device class when
+ * there is one, else the default windows, a home and a notifications window per
+ * account.
+ */
+function openDesk(
+  deps: StartupDeps,
+  accounts: readonly StoredAccount[],
+  activeKey: string | null,
+): void {
+  const desk = restoreDesk(deps.desk, accounts);
+  if (desk !== null) {
+    deps.dispatch({ type: 'restore', ...desk });
+    return;
+  }
+  for (const action of openStartupWindows(accounts, activeKey)) {
+    deps.dispatch({ type: 'windows', action });
+  }
+}
+
+/**
  * Boot the session into the status window: load the stored settings, greet,
  * finish a login left in the URL, turn a path route into its hash route
- * (./routeFromPath), restore the stored accounts into the app state and open
- * each one's home and notifications window, then either hint at `/connect`
+ * (./routeFromPath), restore the stored accounts into the app state and put the
+ * desk in place (the saved one, else each account's home and notifications
+ * window), then either hint at `/connect`
  * (no accounts, by instance mode) or detect each account's instance once
  * (concurrently, one report per origin) and announce every account, the
  * active one marked.
@@ -146,9 +170,7 @@ export async function runStartup(deps: StartupDeps): Promise<void> {
   const accounts = deps.stores.accounts.list();
   const activeKey = deps.stores.accounts.activeKey();
   deps.dispatch({ type: 'accounts', accounts, activeKey });
-  for (const action of openStartupWindows(accounts, activeKey)) {
-    deps.dispatch({ type: 'windows', action });
-  }
+  openDesk(deps, accounts, activeKey);
   if (accounts.length === 0) {
     printStatus(deps, connectHint(deps.config.instances), 'info');
     return;
