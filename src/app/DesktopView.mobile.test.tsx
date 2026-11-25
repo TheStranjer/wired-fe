@@ -101,7 +101,7 @@ describe('DesktopView on mobile', () => {
     show(crowded());
     const next = screen.getByRole('button', { name: 'Next pane' });
 
-    expect(screen.getByRole('button', { name: 'Switch pane' })).toHaveTextContent('1/4');
+    expect(screen.getByRole('button', { name: /^Switch pane/ })).toHaveTextContent('1/4');
 
     fireEvent.click(next);
 
@@ -111,7 +111,7 @@ describe('DesktopView on mobile', () => {
     fireEvent.click(next);
 
     expect(shownTitle()).toBe('phantom/c');
-    expect(screen.getByRole('button', { name: 'Switch pane' })).toHaveTextContent('4/4');
+    expect(screen.getByRole('button', { name: /^Switch pane/ })).toHaveTextContent('4/4');
 
     fireEvent.click(next);
 
@@ -129,7 +129,7 @@ describe('DesktopView on mobile', () => {
   it('jumps to a pane picked from the menu, ticking the current one', () => {
     show(crowded());
 
-    fireEvent.click(screen.getByRole('button', { name: 'Switch pane' }));
+    fireEvent.click(screen.getByRole('button', { name: /^Switch pane/ }));
 
     expect(screen.getByRole('menuitemcheckbox', { name: 'status' })).toHaveAttribute(
       'aria-checked',

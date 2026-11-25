@@ -66,6 +66,26 @@ function mentionJson(person: Person): Json {
   };
 }
 
+/** One image attached to a post: where it is served from, and what it shows. */
+type Picture = {
+  readonly id: string;
+  readonly url: string;
+  readonly description: string;
+};
+
+/** The attachment document for {@link picture}: an image whose preview is itself. */
+function pictureJson(picture: Picture): Json {
+  return {
+    id: picture.id,
+    type: 'image',
+    url: picture.url,
+    preview_url: picture.url,
+    remote_url: null,
+    description: picture.description,
+    blurhash: null,
+  };
+}
+
 /** What a reply names: the post it answers, and the local who wrote that one. */
 type Answers = {
   readonly to: string;
@@ -74,11 +94,7 @@ type Answers = {
 
 /** The fields that make a status the answer to {@link answers}. */
 function replyFields(answers: Answers): Json {
-  return {
-    in_reply_to_id: answers.to,
-    in_reply_to_account_id: answers.who.id,
-    mentions: [mentionJson(answers.who)],
-  };
+  return { in_reply_to_id: answers.to, in_reply_to_account_id: answers.who.id };
 }
 
 /** The parts of a status a spec chooses; everything else is a wired default. */
@@ -92,11 +108,16 @@ export type Post = {
   readonly boosts?: number;
   readonly favourites?: number;
   readonly answers?: Answers;
+  /** Who the post names besides the one it answers; a direct post's recipients. */
+  readonly mentions?: readonly Person[];
+  readonly visibility?: string;
+  readonly pictures?: readonly Picture[];
 };
 
 /** One status document: `html` is the body the backend has already rendered. */
 export function statusJson(post: Post): Json {
   const { answers } = post;
+  const named = post.mentions ?? (answers === undefined ? [] : [answers.who]);
   return {
     id: post.id,
     uri: `${ORIGIN}/posts/${post.id}`,
@@ -104,7 +125,9 @@ export function statusJson(post: Post): Json {
     account: accountJson(post.who),
     content: post.html,
     spoiler_text: post.warning ?? '',
-    visibility: 'public',
+    visibility: post.visibility ?? 'public',
+    mentions: named.map(mentionJson),
+    media_attachments: (post.pictures ?? []).map(pictureJson),
     replies_count: post.replies ?? 0,
     reblogs_count: post.boosts ?? 0,
     favourites_count: post.favourites ?? 0,
@@ -133,4 +156,9 @@ export function notificationJson(notice: Notice): Json {
     status: notice.status ?? null,
     emoji: notice.emoji ?? null,
   };
+}
+
+/** A conversation document: the people other than the viewer, and its last word. */
+export function conversationJson(id: string, people: readonly Person[], last: Json): Json {
+  return { id, unread: true, accounts: people.map(accountJson), last_status: last };
 }
