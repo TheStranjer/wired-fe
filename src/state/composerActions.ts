@@ -10,7 +10,8 @@
 import type { AppState } from './appState';
 import type { ComposerFields } from './draft';
 import { capabilitiesFor } from './selectors';
-import { hasFeature } from '../capabilities/capabilities';
+import type { PollLimits } from '../api/schemas/pollLimits';
+import { DEFAULT_POLL_LIMITS, hasFeature } from '../capabilities/capabilities';
 
 /** One thing that can happen to a pane composer's draft. */
 export type ComposerAction =
@@ -24,10 +25,12 @@ export type ComposerAction =
 /** The post length of an instance nothing is known about, as src/capabilities counts it. */
 const UNKNOWN_MAX_CHARACTERS = 500;
 
-/** What an account's instance allows a post: its length and whether `local` is offered. */
+/** What an account's instance allows a post: its length, whether `local` is offered, its polls. */
 export type ComposerLimits = {
   readonly maxCharacters: number;
   readonly allowLocal: boolean;
+  /** How far a poll may reach there (WFE-206). */
+  readonly pollLimits: PollLimits;
 };
 
 /** The limits of {@link accountKey}'s instance (decision 5); the unknown-instance ones without it. */
@@ -36,6 +39,7 @@ export function composerLimits(state: AppState, accountKey: string | null): Comp
   return {
     maxCharacters: capabilities?.maxCharacters ?? UNKNOWN_MAX_CHARACTERS,
     allowLocal: capabilities !== null && hasFeature(capabilities, 'localOnlyPosts'),
+    pollLimits: capabilities?.pollLimits ?? DEFAULT_POLL_LIMITS,
   };
 }
 

@@ -162,7 +162,7 @@ describe(editStatus, () => {
           sensitive: true,
           media_ids: ['m1'],
           language: 'en',
-          poll: { options: ['yes', 'no'], expires_in: 900, multiple: true },
+          poll: { options: ['yes', 'no'], expires_in: 900, multiple: true, hide_totals: true },
         });
 
         return HttpResponse.json(STATUS_WIRE);
@@ -175,7 +175,7 @@ describe(editStatus, () => {
       sensitive: true,
       mediaIds: ['m1'],
       language: 'en',
-      poll: { options: ['yes', 'no'], expiresIn: 900, multiple: true },
+      poll: { options: ['yes', 'no'], expiresIn: 900, multiple: true, hideTotals: true },
     });
 
     expect(result).toStrictEqual(ok(STATUS));

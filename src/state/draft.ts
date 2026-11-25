@@ -54,13 +54,25 @@ export type ComposerFields = {
   /** The content warning line; empty means none. */
   readonly spoiler: string;
   readonly visibility: Visibility;
+  /** The poll being edited (WFE-206), options as typed; absent while the poll editor is off. */
+  readonly poll?: Draft['poll'];
+  /** Ids of uploaded media the post carries; a poll and media exclude each other. */
+  readonly mediaIds?: readonly string[] | undefined;
 };
 
-/** The draft the composer's fields stand for: the warning is dropped when empty. */
+/**
+ * The draft the composer's fields stand for: the warning is dropped when
+ * empty, the poll's options are trimmed, and no media list is sent when empty.
+ */
 export function fieldsToDraft(fields: ComposerFields): Draft {
+  const { poll, mediaIds } = fields;
   return {
     text: fields.text,
     ...(fields.spoiler === '' ? {} : { spoilerText: fields.spoiler }),
     visibility: fields.visibility,
+    ...(mediaIds === undefined || mediaIds.length === 0 ? {} : { mediaIds }),
+    ...(poll === undefined
+      ? {}
+      : { poll: { ...poll, options: poll.options.map((option) => option.trim()) } }),
   };
 }

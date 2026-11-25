@@ -28,6 +28,8 @@ export type NewStatus = {
     readonly options: readonly string[];
     readonly expiresIn: number;
     readonly multiple: boolean;
+    /** Keep the vote counts hidden until the poll ends; unset sends nothing. */
+    readonly hideTotals?: boolean;
   };
   readonly quoteId?: string;
 };
@@ -49,6 +51,7 @@ function statusBody(input: NewStatus): Record<string, unknown> {
             options: input.poll.options,
             expires_in: input.poll.expiresIn,
             multiple: input.poll.multiple,
+            ...(input.poll.hideTotals === undefined ? {} : { hide_totals: input.poll.hideTotals }),
           },
         }),
     ...(input.quoteId === undefined ? {} : { quote_id: input.quoteId }),

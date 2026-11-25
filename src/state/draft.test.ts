@@ -98,4 +98,21 @@ describe(fieldsToDraft, () => {
       visibility: 'direct',
     });
   });
+
+  it('carries the poll with its options trimmed, and media only when there is some', () => {
+    const poll = { options: [' cats ', 'dogs'], expiresIn: 3600, multiple: true, hideTotals: true };
+    const fields = { text: 'a', spoiler: '', visibility: 'public' } as const;
+
+    expect(fieldsToDraft({ ...fields, poll })).toStrictEqual({
+      text: 'a',
+      visibility: 'public',
+      poll: { ...poll, options: ['cats', 'dogs'] },
+    });
+    expect(fieldsToDraft({ ...fields, mediaIds: ['m1'] })).toStrictEqual({
+      text: 'a',
+      visibility: 'public',
+      mediaIds: ['m1'],
+    });
+    expect(fieldsToDraft({ ...fields, mediaIds: [] })).not.toHaveProperty('mediaIds');
+  });
 });
