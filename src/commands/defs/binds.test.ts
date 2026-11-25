@@ -91,6 +91,23 @@ describe('/binds', () => {
     expect(printed(print)).toStrictEqual(['Keys (insert mode):', '  Alt+3  /win 3', '  F1  /help']);
   });
 
+  it('prints a key sequence as its chords joined by spaces', async () => {
+    const { context, print } = contextWith(
+      oneMode('navigation', [
+        ['w v', '/vsplit'],
+        ['Ctrl+b %', '/vsplit'],
+      ]),
+    );
+
+    await command.run('navigation', context);
+
+    expect(printed(print)).toStrictEqual([
+      'Keys (navigation mode):',
+      '  Ctrl+b %  /vsplit',
+      '  w v  /vsplit',
+    ]);
+  });
+
   it('says (none) for a mode with nothing bound', async () => {
     const { context, print } = contextWith(oneMode('insert', [['F1', '/help']]));
 

@@ -36,6 +36,8 @@ export type StatusLineProps = {
   readonly mode: 'insert' | 'navigation';
   /** Media waiting for the next post; absent or 0 shows no group (WFE-126). */
   readonly pendingMedia?: number;
+  /** The prefix of a key sequence waiting for its next chord, e.g. "Ctrl+B"; null shows nothing. */
+  readonly pendingKeys: string | null;
   /** Called with the window number when an entry is clicked. */
   readonly onSelectWindow: (number: number) => void;
 };
@@ -95,7 +97,20 @@ function PendingMedia(props: { readonly count: number }): JSX.Element | null {
   );
 }
 
-/** One non-wrapping line naming the time, the account, the windows, waiting media and the mode. */
+/** The pending key prefix beside the mode, e.g. `[Ctrl+B …]`, or nothing (decision 18). */
+function PendingKeys(props: { readonly keys: string | null }): JSX.Element | null {
+  if (props.keys === null) {
+    return null;
+  }
+  const group = `[${props.keys} …]`;
+  return (
+    <>
+      <span>{group}</span>{' '}
+    </>
+  );
+}
+
+/** One non-wrapping line naming the time, the account, the windows, waiting media, pending keys and the mode. */
 export function StatusLine(props: StatusLineProps): JSX.Element {
   const { clock, accountLabel, windows, mode, onSelectWindow, pendingMedia = 0 } = props;
 
@@ -123,6 +138,7 @@ export function StatusLine(props: StatusLineProps): JSX.Element {
         {']'}
       </span>{' '}
       <PendingMedia count={pendingMedia} />
+      <PendingKeys keys={props.pendingKeys} />
       <span>{`[${MODE_LABEL[mode]}]`}</span>
     </div>
   );

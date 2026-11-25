@@ -81,7 +81,9 @@ export type CommandContext = {
   };
   /** The keys layer's helpers (WFE-130): chord parsing, the insert-mode guard, the effective keymap. */
   readonly keys: {
+    /** Binding text of one or more chords (`w v`) to its canonical sequence; null when unbindable. */
     readonly parseChord: (text: string) => string | null;
+    /** Whether the sequence's first chord would swallow typing in insert mode. */
     readonly blocksTyping: (chord: string) => boolean;
     readonly keymap: Keymap;
   };

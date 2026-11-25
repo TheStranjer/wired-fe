@@ -24,6 +24,8 @@ const CHORDS: ReadonlyMap<string, string> = new Map([
   ['Ctrl+e', 'Ctrl+e'],
   ['f', 'f'],
   ['F2', 'F2'],
+  ['w v', 'w v'],
+  ['ctrl+b %', 'Ctrl+b %'],
 ]);
 
 /** The stub context's keys: the map above is the whole chord language. */
@@ -115,7 +117,6 @@ describe('/unbind', () => {
     ['nothing at all', ''],
     ['just a mode', 'navigation'],
     ['a mode word that names no mode', 'both f'],
-    ['a third word after the chord', 'navigation f now'],
   ])('echoes the usage when the words spell no unbinding — %s', async (_name, args) => {
     const { context } = contextWith();
 
@@ -126,6 +127,27 @@ describe('/unbind', () => {
       message: 'Usage: /unbind <insert|navigation> <chord>',
     });
     expect(dispatchedOverrides(context)).toBeNull();
+  });
+
+  it('reads every word after the mode as one key sequence', async () => {
+    const { context } = contextWith([{ mode: 'navigation', chord: 'w v', line: '/vsplit' }]);
+
+    const outcome = await command.run('navigation ctrl+b %', context);
+
+    expect(outcome).toStrictEqual(OK);
+    expect(dispatchedOverrides(context)).toStrictEqual([
+      { mode: 'navigation', chord: 'w v', line: '/vsplit' },
+      { mode: 'navigation', chord: 'Ctrl+b %', line: null },
+    ]);
+    expect(context.print).toHaveBeenCalledWith('navigation Ctrl+b % unbound');
+  });
+
+  it('names the whole sequence when one of its chords is no key', async () => {
+    const { context } = contextWith();
+
+    const outcome = await command.run('navigation w banana', context);
+
+    expect(outcome).toStrictEqual({ ok: false, message: 'Not a key: w banana' });
   });
 
   it('collapses the whitespace around the words', async () => {

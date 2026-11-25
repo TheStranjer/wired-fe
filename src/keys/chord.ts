@@ -69,6 +69,12 @@ const LETTER = /^[a-z]$/iu;
 /** A control character, which is never a printable key. */
 const CONTROL_CHARACTER = /\p{Cc}/u;
 
+/** What joins the chords of a binding sequence, canonically one space. */
+const SEQUENCE_SEPARATOR = ' ';
+
+/** Everything after the first chord of a canonical sequence, separator included. */
+const FOLLOWING_CHORDS = / .*$/u;
+
 /** The `Shift+` a canonical chord may carry in front of its key. */
 const SHIFT_PREFIX = 'Shift+';
 
@@ -102,6 +108,17 @@ export function parseChord(text: string): string | null {
 }
 
 /**
+ * Turns user-written binding text of one or more chords (`w v`, `ctrl+b %`) into
+ * the canonical sequence it names: each chord canonical, joined by single
+ * spaces. Returns `null` when the text is empty or any chord is unparsable.
+ * A single chord stays a one-chord sequence, so old bindings keep working.
+ */
+export function parseSequence(text: string): string | null {
+  const chords = text.trim().split(/\s+/u).map(parseChord);
+  return chords.includes(null) ? null : chords.join(SEQUENCE_SEPARATOR);
+}
+
+/**
  * The key of a canonical chord with a leading `Shift+` set aside. Printable
  * keys are single characters and named keys are not, and a canonical chord
  * carrying Ctrl, Alt or Meta always keeps one of their `+` joiners and a
@@ -115,7 +132,8 @@ export function parseChord(text: string): string | null {
  * never do. The keymap refuses such bindings, and `/bind` refuses to make one
  * (AGENTS.md "Two hotkey modes", WFE-130).
  */
-export function blocksTyping(chord: string): boolean {
+export function blocksTyping(sequence: string): boolean {
+  const chord = sequence.replace(FOLLOWING_CHORDS, '');
   const plain = chord.startsWith(SHIFT_PREFIX) ? chord.slice(SHIFT_PREFIX.length) : chord;
   return plain.length === 1;
 }

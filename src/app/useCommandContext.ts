@@ -23,7 +23,7 @@ import { useAvailableRegistry } from './useAvailableRegistry';
 import { loadWindowKinds } from './windowKinds';
 import type { CommandContext, PrintLevel } from '../commands/types';
 import { buildConfig } from '../config/config';
-import { blocksTyping, parseChord } from '../keys/chord';
+import { blocksTyping, parseSequence } from '../keys/chord';
 import { buildKeymap } from '../keys/keymap';
 import { printAction } from '../state/appState';
 import type { Draft } from '../state/draft';
@@ -131,7 +131,7 @@ export function useCommandContext(
     setInput,
     openComposer,
     attachments,
-    keys: { parseChord, blocksTyping, keymap },
+    keys: { parseChord: parseSequence, blocksTyping, keymap },
     navigate: (url: string) => {
       window.location.assign(url);
     },

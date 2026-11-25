@@ -2,11 +2,12 @@
  * useGlobalKeys: the one capture-phase keydown listener on window, its chord
  * conversion, and its lifetime.
  */
-import { fireEvent, render } from '@testing-library/react';
+import { act, fireEvent, render, renderHook } from '@testing-library/react';
 import type { JSX } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
-import { useGlobalKeys } from './useGlobalKeys';
+import type { InputMode } from './mode';
+import { useGlobalKeys, usePendingKeys } from './useGlobalKeys';
 import type { ChordHandler } from './useGlobalKeys';
 
 /** Props of the test component {@link Probe}. */
@@ -99,5 +100,67 @@ describe(useGlobalKeys, () => {
     expect(second.seen[0]?.chord).toBe('k');
     expect(second.seen[0]?.event.defaultPrevented).toBe(true);
     expect(first).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe(usePendingKeys, () => {
+  it('starts with no prefix and holds the one it is given', () => {
+    const { result } = renderHook(() => usePendingKeys('navigation'));
+
+    expect(result.current.prefix).toBeNull();
+
+    act(() => {
+      result.current.setPrefix('Ctrl+b');
+    });
+
+    expect(result.current.prefix).toBe('Ctrl+b');
+  });
+
+  it('gives the prefix up when set to null', () => {
+    const { result } = renderHook(() => usePendingKeys('navigation'));
+    act(() => {
+      result.current.setPrefix('w');
+    });
+
+    act(() => {
+      result.current.setPrefix(null);
+    });
+
+    expect(result.current.prefix).toBeNull();
+  });
+
+  it('forgets the prefix when the mode changes', () => {
+    const { result, rerender } = renderHook(({ mode }) => usePendingKeys(mode), {
+      initialProps: { mode: 'navigation' as InputMode },
+    });
+    act(() => {
+      result.current.setPrefix('w');
+    });
+
+    rerender({ mode: 'insert' });
+
+    expect(result.current.prefix).toBeNull();
+  });
+
+  it('forgets the prefix when the window loses focus', () => {
+    const { result } = renderHook(() => usePendingKeys('navigation'));
+    act(() => {
+      result.current.setPrefix('w');
+    });
+
+    act(() => {
+      fireEvent.blur(window);
+    });
+
+    expect(result.current.prefix).toBeNull();
+  });
+
+  it('stops listening for blur once unmounted', () => {
+    const remove = vi.spyOn(window, 'removeEventListener');
+    const { unmount } = renderHook(() => usePendingKeys('navigation'));
+
+    unmount();
+
+    expect(remove).toHaveBeenCalledWith('blur', expect.any(Function));
   });
 });

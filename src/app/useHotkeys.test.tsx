@@ -15,6 +15,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { textHandler, useHotkeys } from './useHotkeys';
 import { buildRegistry } from '../commands/registry';
 import type { CommandContext, CommandOutcome, Registry } from '../commands/types';
+import { usePendingKeys } from '../keys/useGlobalKeys';
 import { initialAppState } from '../state/appState';
 import { fakeCommandContext } from '../test/commandContext';
 import { STATUS_WINDOW_ID } from '../windows/model';
@@ -69,7 +70,7 @@ type HostProps = {
 /** A component that mounts the hook under test over one plain input. */
 function Host({ context }: HostProps): JSX.Element {
   const inputRef: RefObject<HTMLInputElement | null> = useRef<HTMLInputElement>(null);
-  useHotkeys(inputRef, context);
+  useHotkeys(inputRef, context, usePendingKeys(context.state.mode));
   return <input aria-label="command line" ref={inputRef} />;
 }
 

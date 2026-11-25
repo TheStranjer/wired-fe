@@ -22,6 +22,7 @@ const BASE_PROPS: StatusLineProps = {
   accountLabel: '@lain@wired.example',
   windows: WINDOWS,
   mode: 'insert',
+  pendingKeys: null,
   onSelectWindow: NOOP,
 };
 
@@ -103,6 +104,14 @@ describe(StatusLine, () => {
 
     expect(line.textContent).toBe(
       '[23:07] [@lain@wired.example] [1:status 2:home(3) 3:dm/bob*] [+2 media] [INS]',
+    );
+  });
+
+  it('shows a pending key prefix next to the mode', () => {
+    const line = renderStatusLine({ pendingKeys: 'Ctrl+B' });
+
+    expect(line.textContent).toBe(
+      '[23:07] [@lain@wired.example] [1:status 2:home(3) 3:dm/bob*] [Ctrl+B …] [INS]',
     );
   });
 

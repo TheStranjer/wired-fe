@@ -34,8 +34,11 @@ function statusWindows(state: AppState): readonly StatusLineWindow[] {
   }));
 }
 
-/** The status line: clock, active account, numbered windows, pending media and hotkey mode. */
-export function StatusBar(props: { readonly pendingMedia: number }): JSX.Element {
+/** The status line: clock, active account, numbered windows, pending media, pending keys and hotkey mode. */
+export function StatusBar(props: {
+  readonly pendingMedia: number;
+  readonly pendingKeys: string | null;
+}): JSX.Element {
   const state = useAppState();
   const dispatch = useAppDispatch();
   const clock = useClock(state.settings.clockFormat);
@@ -46,6 +49,7 @@ export function StatusBar(props: { readonly pendingMedia: number }): JSX.Element
       windows={statusWindows(state)}
       mode={state.mode}
       pendingMedia={props.pendingMedia}
+      pendingKeys={props.pendingKeys}
       onSelectWindow={(number: number) => {
         dispatch({ type: 'windows', action: { type: 'activateNumber', number } });
       }}

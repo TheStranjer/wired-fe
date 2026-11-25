@@ -11,7 +11,10 @@
 export type KeyOverride = {
   /** Which of the two hotkey modes (AGENTS.md "Two hotkey modes") it turns. */
   readonly mode: 'insert' | 'navigation';
-  /** The canonical chord it speaks for, e.g. `Alt+3` (see src/keys/chord). */
+  /**
+   * The canonical chord or sequence of chords it speaks for, e.g. `Alt+3` or
+   * `Ctrl+b %` (decision 18, see src/keys/chord); stored single chords stay valid.
+   */
   readonly chord: string;
   /** The command line the chord now carries; null means unbound. */
   readonly line: string | null;
