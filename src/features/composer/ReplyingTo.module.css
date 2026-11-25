@@ -1,0 +1,7 @@
+/* The answered post above a reply's text: dim metadata, never a control. */
+
+.replying {
+  margin: 0;
+  color: var(--color-dim);
+  overflow-wrap: anywhere;
+}

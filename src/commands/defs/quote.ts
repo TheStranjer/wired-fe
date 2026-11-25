@@ -8,7 +8,7 @@
  * refuses before anything is posted. The draft goes to
  * {@link CommandContext.post} with the quoted post's id and the error string
  * the window's post handler answers with comes back as the command's failure;
- * success prints `❝ quoted [a3]`, naming the line the window shows. `Shift+r`
+ * success prints `❝ quoted [a3]`, naming the line the window shows. `q`
  * prefills the line with the selected post's label; type the comment and
  * Enter sends it.
  */
@@ -51,5 +51,5 @@ export const command: CommandDefinition = {
   summary: 'Quote a post with a new one',
   requires: 'quotePosting',
   run: handle,
-  bindings: [{ mode: 'navigation', chord: 'Shift+r', args: '{label}', prefill: true }],
+  bindings: [{ mode: 'navigation', chord: 'q', args: '{label}', prefill: true }],
 };

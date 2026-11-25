@@ -10,7 +10,8 @@
  * lists the words the knob takes, and a third word echoes the usage.
  * `openIn` is where new windows open (decision 13); `openIn.<kind>` is the
  * same per window kind (`/set openIn.thread vsplit`, `default` to take it
- * back), which ../setPlacement handles. The
+ * back), which ../setPlacement handles; `replyIn` is where the composer a
+ * reply opens goes (WFE-244). The
  * `local` audience of `defaultVisibility` needs `localOnlyPosts` on the active
  * account's instance (WFE-172) and is not listed without it.
  */
@@ -93,27 +94,28 @@ function enumTurn(key: EnumKey, raw: string): Turn | null {
   }
 }
 
-/** Turn the default placement: the word, if it is a placement, becomes the patch and prints as itself. */
-function placementTurn(raw: string): Turn | null {
-  return isOneOf(PLACEMENTS, raw) ? { patch: { openIn: raw }, word: raw } : null;
+/** Turn a placement knob: the word, if it is a placement, becomes the patch and prints as itself. */
+function placementTurn(key: 'openIn' | 'replyIn', raw: string): Turn | null {
+  if (!isOneOf(PLACEMENTS, raw)) {
+    return null;
+  }
+  const patch: Partial<Settings> = key === 'openIn' ? { openIn: raw } : { replyIn: raw };
+  return { patch, word: raw };
+}
+
+/** Whether {@link key} is one of the on/off knobs. */
+function isBooleanKey(key: SettingKey['key']): key is BooleanKey {
+  const keys: readonly string[] = ['avatars', 'effects', 'expandMedia', 'images'];
+  return keys.includes(key);
 }
 
 /** Turn {@link meta} to {@link raw}: the patch and print word, or null to refuse. */
 function turnOf(meta: SettingKey, raw: string): Turn | null {
-  switch (meta.key) {
-    case 'openIn':
-      return placementTurn(raw);
-    case 'clockFormat':
-    case 'defaultVisibility':
-    case 'density':
-    case 'theme':
-      return enumTurn(meta.key, raw);
-    case 'avatars':
-    case 'effects':
-    case 'expandMedia':
-    case 'images':
-      return booleanTurn(meta.key, raw);
+  const { key } = meta;
+  if (isBooleanKey(key)) {
+    return booleanTurn(key, raw);
   }
+  return key === 'openIn' || key === 'replyIn' ? placementTurn(key, raw) : enumTurn(key, raw);
 }
 
 /** The words {@link meta} takes for the active account's backend: `local` only where it exists. */

@@ -8,10 +8,11 @@
  * @-mentions the author and everyone the answered post mentions, except the
  * replier themselves and anyone their typed text already names. Pure: the
  * status, the replier's own account handle and the typed text arrive as
- * parameters, so every path that replies builds the same draft.
+ * parameters, so every path that replies builds the same draft. The reply
+ * composer's starting fields (WFE-244) are built here too.
  */
 
-import type { Draft } from './draft';
+import type { ComposerFields, Draft } from './draft';
 import type { Status, Visibility } from '../api/schemas/status';
 
 /** The audiences a reply keeps for itself; anything else takes the default. */
@@ -63,5 +64,37 @@ export function replyDraft(status: Status, ownAcct: string, text: string): Draft
     spoilerText: status.spoiler_text,
     ...(visibility === undefined ? {} : { visibility }),
     inReplyToId: status.id,
+  };
+}
+
+/** The audiences from widest to narrowest; `local` stays on the instance, so it sits under public. */
+const BREADTH: readonly Visibility[] = ['public', 'local', 'unlisted', 'private', 'direct'];
+
+/** The narrower of two audiences: a reply never reaches further than the post or the default. */
+function narrower(first: Visibility, second: Visibility): Visibility {
+  return BREADTH.indexOf(first) >= BREADTH.indexOf(second) ? first : second;
+}
+
+/**
+ * The fields of a reply composer bound to {@link status} (WFE-244): the text
+ * holds just the `@<acct> ` mentions {@link replyDraft} computes, the content
+ * warning is the post's, the audience is the post's capped by
+ * {@link defaultVisibility} (never wider than either), and the answered post
+ * and the account of its line travel along.
+ */
+export function replyFields(
+  status: Status,
+  reply: {
+    readonly ownAcct: string;
+    readonly accountKey: string | null;
+    readonly defaultVisibility: Visibility;
+  },
+): Pick<ComposerFields, 'text' | 'spoiler' | 'visibility' | 'inReplyTo'> {
+  const draft = replyDraft(status, reply.ownAcct, '');
+  return {
+    text: draft.text,
+    spoiler: status.spoiler_text,
+    visibility: narrower(status.visibility, reply.defaultVisibility),
+    inReplyTo: { status, accountKey: reply.accountKey },
   };
 }

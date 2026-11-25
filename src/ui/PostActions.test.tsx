@@ -32,10 +32,7 @@ const ALL_LINES: PostActionLines = Object.fromEntries(
     'delete',
     'mute',
     'block',
-  ].map((name) => [
-    name,
-    { line: `/${name} a3`, prefill: ['reply', 'react', 'mute'].includes(name) },
-  ]),
+  ].map((name) => [name, { line: `/${name} a3`, prefill: ['react', 'mute'].includes(name) }]),
 );
 
 const BASE_PROPS: PostActionsProps = {
@@ -120,7 +117,7 @@ describe(PostActions, () => {
   });
 
   it.each([
-    ['Reply to post a3', { line: '/reply a3', prefill: true }],
+    ['Reply to post a3', { line: '/reply a3', prefill: false }],
     ['Boost post a3', { line: '/boost a3', prefill: false }],
     ['Favourite post a3', { line: '/fav a3', prefill: false }],
     ['React to post a3', { line: '/react a3', prefill: true }],

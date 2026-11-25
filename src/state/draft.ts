@@ -9,7 +9,7 @@
  */
 
 import type { NewStatus } from '../api/endpoints/statusWrite';
-import type { Visibility } from '../api/schemas/status';
+import type { Status, Visibility } from '../api/schemas/status';
 
 /** One post in progress: the text plus everything optional about sending it. */
 export type Draft = {
@@ -48,6 +48,14 @@ export function draftToNewStatus(draft: Draft, defaultVisibility: Visibility): N
   };
 }
 
+/** The post a reply composer answers (WFE-244) and the account of the line it was answered from. */
+type ReplyTarget = {
+  /** The answered post, shown dimly above the text; its id is the draft's `inReplyToId`. */
+  readonly status: Status;
+  /** The account that fetched the line (decision 14); the one the answer is posted as. */
+  readonly accountKey: string | null;
+};
+
 /** What a composer's fields hold: the text, the content-warning line and the audience. */
 export type ComposerFields = {
   readonly text: string;
@@ -58,16 +66,20 @@ export type ComposerFields = {
   readonly poll?: Draft['poll'];
   /** Ids of uploaded media the post carries; a poll and media exclude each other. */
   readonly mediaIds?: readonly string[] | undefined;
+  /** The post this answers, for a reply composer; absent for a plain one (WFE-244). */
+  readonly inReplyTo?: ReplyTarget;
 };
 
 /**
  * The draft the composer's fields stand for: the warning is dropped when
- * empty, the poll's options are trimmed, and no media list is sent when empty.
+ * empty, the poll's options are trimmed, and no media list is sent when empty;
+ * a reply composer's draft answers the post it is bound to.
  */
 export function fieldsToDraft(fields: ComposerFields): Draft {
-  const { poll, mediaIds } = fields;
+  const { poll, mediaIds, inReplyTo } = fields;
   return {
     text: fields.text,
+    ...(inReplyTo === undefined ? {} : { inReplyToId: inReplyTo.status.id }),
     ...(fields.spoiler === '' ? {} : { spoilerText: fields.spoiler }),
     visibility: fields.visibility,
     ...(mediaIds === undefined || mediaIds.length === 0 ? {} : { mediaIds }),

@@ -26,6 +26,7 @@ import {
   DEFAULT_POLL_LIMITS,
   type FeatureFlag,
 } from '../capabilities/capabilities';
+import { status } from '../test/fixtures';
 import { STATUS_WINDOW_ID } from '../windows/model';
 
 const ORIGIN = 'https://wired.example';
@@ -125,6 +126,15 @@ describe(composerIsEmpty, () => {
     expect(composerIsEmpty(edit({ spoiler: 'cw' }), windowId)).toBe(false);
     expect(composerIsEmpty(edit({ poll }), windowId)).toBe(false);
     expect(composerIsEmpty(appReducer(state, media), windowId)).toBe(false);
+  });
+
+  it('is false for a reply composer, even before anything is typed', () => {
+    const [state, windowId] = withComposer(session(false));
+    const patch = { inReplyTo: { status: status('7'), accountKey: null } };
+
+    const bound = appReducer(state, { type: 'composerEdit', windowId, patch });
+
+    expect(composerIsEmpty(bound, windowId)).toBe(false);
   });
 });
 

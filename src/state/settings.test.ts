@@ -1,13 +1,10 @@
 /**
- * Tests for settings: the one default record a session starts from (including
- * the wired theme), the SettingsSchema that reads them back from storage —
- * every field optional on
- * input, every default filled in, junk refused so the reader of storage can
- * fall back (the reader's key overrides included) — and the SETTING_KEYS
- * metadata /set lists and checks itself against: every visible knob the type
- * names, exactly once, with the values and the description it prints, and
- * keyOverrides deliberately among none of them. A new knob has to be
- * defaulted, schema'd and keyed here, or hidden like the overrides.
+ * Tests for settings: the one default record a session starts from, the
+ * SettingsSchema that reads them back from storage (every field optional, every
+ * default filled in, junk refused so the reader of storage can fall back) and
+ * the SETTING_KEYS metadata /set lists and checks itself against: every visible
+ * knob the type names, exactly once, with its values and description, and the
+ * hidden ones among none of them. A new knob is defaulted, schema'd and keyed here.
  */
 
 import * as v from 'valibot';
@@ -43,6 +40,7 @@ const CHOSEN: Settings = {
   keyOverrides: OVERRIDES,
   openIn: 'float',
   openInByKind: { thread: 'vsplit', dm: 'hidden' },
+  replyIn: 'hidden',
   streamMade: true,
   theme: 'lain',
 };
@@ -66,6 +64,7 @@ describe('the settings a session starts from', () => {
       keyOverrides: [],
       openIn: 'here',
       openInByKind: {},
+      replyIn: 'split',
       streamMade: false,
       theme: 'wired',
     });
@@ -84,6 +83,7 @@ describe('the settings a session starts from', () => {
       'keyOverrides',
       'openIn',
       'openInByKind',
+      'replyIn',
       'streamMade',
       'theme',
     ]);
@@ -184,6 +184,7 @@ describe('the setting metadata /set reads', () => {
       'expandMedia',
       'images',
       'openIn',
+      'replyIn',
       'theme',
     ];
 
@@ -207,11 +208,18 @@ describe('the setting metadata /set reads', () => {
     expect(keys).not.toContain('streamMade');
   });
 
-  it('gives the five enum knobs their values', () => {
+  it('gives the six enum knobs their values', () => {
     const enums = SETTING_KEYS.filter((meta) => meta.kind === 'enum');
     const keys = enums.map((meta) => meta.key);
 
-    expect(keys).toStrictEqual(['clockFormat', 'defaultVisibility', 'density', 'openIn', 'theme']);
+    expect(keys).toStrictEqual([
+      'clockFormat',
+      'defaultVisibility',
+      'density',
+      'openIn',
+      'replyIn',
+      'theme',
+    ]);
 
     for (const meta of enums) {
       expect(meta.values?.length).toBeGreaterThan(0);

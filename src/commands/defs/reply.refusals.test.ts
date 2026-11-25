@@ -1,7 +1,7 @@
 /**
  * Refusal and placement tests for /reply: the refusals come before any
  * posting, so no handler is registered for them and any network call would
- * fail the test — no text echoes the usage, no named or selected post and
+ * fail the test — no named or selected post and
  * nobody signed in refuse through the resolver. An instance that says no
  * answers with its error and nothing is printed or dispatched. And the
  * answer lands where it belongs: into the active thread or dm window's
@@ -104,20 +104,6 @@ function feedState(
 }
 
 describe('/reply refusals', () => {
-  it('echoes the usage when there is no text to answer with', async () => {
-    const context = feedState(HOME, [POST], '7');
-
-    for (const args of ['a0', '', '   ']) {
-      await expect(command.run(args, context)).resolves.toStrictEqual({
-        ok: false,
-        message: 'Usage: /reply [label] <text>',
-      });
-    }
-
-    expect(context.print).not.toHaveBeenCalled();
-    expect(context.dispatch).not.toHaveBeenCalled();
-  });
-
   it('refuses through the resolver when no post is named or selected', async () => {
     const context = feedState(HOME, [POST]);
 

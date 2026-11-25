@@ -52,11 +52,11 @@ describe(useAvailableRegistry, () => {
     expect(registry.byName.has('quote')).toBe(true);
   });
 
-  it('binds no Shift+e on a Mastodon, but still Shift+r', () => {
+  it('binds no Shift+e on a Mastodon, but still q', () => {
     const keymap = buildKeymap(renderRegistry(BOTH).result.current.registry);
 
     expect(keymap.navigation.has('Shift+e')).toBe(false);
-    expect(keymap.navigation.get('Shift+r')?.line).toBe('/quote {label}');
+    expect(keymap.navigation.get('q')?.line).toBe('/quote {label}');
   });
 
   it('leaves local out of /vis on a Mastodon', () => {

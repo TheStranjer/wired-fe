@@ -8,8 +8,8 @@
  */
 import { describe, expect, it } from 'vitest';
 
-import { replyDraft } from './replyDraft';
-import type { Status } from '../api/schemas/status';
+import { replyDraft, replyFields } from './replyDraft';
+import type { Status, Visibility } from '../api/schemas/status';
 import { TEST_DATE, status } from '../test/fixtures';
 
 /** Nine: the author the tests answer, as the status schema reads her. */
@@ -107,5 +107,45 @@ describe(replyDraft, () => {
       spoilerText: 'lain spoilers',
       inReplyToId: '7',
     });
+  });
+});
+
+describe(replyFields, () => {
+  const own = (defaultVisibility: Visibility): Parameters<typeof replyFields>[1] => ({
+    ownAcct: 'lain@wired.example',
+    accountKey: 'https://wired.example#1',
+    defaultVisibility,
+  });
+
+  it('holds the mentions, the warning, the post and its line’s account', () => {
+    const post = byNine({ spoiler_text: 'lain spoilers' });
+
+    expect(replyFields(post, own('public'))).toStrictEqual({
+      text: '@nine@pleroma.example @alice@wired.example @bob@wired.example ',
+      spoiler: 'lain spoilers',
+      visibility: 'public',
+      inReplyTo: { status: post, accountKey: 'https://wired.example#1' },
+    });
+  });
+
+  it('leaves the text empty when the reply has nobody to name', () => {
+    const post = status('7', { account: { ...NINE_WIRE, acct: 'lain@wired.example' } });
+
+    expect(replyFields(post, own('public')).text).toBe('');
+  });
+
+  it('takes the post’s audience when it is narrower than the default', () => {
+    expect(replyFields(byNine({ visibility: 'direct' }), own('public')).visibility).toBe('direct');
+    expect(replyFields(byNine({ visibility: 'private' }), own('unlisted')).visibility).toBe(
+      'private',
+    );
+  });
+
+  it('takes the default when it is narrower than the post’s audience', () => {
+    expect(replyFields(byNine({ visibility: 'public' }), own('private')).visibility).toBe(
+      'private',
+    );
+    expect(replyFields(byNine({ visibility: 'public' }), own('local')).visibility).toBe('local');
+    expect(replyFields(byNine({ visibility: 'local' }), own('public')).visibility).toBe('local');
   });
 });

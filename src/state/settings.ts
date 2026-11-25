@@ -1,21 +1,14 @@
 /**
  * The settings a reader chooses for themselves (AGENTS.md "Layout": src/state
- * holds the pure app state, settings among it): how the scrollback prints a
- * moment, who a new post is aimed at by default, which theme paints the shell
- * (WFE-131, `/theme`), and whether the CRT effects and media behind a content
- * warning start open. Plain data with one default
- * record, the valibot schema that reads them back from storage (every field
- * optional on input, every default filled in), and {@link SETTING_KEYS}: the
- * per-knob metadata the `/set` command lists and checks itself against.
- * Getting them in and out of storage is the storage module's business. The
- * reader's key overrides (WFE-130) ride along here too — stored and defaulted
- * like every knob, but deliberately absent from SETTING_KEYS: `/set` does not
- * list them, the `/bind` commands own them. The saved feeds (WFE-195) are
- * stored and defaulted the same way and equally hidden from `/set`, as is the
- * flag that the first-run `stream` feed was made (WFE-243). Where new
- * windows open (decision 13) is `openIn`, listed; the per-kind choices over it
- * (`openInByKind`) are turned by the dotted `/set openIn.<kind>` form, which
- * ./placement's resolver reads, and are not in SETTING_KEYS.
+ * holds the pure app state): plain data with one default record, the valibot
+ * schema that reads them back from storage (every field optional, every
+ * default filled in), and {@link SETTING_KEYS}: the per-knob metadata `/set`
+ * lists and checks itself against. Storing them is the storage module's
+ * business. The key overrides (WFE-130), the saved feeds (WFE-195), the
+ * first-run `stream` flag (WFE-243) and the per-kind placements `openInByKind`
+ * (decision 13, turned by the dotted `/set openIn.<kind>`) are stored and
+ * defaulted like the rest but absent from SETTING_KEYS. `openIn` is where new
+ * windows open; `replyIn` is where a reply composer opens (WFE-244).
  */
 
 import * as v from 'valibot';
@@ -56,6 +49,8 @@ export type Settings = {
   readonly openIn: Placement;
   /** Where windows of a kind go, over {@link openIn}; stored and shown by `/set openIn.<kind>`. */
   readonly openInByKind: KindPlacements;
+  /** Where the composer a reply opens goes unless `--in` or `openIn.composer` says otherwise (WFE-244). */
+  readonly replyIn: Placement;
   /** Whether the first-run `stream` feed has been made (WFE-243); once true it is never made again. */
   readonly streamMade: boolean;
   /** Which theme paints the shell (src/theme/tokens.css, `/theme`). */
@@ -75,6 +70,7 @@ export const DEFAULT_SETTINGS: Settings = {
   keyOverrides: [],
   openIn: 'here',
   openInByKind: {},
+  replyIn: 'split',
   streamMade: false,
   theme: 'wired',
 };
@@ -120,6 +116,7 @@ export const SettingsSchema: v.GenericSchema<unknown, Settings> = v.object({
     v.optional(v.record(v.string(), v.picklist(PLACEMENTS)), {}),
     v.transform(kindPlacements),
   ),
+  replyIn: v.optional(v.picklist(PLACEMENTS), DEFAULT_SETTINGS.replyIn),
   streamMade: v.optional(v.boolean(), DEFAULT_SETTINGS.streamMade),
   theme: v.optional(v.picklist(THEMES), DEFAULT_SETTINGS.theme),
 });
@@ -187,6 +184,12 @@ export const SETTING_KEYS: readonly SettingKey[] = [
     kind: 'enum',
     values: PLACEMENTS,
     description: 'Where new windows open: here, vsplit, split, float or hidden',
+  },
+  {
+    key: 'replyIn',
+    kind: 'enum',
+    values: PLACEMENTS,
+    description: 'Where a reply composer opens: here, vsplit, split, float or hidden',
   },
   {
     key: 'theme',

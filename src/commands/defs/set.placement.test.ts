@@ -25,6 +25,30 @@ function contextWith(settings: Settings = DEFAULT_SETTINGS): {
   return { context: fakeCommandContext({ state: initialAppState(settings), print }), print };
 }
 
+describe('/set replyIn', () => {
+  it('turns where a reply composer opens and prints it back', async () => {
+    const { context, print } = contextWith();
+
+    const outcome = await command.run('replyIn float', context);
+
+    expect(outcome).toStrictEqual({ ok: true });
+    expect(context.dispatch).toHaveBeenCalledWith({
+      type: 'settings',
+      settings: { replyIn: 'float' },
+    });
+    expect(print).toHaveBeenCalledWith('replyIn = float');
+  });
+
+  it('refuses a placement it does not list, naming the words', async () => {
+    const { context } = contextWith();
+
+    const outcome = await command.run('replyIn sideways', context);
+
+    expect(outcome).toStrictEqual({ ok: false, message: `replyIn takes ${WORDS}` });
+    expect(context.dispatch).not.toHaveBeenCalled();
+  });
+});
+
 describe('/set openIn', () => {
   it('turns the default placement and prints it back', async () => {
     const { context, print } = contextWith();

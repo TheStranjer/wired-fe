@@ -4,7 +4,9 @@
  * number — the lowest one no open composer holds — and its title is `compose`
  * for the first and `compose/<n>` for the extras, the way a second buffer of
  * one kind is named elsewhere. The posting account is the window's
- * `accountKey`; the "Post as" picker changes it (windows `setAccount`).
+ * `accountKey`; the "Post as" picker changes it (windows `setAccount`). A
+ * reply composer (WFE-244) is the same window opened for the account of the
+ * line it answers.
  */
 
 import type { OpenAction } from './placement';
@@ -28,15 +30,23 @@ function freeDraftNumber(windows: readonly WindowState[]): number {
   return n;
 }
 
-/** The window-list transition that opens a fresh composer posting as {@link account}. */
-export function composerWindowOpen(
-  account: StoredAccount,
+/** The window-list transition that opens a fresh composer posting as {@link accountKey}. */
+export function composerWindowFor(
+  accountKey: string | null,
   windows: readonly WindowState[],
 ): OpenAction {
   const n = freeDraftNumber(windows);
   return {
     type: 'open',
-    ref: { kind: 'composer', accountKey: account.key, target: String(n) },
+    ref: { kind: 'composer', accountKey, target: String(n) },
     title: composerTitle(n),
   };
+}
+
+/** The window-list transition that opens a fresh composer posting as {@link account}. */
+export function composerWindowOpen(
+  account: StoredAccount,
+  windows: readonly WindowState[],
+): OpenAction {
+  return composerWindowFor(account.key, windows);
 }

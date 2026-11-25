@@ -4,8 +4,10 @@
  * command does, so the lines come from the registry, not from the card. A
  * command the registry does not carry (the backend cannot do it, WFE-172) has
  * no line, which is how its button goes missing. A command whose default
- * hotkey fills the line instead of running it (`r`, `Shift+e`, …) is a
- * prefill here too, so a click and the hotkey are one path.
+ * hotkey fills the line instead of running it (`Shift+e`, …) is a prefill
+ * here too, so a click and the hotkey are one path. The exception is reply
+ * (WFE-244): `r` prefills for the power user, but the button runs `/reply a3`
+ * with no text, which opens a composer bound to the post.
  */
 
 import type { CommandDefinition, Registry } from './types';
@@ -43,8 +45,14 @@ type PostActionLine = {
   readonly prefill: boolean;
 };
 
-/** Whether the command's default navigation hotkey fills its line rather than running it. */
-function prefills(definition: CommandDefinition): boolean {
+/** The actions whose button runs its line although the command's hotkey prefills it. */
+const RUNS_ON_CLICK: ReadonlySet<PostActionName> = new Set<PostActionName>(['reply']);
+
+/** Whether {@link name}'s default navigation hotkey fills its line rather than running it. */
+function prefills(name: PostActionName, definition: CommandDefinition): boolean {
+  if (RUNS_ON_CLICK.has(name)) {
+    return false;
+  }
   return (definition.bindings ?? []).some(
     (binding) => binding.mode === 'navigation' && binding.prefill === true,
   );
@@ -62,7 +70,7 @@ export function postActionLines(
   for (const name of POST_ACTION_NAMES) {
     const definition = registry.byName.get(name);
     if (definition !== undefined) {
-      lines[name] = { line: `/${name} ${label}`, prefill: prefills(definition) };
+      lines[name] = { line: `/${name} ${label}`, prefill: prefills(name, definition) };
     }
   }
   return lines;
