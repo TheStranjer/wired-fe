@@ -24,6 +24,8 @@ describe(parseViewSpec, () => {
     ['dm @lain@wired.example', 'query', '@lain@wired.example'],
     ['thread a3', 'thread', 'a3'],
     ['thread', 'thread', ''],
+    ['feed main', 'feed', 'open main'],
+    ['FEED ~main', 'feed', 'open ~main'],
   ])('reads %j as the %s command with %j', (text, command, args) => {
     expect(parseViewSpec(text)).toStrictEqual({
       ok: true,
@@ -53,6 +55,7 @@ describe(parseViewSpec, () => {
     ['tag', 'tag needs an argument'],
     ['search', 'search needs an argument'],
     ['dm', 'dm needs an argument'],
+    ['feed', 'feed needs an argument'],
     ['win', 'win takes a window number'],
     ['win 0', 'win takes a window number'],
     ['win two', 'win takes a window number'],

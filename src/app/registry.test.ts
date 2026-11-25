@@ -21,6 +21,7 @@ const EXPECTED = [
   'desktop',
   'detach',
   'federated',
+  'feed',
   'help',
   'home',
   'local',

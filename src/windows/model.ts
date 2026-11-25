@@ -133,6 +133,21 @@ export function withAccountKey(state: WindowsState, id: string, accountKey: stri
 }
 
 /**
+ * Give the window with `id` another title, as a renamed feed does. An id no
+ * window has, or the title it already has, leaves the state as it was.
+ */
+export function withTitle(state: WindowsState, id: string, title: string): WindowsState {
+  const target = state.windows.find((win) => win.id === id);
+  if (target === undefined || target.title === title) {
+    return state;
+  }
+  const windows = state.windows.map((win): WindowState =>
+    win.id === id ? { ...win, title } : win,
+  );
+  return { ...state, windows };
+}
+
+/**
  * The window commands, hotkeys and features act on. An `activeId` that names
  * no window should never happen; rather than throw, it falls back to window 1,
  * which is always the status window.

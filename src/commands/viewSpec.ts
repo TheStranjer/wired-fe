@@ -20,7 +20,12 @@ export type ViewSpec =
 type Arity = 'none' | 'optional' | 'required';
 
 /** One view word: the command that opens it and what it wants after it. */
-type View = { readonly command: string; readonly arity: Arity };
+type View = {
+  readonly command: string;
+  readonly arity: Arity;
+  /** Words put before the argument, to pick a subcommand (`feed main` is `/feed open main`). */
+  readonly subcommand?: string;
+};
 
 /** The view words, each with the command that opens its window. */
 const VIEWS: ReadonlyMap<string, View> = new Map<string, View>([
@@ -35,6 +40,7 @@ const VIEWS: ReadonlyMap<string, View> = new Map<string, View>([
   ['whois', { command: 'whois', arity: 'optional' }],
   ['profile', { command: 'whois', arity: 'optional' }],
   ['thread', { command: 'thread', arity: 'optional' }],
+  ['feed', { command: 'feed', arity: 'required', subcommand: 'open' }],
 ]);
 
 /** The view word for an existing window, which takes its number. */
@@ -61,7 +67,8 @@ function openSpec(word: string, view: View, rest: string): Result<ViewSpec, stri
   if (view.arity === 'required' && rest === '') {
     return err(`${word} needs an argument`);
   }
-  return ok({ type: 'open', command: view.command, args: rest });
+  const args = view.subcommand === undefined ? rest : `${view.subcommand} ${rest}`;
+  return ok({ type: 'open', command: view.command, args });
 }
 
 /**
