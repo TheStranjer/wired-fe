@@ -40,7 +40,14 @@ export type Feeds = readonly FeedSpec[];
 export const MAX_FEED_NAME = 32;
 
 /** The sources that take no argument. */
-const PLAIN_SOURCES = ['home', 'mentions', 'dms', 'notifications', 'local', 'federated'] as const;
+export const PLAIN_SOURCES = [
+  'home',
+  'mentions',
+  'dms',
+  'notifications',
+  'local',
+  'federated',
+] as const;
 
 /** A hashtag name: something, with no `#` and no whitespace. */
 const TAG_NAME = /^[^#\s]+$/u;
@@ -81,7 +88,7 @@ export const FeedsSchema: v.GenericSchema<unknown, Feeds> = v.pipe(
 );
 
 /** Whether two references name the same source of the same account. */
-function sameRef(a: FeedSourceRef, b: FeedSourceRef): boolean {
+export function sameRef(a: FeedSourceRef, b: FeedSourceRef): boolean {
   return a.accountKey === b.accountKey && a.source === b.source;
 }
 
@@ -101,12 +108,21 @@ export function feedById(feeds: Feeds, id: string): FeedSpec | undefined {
   return feeds.find((feed) => feed.id === id);
 }
 
+/** Why {@link name} is too short or too long to name a feed, or null when its length is fine. */
+export function nameProblem(name: string): string | null {
+  const length = name.trim().length;
+  return length < 1 || length > MAX_FEED_NAME
+    ? `A feed name is 1-${String(MAX_FEED_NAME)} characters`
+    : null;
+}
+
 /** The trimmed name, or why it cannot name the feed {@link id} among {@link feeds}. */
 function checkedName(feeds: Feeds, name: string, id: string): Result<string, string> {
-  const trimmed = name.trim();
-  if (trimmed.length < 1 || trimmed.length > MAX_FEED_NAME) {
-    return err(`A feed name is 1-${String(MAX_FEED_NAME)} characters`);
+  const problem = nameProblem(name);
+  if (problem !== null) {
+    return err(problem);
   }
+  const trimmed = name.trim();
   const clash = feedByName(feeds, trimmed);
   if (clash !== undefined && clash.id !== id) {
     return err(`A feed named "${clash.name}" already exists`);

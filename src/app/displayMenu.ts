@@ -11,7 +11,7 @@ import type { MenuItem } from '../ui/menuNav';
 import type { WindowKind, WindowState } from '../windows/model';
 
 /** The kinds of window that do not render posts, so have no display options. */
-const NO_POSTS: readonly WindowKind[] = ['status', 'composer'];
+const NO_POSTS: readonly WindowKind[] = ['status', 'composer', 'feedEditor'];
 
 /** Whether {@link win} renders posts, so the display menu applies to it. */
 export function showsPosts(win: WindowState): boolean {

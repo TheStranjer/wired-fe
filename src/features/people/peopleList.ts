@@ -33,6 +33,7 @@ export const PEOPLE_TITLES: Record<WindowKind, string | null> = {
   dm: 'in conversation',
   composer: null,
   feed: null,
+  feedEditor: null,
   people: null,
 };
 

@@ -86,7 +86,7 @@ function feedEntries(registry: Registry, feeds: Feeds): readonly PaneMenuEntry[]
     label: 'New feed…',
     text: '/feed new',
     literal: true,
-    prefill: true,
+    prefill: false,
   };
   return [...saved, created];
 }

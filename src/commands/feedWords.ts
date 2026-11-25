@@ -16,7 +16,7 @@ import type { AppState } from '../state/appState';
 const FEED_LINE = /^\s*\/feed\s/iu;
 
 /** The subcommands whose first argument names a saved feed. */
-const FEED_ARGUMENT = ['open', 'add', 'rm', 'rename', 'delete'];
+const FEED_ARGUMENT = ['open', 'edit', 'add', 'rm', 'rename', 'delete'];
 
 /** The subcommands whose words after the feed's name are sources. */
 const SOURCE_ARGUMENT = ['new', 'add', 'rm'];

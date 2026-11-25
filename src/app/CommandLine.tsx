@@ -17,6 +17,7 @@ import { useCommandContext } from './useCommandContext';
 import { useCommandHistory } from './useCommandHistory';
 import { useCompletion } from './useCompletion';
 import { textHandler, useHotkeys } from './useHotkeys';
+import { useRegisterLineRunner } from './useLineRunnerApi';
 import { usePostActionRunner } from './usePostActionRunner';
 import type { PostActionRunner } from './usePostActionsApi';
 import type { Provider } from '../commands/complete';
@@ -26,6 +27,7 @@ import type { CommandContext } from '../commands/types';
 import type { PendingKeys } from '../keys/useGlobalKeys';
 import { useAppDispatch, useAppState } from '../state/StateContext';
 import { InputLine } from '../ui/InputLine';
+import type { LineRunner } from '../views/LineRunnerContext';
 
 /** What the shell gives the command line: completion words, the composer and the pending media. */
 export type CommandLineProps = {
@@ -38,6 +40,8 @@ export type CommandLineProps = {
   readonly pendingKeys: PendingKeys;
   /** Hands the app the runner of the post cards' action buttons (WFE-209). */
   readonly registerRunner: (runner: PostActionRunner) => void;
+  /** Hands the app the runner of command lines that windows with a GUI use (WFE-242). */
+  readonly registerLineRunner: (runner: LineRunner) => void;
 };
 
 /**
@@ -82,6 +86,7 @@ export function CommandLine(props: CommandLineProps): JSX.Element {
   const inputRef = useRef<HTMLInputElement>(null);
   useHotkeys(inputRef, context, props.pendingKeys);
   usePostActionRunner(inputRef, context, props.registerRunner);
+  useRegisterLineRunner(context, props.registerLineRunner);
   const history = useCommandHistory(state.mode, value, setValue);
   const completion = useCompletion({
     inputRef,
@@ -90,14 +95,12 @@ export function CommandLine(props: CommandLineProps): JSX.Element {
     value,
     setValue,
   });
-
   /** Do what one submitted line asks — command or post — then clear the line. */
   async function runLine(line: string): Promise<void> {
     history.remember(line);
     await dispatchInput(line, context, textHandler(context));
     setValue('');
   }
-
   function handleKeyDown(event: KeyboardEvent<HTMLInputElement>): void {
     completion(event);
     history.onKeyDown(event);

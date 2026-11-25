@@ -21,6 +21,7 @@ export const FEED_SUBCOMMANDS: readonly string[] = [
   'rename',
   'delete',
   'open',
+  'edit',
 ];
 
 /** The refusal of a subcommand given the wrong words: its form, behind `/feed`. */

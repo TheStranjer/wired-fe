@@ -1,23 +1,17 @@
 /**
  * The `/feed` subcommands that change what a feed reads (decision 14): `new`
- * saves a feed with its first sources, `add` reads more, `rm` stops reading
- * some. Sources are the command grammar of src/state/feedSource, so `*:home`
+ * saves a feed with its first sources (bare, it opens the editor of a new
+ * feed), `add` reads more, `rm` stops reading some. Sources are the command grammar of src/state/feedSource, so `*:home`
  * names the stream for every signed-in account. Each handler takes the words
  * after its subcommand and refuses with a message, changing nothing, when they
  * are wrong.
  */
 
-import {
-  bareName,
-  feedAndSources,
-  feedUsage,
-  parseSources,
-  reservedName,
-  saveFeeds,
-} from './feedArgs';
+import { bareName, feedAndSources, parseSources, reservedName, saveFeeds } from './feedArgs';
 import { OK, fail } from './outcome';
 import type { CommandContext, CommandOutcome } from './types';
 import { type Result, err, ok } from '../lib/result';
+import { feedEditorOpen } from '../state/feedEditorWindow';
 import { nextFeedId } from '../state/feedId';
 import { type FeedSpec, addFeed, addSource, removeSource } from '../state/feeds';
 
@@ -39,11 +33,12 @@ function newFeedSpec(
   return ok({ id: nextFeedId(context.state.settings.feeds), name, sources: refs.value });
 }
 
-/** `new <name> <source>…`: save a feed with those sources. */
+/** `new <name> <source>…`: save a feed with those sources; with no words, open the editor of a new feed. */
 export function feedNew(words: readonly string[], context: CommandContext): CommandOutcome {
   const [word, ...sources] = words;
   if (word === undefined) {
-    return feedUsage('new <name> <source>…');
+    context.dispatchWindows(feedEditorOpen(null));
+    return OK;
   }
   const spec = newFeedSpec(word, sources, context);
   if (!spec.ok) {

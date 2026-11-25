@@ -37,7 +37,7 @@ describe('/feed definition', () => {
     expect(command.name).toBe('feed');
     expect(command.usage).toContain('/feed rename <old> <new>');
     expect(command.summary).toContain('list, new, add, rm, rename, delete, open');
-    expect(FEED_SUBCOMMANDS).toHaveLength(7);
+    expect(FEED_SUBCOMMANDS).toHaveLength(8);
   });
 });
 

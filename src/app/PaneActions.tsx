@@ -16,6 +16,7 @@ import styles from './PaneActions.module.css';
 import { entryLine, paneMenuEntries, popOutEntries } from './paneMenu';
 import type { PaneMenuEntry, ViewCommand } from './paneMenu';
 import { useAvailableRegistry } from './useAvailableRegistry';
+import { feedById } from '../state/feeds';
 import { useAppDispatch, useAppState } from '../state/StateContext';
 import { MenuButton } from '../ui/MenuButton';
 import type { PostActionLine } from '../ui/postActionTypes';
@@ -107,6 +108,32 @@ function DockButton(props: { readonly paneId: string; readonly win: WindowState 
   );
 }
 
+/** The `✎` button of a feed window: its feed's editor takes the pane (WFE-242). */
+function EditFeedButton(props: {
+  readonly paneId: string;
+  readonly win: WindowState;
+}): JSX.Element | null {
+  const { paneId, win } = props;
+  const { settings } = useAppState();
+  const runOnPane = useRunOnPane(paneId);
+  const feed = feedById(settings.feeds, win.ref.target ?? '');
+  if (win.ref.kind !== 'feed' || feed === undefined) {
+    return null;
+  }
+  return (
+    <button
+      type="button"
+      className={styles['button']}
+      aria-label={`Edit feed ${win.title}`}
+      onClick={() => {
+        runOnPane({ line: `/feed edit ${feed.name}`, prefill: false });
+      }}
+    >
+      ✎
+    </button>
+  );
+}
+
 /** The split and pop-out buttons of a tree pane. */
 function TreeButtons(props: { readonly paneId: string }): JSX.Element {
   const registry = useAvailableRegistry();
@@ -141,6 +168,7 @@ export function PaneActions(props: {
   }, [runOnPane]);
   return (
     <>
+      <EditFeedButton paneId={paneId} win={win} />
       {showsPosts(win) ? <DisplayMenu paneId={paneId} win={win} /> : null}
       {floating ? <DockButton paneId={paneId} win={win} /> : <TreeButtons paneId={paneId} />}
       <button
