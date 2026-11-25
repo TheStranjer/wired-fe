@@ -147,6 +147,7 @@ const TAKES_UPDATE: Record<WindowKind, TakesUpdate> = {
   thread: TAKES_NOTHING,
   profile: TAKES_NOTHING,
   search: TAKES_NOTHING,
+  composer: TAKES_NOTHING,
 };
 
 /**

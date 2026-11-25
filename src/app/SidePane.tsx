@@ -40,6 +40,7 @@ const PANE_TITLES: Record<WindowKind, string | null> = {
   search: null,
   thread: 'in thread',
   dm: 'in conversation',
+  composer: null,
 };
 
 /** The account's full handle as the window's account grounds it; alone if none. */

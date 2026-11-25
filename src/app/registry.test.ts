@@ -15,6 +15,7 @@ const EXPECTED = [
   'clear',
   'close',
   'compose',
+  'composer',
   'connect',
   'copy',
   'detach',

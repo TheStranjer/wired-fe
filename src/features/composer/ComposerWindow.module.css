@@ -1,0 +1,9 @@
+/* The composer window: the form on top, its client messages filling the rest. */
+
+.window {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  height: 100%;
+  padding: var(--space);
+  gap: var(--space);
+}

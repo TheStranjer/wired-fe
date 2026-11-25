@@ -47,3 +47,20 @@ export function draftToNewStatus(draft: Draft, defaultVisibility: Visibility): N
     ...(draft.quoteId === undefined ? {} : { quoteId: draft.quoteId }),
   };
 }
+
+/** What a composer's fields hold: the text, the content-warning line and the audience. */
+export type ComposerFields = {
+  readonly text: string;
+  /** The content warning line; empty means none. */
+  readonly spoiler: string;
+  readonly visibility: Visibility;
+};
+
+/** The draft the composer's fields stand for: the warning is dropped when empty. */
+export function fieldsToDraft(fields: ComposerFields): Draft {
+  return {
+    text: fields.text,
+    ...(fields.spoiler === '' ? {} : { spoilerText: fields.spoiler }),
+    visibility: fields.visibility,
+  };
+}

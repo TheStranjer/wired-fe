@@ -5,7 +5,7 @@
  */
 import { describe, expect, it } from 'vitest';
 
-import { type Draft, draftToNewStatus } from './draft';
+import { type Draft, draftToNewStatus, fieldsToDraft } from './draft';
 import type { NewStatus } from '../api/endpoints/statusWrite';
 
 /** A poll in the shape Draft keeps and NewStatus sends. */
@@ -82,6 +82,20 @@ describe(draftToNewStatus, () => {
       poll: POLL,
       inReplyToId: 's7',
       quoteId: 's9',
+    });
+  });
+});
+
+describe(fieldsToDraft, () => {
+  it('carries the warning only when there is one', () => {
+    expect(fieldsToDraft({ text: 'a', spoiler: '', visibility: 'public' })).toStrictEqual({
+      text: 'a',
+      visibility: 'public',
+    });
+    expect(fieldsToDraft({ text: 'a', spoiler: 'cw', visibility: 'direct' })).toStrictEqual({
+      text: 'a',
+      spoilerText: 'cw',
+      visibility: 'direct',
     });
   });
 });

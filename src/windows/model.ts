@@ -16,7 +16,8 @@ export type WindowKind =
   | 'hashtag'
   | 'profile'
   | 'dm'
-  | 'search';
+  | 'search'
+  | 'composer';
 
 /** What a window shows. */
 export type WindowRef = {
@@ -109,6 +110,23 @@ export function withActive(state: WindowsState, id: string): WindowsState {
       : win,
   );
   return { windows, activeId: id };
+}
+
+/**
+ * Point the window with `id` at another account: its ref's `accountKey` changes
+ * and its id stays, so a window that keeps its place in the list (the composer's
+ * "Post as") is not mistaken for a new one. An id no window has, or the account
+ * it already has, leaves the state as it was.
+ */
+export function withAccountKey(state: WindowsState, id: string, accountKey: string): WindowsState {
+  const target = state.windows.find((win) => win.id === id);
+  if (target === undefined || target.ref.accountKey === accountKey) {
+    return state;
+  }
+  const windows = state.windows.map((win): WindowState =>
+    win.id === id ? { ...win, ref: { ...win.ref, accountKey } } : win,
+  );
+  return { ...state, windows };
 }
 
 /**

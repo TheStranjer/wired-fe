@@ -42,6 +42,7 @@ const NEEDS: Record<WindowKind, Needs> = {
   thread: NOTHING,
   profile: NOTHING,
   search: NOTHING,
+  composer: NOTHING,
 };
 
 /** The streams {@link accountKey}'s connection should be joined to, `user` first. */
