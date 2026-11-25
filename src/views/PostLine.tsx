@@ -15,6 +15,8 @@
  * profile or tag window the same way (WFE-156, ./openContentLink). A card's `☺`
  * button opens the emoji picker (WFE-265, ./usePostPicker), fed by the window's
  * own account and choosing through the same line runner as the command line.
+ * A plain click on an attachment runs `/media <label> <n>` the same way
+ * (WFE-264), so it opens in the media window rather than a browser tab.
  */
 import { useEffect, useRef } from 'react';
 import type { JSX, RefObject } from 'react';
@@ -65,6 +67,20 @@ function popOf(actions: PostActions, label: string): () => void {
   };
 }
 
+/**
+ * The handler of a click on attachment `index` (zero-based) of the post labelled
+ * {@link label}: run `/media <label> <index + 1>` (WFE-264). The registry having
+ * no `/media` leaves it out, so the attachment links stay the browser's.
+ */
+function openMediaOf(actions: PostActions, label: string): ((index: number) => void) | undefined {
+  if (actions.linesFor(label)['media'] === undefined) {
+    return undefined;
+  }
+  return (index) => {
+    actions.run({ line: `/media ${label} ${String(index + 1)}`, prefill: false });
+  };
+}
+
 /** One post: the card or the row its status maps onto, as the window's account sees it. */
 export function PostLine(props: PostLineTarget): JSX.Element {
   const { windowId, status } = props;
@@ -84,6 +100,7 @@ export function PostLine(props: PostLineTarget): JSX.Element {
         {...shared}
         author={view.author}
         boostedBy={view.boostedBy}
+        onOpenMedia={openMediaOf(actions, shared.label)}
         onPop={popOf(actions, shared.label)}
         ref={rowRef}
       />
@@ -96,6 +113,7 @@ export function PostLine(props: PostLineTarget): JSX.Element {
         {...shared}
         author={author}
         boostedBy={view.boostedBy}
+        onOpenMedia={openMediaOf(actions, shared.label)}
         onPop={popOf(actions, shared.label)}
         ref={rowRef}
         actionLines={actions.linesFor(shared.label)}

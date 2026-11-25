@@ -15,7 +15,9 @@
  * and so no button; and delete and block (WFE-266): `Shift+d` and `Shift+x`
  * prefill, and Enter on the filled line is the confirmation, but a click on
  * the `⋯` row asks in a dialog first, so their lines carry `confirm` instead
- * of `prefill`.
+ * of `prefill`. `media` (WFE-264) has no button of its own: its line is what a
+ * click on a post's attachment runs, and with no `/media` in the registry the
+ * attachment links stay the browser's.
  */
 
 import type { CommandDefinition, Registry } from './types';
@@ -37,6 +39,7 @@ const POST_ACTION_NAMES = [
   'pin',
   'unpin',
   'edit',
+  'media',
   'delete',
   'mute',
   'block',

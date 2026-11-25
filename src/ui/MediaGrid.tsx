@@ -7,11 +7,16 @@
  * from the remote server until it is opened. `autoExpand` — the `expandMedia`
  * setting — opens the cover of a post that is not sensitive. Which covers and
  * descriptions are open is this component's own state, like {@link MediaList}'s.
- * Purely presentational: no media autoplays or preloads.
+ * With `onOpenMedia`, a plain click on an image opens it in the media window
+ * (WFE-264) rather than leaving for the raw file; only an image of an opened
+ * grid can be clicked, so the cover's first click still just reveals, and the
+ * `+N` button only shows the hidden tiles. Purely presentational: no media
+ * autoplays or preloads.
  */
 import { useState } from 'react';
 import type { JSX } from 'react';
 
+import type { OpenMedia } from './mediaClick';
 import styles from './MediaGrid.module.css';
 import type { MediaItem } from './MediaList';
 import { MediaTile, describedBy } from './MediaTile';
@@ -28,6 +33,9 @@ export type MediaGridProps = {
   readonly warned: boolean;
   /** The reader's `expandMedia` setting. */
   readonly autoExpand: boolean;
+  /** Opens the attachment at a zero-based index in the media window; absent
+   * leaves each image's link to the browser. */
+  readonly onOpenMedia?: OpenMedia | undefined;
 };
 
 /** The descriptions of the open ALT badges, one line each, under the grid. */
@@ -82,8 +90,11 @@ function flip(set: ReadonlySet<string>, id: string): ReadonlySet<string> {
 }
 
 /** The tiles of an opened grid, and the descriptions their ALT badges open. */
-function Tiles(props: { readonly items: readonly MediaItem[] }): JSX.Element {
-  const { items } = props;
+function Tiles(props: {
+  readonly items: readonly MediaItem[];
+  readonly onOpenMedia: OpenMedia | undefined;
+}): JSX.Element {
+  const { items, onOpenMedia } = props;
   const [all, setAll] = useState(false);
   const [alts, setAlts] = useState<ReadonlySet<string>>(() => new Set<string>());
   const hidden = all ? 0 : Math.max(items.length - VISIBLE, 0);
@@ -97,6 +108,7 @@ function Tiles(props: { readonly items: readonly MediaItem[] }): JSX.Element {
             altOpen={alts.has(item.id)}
             index={index}
             item={item}
+            onOpenMedia={onOpenMedia}
             onToggleAlt={() => {
               setAlts((current) => flip(current, item.id));
             }}
@@ -120,7 +132,7 @@ function Tiles(props: { readonly items: readonly MediaItem[] }): JSX.Element {
 
 /** The media of one post: nothing without attachments, else the grid or its cover. */
 export function MediaGrid(props: MediaGridProps): JSX.Element | null {
-  const { items, sensitive, warned, autoExpand } = props;
+  const { items, sensitive, warned, autoExpand, onOpenMedia } = props;
   const [opened, setOpened] = useState(false);
   if (items.length === 0) {
     return null;
@@ -134,5 +146,5 @@ export function MediaGrid(props: MediaGridProps): JSX.Element | null {
       />
     );
   }
-  return <Tiles items={items} />;
+  return <Tiles items={items} onOpenMedia={onOpenMedia} />;
 }

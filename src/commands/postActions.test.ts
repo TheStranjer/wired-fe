@@ -86,7 +86,7 @@ describe(postActionLines, () => {
       capabilities: WIRED_CAPABILITIES,
     });
 
-    expect(Object.keys(postActionLines(registry, 'a3'))).toHaveLength(18);
+    expect(Object.keys(postActionLines(registry, 'a3'))).toHaveLength(19);
   });
 
   it('leaves out what the backend cannot do', () => {
