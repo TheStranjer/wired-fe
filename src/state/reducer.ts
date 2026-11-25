@@ -26,6 +26,7 @@ const BUFFER_ACTION_TYPES: Record<BufferAction['type'], true> = {
   statuses: true,
   notifications: true,
   feed: true,
+  feedLive: true,
   statusUpdated: true,
   statusDeleted: true,
   select: true,

@@ -17,13 +17,15 @@ const HOME: WindowRef = { kind: 'home', accountKey: MINE, target: null };
 
 describe(wantedStreams, () => {
   it('is the user stream alone with nothing open', () => {
-    expect(wantedStreams(offscreen().windows.windows, MINE)).toStrictEqual([{ stream: 'user' }]);
+    expect(wantedStreams(offscreen().windows.windows, MINE, [])).toStrictEqual([
+      { stream: 'user' },
+    ]);
   });
 
   it('adds a stream per window that one feeds, once each', () => {
     const windows = offscreen(LOCAL, FEDERATED, TAG, HOME).windows.windows;
 
-    expect(wantedStreams(windows, MINE)).toStrictEqual([
+    expect(wantedStreams(windows, MINE, [])).toStrictEqual([
       { stream: 'user' },
       { stream: 'public:local' },
       { stream: 'public' },
@@ -36,8 +38,8 @@ describe(wantedStreams, () => {
     const bare: WindowRef = { kind: 'hashtag', accountKey: MINE, target: null };
     const windows = offscreen(theirs, bare).windows.windows;
 
-    expect(wantedStreams(windows, MINE)).toStrictEqual([{ stream: 'user' }]);
-    expect(wantedStreams(windows, THEIRS)).toStrictEqual([
+    expect(wantedStreams(windows, MINE, [])).toStrictEqual([{ stream: 'user' }]);
+    expect(wantedStreams(windows, THEIRS, [])).toStrictEqual([
       { stream: 'user' },
       { stream: 'public:local' },
     ]);

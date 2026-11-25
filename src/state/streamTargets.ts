@@ -89,7 +89,7 @@ export function streamFamilies(stream: readonly string[]): StreamFamilies {
 }
 
 /** The tag as `/tag` keys a window by: no leading `#`, lower case. */
-function normalizeTag(tag: string): string {
+export function normalizeTag(tag: string): string {
   const bare = tag.startsWith('#') ? tag.slice(1) : tag;
   return bare.toLowerCase();
 }

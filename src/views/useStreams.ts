@@ -7,7 +7,9 @@
  * What the connection is doing is printed in the status window: once when it
  * is live, once when it fails — which starts the polling fallback
  * (./pollFallback) — and once when it is restored, which stops it. Unmounting
- * closes every socket and stops every poll. The per-account part is
+ * closes every socket and stops every poll. A feed window's sources join their
+ * accounts' connections the same way, so feeds open no connection of their own.
+ * The per-account part is
  * ./streamEntry.
  */
 
@@ -18,6 +20,7 @@ import { type StreamDeps, type StreamEnv, StreamEntry } from './streamEntry';
 import { syncSubscriptions, wantedStreams } from './streamTopics';
 import type { StoredAccount } from '../accounts/accountStore';
 import { connectStream } from '../api/streamClient';
+import type { Feeds } from '../state/feeds';
 import { useRefreshDeps } from '../state/RefreshContext';
 import { useAppState } from '../state/StateContext';
 import type { WindowState } from '../windows/model';
@@ -29,6 +32,7 @@ const REAL_DEPS: StreamDeps = { connect: connectStream, schedule: intervalSchedu
 type Followed = {
   readonly accounts: readonly StoredAccount[];
   readonly windows: readonly WindowState[];
+  readonly feeds: Feeds;
 };
 
 /** Brings the connections to the accounts in {@link followed}, each joined to what its windows need. */
@@ -43,7 +47,7 @@ function syncStreams(entries: Map<string, StreamEntry>, followed: Followed, env:
   for (const account of followed.accounts) {
     const entry = entries.get(account.key) ?? new StreamEntry(env, account);
     entries.set(account.key, entry);
-    syncSubscriptions(entry, wantedStreams(followed.windows, account.key));
+    syncSubscriptions(entry, wantedStreams(followed.windows, account.key, followed.feeds));
   }
 }
 
@@ -56,6 +60,7 @@ export function useStreams(deps: StreamDeps = REAL_DEPS): void {
   const state = useAppState();
   const { accounts } = state;
   const { windows } = state.windows;
+  const { feeds } = state.settings;
   const refresh = useRefreshDeps();
   const [entries] = useState(() => new Map<string, StreamEntry>());
   useEffect(
@@ -68,6 +73,6 @@ export function useStreams(deps: StreamDeps = REAL_DEPS): void {
     [entries],
   );
   useEffect(() => {
-    syncStreams(entries, { accounts, windows }, { deps, refresh });
-  }, [entries, accounts, windows, deps, refresh]);
+    syncStreams(entries, { accounts, windows, feeds }, { deps, refresh });
+  }, [entries, accounts, windows, feeds, deps, refresh]);
 }

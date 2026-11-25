@@ -43,6 +43,15 @@ type SourceCursor = {
 /** The paging state of every source of a feed, keyed by {@link sourceKey}. */
 export type FeedCursorState = Readonly<Record<string, SourceCursor>>;
 
+/** Everything a feed window has loaded: its merged items and where each source has paged to. */
+export type FeedData = {
+  readonly items: readonly FeedItem[];
+  readonly cursors: FeedCursorState;
+};
+
+/** A feed window that has loaded nothing yet. */
+export const EMPTY_FEED: FeedData = { items: [], cursors: {} };
+
 /** A post item as fetched by `source`: seen so far by that account alone. */
 export function postItem(status: Status, source: FeedSourceRef): FeedPost {
   return {
