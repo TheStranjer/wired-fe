@@ -4,18 +4,24 @@
  * floats themselves. Each float is a pane frame placed from its fractional
  * rectangle; array order is z-order. Its title bar drags it, a grip at the
  * bottom-right corner resizes it, and a pointer-down anywhere in it focuses
- * (and so raises) it.
+ * (and so raises) it. Moving a float with Shift held previews, and on release
+ * performs, docking it against the nearest edge of the pane under the pointer
+ * (WFE-231).
  */
-import { useCallback, useRef } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import type { JSX, PointerEvent, PointerEventHandler } from 'react';
 
 import { Pane, windowOf } from './DesktopPane';
 import type { View } from './DesktopPane';
+import { DockHint } from './DockHint';
 import styles from './FloatLayer.module.css';
 import { useFloatGesture } from './useFloatGesture';
 import type { Gesture } from './useFloatGesture';
 import { useAppDispatch } from '../state/StateContext';
+import type { DropTarget } from '../windows/dropZone';
 import type { FloatPane, Floats } from '../windows/floats';
+import { findPane } from '../windows/splitTree';
+import type { SplitTree } from '../windows/splitTree';
 
 /** Starts `gesture` on a float from a pointer-down. */
 type Begin = (paneId: string, gesture: Gesture) => PointerEventHandler<HTMLElement>;
@@ -63,15 +69,31 @@ function FloatBox(props: {
   );
 }
 
-/** The overlay holding every float of the active desktop, bottom to top. */
-export function FloatLayer(props: { readonly floats: Floats; readonly view: View }): JSX.Element {
+/** The title of the window shown by the tree pane `paneId`, or '' when there is none. */
+function paneTitle(tree: SplitTree | null, view: View, paneId: string | undefined): string {
+  const leaf = tree === null || paneId === undefined ? null : findPane(tree, paneId);
+  return (leaf === null ? undefined : windowOf(view, leaf.windowId))?.title ?? '';
+}
+
+/**
+ * The overlay holding every float of the active desktop, bottom to top, and
+ * the dock preview while one is moved with Shift over a pane of `tree`.
+ */
+export function FloatLayer(props: {
+  readonly floats: Floats;
+  readonly tree: SplitTree | null;
+  readonly view: View;
+}): JSX.Element {
+  const { floats, tree, view } = props;
   const layerRef = useRef<HTMLDivElement>(null);
-  const begin = useFloatGesture(layerRef, useAppDispatch());
+  const [target, setTarget] = useState<DropTarget | null>(null);
+  const begin = useFloatGesture(layerRef, useAppDispatch(), { tree, onTarget: setTarget });
   return (
     <div ref={layerRef} className={styles['layer']}>
-      {props.floats.map((float) => (
-        <FloatBox key={float.paneId} float={float} view={props.view} begin={begin} />
+      {floats.map((float) => (
+        <FloatBox key={float.paneId} float={float} view={view} begin={begin} />
       ))}
+      <DockHint target={target} title={paneTitle(tree, view, target?.paneId)} />
     </div>
   );
 }

@@ -19,17 +19,31 @@ export function splitPane(
   paneId: string,
   ...added: readonly [dir: SplitDir, newPaneId: string, newWindowId: string]
 ): SplitTree {
-  const [dir, newPaneId, newWindowId] = added;
+  return splitPaneAt(tree, paneId, false, ...added);
+}
+
+/** What {@link splitPaneAt} adds: whether the new pane goes first, its direction, its id and its window. */
+type SplitAdded = readonly [first: boolean, dir: SplitDir, newPaneId: string, newWindowId: string];
+
+/**
+ * Like {@link splitPane}, but the new pane becomes `a` (left or top of the old
+ * one) when `first` is true.
+ */
+export function splitPaneAt(tree: SplitTree, paneId: string, ...added: SplitAdded): SplitTree {
+  const [first, dir, newPaneId, newWindowId] = added;
   if (findPane(tree, newPaneId) !== null) {
     return tree;
   }
-  return mapPane(tree, paneId, (pane) => ({
-    type: 'split',
-    dir,
-    ratio: NEW_SPLIT_RATIO,
-    a: pane,
-    b: { type: 'pane', paneId: newPaneId, windowId: newWindowId },
-  }));
+  return mapPane(tree, paneId, (pane) => {
+    const fresh: SplitTree = { type: 'pane', paneId: newPaneId, windowId: newWindowId };
+    return {
+      type: 'split',
+      dir,
+      ratio: NEW_SPLIT_RATIO,
+      a: first ? fresh : pane,
+      b: first ? pane : fresh,
+    };
+  });
 }
 
 /**

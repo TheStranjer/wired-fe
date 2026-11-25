@@ -128,7 +128,7 @@ export function DesktopView(props: { readonly deviceClass?: DeviceClass }): JSX.
   return (
     <div className={styles['desktop']}>
       {desktop.tree === null ? EMPTY_HINT : <Node tree={desktop.tree} path={[]} view={view} />}
-      <FloatLayer floats={desktop.floats} view={view} />
+      <FloatLayer floats={desktop.floats} tree={desktop.tree} view={view} />
     </div>
   );
 }

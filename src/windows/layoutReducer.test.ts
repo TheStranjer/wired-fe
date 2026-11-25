@@ -135,5 +135,18 @@ describe(layoutReducer, () => {
       expect(layoutReducer(empty, { type: 'float' })).toBe(empty);
       expect(layoutReducer(docked, { type: 'dock' })).toBe(docked);
     });
+
+    it('dockAt docks a float against the edge of a tree pane', () => {
+      const floated = layoutReducer(twoPanes(), { type: 'float' });
+      const docked = layoutReducer(floated, {
+        type: 'dockAt',
+        floatPaneId: 'p2',
+        targetPaneId: 'p1',
+        edge: 'top',
+      });
+
+      expect(treeOf(docked, 1)).toBe('col(p2:w2 p1:w1)');
+      expect(activeDesktop(docked).floats).toStrictEqual([]);
+    });
   });
 });

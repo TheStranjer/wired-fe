@@ -1,0 +1,24 @@
+/* The dock preview: a 2px dashed --color-border outline on the half of the
+   pane a dragged float would take. No fill, no translucency (decision 16).
+   The live region is visually hidden but read aloud. */
+
+.zone {
+  position: absolute;
+  left: var(--zone-x);
+  top: var(--zone-y);
+  width: var(--zone-w);
+  height: var(--zone-h);
+  box-sizing: border-box;
+  outline: 2px dashed var(--color-border);
+  outline-offset: -2px;
+  pointer-events: none;
+}
+
+.announce {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
