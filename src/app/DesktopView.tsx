@@ -9,6 +9,7 @@ import { useCallback } from 'react';
 import type { JSX, ReactNode } from 'react';
 
 import styles from './DesktopView.module.css';
+import { PaneActions } from './PaneActions';
 import { accountLabel } from './StatusBar';
 import { WindowBody, windowTopic } from './WindowBody';
 import type { AppState } from '../state/appState';
@@ -53,7 +54,7 @@ function Pane(props: { readonly leaf: PaneLeaf; readonly view: View }): JSX.Elem
       subtitle={accountLabel(view.state, win.ref.accountKey)}
       topic={windowTopic(win, view.state)}
       focused={leaf.paneId === view.focusedPaneId}
-      actions={null}
+      actions={<PaneActions paneId={leaf.paneId} title={win.title} />}
       onFocusRequest={() => {
         view.focus(leaf.paneId);
       }}
