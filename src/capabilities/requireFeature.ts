@@ -37,6 +37,7 @@ const FEATURE_PHRASES: Readonly<Record<FeatureFlag, string>> = {
   localOnlyPosts: 'post local-only',
   markdown: 'format posts with Markdown',
   passwordResetApi: 'reset passwords',
+  settingsStore: 'sync settings',
 };
 
 /** How a backend family is named on screen; null where the family says nothing. */

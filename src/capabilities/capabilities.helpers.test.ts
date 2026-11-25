@@ -17,6 +17,7 @@ const ALL_FLAGS: readonly FeatureFlag[] = [
   'localOnlyPosts',
   'markdown',
   'passwordResetApi',
+  'settingsStore',
 ];
 
 describe(hasFeature, () => {

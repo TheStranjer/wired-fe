@@ -51,7 +51,7 @@ const CASES: readonly BackendCase[] = [
       'backend: wired',
       'posts: up to 5000 characters, 4 attachments',
       'polls: 4 options of 50 characters, 5m–30d',
-      'features: emojiReactions, quotePosting, localOnlyPosts, passwordResetApi, markdown',
+      'features: emojiReactions, quotePosting, localOnlyPosts, passwordResetApi, settingsStore, markdown',
     ],
   },
   {
@@ -81,7 +81,7 @@ const CASES: readonly BackendCase[] = [
       'backend: pleroma',
       'posts: up to 3000 characters, 4 attachments',
       'polls: 6 options of 40 characters, 1h–30d',
-      'features: emojiReactions, customEmojiReactions, quotePosting, editing, localOnlyPosts, passwordResetApi, markdown',
+      'features: emojiReactions, customEmojiReactions, quotePosting, editing, localOnlyPosts, passwordResetApi, settingsStore, markdown',
     ],
   },
 ];

@@ -42,6 +42,7 @@ const WIRED_FLAGS: readonly FeatureFlag[] = [
   'editing',
   'localOnlyPosts',
   'passwordResetApi',
+  'settingsStore',
 ];
 
 /** The capabilities of a {@link backend} that advertises {@link flags} and no limits. */
@@ -225,9 +226,9 @@ describe(detectInstance, () => {
 
     const result = await detectInstance(ORIGIN);
 
-    expect(result).toStrictEqual(
-      ok(profile(TITLE, capsWith('wired', ['localOnlyPosts', 'passwordResetApi']))),
-    );
+    const flags = WIRED_FLAGS.slice(3);
+
+    expect(result).toStrictEqual(ok(profile(TITLE, capsWith('wired', flags))));
   });
 
   it('names the instance by its hostname when nothing carries a title', async () => {

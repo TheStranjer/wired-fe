@@ -30,6 +30,7 @@ const ALL_FLAGS: readonly FeatureFlag[] = [
   'localOnlyPosts',
   'markdown',
   'passwordResetApi',
+  'settingsStore',
 ];
 
 describe(deriveCapabilities, () => {
@@ -98,7 +99,7 @@ describe(deriveCapabilities, () => {
 
     expect(caps.backend).toBe('akkoma');
     expect(caps.features).toStrictEqual(
-      new Set(['emojiReactions', 'localOnlyPosts', 'passwordResetApi']),
+      new Set(['emojiReactions', 'localOnlyPosts', 'passwordResetApi', 'settingsStore']),
     );
   });
 
