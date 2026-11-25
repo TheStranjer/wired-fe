@@ -2,7 +2,7 @@
  * The few pieces both external-login boxes are made of (WFE-169): a plain
  * text button, a labelled input, and a line of text with the way out under it.
  */
-import { useEffect, useRef } from 'react';
+import { useLayoutEffect, useRef } from 'react';
 import type { JSX, ReactNode } from 'react';
 
 import styles from './External.module.css';
@@ -11,6 +11,9 @@ import styles from './External.module.css';
  * Hands focus to the first field or button of {@link props}.children each time
  * {@link props}.step changes: a step swaps the controls under the focused one,
  * and the dialog's keyboard (Escape included) only works while focus is inside.
+ * A layout effect, so focus moves in the same commit that shows the controls:
+ * a passive effect could run after the new step is already on screen and
+ * leave focus on the body in between.
  */
 export function Focused(props: {
   readonly step: string;
@@ -18,7 +21,7 @@ export function Focused(props: {
 }): JSX.Element {
   const ref = useRef<HTMLDivElement | null>(null);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     ref.current?.querySelector<HTMLElement>('input, button')?.focus();
   }, [props.step]);
 
