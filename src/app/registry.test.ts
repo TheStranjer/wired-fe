@@ -18,12 +18,14 @@ const EXPECTED = [
   'composer',
   'connect',
   'copy',
+  'desktop',
   'detach',
   'federated',
   'help',
   'home',
   'local',
   'more',
+  'mvd',
   'notifications',
   'open',
   'query',
@@ -62,6 +64,10 @@ describe(appRegistry, () => {
     expect(byName.get('sel')?.name).toBe('select');
     expect(byName.get('window')?.name).toBe('win');
     expect(byName.get('fed')?.name).toBe('federated');
+  });
+
+  it('finds /desktop by its alias /d', () => {
+    expect(built().byName.get('d')?.name).toBe('desktop');
   });
 
   it('answers to the two public timeline windows by the names they are typed as', () => {

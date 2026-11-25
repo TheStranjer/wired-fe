@@ -12,7 +12,7 @@
  * 4. Windows shown nowhere stay open as hidden buffers.
  * 5. A window visible on the active desktop does not gather unread.
  */
-import { removeDesktopPane } from '../windows/desktopPanes';
+import { removeDesktopPane, shownPanes } from '../windows/desktopPanes';
 import type { Desktop } from '../windows/desktopPanes';
 import {
   activeDesktop,
@@ -29,22 +29,13 @@ import { withActive } from '../windows/model';
 import type { WindowsState } from '../windows/model';
 import { windowsReducer } from '../windows/reducer';
 import type { WindowsAction } from '../windows/reducer';
-import { panes, setPaneWindow } from '../windows/splitTree';
+import { setPaneWindow } from '../windows/splitTree';
 
 /** The two halves of the app state that have to agree. */
 export type SyncSlice = {
   readonly windows: WindowsState;
   readonly layout: DesktopsState;
 };
-
-/** A pane or float, as far as syncing cares: its id and the window it shows. */
-type Shown = { readonly paneId: string; readonly windowId: string };
-
-/** Every pane of the desktop, tree panes first, then floats bottom to top. */
-function shownPanes(desktop: Desktop): readonly Shown[] {
-  const inTree = desktop.tree === null ? [] : panes(desktop.tree);
-  return [...inTree, ...desktop.floats];
-}
 
 /** Whether the active desktop shows window {@link windowId} in some pane or float. */
 export function isVisible(layout: DesktopsState, windowId: string): boolean {
