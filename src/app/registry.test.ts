@@ -22,6 +22,7 @@ const EXPECTED = [
   'detach',
   'dock',
   'federated',
+  'feed',
   'float',
   'help',
   'home',
