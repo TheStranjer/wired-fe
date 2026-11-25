@@ -4,7 +4,7 @@
  * A pointer-down anywhere in it asks to focus the pane, which also raises a
  * float.
  */
-import type { JSX } from 'react';
+import type { JSX, ReactNode } from 'react';
 
 import { PaneActions } from './PaneActions';
 import { accountLabel } from './StatusBar';
@@ -34,15 +34,17 @@ export function Pane(props: {
   readonly win: WindowState;
   readonly view: View;
   readonly titleBarProps?: PaneFrameProps['titleBarProps'];
+  /** Title-bar controls in place of the close button, e.g. the mobile pane switcher. */
+  readonly actions?: ReactNode;
 }): JSX.Element {
-  const { paneId, win, view, titleBarProps } = props;
+  const { paneId, win, view, titleBarProps, actions } = props;
   return (
     <PaneFrame
       title={win.title}
       subtitle={accountLabel(view.state, win.ref.accountKey)}
       topic={windowTopic(win, view.state)}
       focused={paneId === view.focusedPaneId}
-      actions={<PaneActions paneId={paneId} title={win.title} />}
+      actions={actions ?? <PaneActions paneId={paneId} title={win.title} />}
       titleBarProps={titleBarProps}
       onFocusRequest={() => {
         view.focus(paneId);
