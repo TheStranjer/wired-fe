@@ -2,6 +2,7 @@
  * The props of {@link PostCard} (decision 15), kept apart from the component so
  * the card's parts can name them without importing it back.
  */
+import type { ChatMark, DmRecipient } from './cardDm';
 import type { EmojiRef } from './emojify';
 import type { PostActionLine, PostActionLines } from './postActionTypes';
 import type { PostRowProps } from './PostRow';
@@ -28,6 +29,10 @@ export type PostCardProps = Omit<PostRowProps, 'author' | 'boostedBy'> & {
   readonly showAvatar: boolean;
   /** Whether media draws as a grid; false leaves the IRC placeholder lines. */
   readonly showImages: boolean;
+  /** The accounts a direct message names besides its author, for its header strip. */
+  readonly recipients: readonly DmRecipient[];
+  /** The bubble placement in a DM window; null for a card anywhere else. */
+  readonly chat: ChatMark | null;
   /** The line each action-bar command runs on this post, by command name
    * (from the registry); a command the backend cannot do has none. */
   readonly actionLines: PostActionLines;
