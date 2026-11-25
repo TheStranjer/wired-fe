@@ -22,7 +22,7 @@ describe(App, () => {
     render(<App />);
 
     expect(screen.getByRole('log', { name: 'status' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Window 1: status' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Desktop 1, active' })).toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: 'Command line' })).toHaveValue('');
   });
 });

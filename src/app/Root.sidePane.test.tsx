@@ -105,7 +105,9 @@ describe('the side pane in the shell', () => {
 
     fireEvent.click(within(pane()).getByRole('button', { name: '@alice@m.example' }));
 
-    expect(screen.getByRole('button', { name: 'Window 3: @alice@m.example' })).toBeInTheDocument();
+    const [topic] = screen.getAllByRole('banner');
+
+    expect(topic).toHaveTextContent('@alice@m.example');
   });
 
   it('keeps the pane empty for the status window', () => {
