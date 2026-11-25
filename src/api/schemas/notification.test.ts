@@ -71,10 +71,16 @@ const KIND_TABLE: readonly (readonly [string, NotificationKind])[] = [
   ['move', 'move'],
   ['other', 'other'],
   ['pleroma:emoji_reaction', 'reaction'],
-  ['admin.sign_up', 'other'],
-  ['admin.report', 'other'],
-  ['pleroma:chat_mention', 'other'],
-  ['severed_relationships', 'other'],
+  ['quote', 'quote'],
+  ['quoted_update', 'quoted_update'],
+  ['admin.sign_up', 'sign_up'],
+  ['admin.report', 'report'],
+  ['pleroma:report', 'report'],
+  ['pleroma:chat_mention', 'chat_mention'],
+  ['severed_relationships', 'severed_relationships'],
+  ['moderation_warning', 'moderation_warning'],
+  ['annual_report', 'annual_report'],
+  ['pleroma:made_up', 'other'],
   ['', 'other'],
 ];
 
@@ -119,6 +125,8 @@ describe('Notification schema', () => {
       account: PARSED_ACCOUNT,
       status: PARSED_STATUS,
       emoji: null,
+      report: null,
+      chat_message: null,
     });
   });
 
@@ -133,6 +141,8 @@ describe('Notification schema', () => {
       account: PARSED_ACCOUNT,
       status: null,
       emoji: null,
+      report: null,
+      chat_message: null,
     });
   });
 
@@ -167,27 +177,36 @@ describe('Notification schema', () => {
   it('keeps an unknown type raw and folds the kind to other', () => {
     const output = parse({
       id: 'n5',
-      type: 'admin.report',
+      type: 'pleroma:made_up',
       created_at: '2026-11-12T21:14:05.000Z',
       account: ACCOUNT,
     });
 
-    expect(output.type).toBe('admin.report');
+    expect(output.type).toBe('pleroma:made_up');
     expect(output.kind).toBe('other');
   });
 
-  it('drops unknown keys such as Mastodon report and Pleroma blocks', () => {
+  it('drops unknown keys such as Pleroma blocks', () => {
     const output = parse({
       id: 'n6',
       type: 'follow',
       created_at: '2026-11-12T21:14:05.000Z',
       account: ACCOUNT,
-      report: { id: 'r1' },
       pleroma: { conversation_id: 'c1' },
     });
 
     expect(new Set(Object.keys(output))).toStrictEqual(
-      new Set(['id', 'type', 'kind', 'created_at', 'account', 'status', 'emoji']),
+      new Set([
+        'id',
+        'type',
+        'kind',
+        'created_at',
+        'account',
+        'status',
+        'emoji',
+        'report',
+        'chat_message',
+      ]),
     );
   });
 

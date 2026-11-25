@@ -110,6 +110,8 @@ describe(participants, () => {
         account: BOB,
         status: null,
         emoji: null,
+        report: null,
+        chat_message: null,
       },
     };
 

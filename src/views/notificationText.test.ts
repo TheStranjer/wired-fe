@@ -9,11 +9,13 @@ import * as v from 'valibot';
 import { describe, expect, it } from 'vitest';
 
 import { notificationText } from './notificationText';
+import type { Viewer } from './postView';
 import { type Notification, NotificationSchema } from '../api/schemas/notification';
 import type { Status } from '../api/schemas/status';
 import { status, TEST_DATE } from '../test/fixtures';
 
-const ORIGIN = 'https://wired.example';
+/** The viewer of every sentence here: an account of the instance, id unknown. */
+const ORIGIN: Viewer = { origin: 'https://wired.example', accountId: null };
 
 /** The actor every test notification names: a local account of the instance. */
 const AUTHOR = status('author').account;
@@ -90,15 +92,21 @@ describe(notificationText, () => {
     );
   });
 
-  it('names an unrecognized kind by the raw type it came in as', () => {
-    expect(notificationText(note('admin.sign_up'), null, ORIGIN)).toBe(
-      '@lain@wired.example admin.sign_up',
+  it('says an unrecognized kind is a notification of the raw type it came in as', () => {
+    expect(notificationText(note('pleroma:made_up'), null, ORIGIN)).toBe(
+      '@lain@wired.example: pleroma:made_up notification',
     );
   });
 
-  it('names a mention by its raw type, though the line shows the post itself', () => {
+  it('spells a mention as the actor, the label and the post excerpt', () => {
     expect(notificationText(note('mention', target()), 'a3', ORIGIN)).toBe(
-      '@lain@wired.example mention',
+      '@lain@wired.example mentioned you [a3] "present day, present time"',
+    );
+  });
+
+  it('says a mention with no words has no text', () => {
+    expect(notificationText(note('mention', target('')), 'a3', ORIGIN)).toBe(
+      '@lain@wired.example mentioned you [a3] (no text)',
     );
   });
 
