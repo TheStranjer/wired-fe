@@ -111,7 +111,10 @@ export type FeedSplit = {
 };
 
 /** The oldest moment loaded from each source in `open`; sources with nothing loaded are absent. */
-function oldestPerSource(items: readonly FeedItem[], open: ReadonlySet<string>): number[] {
+function oldestPerSource(
+  items: readonly FeedItem[],
+  open: ReadonlySet<string>,
+): ReadonlyMap<string, number> {
   const oldest = new Map<string, number>();
   for (const item of items) {
     const key = sourceKey(item.source);
@@ -121,7 +124,31 @@ function oldestPerSource(items: readonly FeedItem[], open: ReadonlySet<string>):
       oldest.set(key, known === undefined ? time : Math.min(known, time));
     }
   }
-  return [...oldest.values()];
+  return oldest;
+}
+
+/** The keys of the sources in `cursors` that still have an older page. */
+function openSources(cursors: FeedCursorState): ReadonlySet<string> {
+  return new Set(
+    Object.entries(cursors)
+      .filter(([, state]) => !state.exhausted)
+      .map(([key]) => key),
+  );
+}
+
+/**
+ * The keys of the sources that set the boundary: those with an older page
+ * whose oldest loaded moment is the newest of them all. Paging only these
+ * moves the boundary back; none when no source with an older page has
+ * anything loaded.
+ */
+export function blockingSources(
+  items: readonly FeedItem[],
+  cursors: FeedCursorState,
+): readonly string[] {
+  const oldest = oldestPerSource(items, openSources(cursors));
+  const boundary = Math.max(...oldest.values());
+  return [...oldest].filter(([, time]) => time === boundary).map(([key]) => key);
 }
 
 /**
@@ -132,16 +159,11 @@ function oldestPerSource(items: readonly FeedItem[], open: ReadonlySet<string>):
  * source everything is visible. Order is kept.
  */
 export function oldestBoundary(items: readonly FeedItem[], cursors: FeedCursorState): FeedSplit {
-  const open = new Set(
-    Object.entries(cursors)
-      .filter(([, state]) => !state.exhausted)
-      .map(([key]) => key),
-  );
-  const oldest = oldestPerSource(items, open);
-  if (oldest.length === 0) {
+  const oldest = oldestPerSource(items, openSources(cursors));
+  if (oldest.size === 0) {
     return { visible: items, held: [] };
   }
-  const boundary = Math.max(...oldest);
+  const boundary = Math.max(...oldest.values());
   return {
     visible: items.filter((item) => timeOf(item) >= boundary),
     held: items.filter((item) => timeOf(item) < boundary),

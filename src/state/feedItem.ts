@@ -6,6 +6,7 @@
  */
 
 import type { FeedSourceRef } from './feeds';
+import type { PageCursor } from '../api/pagination';
 import type { Notification } from '../api/schemas/notification';
 import type { Status } from '../api/schemas/status';
 
@@ -34,7 +35,7 @@ export type FeedItem = FeedPost | FeedNotification;
 /** Where one source has paged to. */
 type SourceCursor = {
   /** What to ask for to get the page older than the oldest loaded, or null before any page. */
-  readonly cursor: string | null;
+  readonly cursor: PageCursor | null;
   /** Whether the source has no older page left. */
   readonly exhausted: boolean;
 };

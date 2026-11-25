@@ -14,10 +14,12 @@
 import { putBuffer } from './appReducer';
 import type { AppState } from './appState';
 import type { Buffer, BufferLoad } from './buffer';
+import { setFeedLines } from './bufferFeed';
 import { addNotificationsAs } from './bufferNotifications';
 import { addStatusesAs, removeStatus, replaceStatus, type Where } from './bufferPosts';
 import { selectEdge, selectKey, selectRelative, toggleRevealed } from './bufferSelection';
 import { addedLines, markArrivals } from './bufferUnread';
+import type { FeedItem } from './feedItem';
 import { windowAccountKey } from './selectors';
 import type { PageCursor } from '../api/pagination';
 import type { Notification } from '../api/schemas/notification';
@@ -37,6 +39,7 @@ export type BufferAction =
       readonly notifications: readonly Notification[];
       readonly where: Where;
     }
+  | { readonly type: 'feed'; readonly windowId: string; readonly items: readonly FeedItem[] }
   | { readonly type: 'statusUpdated'; readonly status: Status }
   | { readonly type: 'statusDeleted'; readonly id: string }
   | { readonly type: 'select'; readonly windowId: string; readonly key: string | null }
@@ -61,16 +64,16 @@ type LoadAction = Extract<BufferAction, { readonly type: 'load' }>;
 /** A status every window that shows it has to hear about. */
 type BroadcastAction = Extract<BufferAction, { readonly type: 'statusUpdated' | 'statusDeleted' }>;
 
-/** Anything that happens to the one window the action names. */
+/** Anything that happens to the window the action names. */
 type WindowAction = Exclude<BufferAction, BroadcastAction>;
 
-/** The broadcast types, every one named, so a new action has to say where it goes. */
+/** The broadcast types, every one named, so a new action must say where it goes. */
 const BROADCAST_TYPES: Record<BroadcastAction['type'], true> = {
   statusUpdated: true,
   statusDeleted: true,
 };
 
-/** Move the app state along by one buffer action; the same state when nothing changes. */
+/** Move the app state along by one buffer action; the same state if nothing changes. */
 export function bufferReducer(state: AppState, action: BufferAction): AppState {
   if (isBroadcast(action)) {
     return applyBroadcast(state, action);
@@ -78,12 +81,12 @@ export function bufferReducer(state: AppState, action: BufferAction): AppState {
   return applyInWindow(state, action);
 }
 
-/** Whether every scrollback has to hear about this action, not just one window's. */
+/** Whether every scrollback hears this action, not just one window's. */
 function isBroadcast(action: BufferAction): action is BroadcastAction {
   return Object.hasOwn(BROADCAST_TYPES, action.type);
 }
 
-/** An edited or deleted status, reported to every scrollback that shows it. */
+/** An edited or deleted status, reported to every scrollback showing it. */
 function applyBroadcast(state: AppState, action: BroadcastAction): AppState {
   return action.type === 'statusUpdated'
     ? applyEveryBuffer(state, (buffer) => replaceStatus(buffer, action.status))
@@ -96,6 +99,8 @@ function applyInWindow(state: AppState, action: WindowAction): AppState {
     case 'statuses':
     case 'notifications':
       return applyPage(state, action);
+    case 'feed':
+      return applyToBuffer(state, action, (buffer) => setFeedLines(buffer, action.items));
     case 'select':
       return applyToBuffer(state, action, (buffer) => selectKey(buffer, action.key));
     case 'selectRelative':
@@ -111,7 +116,7 @@ function applyInWindow(state: AppState, action: WindowAction): AppState {
   }
 }
 
-/** A page of lines joining one window, and the unread mark it leaves behind. */
+/** A page of lines joining a window, and the unread mark it leaves. */
 function applyPage(state: AppState, action: PageAction): AppState {
   const before = state.buffers.get(action.windowId);
   if (before === undefined) {
@@ -143,7 +148,7 @@ function applyEveryBuffer(state: AppState, show: (buffer: Buffer) => Buffer): Ap
   return changed ? { ...state, buffers } : state;
 }
 
-/** The buffers of the one window {@link action} names, or the same map. */
+/** The buffers of the window {@link action} names, or the same map. */
 function applyToBuffer(
   state: AppState,
   action: { readonly windowId: string },
@@ -177,7 +182,7 @@ function sameLoad(one: Buffer, two: Buffer): boolean {
   );
 }
 
-/** One more ask for older history; a window at the end of it asks for nothing. */
+/** One more ask for older history, unless the end is reached. */
 function askForOlder(buffer: Buffer): Buffer {
   return buffer.exhausted ? buffer : { ...buffer, olderRequests: buffer.olderRequests + 1 };
 }
