@@ -4,53 +4,18 @@
  * the warning is revealed.
  */
 import { render, screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import type { MediaItem } from './MediaList';
 import { PostCard } from './PostCard';
 import type { PostCardProps } from './PostCard';
-
-const AVATAR = { src: 'https://m.example/a.gif', staticSrc: 'https://m.example/a.png' };
+import { BASE_PROPS as CARD_PROPS } from './postCardHarness';
 
 const MEDIA: readonly MediaItem[] = [
   { id: 'm1', type: 'image', url: null, previewUrl: 'https://m.example/s.png', description: 'x' },
 ];
 
-const BASE_PROPS: PostCardProps = {
-  label: 'a3',
-  date: new Date(2026, 0, 2, 23, 4),
-  clockFormat: '24h',
-  author: {
-    handle: 'alice',
-    fullHandle: '@alice@m.example',
-    self: false,
-    avatar: AVATAR,
-    displayName: 'Alice',
-    displayNameEmojis: [],
-  },
-  boostedBy: null,
-  replyTo: null,
-  quote: null,
-  contentHtml: '<p>present day, present time</p>',
-  emojis: [],
-  spoilerText: '',
-  revealed: false,
-  poll: null,
-  media: MEDIA,
-  sensitive: false,
-  autoExpand: false,
-  visibility: 'public',
-  counts: { replies: 0, boosts: 0, favourites: 0 },
-  mine: { boosted: false, favourited: false, bookmarked: false },
-  reactions: [],
-  edited: false,
-  selected: false,
-  showAvatar: true,
-  onToggleReveal: vi.fn<() => void>(),
-  onSelect: vi.fn<() => void>(),
-  onSelectAuthor: vi.fn<() => void>(),
-  onContentLink: () => false,
-};
+const BASE_PROPS: PostCardProps = { ...CARD_PROPS, media: MEDIA };
 
 describe('PostCard media', () => {
   it('draws the attachments inline', () => {

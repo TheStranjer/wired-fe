@@ -17,6 +17,8 @@ import { useCommandContext } from './useCommandContext';
 import { useCommandHistory } from './useCommandHistory';
 import { useCompletion } from './useCompletion';
 import { textHandler, useHotkeys } from './useHotkeys';
+import { usePostActionRunner } from './usePostActionRunner';
+import type { PostActionRunner } from './usePostActionsApi';
 import type { Provider } from '../commands/complete';
 import { dispatchInput } from '../commands/dispatch';
 import { parseInput } from '../commands/parseInput';
@@ -34,6 +36,8 @@ export type CommandLineProps = {
   readonly attachments: CommandContext['attachments'];
   /** The prefix of a key sequence under way (decision 18); the shell shows it in the status line. */
   readonly pendingKeys: PendingKeys;
+  /** Hands the app the runner of the post cards' action buttons (WFE-209). */
+  readonly registerRunner: (runner: PostActionRunner) => void;
 };
 
 /**
@@ -77,6 +81,7 @@ export function CommandLine(props: CommandLineProps): JSX.Element {
   const context = useCommandContext(setValue, lineOpener, props.attachments);
   const inputRef = useRef<HTMLInputElement>(null);
   useHotkeys(inputRef, context, props.pendingKeys);
+  usePostActionRunner(inputRef, context, props.registerRunner);
   const history = useCommandHistory(state.mode, value, setValue);
   const completion = useCompletion({
     inputRef,
