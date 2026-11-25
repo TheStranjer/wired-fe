@@ -18,6 +18,7 @@ import {
   floatOf,
   grabOf,
   pane,
+  routeTags,
   titleBar,
 } from './fixtures/tiling';
 
@@ -63,6 +64,19 @@ test('the buttons split a pane, pop it out, and a float drags and docks', async 
     .click();
   await expect(floatOf(page, 'home')).toHaveCount(0);
   await expect(pane(page, 'home')).toHaveCount(2);
+});
+
+test('Existing window… lists the other windows and floats the one picked', async ({ page }) => {
+  await routeTags(page);
+  await signIn(page);
+  await submit(page, '/tag rust');
+  await expect(pane(page, 'home')).toHaveCount(0);
+  await pane(page, '#rust').getByRole('button', { name: 'Pop out' }).click();
+  await page.getByRole('menuitem', { name: 'Existing window…', exact: true }).click();
+  await expect(page.getByRole('menuitem', { name: '‹ Back', exact: true })).toBeFocused();
+  await page.getByRole('menuitem', { name: /^\d+ · home$/u }).click();
+  await expect(floatOf(page, 'home')).toBeVisible();
+  await expect(pane(page, '#rust')).toBeVisible();
 });
 
 /** The divider of the one split on the desktop. */
