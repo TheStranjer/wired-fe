@@ -12,6 +12,7 @@
 import type { AppState } from './appState';
 import type { Buffer, LineData } from './buffer';
 import { statusOfLine } from './bufferSelection';
+import { isVisible } from './layoutSync';
 import { accountByKey } from './selectors';
 import type { WindowsState } from '../windows/model';
 import { windowsReducer } from '../windows/reducer';
@@ -32,7 +33,7 @@ export function markArrivals(
   windowId: string,
   added: readonly LineData[],
 ): WindowsState {
-  if (added.length === 0) {
+  if (added.length === 0 || isVisible(state.layout, windowId)) {
     return state.windows;
   }
   const account = windowAccountId(state, windowId);

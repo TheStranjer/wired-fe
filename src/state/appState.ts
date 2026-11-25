@@ -20,16 +20,15 @@ import {
 } from './appReducer';
 import { type Buffer, clearBuffer, type LineLevel } from './buffer';
 import type { ComposerFields } from './draft';
+import { applyLayoutAction, applyWindowsAction } from './layoutSync';
 import { DEFAULT_SETTINGS, type Settings } from './settings';
 import type { StoredAccount } from '../accounts/accountStore';
 import type { InstanceProfile } from '../capabilities/detect';
 import { initialDesktops } from '../windows/desktops';
 import type { DesktopsState } from '../windows/desktops';
 import type { LayoutAction } from '../windows/layoutAction';
-import { layoutReducer } from '../windows/layoutReducer';
 import type { WindowsState } from '../windows/model';
 import { STATUS_WINDOW_ID, initialWindowsState } from '../windows/model';
-import { windowsReducer } from '../windows/reducer';
 import type { WindowsAction } from '../windows/reducer';
 
 /**
@@ -135,18 +134,20 @@ export function coreReducer(state: AppState, action: CoreAction): AppState {
 
 /** A window action, and the buffers brought back to the shape of the list. */
 function applyWindows(state: AppState, action: WindowsAction): AppState {
-  const windows = windowsReducer(state.windows, action);
+  const { windows, layout } = applyWindowsAction(state, action);
   const buffers = syncBuffers(windows.windows, state.buffers);
-  if (windows === state.windows && buffers === state.buffers) {
+  if (windows === state.windows && layout === state.layout && buffers === state.buffers) {
     return state;
   }
-  return { ...state, windows, buffers };
+  return { ...state, windows, layout, buffers };
 }
 
-/** A layout action: the desktops moved along, the same state when they did not change. */
+/** A layout action: the desktops moved along and the active window following focus; the same state when nothing changed. */
 function applyLayout(state: AppState, action: LayoutAction): AppState {
-  const layout = layoutReducer(state.layout, action);
-  return layout === state.layout ? state : { ...state, layout };
+  const { windows, layout } = applyLayoutAction(state, action);
+  return windows === state.windows && layout === state.layout
+    ? state
+    : { ...state, windows, layout };
 }
 
 /** Everything a window shows, wiped from its scrollback; `/clear` and Ctrl+L. */

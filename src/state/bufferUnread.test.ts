@@ -116,6 +116,19 @@ describe(addedLines, () => {
 });
 
 describe(markArrivals, () => {
+  it('counts nothing for a window that is on screen in a pane that is not focused', () => {
+    const split = coreReducer(OFFSCREEN, {
+      type: 'layout',
+      action: { type: 'split', dir: 'row', windowId: HOME_ID },
+    });
+    const beside = coreReducer(split, {
+      type: 'layout',
+      action: { type: 'focusPane', paneId: 'p1' },
+    });
+
+    expect(markArrivals(beside, HOME_ID, [postLine(status('a'))])).toBe(beside.windows);
+  });
+
   it('counts what the window missed', () => {
     const added = [postLine(status('a')), postLine(status('b'))];
 
