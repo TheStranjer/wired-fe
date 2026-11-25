@@ -105,6 +105,16 @@ describe(paneMenuEntries, () => {
   });
 });
 
+describe('the Existing window… row', () => {
+  it('is a window picker, not a prefill, and no other row is a picker', () => {
+    const entries = paneMenuEntries(ALL, FEEDS);
+
+    expect(entry(entries, 'win').pick).toBe('window');
+    expect(entry(entries, 'win').prefill).toBe(false);
+    expect(entries.filter((candidate) => candidate.pick !== null)).toHaveLength(1);
+  });
+});
+
 describe(entryLine, () => {
   const entries = paneMenuEntries(ALL, FEEDS);
 
@@ -121,7 +131,7 @@ describe(entryLine, () => {
     { id: 'dm', command: 'split', line: '/split dm @', prefill: true },
     { id: 'people', command: 'vsplit', line: '/people', prefill: false },
     { id: 'people', command: 'split', line: '/people', prefill: false },
-    { id: 'win', command: 'vsplit', line: '/vsplit win', prefill: true },
+    { id: 'win', command: 'vsplit', line: '/vsplit win', prefill: false },
     { id: 'home', command: 'float', line: '/float home', prefill: false },
     { id: 'tag', command: 'float', line: '/float tag', prefill: true },
   ] as const)('$id from $command is $line', ({ id, command, line, prefill }) => {

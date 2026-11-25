@@ -3,8 +3,9 @@
  * list, built from the commands the backend can run and the reader's saved
  * feeds, shared by `┃▾` (`/vsplit`) and `━▾` (`/split`). Pure. A row whose
  * command is missing is left out, so no menu offers what a line would refuse.
- * A row either runs at once or only fills the command line for the user to
- * finish (the `…` rows), through the same prefill the hotkeys use.
+ * A row runs at once, only fills the command line for the user to finish (the
+ * `…` rows that need typed text), through the same prefill the hotkeys use, or
+ * opens a picker of the open windows (`Existing window…`, WFE-270).
  */
 
 import type { Registry } from '../commands/types';
@@ -19,6 +20,8 @@ export type PaneMenuEntry = MenuItem & {
   readonly literal: boolean;
   /** True fills the line into the command line instead of running it. */
   readonly prefill: boolean;
+  /** `'window'` swaps the menu for a list of the open windows; null for any other row. */
+  readonly pick: 'window' | null;
 };
 
 /** A row of the fixed part of the menu: the command it needs and the view it opens. */
@@ -29,39 +32,58 @@ type Row = {
   readonly needs: string | null;
   readonly view: string;
   readonly prefill: boolean;
+  readonly pick: 'window' | null;
 };
+
+/** A row that runs its view at once, and needs the command of its own name. */
+function run(id: string, label: string, view: string): Row {
+  return { id, label, needs: id, view, prefill: false, pick: null };
+}
+
+/** A row that fills `/vsplit <view>` for the user to finish, and needs the command of its own name. */
+function fill(id: string, label: string, view: string): Row {
+  return { id, label, needs: id, view, prefill: true, pick: null };
+}
 
 /** The rows before the saved feeds. */
 const HEAD: readonly Row[] = [
-  { id: 'same', label: 'Same window', needs: null, view: '', prefill: false },
+  { id: 'same', label: 'Same window', needs: null, view: '', prefill: false, pick: null },
 ];
 
 /** The rows after the saved feeds. */
 const TAIL: readonly Row[] = [
-  { id: 'composer', label: 'Composer', needs: 'composer', view: 'composer', prefill: false },
-  { id: 'home', label: 'Home', needs: 'home', view: 'home', prefill: false },
+  run('composer', 'Composer', 'composer'),
+  run('home', 'Home', 'home'),
+  run('notifications', 'Notifications', 'notifications'),
+  run('local', 'Local', 'local'),
+  run('federated', 'Federated', 'federated'),
+  run('dms', 'Direct messages', 'dms'),
+  run('people', 'People here', '/people'),
+  fill('tag', 'Hashtag…', 'tag'),
+  fill('search', 'Search…', 'search'),
+  fill('whois', 'Profile…', 'whois @'),
+  { ...fill('dm', 'DM…', 'dm @'), needs: 'query' },
   {
-    id: 'notifications',
-    label: 'Notifications',
-    needs: 'notifications',
-    view: 'notifications',
+    id: 'win',
+    label: 'Existing window…',
+    needs: 'win',
+    view: 'win',
     prefill: false,
+    pick: 'window',
   },
-  { id: 'local', label: 'Local', needs: 'local', view: 'local', prefill: false },
-  { id: 'federated', label: 'Federated', needs: 'federated', view: 'federated', prefill: false },
-  { id: 'dms', label: 'Direct messages', needs: 'dms', view: 'dms', prefill: false },
-  { id: 'people', label: 'People here', needs: 'people', view: '/people', prefill: false },
-  { id: 'tag', label: 'Hashtag…', needs: 'tag', view: 'tag', prefill: true },
-  { id: 'search', label: 'Search…', needs: 'search', view: 'search', prefill: true },
-  { id: 'whois', label: 'Profile…', needs: 'whois', view: 'whois @', prefill: true },
-  { id: 'dm', label: 'DM…', needs: 'query', view: 'dm @', prefill: true },
-  { id: 'win', label: 'Existing window…', needs: 'win', view: 'win', prefill: true },
 ];
 
 /** The entry for {@link row}: a view spec, or a whole line when the view starts with a slash (`/people` opens its own split). */
 function viewEntry(row: Row): PaneMenuEntry {
   const literal = row.view.startsWith('/');
-  return { id: row.id, label: row.label, text: row.view, literal, prefill: row.prefill };
+  return {
+    id: row.id,
+    label: row.label,
+    text: row.view,
+    literal,
+    prefill: row.prefill,
+    pick: row.pick,
+  };
 }
 
 /** The rows of {@link rows} whose command the registry has. */
@@ -80,6 +102,7 @@ function feedEntries(registry: Registry, feeds: Feeds): readonly PaneMenuEntry[]
     text: `feed ${feed.name}`,
     literal: false,
     prefill: false,
+    pick: null,
   }));
   const created: PaneMenuEntry = {
     id: 'feed-new',
@@ -87,6 +110,7 @@ function feedEntries(registry: Registry, feeds: Feeds): readonly PaneMenuEntry[]
     text: '/feed new',
     literal: true,
     prefill: false,
+    pick: null,
   };
   return [...saved, created];
 }
@@ -106,6 +130,7 @@ const THIS_PANE: PaneMenuEntry = {
   text: '',
   literal: false,
   prefill: false,
+  pick: null,
 };
 
 /** The rows of the pop-out menu: `This pane`, then {@link entries} less `Same window`, which `This pane` replaces. */
