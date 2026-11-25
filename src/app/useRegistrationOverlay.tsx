@@ -13,6 +13,7 @@ import type { JSX } from 'react';
 
 import { appStores } from './stores';
 import { detectInstance } from '../capabilities/detect';
+import { refreshingDetect } from '../capabilities/profileCache';
 import { buildConfig } from '../config/config';
 import { RegistrationForm } from '../features/registration/RegistrationForm';
 import {
@@ -30,13 +31,13 @@ const ASKING_MODES: ReadonlySet<string> = new Set(['list', 'open']);
 
 /** The pieces of one send that do not come from the form, for the invite {@link token}. */
 function envFor(token: string, dispatch: RegistrationEnv['dispatch']): RegistrationEnv {
-  const { accounts, apps } = appStores();
+  const { accounts, apps, profiles } = appStores();
   return {
     token,
     dispatch,
     accounts,
     apps,
-    detect: detectInstance,
+    detect: refreshingDetect(profiles, detectInstance, () => Date.now()),
     config: buildConfig,
     page: { origin: window.location.origin, pathname: window.location.pathname },
     locale: localeOf(navigator.language),

@@ -8,8 +8,11 @@
  */
 import type { NodeInfo } from '../api/schemas/nodeinfo';
 
+/** Every server software family WiredFE distinguishes, for code that has to check a stored one. */
+export const BACKENDS = ['wired', 'pleroma', 'akkoma', 'mastodon', 'unknown'] as const;
+
 /** The server software families WiredFE distinguishes. */
-export type Backend = 'wired' | 'pleroma' | 'akkoma' | 'mastodon' | 'unknown';
+export type Backend = (typeof BACKENDS)[number];
 
 /** The backend family named by {@link NodeInfo.software.name}. */
 export function identifyBackend(nodeInfo: Pick<NodeInfo, 'software'>): Backend {

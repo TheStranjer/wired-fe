@@ -9,6 +9,8 @@ import { type Mock, describe, expect, it, vi } from 'vitest';
 
 import { command } from './connect';
 import { OAUTH_SCOPES } from '../../api/oauth';
+import { type Capabilities, DEFAULT_POLL_LIMITS } from '../../capabilities/capabilities';
+import { cacheProfile, readCachedProfile } from '../../capabilities/profileCache';
 import type { WiredConfig } from '../../config/schema';
 import { fakeCommandContext } from '../../test/commandContext';
 import { server } from '../../test/server';
@@ -18,6 +20,15 @@ const ORIGIN = 'https://wired.example';
 
 /** A build that talks to whatever the user types (decision 3). */
 const OPEN_BUILD: WiredConfig = { appName: 'WiredFE', instances: { mode: 'open' } };
+
+/** The capabilities of the instance whose profile the cache tests keep. */
+const CAPABILITIES: Capabilities = {
+  backend: 'wired',
+  maxCharacters: 500,
+  maxMediaAttachments: 4,
+  pollLimits: DEFAULT_POLL_LIMITS,
+  features: new Set(),
+};
 
 /** Answers `POST <origin>/api/v1/apps` with one client. */
 function mockRegistration(origin: string): void {
@@ -84,6 +95,27 @@ describe('/connect', () => {
     expect(request.origin).toBe(ORIGIN);
     expect(request.pathname).toBe('/oauth/authorize');
     expect(request.params).toStrictEqual(authorizeParams(`${ORIGIN}/`));
+  });
+
+  it('drops the instance profile cached for the session so the next detection is fresh', async () => {
+    mockRegistration(ORIGIN);
+    const { context } = stubContext();
+    const { profiles } = context.stores;
+    cacheProfile(profiles, { origin: ORIGIN, title: 'Lounge', capabilities: CAPABILITIES }, 1);
+
+    await command.run('', context);
+
+    expect(readCachedProfile(profiles, ORIGIN)).toBeUndefined();
+  });
+
+  it('keeps the cached profile when the instance is refused', async () => {
+    const { context } = stubContext({ config: OPEN_BUILD });
+    const { profiles } = context.stores;
+    cacheProfile(profiles, { origin: ORIGIN, title: 'Lounge', capabilities: CAPABILITIES }, 1);
+
+    await command.run('', context);
+
+    expect(readCachedProfile(profiles, ORIGIN)?.title).toBe('Lounge');
   });
 
   it('asks an open build for an instance when none was typed', async () => {

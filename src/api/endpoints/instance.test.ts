@@ -36,7 +36,9 @@ const WIRED_V1_WIRE = {
     min_expiration: 60,
     max_expiration: 86_400,
   },
-  pleroma: { metadata: { features: ['reactions', 'oauth_api', 'shout'] } },
+  pleroma: {
+    metadata: { features: ['reactions', 'oauth_api', 'shout'], post_formats: ['text/plain'] },
+  },
 };
 
 /** What InstanceV1Schema makes of {@link WIRED_V1_WIRE}. */
@@ -52,6 +54,7 @@ const WIRED_V1: InstanceV1 = {
     maxExpiration: 86_400,
   },
   features: ['reactions', 'oauth_api', 'shout'],
+  postFormats: ['text/plain'],
 };
 
 /** Mastodon's v2 document: everything under configuration, plus api_versions. */

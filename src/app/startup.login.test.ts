@@ -3,8 +3,7 @@
  * bar (decision 8): before anything is restored, a callback URL is completed
  * through the stores, its outcome printed and its query stripped; a refusal
  * prints as an error and strips the query the same way; a URL that carries no
- * callback prints nothing and keeps its query. Shared helpers mirror
- * startup.test.ts beside this file.
+ * callback prints nothing and keeps its query.
  */
 import { HttpResponse, http } from 'msw';
 import { describe, expect, it, vi, type Mock } from 'vitest';
@@ -92,6 +91,7 @@ function loginStores(): AppStores {
     login,
     accounts: createAccountStore(createStore('login-test-accounts', createFakeBackend())),
     settings: createStore('login-test-settings', null),
+    profiles: createStore('login-test-profiles', null),
   };
 }
 

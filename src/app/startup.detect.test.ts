@@ -84,6 +84,7 @@ function fakeStores(accounts: readonly StoredAccount[]): AppStores {
     apps: inert,
     login: inert,
     settings: inert,
+    profiles: inert,
     accounts: {
       list: () => accounts,
       get: (key) => accounts.find((account) => account.key === key),

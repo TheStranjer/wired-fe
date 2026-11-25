@@ -2,8 +2,8 @@
  * Tests for capability derivation (decision 5): the flags advertised by a
  * Pleroma-dialect backend, Mastodon's editing-only set regardless of feature
  * strings, the empty set of an unknown backend, the v2-over-v1-over-default
- * limits, the union of the NodeInfo and v1 feature lists, and the
- * hasFeature/withoutFeature helpers.
+ * limits and the union of the NodeInfo and v1 feature lists. The
+ * hasFeature/withoutFeature helpers are tested in ./capabilities.helpers.test.ts.
  */
 import { describe, expect, it } from 'vitest';
 
@@ -12,78 +12,30 @@ import {
   type FeatureFlag,
   deriveCapabilities,
   hasFeature,
-  withoutFeature,
 } from './capabilities';
-import type { InstanceV1 } from '../api/schemas/instanceV1';
-import type { InstanceV2 } from '../api/schemas/instanceV2';
-import type { NodeInfo } from '../api/schemas/nodeinfo';
-
-/** The feature strings a full Wired instance advertises. */
-const WIRED_FEATURES: readonly string[] = [
-  'pleroma_api',
-  'mastodon_api',
-  'pleroma_emoji_reactions',
-  'pleroma_custom_emoji_reactions',
-  'pleroma_chat_messages',
-  'editing',
-  'quote_posting',
-  'pleroma:bookmark_folders',
-];
+import {
+  MARKDOWN_FORMATS,
+  WIRED_FEATURES,
+  nodeInfoNamed,
+  v1Doc,
+  v2Doc,
+} from '../test/instanceDocs';
 
 /** Every flag a full Wired instance therefore carries. */
 const ALL_FLAGS: readonly FeatureFlag[] = [
   'emojiReactions',
   'customEmojiReactions',
-  'chats',
   'quotePosting',
-  'bookmarkFolders',
   'editing',
   'localOnlyPosts',
   'markdown',
 ];
 
-/** A NodeInfo document naming {@link name} and advertising {@link features}. */
-function nodeInfoNamed(name: string, features: readonly string[] = WIRED_FEATURES): NodeInfo {
-  return {
-    version: '2.1',
-    software: { name, version: '1.0.0' },
-    openRegistrations: false,
-    features,
-    nodeName: 'test.example',
-  };
-}
-
-/** A v1 document with the given limits and advertised features. */
-function v1Doc(overrides: Partial<InstanceV1> = {}): InstanceV1 {
-  return {
-    title: 'Test',
-    version: '1.0.0',
-    maxCharacters: null,
-    maxMediaAttachments: null,
-    pollLimits: null,
-    features: [],
-    ...overrides,
-  };
-}
-
-/** A v2 document with the given limits. */
-function v2Doc(overrides: Partial<InstanceV2> = {}): InstanceV2 {
-  return {
-    title: 'Test',
-    version: '4.0.0',
-    mastodonApiVersion: 1,
-    maxCharacters: null,
-    maxMediaAttachments: null,
-    pollLimits: null,
-    ...overrides,
-  };
-}
-
 describe(deriveCapabilities, () => {
   it('gives a Wired instance with the full feature list every flag', () => {
     const caps = deriveCapabilities({
       nodeInfo: nodeInfoNamed('wired'),
-      v1: v1Doc({ maxCharacters: 5000 }),
+      v1: v1Doc({ maxCharacters: 5000, postFormats: MARKDOWN_FORMATS }),
       v2: null,
     });
 
@@ -105,7 +57,7 @@ describe(deriveCapabilities, () => {
     const features = WIRED_FEATURES.filter((feature) => feature !== 'quote_posting');
     const caps = deriveCapabilities({
       nodeInfo: nodeInfoNamed('pleroma', features),
-      v1: null,
+      v1: v1Doc({ postFormats: MARKDOWN_FORMATS }),
       v2: null,
     });
 
@@ -116,18 +68,61 @@ describe(deriveCapabilities, () => {
     );
   });
 
+  it('gives a Pleroma-family instance markdown only when post_formats lists text/markdown', () => {
+    const nodeInfo = nodeInfoNamed('pleroma');
+    const withMarkdown = deriveCapabilities({
+      nodeInfo,
+      v1: v1Doc({ postFormats: MARKDOWN_FORMATS }),
+      v2: null,
+    });
+    const without = deriveCapabilities({
+      nodeInfo,
+      v1: v1Doc({ postFormats: ['text/plain', 'text/html'] }),
+      v2: null,
+    });
+    const unlisted = deriveCapabilities({ nodeInfo, v1: null, v2: null });
+
+    expect(hasFeature(withMarkdown, 'markdown')).toBe(true);
+    expect(hasFeature(without, 'markdown')).toBe(false);
+    expect(hasFeature(unlisted, 'markdown')).toBe(false);
+    expect(hasFeature(without, 'localOnlyPosts')).toBe(true);
+  });
+
   it('reads the union of the NodeInfo and v1 feature lists', () => {
     const caps = deriveCapabilities({
       nodeInfo: nodeInfoNamed('akkoma', []),
-      v1: v1Doc({ features: ['pleroma_chat_messages'] }),
+      v1: v1Doc({ features: ['pleroma_emoji_reactions'] }),
       v2: null,
     });
 
     expect(caps.backend).toBe('akkoma');
-    expect(caps.features).toStrictEqual(new Set(['chats', 'localOnlyPosts', 'markdown']));
+    expect(caps.features).toStrictEqual(new Set(['emojiReactions', 'localOnlyPosts']));
   });
 
-  it('gives Mastodon only editing and prefers v2 limits over v1 ones', () => {
+  it('gives Mastodon quotePosting from API version 7 on', () => {
+    const nodeInfo = nodeInfoNamed('mastodon', []);
+    const current = deriveCapabilities({
+      nodeInfo,
+      v1: null,
+      v2: v2Doc({ mastodonApiVersion: 12 }),
+    });
+    const first = deriveCapabilities({ nodeInfo, v1: null, v2: v2Doc({ mastodonApiVersion: 7 }) });
+    const older = deriveCapabilities({ nodeInfo, v1: null, v2: v2Doc({ mastodonApiVersion: 6 }) });
+    const unversioned = deriveCapabilities({
+      nodeInfo,
+      v1: null,
+      v2: v2Doc({ mastodonApiVersion: null }),
+    });
+    const withoutV2 = deriveCapabilities({ nodeInfo, v1: null, v2: null });
+
+    expect(current.features).toStrictEqual(new Set(['editing', 'quotePosting']));
+    expect(hasFeature(first, 'quotePosting')).toBe(true);
+    expect(hasFeature(older, 'quotePosting')).toBe(false);
+    expect(hasFeature(unversioned, 'quotePosting')).toBe(false);
+    expect(hasFeature(withoutV2, 'quotePosting')).toBe(false);
+  });
+
+  it('gives Mastodon only editing below API version 7 and prefers v2 limits over v1 ones', () => {
     const caps = deriveCapabilities({
       nodeInfo: nodeInfoNamed('mastodon', ['pleroma_emoji_reactions', 'editing']),
       v1: v1Doc({
@@ -189,55 +184,5 @@ describe(deriveCapabilities, () => {
       minExpiration: 300,
       maxExpiration: 2629746,
     });
-  });
-});
-
-describe(hasFeature, () => {
-  it('is true for a carried flag and false for an absent one', () => {
-    const caps = deriveCapabilities({ nodeInfo: nodeInfoNamed('wired'), v1: null, v2: null });
-
-    expect(hasFeature(caps, 'markdown')).toBe(true);
-    expect(hasFeature(caps, 'chats')).toBe(true);
-
-    const mastodon = deriveCapabilities({
-      nodeInfo: nodeInfoNamed('mastodon'),
-      v1: null,
-      v2: null,
-    });
-
-    expect(hasFeature(mastodon, 'editing')).toBe(true);
-    expect(hasFeature(mastodon, 'chats')).toBe(false);
-  });
-});
-
-describe(withoutFeature, () => {
-  it('drops a carried flag without touching the original', () => {
-    const caps = deriveCapabilities({
-      nodeInfo: nodeInfoNamed('wired'),
-      v1: v1Doc({ maxCharacters: 5000 }),
-      v2: null,
-    });
-    const trimmed = withoutFeature(caps, 'chats');
-
-    expect(trimmed).not.toBe(caps);
-    expect(hasFeature(caps, 'chats')).toBe(true);
-    expect(hasFeature(trimmed, 'chats')).toBe(false);
-    expect(trimmed.maxCharacters).toBe(5000);
-    expect(trimmed.features).toStrictEqual(new Set(ALL_FLAGS.filter((flag) => flag !== 'chats')));
-  });
-
-  it('returns the same object when the flag was already absent', () => {
-    const caps = deriveCapabilities({ nodeInfo: nodeInfoNamed('wired'), v1: null, v2: null });
-    const trimmed = withoutFeature(caps, 'chats');
-
-    expect(withoutFeature(trimmed, 'chats')).toBe(trimmed);
-
-    const mastodon = deriveCapabilities({
-      nodeInfo: nodeInfoNamed('mastodon'),
-      v1: null,
-      v2: null,
-    });
-
-    expect(withoutFeature(mastodon, 'quotePosting')).toBe(mastodon);
   });
 });

@@ -51,6 +51,7 @@ function storesFor(backend: StorageBackend | null): AppStores {
     apps: inert,
     login: inert,
     settings: createStore('startup-settings', backend),
+    profiles: createStore('startup-profiles', null),
     accounts: {
       list: () => noAccounts,
       get: () => undefined,
