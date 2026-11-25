@@ -1,0 +1,103 @@
+/**
+ * The run `/vsplit` and `/split` share (decisions 12 and 13): split the
+ * focused pane, and show in the new one either the same window (no argument),
+ * an existing window (`win N`) or a view the existing open commands make
+ * (`tag rust`, `home`…). Those commands are run unchanged with their window
+ * ask held back, so handle lookups, labels, titles and refusals stay theirs;
+ * the held `open` is dispatched only once the new pane has focus, which puts
+ * the window in it.
+ */
+
+import { OK, fail } from './outcome';
+import { lookupCommand } from './registry';
+import type { CommandContext, CommandDefinition, CommandOutcome } from './types';
+import { type ViewSpec, VIEW_WORDS, parseViewSpec } from './viewSpec';
+import { type Result, err, ok } from '../lib/result';
+import { windowId } from '../windows/model';
+import type { WindowsAction } from '../windows/reducer';
+import type { SplitDir } from '../windows/splitTree';
+
+/** The `open` kind of window action: what the open commands ask the window list for. */
+type OpenAction = Extract<WindowsAction, { readonly type: 'open' }>;
+
+/** What the new pane shows: the window's id, and the `open` that creates it when it is not yet open. */
+type Shown = { readonly windowId: string; readonly open: OpenAction | null };
+
+/** The grammar line the commands print in their usage: the views a spec may name. */
+export const VIEW_USAGE = `[${VIEW_WORDS.join('|')} …]`;
+
+/** The window numbered {@link number}, or why there is none. */
+function numbered(context: CommandContext, number: number): Result<Shown, string> {
+  const win = context.windows.windows[number - 1];
+  return win === undefined
+    ? err(`No window ${String(number)}`)
+    : ok({ windowId: win.id, open: null });
+}
+
+/** What showing {@link open} means: the window it names when already open, else the new one beside the active. */
+function shownFor(context: CommandContext, open: OpenAction): Shown {
+  const id = windowId(open.ref);
+  const exists = context.windows.windows.some((win) => win.id === id);
+  return exists ? { windowId: id, open: null } : { windowId: context.windows.activeId, open };
+}
+
+/** Runs the open command of {@link spec}, keeping the window it asks for instead of dispatching it. */
+async function runOpen(
+  context: CommandContext,
+  spec: Extract<ViewSpec, { readonly type: 'open' }>,
+): Promise<Result<Shown, string>> {
+  const definition = lookupCommand(context.registry, spec.command);
+  if (definition === undefined) {
+    return err(`/${spec.command} is not available here`);
+  }
+  const asked: OpenAction[] = [];
+  const outcome = await definition.run(spec.args, {
+    ...context,
+    dispatchWindows: (action) => {
+      if (action.type === 'open') {
+        asked.push(action);
+      }
+    },
+  });
+  const [open] = asked;
+  if (!outcome.ok) {
+    return err(outcome.message);
+  }
+  return open === undefined
+    ? err(`/${spec.command} opened no window`)
+    : ok(shownFor(context, open));
+}
+
+/** What the new pane shows for {@link spec}: a refusal's message on the error side. */
+async function shownBy(context: CommandContext, spec: ViewSpec): Promise<Result<Shown, string>> {
+  return spec.type === 'window' ? numbered(context, spec.number) : await runOpen(context, spec);
+}
+
+/** Splits the focused pane along {@link dir}, focuses the new pane and puts {@link shown} in it. */
+function split(context: CommandContext, dir: SplitDir, shown: Shown): CommandOutcome {
+  context.dispatch({ type: 'layout', action: { type: 'split', dir, windowId: shown.windowId } });
+  if (shown.open !== null) {
+    context.dispatchWindows(shown.open);
+  }
+  return OK;
+}
+
+/**
+ * The run of a split command: no argument shows the focused window in the
+ * new pane (vim's behaviour), otherwise the argument is a view spec. A spec
+ * that does not parse echoes {@link usage}; one that parses but cannot open
+ * says why, and nothing is split.
+ */
+export function splitRun(dir: SplitDir, usage: string): CommandDefinition['run'] {
+  return async (args, context) => {
+    if (args.trim() === '') {
+      return split(context, dir, { windowId: context.windows.activeId, open: null });
+    }
+    const spec = parseViewSpec(args);
+    if (!spec.ok) {
+      return fail(`${spec.error}. Usage: ${usage}`);
+    }
+    const shown = await shownBy(context, spec.value);
+    return shown.ok ? split(context, dir, shown.value) : fail(shown.error);
+  };
+}

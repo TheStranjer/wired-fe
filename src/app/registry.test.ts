@@ -28,8 +28,10 @@ const EXPECTED = [
   'open',
   'query',
   'select',
+  'split',
   'tag',
   'thread',
+  'vsplit',
   'whois',
   'win',
 ];
