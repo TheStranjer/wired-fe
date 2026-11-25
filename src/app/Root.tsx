@@ -2,8 +2,8 @@
  * The shell wired to real state (AGENTS.md "Windows, like IRC buffers"): every
  * region is drawn from the app state the AppStateProvider above holds. The
  * header (./AppHeader) names the active account; every pane's title bar
- * carries its window's title, account and topic (./DesktopView); the active
- * window's kind decides its side pane of who is in the window (./SidePane, WFE-133); the window list, the active
+ * carries its window's title, account and topic (./DesktopView); who is in a
+ * window is the `people` window kind (src/features/people); the window list, the active
  * account, the clock and the hotkey mode fill the status line; the command
  * line (./CommandLine) hands every typed or chord-bound line to the
  * dispatcher (decision 6), which runs a command or posts through the window's
@@ -24,7 +24,6 @@ import { DesktopView } from './DesktopView';
 import { KINDS } from './loadedKinds';
 import { appRegistry } from './registry';
 import { Shell } from './Shell';
-import { SidePane } from './SidePane';
 import { StatusBar } from './StatusBar';
 import { appStores } from './stores';
 import { useAttachments } from './useAttachments';
@@ -44,7 +43,7 @@ import { type AppState, printAction } from '../state/appState';
 import { useAppDispatch, useAppState } from '../state/StateContext';
 import { PostActionsProvider } from '../views/PostActionsContext';
 import { useStreams } from '../views/useStreams';
-import { STATUS_WINDOW_ID, activeWindow } from '../windows/model';
+import { STATUS_WINDOW_ID } from '../windows/model';
 
 /** The one load of the command registry every mount shares. */
 const REGISTRY = appRegistry();
@@ -73,10 +72,9 @@ function useLoadFailures(): void {
   }, [dispatch]);
 }
 
-/** The five shell regions, filled from the app state above it. */
+/** The shell regions, filled from the app state above it. */
 export function Root(): JSX.Element {
   const state = useAppState();
-  const active = activeWindow(state.windows);
   const providers = useCompletionProviders();
   const attachments = useAttachments();
   const drop = useDropAndPaste(attachments);
@@ -97,7 +95,6 @@ export function Root(): JSX.Element {
         header={<AppHeader />}
         scrollback={<DesktopView />}
         scrollbackLabel={`Desktop ${String(state.layout.active + 1)}`}
-        sidePane={<SidePane win={active} />}
         statusLine={
           <StatusBar pendingMedia={attachments.pending.length} pendingKeys={pendingKeys.prefix} />
         }

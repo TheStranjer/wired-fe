@@ -18,7 +18,8 @@ export type WindowKind =
   | 'dm'
   | 'search'
   | 'composer'
-  | 'feed';
+  | 'feed'
+  | 'people';
 
 /** What a window shows. */
 export type WindowRef = {

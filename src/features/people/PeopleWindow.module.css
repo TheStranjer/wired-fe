@@ -1,0 +1,8 @@
+/* A people window's dim notices: the watched window closed, or a kind with no
+   list to show. */
+
+.notice {
+  margin: 0;
+  padding: 0 var(--space);
+  color: var(--color-dim);
+}
