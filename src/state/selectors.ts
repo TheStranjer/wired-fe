@@ -9,6 +9,7 @@
 
 import type { AppState } from './appState';
 import { type Buffer, EMPTY_BUFFER } from './buffer';
+import { resolveDisplay, type ResolvedDisplay } from './resolveDisplay';
 import type { StoredAccount } from '../accounts/accountStore';
 import type { ApiSession } from '../api/session';
 import type { Capabilities } from '../capabilities/capabilities';
@@ -48,6 +49,16 @@ export function capabilitiesFor(state: AppState, accountKey: string | null): Cap
 /** The window's scrollback; {@link EMPTY_BUFFER} when no buffer holds {@link windowId}. */
 export function bufferFor(state: AppState, windowId: string): Buffer {
   return state.buffers.get(windowId) ?? EMPTY_BUFFER;
+}
+
+/**
+ * The display values window {@link windowId} draws with: the reader's settings
+ * under the window's own overrides (decision 15). A window that no longer
+ * exists inherits every setting.
+ */
+export function displayFor(state: AppState, windowId: string): ResolvedDisplay {
+  const win = state.windows.windows.find((candidate) => candidate.id === windowId);
+  return resolveDisplay(state.settings, win?.display ?? {});
 }
 
 /** The active window's scrollback. */

@@ -22,6 +22,7 @@ import { appReducer } from '../state/reducer';
 import { bufferFor } from '../state/selectors';
 import { AppStateProvider, useAppState } from '../state/StateContext';
 import { status, TEST_DATE } from '../test/fixtures';
+import { LINE_SETTINGS } from '../test/lineSettings';
 import { windowId } from '../windows/model';
 import type { WindowRef } from '../windows/model';
 
@@ -56,7 +57,7 @@ function note(type: string, shown: ReturnType<typeof status> | null): Notificati
 
 /** The state whose notifications buffer holds one {@link shown} line. */
 function seeded(shown: Notification): AppState {
-  const signed = coreReducer(initialAppState(), {
+  const signed = coreReducer(initialAppState(LINE_SETTINGS), {
     type: 'accounts',
     accounts: [ACCOUNT],
     activeKey: ACCOUNT_KEY,

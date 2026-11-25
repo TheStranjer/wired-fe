@@ -15,6 +15,7 @@ import { appReducer } from '../state/reducer';
 import { bufferFor } from '../state/selectors';
 import { AppStateProvider } from '../state/StateContext';
 import { status } from '../test/fixtures';
+import { LINE_SETTINGS } from '../test/lineSettings';
 import { windowId } from '../windows/model';
 import type { WindowRef } from '../windows/model';
 
@@ -47,7 +48,7 @@ const ATTACHMENT = {
 
 /** The signed-in state whose home buffer shows one post with one attachment. */
 function withMedia(extras: Record<string, unknown> = {}): AppState {
-  const signed = coreReducer(initialAppState(), {
+  const signed = coreReducer(initialAppState(LINE_SETTINGS), {
     type: 'accounts',
     accounts: [ACCOUNT],
     activeKey: ACCOUNT_KEY,
