@@ -177,10 +177,13 @@ describe('the settings', () => {
     });
 
     expect(next.settings).toStrictEqual({
+      avatars: true,
       clockFormat: '12h',
       defaultVisibility: 'public',
+      density: 'cards',
       effects: false,
       expandMedia: true,
+      images: true,
       keyOverrides: [],
       theme: 'wired',
     });

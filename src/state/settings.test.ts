@@ -32,10 +32,13 @@ const OVERRIDES: readonly KeyOverride[] = [
 
 /** A session that has turned every knob. */
 const CHOSEN: Settings = {
+  avatars: false,
   clockFormat: '12h',
   defaultVisibility: 'local',
+  density: 'lines',
   effects: true,
   expandMedia: true,
+  images: false,
   keyOverrides: OVERRIDES,
   theme: 'lain',
 };
@@ -48,10 +51,13 @@ function parse(input: unknown): Settings {
 describe('the settings a session starts from', () => {
   it('starts a session quiet, plain and public', () => {
     expect(DEFAULT_SETTINGS).toStrictEqual({
+      avatars: true,
       clockFormat: '24h',
       defaultVisibility: 'public',
+      density: 'cards',
       effects: false,
       expandMedia: false,
+      images: true,
       keyOverrides: [],
       theme: 'wired',
     });
@@ -59,10 +65,13 @@ describe('the settings a session starts from', () => {
 
   it('defaults every knob the type names, and no others', () => {
     expect(Object.keys(DEFAULT_SETTINGS).sort()).toStrictEqual([
+      'avatars',
       'clockFormat',
       'defaultVisibility',
+      'density',
       'effects',
       'expandMedia',
+      'images',
       'keyOverrides',
       'theme',
     ]);
@@ -142,10 +151,13 @@ describe('the setting metadata /set reads', () => {
   it('names every listed knob of the type exactly once, in a stable order', () => {
     const keys = SETTING_KEYS.map((meta) => meta.key);
     const listed: (keyof Settings)[] = [
+      'avatars',
       'clockFormat',
       'defaultVisibility',
+      'density',
       'effects',
       'expandMedia',
+      'images',
       'theme',
     ];
 
@@ -160,11 +172,11 @@ describe('the setting metadata /set reads', () => {
     expect(keys).not.toContain('keyOverrides');
   });
 
-  it('gives the three enum knobs their values', () => {
+  it('gives the four enum knobs their values', () => {
     const enums = SETTING_KEYS.filter((meta) => meta.kind === 'enum');
     const keys = enums.map((meta) => meta.key);
 
-    expect(keys).toStrictEqual(['clockFormat', 'defaultVisibility', 'theme']);
+    expect(keys).toStrictEqual(['clockFormat', 'defaultVisibility', 'density', 'theme']);
 
     for (const meta of enums) {
       expect(meta.values?.length).toBeGreaterThan(0);
@@ -172,11 +184,11 @@ describe('the setting metadata /set reads', () => {
     }
   });
 
-  it('gives the two boolean knobs no values and a description', () => {
+  it('gives the four boolean knobs no values and a description', () => {
     const booleans = SETTING_KEYS.filter((meta) => meta.kind === 'boolean');
     const keys = booleans.map((meta) => meta.key);
 
-    expect(keys).toStrictEqual(['effects', 'expandMedia']);
+    expect(keys).toStrictEqual(['avatars', 'effects', 'expandMedia', 'images']);
 
     for (const meta of booleans) {
       expect(meta.values).toBeUndefined();

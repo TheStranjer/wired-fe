@@ -22,16 +22,25 @@ import type { ClockFormat } from '../lib/time';
 /** The three themes src/theme/tokens.css paints (`/theme`, WFE-131). */
 export type Theme = 'wired' | 'lain' | 'bnet';
 
+/** How a window renders posts: as cards, or as IRC lines (decision 15). */
+export type Density = 'cards' | 'lines';
+
 /** What the reader can change, one value per knob. */
 export type Settings = {
+  /** Whether posts show the author's avatar (decision 15). */
+  readonly avatars: boolean;
   /** How every timestamp in the scrollback is rendered (src/lib/time). */
   readonly clockFormat: ClockFormat;
   /** The audience a post gets when the command naming it says nothing else. */
   readonly defaultVisibility: Visibility;
+  /** Whether posts render as cards or as IRC lines (decision 15). */
+  readonly density: Density;
   /** Whether the CRT/glitch effects are on at all; they never flash. */
   readonly effects: boolean;
   /** Whether media behind a content warning is shown without asking. */
   readonly expandMedia: boolean;
+  /** Whether attachments render inline, or as `[IMG …]` placeholder lines. */
+  readonly images: boolean;
   /** The reader's own key bindings over the defaults (WFE-130, `/bind`). */
   readonly keyOverrides: readonly KeyOverride[];
   /** Which theme paints the shell (src/theme/tokens.css, `/theme`). */
@@ -40,10 +49,13 @@ export type Settings = {
 
 /** A session that has changed nothing: a 24-hour clock, public posts, no effects. */
 export const DEFAULT_SETTINGS: Settings = {
+  avatars: true,
   clockFormat: '24h',
   defaultVisibility: 'public',
+  density: 'cards',
   effects: false,
   expandMedia: false,
+  images: true,
   keyOverrides: [],
   theme: 'wired',
 };
@@ -63,6 +75,9 @@ export const VISIBILITIES = [
 /** The themes a reader can choose, the default first (src/theme/tokens.css). */
 export const THEMES = ['wired', 'lain', 'bnet'] as const satisfies readonly Theme[];
 
+/** The ways a window can render posts, the default first (decision 15). */
+export const DENSITIES = ['cards', 'lines'] as const satisfies readonly Density[];
+
 /** One stored key override, as the reader's own bindings come back from storage. */
 const KeyOverrideSchema = v.object({
   mode: v.picklist(['insert', 'navigation']),
@@ -72,10 +87,13 @@ const KeyOverrideSchema = v.object({
 
 /** Stored settings: every field optional on input, every default filled on read. */
 export const SettingsSchema: v.GenericSchema<unknown, Settings> = v.object({
+  avatars: v.optional(v.boolean(), DEFAULT_SETTINGS.avatars),
   clockFormat: v.optional(v.picklist(CLOCK_FORMATS), DEFAULT_SETTINGS.clockFormat),
   defaultVisibility: v.optional(v.picklist(VISIBILITIES), DEFAULT_SETTINGS.defaultVisibility),
+  density: v.optional(v.picklist(DENSITIES), DEFAULT_SETTINGS.density),
   effects: v.optional(v.boolean(), DEFAULT_SETTINGS.effects),
   expandMedia: v.optional(v.boolean(), DEFAULT_SETTINGS.expandMedia),
+  images: v.optional(v.boolean(), DEFAULT_SETTINGS.images),
   keyOverrides: v.optional(v.array(KeyOverrideSchema), DEFAULT_SETTINGS.keyOverrides),
   theme: v.optional(v.picklist(THEMES), DEFAULT_SETTINGS.theme),
 });
@@ -98,6 +116,11 @@ export type SettingKey = {
 /** Every setting, in the order `/set` prints them. */
 export const SETTING_KEYS: readonly SettingKey[] = [
   {
+    key: 'avatars',
+    kind: 'boolean',
+    description: 'Show author avatars on posts',
+  },
+  {
     key: 'clockFormat',
     kind: 'enum',
     values: CLOCK_FORMATS,
@@ -110,6 +133,12 @@ export const SETTING_KEYS: readonly SettingKey[] = [
     description: 'The audience new posts aim at by default',
   },
   {
+    key: 'density',
+    kind: 'enum',
+    values: DENSITIES,
+    description: 'How posts render: as cards or as IRC lines',
+  },
+  {
     key: 'effects',
     kind: 'boolean',
     description: 'The CRT/glitch effects (they never flash)',
@@ -118,6 +147,11 @@ export const SETTING_KEYS: readonly SettingKey[] = [
     key: 'expandMedia',
     kind: 'boolean',
     description: 'Media behind a content warning starts open',
+  },
+  {
+    key: 'images',
+    kind: 'boolean',
+    description: 'Show attachments inline instead of [IMG …] lines',
   },
   {
     key: 'theme',

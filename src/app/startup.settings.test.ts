@@ -20,10 +20,13 @@ const NOW = new Date('2026-11-15T09:00:00.000Z');
 
 /** A session that had turned every knob before it left. */
 const CHOSEN: Settings = {
+  avatars: false,
   clockFormat: '12h',
   defaultVisibility: 'unlisted',
+  density: 'lines',
   effects: true,
   expandMedia: false,
+  images: false,
   keyOverrides: [{ mode: 'navigation', chord: 'Ctrl+e', line: '/fav' }],
   theme: 'bnet',
 };

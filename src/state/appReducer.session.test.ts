@@ -111,10 +111,13 @@ describe(mergedSettings, () => {
     const patch: Partial<Settings> = { clockFormat: '12h', effects: true };
 
     expect(mergedSettings(DEFAULT_SETTINGS, patch)).toStrictEqual({
+      avatars: true,
       clockFormat: '12h',
       defaultVisibility: 'public',
+      density: 'cards',
       effects: true,
       expandMedia: false,
+      images: true,
       keyOverrides: [],
       theme: 'wired',
     });
@@ -129,6 +132,20 @@ describe(mergedSettings, () => {
       DEFAULT_SETTINGS,
     );
   });
+
+  it.each<Partial<Settings>>([{ avatars: true }, { density: 'cards' }, { images: true }])(
+    'hands back the very same record when %o asks for what is already set',
+    (patch) => {
+      expect(mergedSettings(DEFAULT_SETTINGS, patch)).toBe(DEFAULT_SETTINGS);
+    },
+  );
+
+  it.each<Partial<Settings>>([{ avatars: false }, { density: 'lines' }, { images: false }])(
+    'hands back a new record when %o turns a knob',
+    (patch) => {
+      expect(mergedSettings(DEFAULT_SETTINGS, patch)).not.toBe(DEFAULT_SETTINGS);
+    },
+  );
 
   it('takes a fresh list of key overrides', () => {
     const keyOverrides: readonly KeyOverride[] = [

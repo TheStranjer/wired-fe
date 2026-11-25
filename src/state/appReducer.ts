@@ -130,10 +130,13 @@ export function putProfile(
 export function mergedSettings(current: Settings, patch: Partial<Settings>): Settings {
   const merged: Settings = { ...current, ...patch };
   if (
+    merged.avatars === current.avatars &&
     merged.clockFormat === current.clockFormat &&
     merged.defaultVisibility === current.defaultVisibility &&
+    merged.density === current.density &&
     merged.effects === current.effects &&
     merged.expandMedia === current.expandMedia &&
+    merged.images === current.images &&
     merged.keyOverrides === current.keyOverrides &&
     merged.theme === current.theme
   ) {
