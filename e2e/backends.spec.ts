@@ -52,6 +52,7 @@ const CASES: readonly BackendCase[] = [
       'posts: up to 5000 characters, 4 attachments',
       'polls: 4 options of 50 characters, 5m–30d',
       'features: emojiReactions, quotePosting, localOnlyPosts, passwordResetApi, settingsStore, markdown',
+      'device: desktop',
     ],
   },
   {
@@ -67,6 +68,7 @@ const CASES: readonly BackendCase[] = [
       'posts: up to 500 characters, 4 attachments',
       'polls: 4 options of 50 characters, 5m–30d',
       'features: editing',
+      'device: desktop',
     ],
   },
   {
@@ -82,6 +84,7 @@ const CASES: readonly BackendCase[] = [
       'posts: up to 3000 characters, 4 attachments',
       'polls: 6 options of 40 characters, 1h–30d',
       'features: emojiReactions, customEmojiReactions, quotePosting, editing, localOnlyPosts, passwordResetApi, settingsStore, markdown',
+      'device: desktop',
     ],
   },
 ];
@@ -115,7 +118,7 @@ async function reactToFirst(page: Page, one: BackendCase, reactions: string[]): 
   expect(reactions).toStrictEqual(['PUT']);
 }
 
-/** `/about` in window 1: the five report lines the fixture's documents imply. */
+/** `/about` in window 1: the six report lines the fixture's documents imply. */
 async function reportAbout(page: Page, one: BackendCase): Promise<void> {
   await showWindow(page, 'status');
   await submit(page, '/about');

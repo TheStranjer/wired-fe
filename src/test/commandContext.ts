@@ -101,6 +101,7 @@ export function fakeCommandContext(overrides: Partial<CommandContext> = {}): Com
     keys: INERT_KEYS,
     navigate: vi.fn(),
     page: EXAMPLE_PAGE,
+    deviceClass: 'desktop',
     config: EXAMPLE_CONFIG,
     stores: inMemoryStores(),
     ...overrides,

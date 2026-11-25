@@ -13,6 +13,7 @@ import type { AccountStore } from '../accounts/accountStore';
 import type { MediaAttachment } from '../api/schemas/mediaAttachment';
 import type { Capabilities, FeatureFlag } from '../capabilities/capabilities';
 import type { WiredConfig } from '../config/schema';
+import type { DeviceClass } from '../lib/deviceClass';
 import type { AppState } from '../state/appState';
 import type { Draft } from '../state/draft';
 import type { AppAction } from '../state/reducer';
@@ -88,6 +89,8 @@ export type CommandContext = {
   readonly navigate: (url: string) => void;
   /** Where the page is right now, for building and comparing URLs. */
   readonly page: { readonly origin: string; readonly pathname: string };
+  /** The class of the device running the app (decision 17). */
+  readonly deviceClass: DeviceClass;
   /** The build-time configuration of this bundle (decision 3). */
   readonly config: WiredConfig;
   /** The persisted stores a command may read and write (decision 10). */
