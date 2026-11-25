@@ -3,6 +3,7 @@
  * the floats or the tree of the active desktop. Each returns the state it was
  * handed when nothing changed.
  */
+import { onlyDesktopPane } from './desktopOnly';
 import type { Desktop } from './desktopPanes';
 import { updateActive } from './desktops';
 import type { DesktopsState } from './desktops';
@@ -13,7 +14,7 @@ import { neighbour } from './splitGeometry';
 import type { Direction } from './splitGeometry';
 import { equalize, resizePane, setSplitRatio } from './splitRatio';
 import type { SplitTree } from './splitTree';
-import { findPane, onlyPane } from './splitTree';
+import { findPane } from './splitTree';
 import { swapPanes } from './splitTreeOps';
 
 /** A float's pane, window and rectangle as one comparable string. */
@@ -71,7 +72,7 @@ function swapFocused(tree: SplitTree, desktop: Desktop, direction: Direction): S
   return other === null ? tree : swapPanes(tree, focusedPaneId, other);
 }
 
-/** Sets ratios, resizes, equalizes, swaps or reduces the split tree of the active desktop. */
+/** Sets ratios, resizes, equalizes, swaps or reduces the active desktop to its focused pane. */
 export function treeReducer(state: DesktopsState, action: TreeAction): DesktopsState {
   switch (action.type) {
     case 'setRatio':
@@ -85,8 +86,6 @@ export function treeReducer(state: DesktopsState, action: TreeAction): DesktopsS
     case 'swap':
       return changeTree(state, (tree, desktop) => swapFocused(tree, desktop, action.direction));
     case 'only':
-      return changeTree(state, (tree, { focusedPaneId }) =>
-        focusedPaneId === null ? tree : onlyPane(tree, focusedPaneId),
-      );
+      return updateActive(state, onlyDesktopPane);
   }
 }
