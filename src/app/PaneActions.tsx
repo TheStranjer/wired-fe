@@ -3,7 +3,9 @@
  * each one focuses its own pane, then runs a command line through the runner
  * the command line lends the views, exactly as a hotkey or a typed command
  * would. `┃▾` and `━▾` split that pane side by side or stacked with a view
- * chosen from a menu (`/vsplit <view>`, `/split <view>`); `◐▾` sets how its
+ * chosen from a menu (`/vsplit <view>`, `/split <view>`; the rows that need an
+ * argument ask for it in a small dialog, then run the finished line, WFE-269,
+ * and no row fills the command line); `◐▾` sets how its
  * posts are drawn; `✕` closes it. A tree pane also has `⧉▾`, which pops it
  * (`This pane`) or a view out into a float (`/float [view]`); a float has `⊞`
  * (`/dock`) instead, and no split buttons (WFE-230). In all three menus
