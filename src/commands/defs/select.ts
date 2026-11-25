@@ -12,8 +12,9 @@ import type { Buffer, LineData } from '../../state/buffer';
 import { statusForLabel, statusOfLine } from '../../state/bufferSelection';
 import { activeBuffer } from '../../state/selectors';
 import { activeWindow } from '../../windows/model';
+import type { CommandBinding } from '../bindingTypes';
 import { OK, fail, syncRun } from '../outcome';
-import type { CommandBinding, CommandContext, CommandDefinition, CommandOutcome } from '../types';
+import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** Every form of the command: /help shows it, a bad argument echoes it. */
 const USAGE = '/select next | prev | first | last | none | <label>';

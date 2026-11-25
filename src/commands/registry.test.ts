@@ -4,15 +4,9 @@
  */
 import { describe, expect, it } from 'vitest';
 
+import type { BindingMode, CommandBinding } from './bindingTypes';
 import { buildRegistry, lookupCommand } from './registry';
-import type {
-  BindingMode,
-  CommandBinding,
-  CommandContext,
-  CommandDefinition,
-  CommandOutcome,
-  Registry,
-} from './types';
+import type { CommandContext, CommandDefinition, CommandOutcome, Registry } from './types';
 import { err } from '../lib/result';
 
 /** A fixture definition whose handler prints a line and reports {@link outcome}. */

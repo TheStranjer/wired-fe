@@ -22,8 +22,9 @@ import { useEffect, useMemo } from 'react';
 import type { RefObject } from 'react';
 
 import { fillCommandLine, useCaretToEnd } from './hotkeyPrefill';
+import type { Keymap } from '../commands/bindingTypes';
 import { type TextHandler, dispatchInput } from '../commands/dispatch';
-import type { CommandContext, Keymap } from '../commands/types';
+import type { CommandContext } from '../commands/types';
 import { type KeyDecision, continueKey, decideKey } from '../keys/decide';
 import { buildKeymap } from '../keys/keymap';
 import type { InputMode } from '../keys/mode';

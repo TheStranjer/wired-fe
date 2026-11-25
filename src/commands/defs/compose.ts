@@ -7,8 +7,9 @@
  * it (insert `Ctrl+e`, navigation `c`).
  */
 
+import type { CommandBinding } from '../bindingTypes';
 import { OK, syncRun } from '../outcome';
-import type { CommandBinding, CommandContext, CommandDefinition, CommandOutcome } from '../types';
+import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** `Ctrl+e` while typing, `c` while navigating: both ask for the composer. */
 const BINDINGS: readonly CommandBinding[] = [

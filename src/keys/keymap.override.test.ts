@@ -8,8 +8,9 @@
 import { describe, expect, it } from 'vitest';
 
 import { buildKeymap } from './keymap';
+import type { CommandBinding } from '../commands/bindingTypes';
 import { buildRegistry } from '../commands/registry';
-import type { CommandBinding, CommandDefinition, Registry } from '../commands/types';
+import type { CommandDefinition, Registry } from '../commands/types';
 import type { KeyOverride } from '../lib/keyOverride';
 
 /** A fixture command named {@link name} declaring {@link bindings}. */

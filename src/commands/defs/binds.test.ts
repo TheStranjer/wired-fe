@@ -9,7 +9,8 @@ import { describe, expect, it, vi, type Mock } from 'vitest';
 
 import { command } from './binds';
 import { fakeCommandContext } from '../../test/commandContext';
-import type { CommandContext, CommandOutcome, Keymap } from '../types';
+import type { Keymap } from '../bindingTypes';
+import type { CommandContext, CommandOutcome } from '../types';
 
 /** A run that printed what was asked; nothing else to report. */
 const OK: CommandOutcome = { ok: true };

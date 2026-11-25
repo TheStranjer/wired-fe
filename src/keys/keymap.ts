@@ -17,13 +17,8 @@
 
 import { blocksTyping, parseSequence } from './chord';
 import { conflictingSequence } from './sequence';
-import type {
-  CommandBinding,
-  CommandDefinition,
-  Keymap,
-  KeymapEntry,
-  Registry,
-} from '../commands/types';
+import type { CommandBinding, Keymap, KeymapEntry } from '../commands/bindingTypes';
+import type { CommandDefinition, Registry } from '../commands/types';
 import type { KeyOverride } from '../lib/keyOverride';
 
 /** The keymap under construction: the finished shape with mutable collections. */

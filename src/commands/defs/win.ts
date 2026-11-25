@@ -9,8 +9,9 @@
 
 import { wordsOf } from '../../lib/words';
 import { STATUS_WINDOW_ID, activeWindow, type WindowState } from '../../windows/model';
+import type { CommandBinding } from '../bindingTypes';
 import { OK, fail, syncRun } from '../outcome';
-import type { CommandBinding, CommandContext, CommandDefinition, CommandOutcome } from '../types';
+import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** Every form of the command: /help shows it, a bad argument echoes it. */
 const USAGE = '/win <number> | /win next | /win prev | /win move <number> | /win list';

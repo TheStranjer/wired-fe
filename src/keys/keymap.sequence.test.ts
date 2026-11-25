@@ -7,8 +7,9 @@
 import { describe, expect, it } from 'vitest';
 
 import { buildKeymap } from './keymap';
+import type { CommandBinding, Keymap } from '../commands/bindingTypes';
 import { buildRegistry } from '../commands/registry';
-import type { CommandBinding, CommandDefinition, Keymap } from '../commands/types';
+import type { CommandDefinition } from '../commands/types';
 
 /** A fixture command named {@link name} declaring {@link bindings}. */
 function withBindings(name: string, bindings: readonly CommandBinding[]): CommandDefinition {

@@ -11,8 +11,9 @@
 
 import { bufferFor } from '../../state/selectors';
 import { activeWindow } from '../../windows/model';
+import type { CommandBinding } from '../bindingTypes';
 import { OK, contextRun } from '../outcome';
-import type { CommandBinding, CommandContext, CommandDefinition, CommandOutcome } from '../types';
+import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** What a window at the end of its history answers with. */
 const NO_OLDER = 'No older posts';

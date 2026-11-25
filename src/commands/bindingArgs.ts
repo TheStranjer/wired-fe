@@ -6,7 +6,8 @@
  * src/lib/words; the override shape is src/lib/keyOverride.
  */
 
-import type { BindingMode, CommandContext } from './types';
+import type { BindingMode } from './bindingTypes';
+import type { CommandContext } from './types';
 import type { KeyOverride } from '../lib/keyOverride';
 
 /** The mode the word names, or null when it names neither of the two hotkey modes. */

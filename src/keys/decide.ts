@@ -13,7 +13,7 @@
 
 import { type InputMode, nextMode } from './mode';
 import { hasContinuation } from './sequence';
-import type { Keymap, KeymapEntry } from '../commands/types';
+import type { Keymap, KeymapEntry } from '../commands/bindingTypes';
 
 /** What pressing a chord in a mode achieves. */
 export type KeyDecision =

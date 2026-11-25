@@ -10,8 +10,9 @@
 
 import { wordsOf } from '../../lib/words';
 import { modeOf } from '../bindingArgs';
+import type { BindingMode } from '../bindingTypes';
 import { OK, fail, syncRun } from '../outcome';
-import type { BindingMode, CommandContext, CommandDefinition, CommandOutcome } from '../types';
+import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** The command's one form. */
 const USAGE = '/binds [insert|navigation]';
