@@ -5,6 +5,7 @@
  * transitions on a single desktop live in desktopPanes.ts. Pure: every
  * function returns the input unchanged when nothing applies.
  */
+import { appendRefusal } from './desktopAppend';
 import { dockDesktopPaneAt } from './desktopDock';
 import {
   EMPTY_DESKTOP,
@@ -70,21 +71,30 @@ function padDesktops(desktops: readonly Desktop[], count: number): readonly Desk
   return [...desktops, ...missing];
 }
 
-/** Shows desktop `n` (1-based), creating empty desktops up to it when missing. */
+/**
+ * Shows desktop `n` (1-based). The one just past the end is made empty when
+ * the last desktop is not empty (see `appendRefusal`); any other number past
+ * the end, or an append the rule refuses, leaves the state unchanged.
+ */
 export function goToDesktop(state: DesktopsState, n: number): DesktopsState {
-  if (!isDesktopNumber(n) || n === state.active + 1) {
+  if (!isDesktopNumber(n) || n === state.active + 1 || appendRefusal(state, n) !== null) {
     return state;
   }
-  return { ...state, desktops: padDesktops(state.desktops, n), active: n - 1 };
+  const desktops = n > state.desktops.length ? [...state.desktops, EMPTY_DESKTOP] : state.desktops;
+  return { ...state, desktops, active: n - 1 };
 }
 
-/** Steps one desktop left or right: left of the first wraps to the last, right of the last creates one. */
+/**
+ * Steps one desktop left or right: left of the first wraps to the last; right
+ * of the last appends one only when the last desktop is not empty, else the
+ * state is unchanged.
+ */
 export function stepDesktop(state: DesktopsState, step: 1 | -1): DesktopsState {
   const target = state.active + step;
   return goToDesktop(state, target < 0 ? state.desktops.length : target + 1);
 }
 
-/** Appends an empty desktop and shows it. */
+/** Appends an empty desktop and shows it; unchanged when the last desktop is empty. */
 export function newDesktop(state: DesktopsState): DesktopsState {
   return goToDesktop(state, state.desktops.length + 1);
 }

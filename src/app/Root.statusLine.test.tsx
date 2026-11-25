@@ -108,7 +108,11 @@ describe('status line in Root', () => {
   });
 
   it('closes a desktop that is middle-clicked and stays on the one that was shown', () => {
-    renderRoot([{ type: 'layout', action: { type: 'goToDesktop', n: 3 } }]);
+    renderRoot([
+      { type: 'layout', action: { type: 'goToDesktop', n: 2 } },
+      { type: 'layout', action: { type: 'split', dir: 'row', windowId: STATUS_WINDOW_ID } },
+      { type: 'layout', action: { type: 'goToDesktop', n: 3 } },
+    ]);
 
     fireEvent(
       screen.getByRole('button', { name: 'Desktop 2' }),

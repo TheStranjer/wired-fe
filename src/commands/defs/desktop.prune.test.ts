@@ -29,7 +29,7 @@ describe('/desktop close and prune', () => {
 
   it('prints where the windows of a closed desktop went', async () => {
     const session = desktopSession();
-    await session.run(command, '3');
+    await session.run(command, '2');
 
     await session.run(command, 'close 1');
 
@@ -38,14 +38,14 @@ describe('/desktop close and prune', () => {
 
   it('prunes the empty desktops but the active one and says how many', async () => {
     const session = desktopSession();
-    await session.run(command, '4');
+    session.apply({ type: 'layout', action: { type: 'movePaneToDesktop', paneId: 'p1', n: 4 } });
     await session.run(command, '2');
 
     const outcome = await session.run(command, 'prune');
 
     expect(outcome).toStrictEqual({ ok: true });
     expect(session.printed).toStrictEqual(['closed 2 empty desktops']);
-    expect(where(session)).toStrictEqual({ shown: 2, count: 2 });
+    expect(where(session)).toStrictEqual({ shown: 1, count: 2 });
   });
 
   it('says desktop in the singular when it prunes one', async () => {

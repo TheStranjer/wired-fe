@@ -4,7 +4,7 @@
  */
 import { EMPTY_DESKTOP, splitDesktop } from './desktopPanes';
 import type { Desktop } from './desktopPanes';
-import { goToDesktop, initialDesktops, splitFocused } from './desktops';
+import { initialDesktops, splitFocused } from './desktops';
 import type { DesktopsState } from './desktops';
 import { addFloat } from './floats';
 import type { FloatRect } from './floats';
@@ -42,7 +42,8 @@ export function twoPanes(): DesktopsState {
   return splitFocused(initialDesktops('w1'), 'row', 'w2');
 }
 
-/** Three desktops, the second active. */
+/** Three desktops, the first with two panes and the other two empty, the second active. */
 export function three(): DesktopsState {
-  return goToDesktop(goToDesktop(twoPanes(), 3), 2);
+  const [first = EMPTY_DESKTOP] = twoPanes().desktops;
+  return { ...twoPanes(), desktops: [first, EMPTY_DESKTOP, EMPTY_DESKTOP], active: 1 };
 }
