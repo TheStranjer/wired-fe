@@ -14,22 +14,10 @@ import { useEffect, useRef, useState } from 'react';
 import type { JSX } from 'react';
 
 import type { Attachments } from './useAttachments';
+import { carriedFiles, carriesFiles, isMedia } from '../lib/dropFiles';
 import { printAction } from '../state/appState';
 import { type Dispatch, useAppDispatch } from '../state/StateContext';
 import { DropHighlight } from '../ui/DropHighlight';
-
-/** The mime types the seam takes an upload for: an image, a video or audio. */
-const MEDIA_TYPE = /^(image|video|audio)\//;
-
-/** The files a clipboard or drop carried; none when it carried nothing. */
-function carriedFiles(data: DataTransfer | null | undefined): readonly File[] {
-  return [...(data?.files ?? [])];
-}
-
-/** Whether {@link event}'s drag carries files — the drags this hook reacts to. */
-function carriesFiles(event: DragEvent): boolean {
-  return event.dataTransfer?.types.includes('Files') ?? false;
-}
 
 /**
  * Run {@link files} onto the seam: each media file goes to {@link
@@ -38,7 +26,7 @@ function carriesFiles(event: DragEvent): boolean {
  */
 function accept(files: readonly File[], seam: Attachments, dispatch: Dispatch): void {
   for (const file of files) {
-    if (MEDIA_TYPE.test(file.type)) {
+    if (isMedia(file)) {
       seam.add(file);
     } else {
       dispatch(
@@ -72,7 +60,7 @@ export function useDropAndPaste(attachments: Attachments): JSX.Element | null {
       }
     }
     function onDragOver(event: DragEvent): void {
-      if (carriesFiles(event)) {
+      if (carriesFiles(event.dataTransfer)) {
         event.preventDefault();
         setDragging(true);
       }
@@ -81,7 +69,7 @@ export function useDropAndPaste(attachments: Attachments): JSX.Element | null {
       setDragging(false);
     }
     function onDrop(event: DragEvent): void {
-      if (carriesFiles(event)) {
+      if (carriesFiles(event.dataTransfer)) {
         event.preventDefault();
         accept(carriedFiles(event.dataTransfer), seamRef.current, dispatch);
         setDragging(false);

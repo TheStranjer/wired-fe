@@ -174,3 +174,8 @@ export function mergedSettings(current: Settings, patch: Partial<Settings>): Set
   const merged: Settings = { ...current, ...patch };
   return sameLook(merged, current) && sameBehaviour(merged, current) ? current : merged;
 }
+
+/** {@link state} with {@link value} under {@link key}; the very same state when it is already that value. */
+export function replacing<S, K extends keyof S>(state: S, key: K, value: S[K]): S {
+  return value === state[key] ? state : { ...state, [key]: value };
+}

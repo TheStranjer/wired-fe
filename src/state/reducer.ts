@@ -4,9 +4,11 @@
  * hotkey and a click all ask for a transition here, so the shell holds one state
  * and one function that moves it: the window list, the accounts and the settings
  * turn over in ./appState, the scrollbacks in ./bufferActions, the pane
- * composers' drafts in ./composerActions. Which reducer owns which action is
- * spelled out type by type: the tables below have to name every member of
- * {@link BufferAction} and {@link ComposerAction} for this file to compile, and
+ * composers' drafts in ./composerActions and their attachments in
+ * ./composerMedia. Which reducer owns which action is spelled out type by type:
+ * the tables below have to name every member of {@link BufferAction},
+ * {@link ComposerAction} and {@link ComposerMediaAction} for this file to
+ * compile, and
  * anything they do not name goes to `coreReducer`, whose own switch is
  * exhaustive — so a new action cannot quietly find no home.
  */
@@ -14,9 +16,10 @@
 import { type AppState, type CoreAction, coreReducer } from './appState';
 import { bufferReducer, type BufferAction } from './bufferActions';
 import { type ComposerAction, composerReducer, withLiveComposers } from './composerActions';
+import { type ComposerMediaAction, composerMediaReducer } from './composerMedia';
 
 /** One thing that can happen to the application as a whole. */
-export type AppAction = CoreAction | BufferAction | ComposerAction;
+export type AppAction = CoreAction | BufferAction | ComposerAction | ComposerMediaAction;
 
 /** The action types the buffer reducer owns, every one of them by name. */
 const BUFFER_ACTION_TYPES: Record<BufferAction['type'], true> = {
@@ -46,6 +49,9 @@ export function appReducer(state: AppState, action: AppAction): AppState {
   if (isComposerAction(action)) {
     return composerReducer(state, action);
   }
+  if (isComposerMediaAction(action)) {
+    return composerMediaReducer(state, action);
+  }
   return withLiveComposers(coreReducer(state, action));
 }
 
@@ -57,4 +63,17 @@ function isBufferAction(action: AppAction): action is BufferAction {
 /** Whether this action belongs to the pane composers' drafts. */
 function isComposerAction(action: AppAction): action is ComposerAction {
   return Object.hasOwn(COMPOSER_ACTION_TYPES, action.type);
+}
+
+/** The action types the composer media reducer owns, every one of them by name. */
+const COMPOSER_MEDIA_ACTION_TYPES: Record<ComposerMediaAction['type'], true> = {
+  composerMediaAdd: true,
+  composerMediaPatch: true,
+  composerMediaRemove: true,
+  composerMediaClear: true,
+};
+
+/** Whether this action belongs to the pane composers' attachments. */
+function isComposerMediaAction(action: AppAction): action is ComposerMediaAction {
+  return Object.hasOwn(COMPOSER_MEDIA_ACTION_TYPES, action.type);
 }

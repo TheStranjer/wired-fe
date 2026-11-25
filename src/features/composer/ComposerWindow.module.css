@@ -1,4 +1,5 @@
-/* The composer window: the form on top, its client messages filling the rest. */
+/* The composer window: the form on top, its client messages filling the rest.
+   While a file is dragged over it the frame is drawn, so the target is clear. */
 
 .window {
   display: grid;
@@ -6,4 +7,9 @@
   height: 100%;
   padding: var(--space);
   gap: var(--space);
+}
+
+.dropping {
+  outline: var(--border-width-focus) dashed var(--color-accent);
+  outline-offset: calc(-1 * var(--border-width-focus));
 }
