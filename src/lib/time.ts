@@ -26,3 +26,8 @@ export function formatClock(date: Date, format: ClockFormat): string {
   const suffix = hour24 < 12 ? 'am' : 'pm';
   return `${String(hour12 === 0 ? 12 : hour12)}:${minutes}${suffix}`;
 }
+
+/** The current moment, as the `now` seam of a post context takes it. */
+export function currentMoment(): Date {
+  return new Date();
+}

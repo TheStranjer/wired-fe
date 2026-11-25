@@ -6,11 +6,15 @@
  * fields — the overlay in local state (./Composer), the composer window in the
  * app state — and decides what a send does, so both show exactly the same
  * thing. Ctrl+Enter or the button asks to send, but only while the draft is
- * sendable: text, within the limit, nothing in flight.
+ * sendable: text, within the limit, nothing in flight. The compact form
+ * (WFE-207) is the chat-style one a DM window docks under its messages: one
+ * line that grows with the text, no warning or audience (the window fixes
+ * them), where Enter sends and Shift+Enter breaks the line.
  */
-import type { ChangeEvent, JSX, KeyboardEvent, ReactNode } from 'react';
+import { type ChangeEvent, type JSX, type KeyboardEvent, type ReactNode, useRef } from 'react';
 
 import styles from './Composer.module.css';
+import { useAutoGrow } from './useAutoGrow';
 import type { Visibility } from '../api/schemas/status';
 import type { ComposerFields } from '../state/draft';
 
@@ -31,6 +35,10 @@ export type ComposerFormProps = {
   readonly onSend: () => void;
   /** Controls to show above the text, such as the "Post as" picker. */
   readonly header?: ReactNode;
+  /** The chat-style form: one growing line and `[ send ]`, Enter sends. */
+  readonly compact?: boolean;
+  /** The text gained focus; a window that owns the keyboard mode uses it to leave navigation. */
+  readonly onFocus?: () => void;
 };
 
 /** The audiences the select offers, in order; `local` last, when served. */
@@ -65,35 +73,45 @@ function VisibilitySelect(props: ComposerFormProps): JSX.Element {
   );
 }
 
-/** The post text: a textarea where Ctrl+Enter sends. */
+/** Whether {@link event} asks to send: Ctrl+Enter, or a bare Enter in the compact form. */
+function asksToSend(event: KeyboardEvent<HTMLTextAreaElement>, compact: boolean): boolean {
+  if (event.key !== 'Enter' || event.nativeEvent.isComposing) {
+    return false;
+  }
+  return event.ctrlKey || (compact && !event.shiftKey);
+}
+
+/** The post text: a textarea where Ctrl+Enter sends, and Enter too when compact. */
 function PostText(props: ComposerFormProps & { readonly send: () => void }): JSX.Element {
+  const compact = props.compact === true;
+  const ref = useRef<HTMLTextAreaElement>(null);
+  useAutoGrow(ref, props.fields.text, compact);
   return (
     <textarea
       aria-label="Post text"
-      className={styles['text']}
+      className={compact ? styles['textCompact'] : styles['text']}
       onChange={(event: ChangeEvent<HTMLTextAreaElement>) => {
         props.onChange({ text: event.target.value });
       }}
+      onFocus={props.onFocus}
       onKeyDown={(event: KeyboardEvent<HTMLTextAreaElement>) => {
-        if (event.ctrlKey && event.key === 'Enter') {
+        if (asksToSend(event, compact)) {
           event.preventDefault();
           props.send();
         }
       }}
+      ref={ref}
+      rows={compact ? 1 : undefined}
       spellCheck={false}
       value={props.fields.text}
     />
   );
 }
 
-/** The row under the text: warning, audience, counter and send. */
-function OptionsRow(
-  props: ComposerFormProps & { readonly sendable: boolean; readonly send: () => void },
-): JSX.Element {
-  const { text, spoiler } = props.fields;
-  const over = text.length > props.maxCharacters;
+/** The content-warning line and the audience: what the compact form leaves out. */
+function Audience(props: ComposerFormProps): JSX.Element {
   return (
-    <div className={styles['options']}>
+    <>
       <input
         aria-label="Content warning"
         className={styles['warning']}
@@ -101,9 +119,22 @@ function OptionsRow(
           props.onChange({ spoiler: event.target.value });
         }}
         type="text"
-        value={spoiler}
+        value={props.fields.spoiler}
       />
       <VisibilitySelect {...props} />
+    </>
+  );
+}
+
+/** The row under the text: warning, audience, counter and send. */
+function OptionsRow(
+  props: ComposerFormProps & { readonly sendable: boolean; readonly send: () => void },
+): JSX.Element {
+  const { text } = props.fields;
+  const over = text.length > props.maxCharacters;
+  return (
+    <div className={styles['options']}>
+      {props.compact === true ? null : <Audience {...props} />}
       <span className={over ? styles['countOver'] : styles['count']}>
         {`${String(text.length)}/${String(props.maxCharacters)}`}
       </span>
@@ -129,7 +160,7 @@ export function ComposerForm(props: ComposerFormProps): JSX.Element {
     }
   };
   return (
-    <div className={styles['composer']}>
+    <div className={props.compact === true ? styles['compact'] : styles['composer']}>
       {props.header}
       <PostText {...props} send={send} />
       <OptionsRow {...props} sendable={sendable} send={send} />

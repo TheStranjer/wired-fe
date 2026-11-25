@@ -64,10 +64,18 @@ function useKeymap(context: CommandContext): Keymap {
   return keymap;
 }
 
-/** Carry the caret with the mode: navigation leaves the command line, insert returns to it. */
+/**
+ * Carry the caret with the mode: navigation leaves the command line and any
+ * text box a window docks (the DM input, WFE-207), insert returns to the
+ * command line.
+ */
 function moveCaret(mode: InputMode, inputRef: RefObject<HTMLInputElement | null>): void {
   if (mode === 'navigation') {
     inputRef.current?.blur();
+    const focused = document.activeElement;
+    if (focused instanceof HTMLTextAreaElement) {
+      focused.blur();
+    }
   } else {
     inputRef.current?.focus();
   }
