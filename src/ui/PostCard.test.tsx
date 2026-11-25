@@ -5,66 +5,11 @@
  * showAvatar, the selected marking, and click routing between the card, the
  * nick and the body's links.
  */
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 import { PostCard } from './PostCard';
-import type { PostCardProps } from './PostCard';
-
-const AVATAR = { src: 'https://m.example/a.gif', staticSrc: 'https://m.example/a.png' };
-
-const BASE_PROPS: PostCardProps = {
-  label: 'a3',
-  date: new Date(2026, 0, 2, 23, 4),
-  clockFormat: '24h',
-  author: {
-    handle: 'alice',
-    fullHandle: '@alice@m.example',
-    self: false,
-    avatar: AVATAR,
-    displayName: 'Alice',
-    displayNameEmojis: [],
-  },
-  boostedBy: null,
-  replyTo: null,
-  quote: null,
-  contentHtml: '<p>present day, present time</p>',
-  emojis: [],
-  spoilerText: '',
-  revealed: false,
-  poll: null,
-  media: [],
-  sensitive: false,
-  autoExpand: false,
-  visibility: 'public',
-  counts: { replies: 0, boosts: 0, favourites: 0 },
-  mine: { boosted: false, favourited: false, bookmarked: false },
-  reactions: [],
-  edited: false,
-  selected: false,
-  showAvatar: true,
-  onToggleReveal: vi.fn<() => void>(),
-  onSelect: vi.fn<() => void>(),
-  onSelectAuthor: vi.fn<() => void>(),
-  onContentLink: () => false,
-};
-
-/** Render one card with fresh mocks for the three actions. */
-function renderCard(overrides: Partial<PostCardProps> = {}) {
-  const onToggleReveal = vi.fn<() => void>();
-  const onSelect = vi.fn<() => void>();
-  const onSelectAuthor = vi.fn<() => void>();
-  const view = render(
-    <PostCard
-      {...BASE_PROPS}
-      {...overrides}
-      onToggleReveal={onToggleReveal}
-      onSelect={onSelect}
-      onSelectAuthor={onSelectAuthor}
-    />,
-  );
-  return { view, onToggleReveal, onSelect, onSelectAuthor };
-}
+import { AVATAR, BASE_PROPS, renderCard } from './postCardHarness';
 
 describe(PostCard, () => {
   it('is an article named by label and full handle', () => {
@@ -134,18 +79,6 @@ describe(PostCard, () => {
     const { view } = renderCard();
 
     expect(view.container.textContent).not.toContain('boosted');
-  });
-
-  it('shows the audience glyph and the tallies after the body', () => {
-    const { view } = renderCard({
-      visibility: 'direct',
-      counts: { replies: 2, boosts: 1, favourites: 5 },
-      edited: true,
-    });
-
-    expect(screen.getByTitle('direct')).toBeInTheDocument();
-    expect(view.container.textContent).toContain('↩2 ⟳1 ★5');
-    expect(view.container.textContent).toContain('(edited)');
   });
 
   it('toggles the warning from its button, which the card click leaves alone', () => {
