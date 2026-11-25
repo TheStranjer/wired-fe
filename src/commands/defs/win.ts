@@ -19,20 +19,21 @@ const USAGE = '/win <number> | /win next | /win prev | /win move <number> | /win
 /** The argument text matched none of the command's forms. */
 const USAGE_ERROR = fail(`Usage: ${USAGE}`);
 
-/** The digits whose Alt+N and N bindings jump straight to window N. */
+/** The digits whose bare N binding jumps straight to window N in navigation mode. */
 const WINDOW_DIGITS: readonly string[] = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
 
 /**
- * The default bindings (AGENTS.md "Two hotkey modes"): digits jump in both
- * modes, `0` standing for window 10; arrows and `h`/`l` cycle, in navigation
- * mode bare and in insert mode under Alt.
+ * The default bindings (AGENTS.md "Two hotkey modes"): bare digits jump in
+ * navigation mode, `0` standing for window 10 (Alt+digits belong to `/desktop`,
+ * decision 18); arrows and `h`/`l` cycle, in navigation mode bare and in
+ * insert mode under Alt.
  */
 const BINDINGS: readonly CommandBinding[] = [
-  ...WINDOW_DIGITS.flatMap((digit): CommandBinding[] => [
-    { mode: 'insert', chord: `Alt+${digit}`, args: digit },
-    { mode: 'navigation', chord: digit, args: digit },
-  ]),
-  { mode: 'insert', chord: 'Alt+0', args: '10' },
+  ...WINDOW_DIGITS.map((digit): CommandBinding => ({
+    mode: 'navigation',
+    chord: digit,
+    args: digit,
+  })),
   { mode: 'navigation', chord: '0', args: '10' },
   { mode: 'insert', chord: 'Alt+ArrowLeft', args: 'prev' },
   { mode: 'insert', chord: 'Alt+ArrowRight', args: 'next' },
@@ -124,7 +125,7 @@ export const command: CommandDefinition = {
   name: 'win',
   aliases: ['w', 'window'],
   usage: USAGE,
-  summary: 'Switch, cycle, reorder or list windows',
+  summary: 'Switch, cycle, reorder or list windows (desktops: /desktop)',
   run: syncRun(handle),
   bindings: BINDINGS,
 };

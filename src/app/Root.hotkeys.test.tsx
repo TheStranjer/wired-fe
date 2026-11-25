@@ -2,7 +2,7 @@
  * Tests for the hotkeys wired into the shell (AGENTS.md "Two hotkey modes"):
  * Escape switches the status line to [NAV] and blurs the command line, `i` or
  * Enter switches back to [INS] and focuses it; in navigation mode the digits
- * `/win` binds switch windows, in insert mode Alt+digit does the same and
+ * `/win` binds switch windows, in insert mode Alt+Right does the same and
  * plain letters still reach the input; and focusing the command line while
  * navigation is shown switches back to insert. Startup is mocked; it has its
  * own tests.
@@ -125,10 +125,10 @@ describe(Root, () => {
     expect(screen.getByText('[NAV]')).toBeInTheDocument();
   });
 
-  it('Alt+the digit switches to that window in insert mode', async () => {
+  it('Alt+Right switches to the next window in insert mode', async () => {
     renderRoot(TWO_WINDOWS);
 
-    fireEvent.keyDown(window, { key: '2', altKey: true });
+    fireEvent.keyDown(window, { key: 'ArrowRight', altKey: true });
 
     const home = await screen.findByRole('log', { name: 'home' });
 

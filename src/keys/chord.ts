@@ -5,7 +5,9 @@
  * order, joined with `+`. Letters are lowercase and carry `Shift+` when Shift is
  * held; a character such as `?` already shows Shift, so it never carries it
  * (`?`, not `Shift+/`); named keys keep the casing of `KeyboardEvent.key`, and
- * the space bar is `Space`. The keymap compares these strings.
+ * the space bar is `Space`. The keymap compares these strings. With Alt held,
+ * the bracket keys are named by `KeyboardEvent.code`, since macOS Option turns
+ * `event.key` into `“` or `‘`: `Alt+[` and `Alt+]` on every layout.
  *
  * The forgiving grammar of the binding text itself lives in ./bindingText.
  * `blocksTyping` is the one rule over a finished chord the keymap and the
@@ -19,6 +21,8 @@ import { bindingParts } from './bindingText';
 /** The fields of a KeyboardEvent this module reads. */
 export type KeyLike = {
   readonly key: string;
+  /** The physical key (`KeyboardEvent.code`); read only for Alt+bracket. */
+  readonly code?: string;
   readonly ctrlKey: boolean;
   readonly altKey: boolean;
   readonly shiftKey: boolean;
@@ -66,6 +70,12 @@ const NAMED_KEYS_BY_NAME: ReadonlyMap<string, string> = new Map(
 /** A single ASCII letter, either case. */
 const LETTER = /^[a-z]$/iu;
 
+/** The keys read by `code` when Alt is held, because Alt changes what `key` says. */
+const ALT_CODE_KEYS: ReadonlyMap<string, string> = new Map([
+  ['BracketLeft', '['],
+  ['BracketRight', ']'],
+]);
+
 /** A control character, which is never a printable key. */
 const CONTROL_CHARACTER = /\p{Cc}/u;
 
@@ -83,7 +93,7 @@ const SHIFT_PREFIX = 'Shift+';
  * a bare modifier, `Dead`, `Unidentified` or a named key that cannot be bound.
  */
 export function chordFromEvent(event: KeyLike): string | null {
-  const part = keyPart(event.key);
+  const part = keyPart(eventKey(event));
   if (part === null) {
     return null;
   }
@@ -119,13 +129,6 @@ export function parseSequence(text: string): string | null {
 }
 
 /**
- * The key of a canonical chord with a leading `Shift+` set aside. Printable
- * keys are single characters and named keys are not, and a canonical chord
- * carrying Ctrl, Alt or Meta always keeps one of their `+` joiners and a
- * length above one here, so a one-letter result is exactly a plain printable
- * character or `Shift+<letter>`.
- */
-/**
  * Whether the canonical {@link chord} swallows typing: its plain key is a
  * single character, so binding it in insert mode would eat the very keystroke
  * the reader meant to type. Named keys and chords carrying Ctrl, Alt or Meta
@@ -158,6 +161,13 @@ function keyPart(key: string): KeyPart | null {
     return { name: key, shiftMatters: false };
   }
   return null;
+}
+
+/** The key name of {@link event}: its `key`, except Alt+bracket, which `code` names. */
+function eventKey(event: KeyLike): string {
+  const fromCode =
+    event.altKey && event.code !== undefined ? ALT_CODE_KEYS.get(event.code) : undefined;
+  return fromCode ?? event.key;
 }
 
 /** The modifiers an event holds. Shift is dropped later when the key hides it. */
