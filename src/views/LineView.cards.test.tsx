@@ -9,6 +9,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { type Mock, describe, expect, it, vi } from 'vitest';
 
 import { LineView } from './LineView';
+import { type PostActions, PostActionsProvider } from './PostActionsContext';
 import type { StoredAccount } from '../accounts/accountStore';
 import { type AppState, coreReducer, initialAppState } from '../state/appState';
 import { appReducer } from '../state/reducer';
@@ -71,16 +72,21 @@ function seeded(settings: Settings, display: DisplayOverrides = {}): AppState {
   });
 }
 
-/** Render the home window's lines over {@link state}. */
-function renderLines(state: AppState): void {
+/** Render the home window's lines over {@link state}, lending {@link actions} to its cards. */
+function renderLines(state: AppState, actions: PostActions = NO_ACTIONS): void {
   render(
-    <AppStateProvider initial={state}>
-      {bufferFor(state, HOME).lines.map((line) => (
-        <LineView key={line.key} line={line} windowId={HOME} />
-      ))}
-    </AppStateProvider>,
+    <PostActionsProvider actions={actions}>
+      <AppStateProvider initial={state}>
+        {bufferFor(state, HOME).lines.map((line) => (
+          <LineView key={line.key} line={line} windowId={HOME} />
+        ))}
+      </AppStateProvider>
+    </PostActionsProvider>,
   );
 }
+
+/** The actions of a tree with nothing to run: no lines, and running one does nothing. */
+const NO_ACTIONS: PostActions = { linesFor: () => ({}), run: () => undefined };
 
 /** Shadow a jsdom element's missing scrollIntoView with a recording mock. */
 function fakeScrollIntoView(element: Element): Mock {
@@ -180,5 +186,25 @@ describe.each(['cards', 'lines'] as const)('LineView %s selection', (density) =>
     fireEvent.click(screen.getByRole('button', { name: '[CW: lain spoilers]' }));
 
     expect(screen.getByText('the fourth wall')).toBeInTheDocument();
+  });
+});
+
+describe.each(['cards', 'lines'] as const)('LineView %s double-click', (density) => {
+  it('runs /pop on the label of the post that is double-clicked', () => {
+    const run = vi.fn<PostActions['run']>();
+    renderLines(seeded(SETTINGS[density]), { linesFor: () => ({}), run });
+
+    fireEvent.doubleClick(screen.getByText('[a1]'));
+
+    expect(run).toHaveBeenCalledExactlyOnceWith({ line: '/pop a1', prefill: false });
+  });
+
+  it('does not pop for a double-click on the content-warning button', () => {
+    const run = vi.fn<PostActions['run']>();
+    renderLines(seeded(SETTINGS[density]), { linesFor: () => ({}), run });
+
+    fireEvent.doubleClick(screen.getByRole('button', { name: '[CW: lain spoilers]' }));
+
+    expect(run).not.toHaveBeenCalled();
   });
 });

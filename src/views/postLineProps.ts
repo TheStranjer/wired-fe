@@ -100,7 +100,7 @@ export function sharedPostProps(
   app: { readonly state: AppState; readonly go: Dispatch },
   target: PostLineTarget,
   view: PostView,
-): Omit<PostRowProps, 'author' | 'boostedBy' | 'ref'> {
+): Omit<PostRowProps, 'author' | 'boostedBy' | 'onPop' | 'ref'> {
   const { state, go } = app;
   const { windowId, lineKey, status } = target;
   const buffer = bufferFor(state, windowId);

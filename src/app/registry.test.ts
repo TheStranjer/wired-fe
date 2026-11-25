@@ -32,6 +32,7 @@ const EXPECTED = [
   'notifications',
   'only',
   'open',
+  'pop',
   'query',
   'raise',
   'select',

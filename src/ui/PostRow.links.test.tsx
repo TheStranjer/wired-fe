@@ -32,6 +32,7 @@ function renderLinks(onContentLink: PostRowProps['onContentLink']): () => void {
       media={[]}
       mine={{ boosted: false, favourited: false, bookmarked: false }}
       onContentLink={onContentLink}
+      onPop={vi.fn<() => void>()}
       onSelect={onSelect}
       onSelectAuthor={vi.fn<() => void>()}
       onToggleReveal={vi.fn<() => void>()}
