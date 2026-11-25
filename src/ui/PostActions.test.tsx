@@ -42,6 +42,8 @@ const BASE_PROPS: PostActionsProps = {
   own: false,
   lines: ALL_LINES,
   onAction: () => undefined,
+  reactions: [],
+  picker: { data: { custom: [], unicode: [] }, onOpen: () => undefined, onChoose: () => undefined },
 };
 
 /** Render the bar with overrides; returns the spy the pressed lines go to. */

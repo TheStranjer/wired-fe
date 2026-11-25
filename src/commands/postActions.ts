@@ -8,7 +8,10 @@
  * here too, so a click and the hotkey are one path. The exceptions are reply
  * (WFE-244) and quote (WFE-262): `r` and `q` prefill for the power user, but
  * the buttons run `/reply a3` and `/quote a3` with no text, which open a
- * composer bound to the post.
+ * composer bound to the post. The other exception is react (WFE-265):
+ * `Shift+e` prefills, but the button opens the emoji picker, whose choice runs
+ * `/react a3 <emoji>` or `/unreact a3 <emoji>`; its line is marked `picker`,
+ * and with no `/react` in the registry it has no line and so no button.
  */
 
 import type { CommandDefinition, Registry } from './types';
@@ -44,10 +47,15 @@ type PostActionLine = {
   readonly line: string;
   /** True fills the line into the command line for the user to finish. */
   readonly prefill: boolean;
+  /** True makes the click open the emoji picker rather than hand the line on. */
+  readonly picker?: true;
 };
 
 /** The actions whose button runs its line although the command's hotkey prefills it. */
 const RUNS_ON_CLICK: ReadonlySet<PostActionName> = new Set<PostActionName>(['reply', 'quote']);
+
+/** The actions whose button opens the emoji picker, which then runs the command. */
+const OPENS_PICKER: ReadonlySet<PostActionName> = new Set<PostActionName>(['react']);
 
 /** Whether {@link name}'s default navigation hotkey fills its line rather than running it. */
 function prefills(name: PostActionName, definition: CommandDefinition): boolean {
@@ -57,6 +65,18 @@ function prefills(name: PostActionName, definition: CommandDefinition): boolean 
   return (definition.bindings ?? []).some(
     (binding) => binding.mode === 'navigation' && binding.prefill === true,
   );
+}
+
+/** The line {@link name}'s button hands on, or opens the picker with, for the post {@link label}. */
+function lineFor(
+  name: PostActionName,
+  definition: CommandDefinition,
+  label: string,
+): PostActionLine {
+  const line = `/${name} ${label}`;
+  return OPENS_PICKER.has(name)
+    ? { line, prefill: false, picker: true }
+    : { line, prefill: prefills(name, definition) };
 }
 
 /**
@@ -71,7 +91,7 @@ export function postActionLines(
   for (const name of POST_ACTION_NAMES) {
     const definition = registry.byName.get(name);
     if (definition !== undefined) {
-      lines[name] = { line: `/${name} ${label}`, prefill: prefills(name, definition) };
+      lines[name] = lineFor(name, definition, label);
     }
   }
   return lines;

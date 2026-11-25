@@ -36,3 +36,9 @@
   background: var(--color-accent);
   color: var(--color-bg);
 }
+
+/* The react button's wrapper: the anchor the emoji picker hangs from. */
+.root {
+  position: relative;
+  display: inline-block;
+}

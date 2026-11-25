@@ -82,6 +82,8 @@ function CardContent(props: PostCardProps): JSX.Element {
         mine={props.mine}
         onAction={props.onAction}
         own={props.author.self}
+        picker={props.reactPicker}
+        reactions={props.reactions}
       />
     </>
   );

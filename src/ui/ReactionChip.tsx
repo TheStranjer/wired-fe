@@ -20,7 +20,7 @@ export type PostReaction = {
 };
 
 /** The shortcode of a reaction name: a remote one is `name@domain`. */
-function shortcodeOf(name: string): string {
+export function shortcodeOf(name: string): string {
   const at = name.indexOf('@');
   return at > 0 ? name.slice(0, at) : name;
 }

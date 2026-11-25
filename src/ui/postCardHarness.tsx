@@ -56,6 +56,11 @@ export const BASE_PROPS: PostCardProps = {
   onContentLink: vi.fn<(href: string) => boolean>().mockReturnValue(false),
   actionLines: {},
   onAction: vi.fn<(line: PostActionLine) => void>(),
+  reactPicker: {
+    data: { custom: [], unicode: [] },
+    onOpen: vi.fn<() => void>(),
+    onChoose: vi.fn<(emoji: string, remove: boolean) => void>(),
+  },
 };
 
 /** What {@link renderCard} returns: the view and the spies of the card's callbacks. */

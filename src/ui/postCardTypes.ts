@@ -4,7 +4,7 @@
  */
 import type { ChatMark, DmRecipient } from './cardDm';
 import type { EmojiRef } from './emojify';
-import type { PostActionLine, PostActionLines } from './postActionTypes';
+import type { PostActionLine, PostActionLines, ReactPicker } from './postActionTypes';
 import type { PostRowProps } from './PostRow';
 
 /** An account's picture URLs: the (maybe animated) image and its still. */
@@ -38,4 +38,6 @@ export type PostCardProps = Omit<PostRowProps, 'author' | 'boostedBy'> & {
   readonly actionLines: PostActionLines;
   /** Called with the line of the action-bar button or menu row that was pressed. */
   readonly onAction: (line: PostActionLine) => void;
+  /** The `☺` button's emoji picker: its emoji, and what choosing one does (WFE-265). */
+  readonly reactPicker: ReactPicker;
 };

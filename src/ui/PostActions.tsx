@@ -7,17 +7,22 @@
  * carries are the post's own tallies. Boost, favourite and bookmark are toggles:
  * `aria-pressed` and an inverted glyph show the viewer's own mark, and pressing
  * again hands on the undo command's line. A command the backend cannot do has no
- * line and so no button. Purely presentational: it knows no commands itself.
+ * line and so no button. The `☺` button is the one click that does not hand its
+ * line on (WFE-265): where the registry's react line says so it opens the emoji
+ * picker (./ReactButton) over the post's reactions and the emoji the app lends
+ * it, and the choice is reported to the app, not run here. Purely
+ * presentational: it knows no commands itself.
  */
 import type { JSX } from 'react';
 
 import styles from './PostActions.module.css';
 import { PostActionsMore } from './PostActionsMore';
-import type { PostActionLine, PostActionLines } from './postActionTypes';
+import type { PostActionLine, PostActionLines, ReactPicker } from './postActionTypes';
 import type { PostMetaProps } from './PostMeta';
+import { ReactButton } from './ReactButton';
 
 /** Props of {@link PostActions}. */
-export type PostActionsProps = Pick<PostMetaProps, 'counts' | 'mine'> & {
+export type PostActionsProps = Pick<PostMetaProps, 'counts' | 'mine' | 'reactions'> & {
   /** The post's short label, e.g. "a3"; it names every button. */
   readonly label: string;
   /** Whether the viewer wrote the post: it decides the more-menu's rows. */
@@ -26,6 +31,8 @@ export type PostActionsProps = Pick<PostMetaProps, 'counts' | 'mine'> & {
   readonly lines: PostActionLines;
   /** Called with the line of the button or row that was pressed. */
   readonly onAction: (line: PostActionLine) => void;
+  /** The react button's picker: its emoji, and what choosing one does. */
+  readonly picker: ReactPicker;
 };
 
 /** One button's look, and the line its press hands on; no line, no button. */
@@ -49,6 +56,12 @@ function tally(count: number): string | undefined {
 /** "2 replies" for a tally above zero, nothing for none. */
 function noun(count: number, singular: string, plural: string): string | undefined {
   return count > 0 ? `${String(count)} ${count === 1 ? singular : plural}` : undefined;
+}
+
+/** The reply button's name: "Reply to post a3", with the tally when there is one. */
+function replyName(label: string, count: number): string {
+  const replies = noun(count, 'reply', 'replies');
+  return `Reply to post ${label}${replies === undefined ? '' : ` (${replies})`}`;
 }
 
 /** One bar button, or nothing while its command has no line. */
@@ -89,14 +102,13 @@ function ToggleButton(
 /** The action bar of one post card. */
 export function PostActions(props: PostActionsProps): JSX.Element {
   const { label, counts, mine, own, lines, onAction } = props;
-  const replies = noun(counts.replies, 'reply', 'replies');
   return (
     <div aria-label={`Actions for post ${label}`} className={styles['bar']} role="group">
       <BarButton
         count={tally(counts.replies)}
         glyph="↩"
         line={lines['reply']}
-        name={`Reply to post ${label}${replies === undefined ? '' : ` (${replies})`}`}
+        name={replyName(label, counts.replies)}
         onAction={onAction}
       />
       <ToggleButton
@@ -119,11 +131,12 @@ export function PostActions(props: PostActionsProps): JSX.Element {
         onAction={onAction}
         title={noun(counts.favourites, 'favourite', 'favourites')}
       />
-      <BarButton
-        glyph="☺"
+      <ReactButton
+        label={label}
         line={lines['react']}
-        name={`React to post ${label}`}
         onAction={onAction}
+        picker={props.picker}
+        reactions={props.reactions}
       />
       <ToggleButton
         commands={['bookmark', 'unbookmark']}

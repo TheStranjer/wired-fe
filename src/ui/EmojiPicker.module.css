@@ -1,0 +1,99 @@
+/* The emoji picker: a framed popover under the react button, or above it when
+   there is no room below (the picker sets data-above). The grid is eight cells
+   wide, the number the picker's arrow keys step by (COLUMNS in
+   emojiPickerModel). Sections far off screen are not laid out until they are
+   needed, which keeps opening cheap with ~1,900 emoji. Custom emoji are always
+   the still picture, so nothing here moves. */
+
+.popup {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space);
+  box-sizing: border-box;
+  width: 20rem;
+  max-width: 90vw;
+  max-height: 20rem;
+  padding: var(--space);
+  border: var(--border-width) solid var(--color-border);
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font-family: var(--font-mono);
+}
+
+.popup[data-above] {
+  top: auto;
+  bottom: 100%;
+}
+
+.search {
+  padding: 0 var(--space);
+  border: var(--border-width) solid var(--color-dim);
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font: inherit;
+}
+
+.search:focus-visible {
+  outline: var(--border-width-focus) solid var(--color-accent);
+}
+
+.scroll {
+  overflow-y: auto;
+}
+
+.section {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 8rem;
+}
+
+.heading {
+  margin: 0;
+  color: var(--color-dim);
+  font: inherit;
+}
+
+.note {
+  margin: 0;
+  color: var(--color-dim);
+}
+
+.cells {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+}
+
+.cell {
+  height: 2rem;
+  padding: 0;
+  border: 0;
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font: inherit;
+  font-size: 1.25em;
+  cursor: pointer;
+}
+
+.cell:focus-visible {
+  outline: var(--border-width-focus) solid var(--color-accent);
+}
+
+.cell:hover {
+  background: var(--color-fg);
+  color: var(--color-bg);
+}
+
+.cell[aria-pressed='true'] {
+  background: var(--color-accent);
+  color: var(--color-bg);
+}
+
+.image {
+  width: 1.5rem;
+  height: 1.5rem;
+  object-fit: contain;
+  vertical-align: middle;
+}
