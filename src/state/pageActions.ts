@@ -8,6 +8,7 @@
 import type { BufferLoad } from './buffer';
 import type { BufferAction } from './bufferActions';
 import type { Where } from './bufferPosts';
+import type { FeedItem } from './feedItem';
 import type { PageCursor } from '../api/pagination';
 import type { Status } from '../api/schemas/status';
 
@@ -34,6 +35,14 @@ export function statusesAction(
 ): StatusesAction {
   return { type: 'statuses', windowId, statuses, where };
 }
+
+/** The action that shows a feed window's merged stream, newest first, on its scrollback. */
+export function feedAction(windowId: string, items: readonly FeedItem[]): FeedAction {
+  return { type: 'feed', windowId, items };
+}
+
+/** The feed action, named for {@link feedAction}'s return. */
+type FeedAction = Extract<BufferAction, { readonly type: 'feed' }>;
 
 /** The load action, named for {@link loadAction}'s return. */
 type LoadAction = Extract<BufferAction, { readonly type: 'load' }>;

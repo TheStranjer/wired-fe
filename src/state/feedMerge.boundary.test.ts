@@ -6,10 +6,10 @@
 import { describe, expect, it } from 'vitest';
 
 import type { FeedCursorState } from './feedItem';
-import { mergeItems, oldestBoundary, sourceKey } from './feedMerge';
+import { blockingSources, mergeItems, oldestBoundary, sourceKey } from './feedMerge';
 import { A_HOME, B_HOME, C_LOCAL, ids, post } from '../test/feedItems';
 
-const OPEN = { cursor: 'c', exhausted: false };
+const OPEN = { cursor: { max_id: 'c' }, exhausted: false };
 const DONE = { cursor: null, exhausted: true };
 
 /** Cursor state with all three test sources open. */
@@ -93,5 +93,25 @@ describe(oldestBoundary, () => {
 
     expect(ids(visible)).toStrictEqual(['a1', 'b1']);
     expect(ids(held)).toStrictEqual(['b2']);
+  });
+});
+
+describe(blockingSources, () => {
+  it('names the open source whose oldest item is the newest of them', () => {
+    expect(blockingSources(ITEMS, allOpen())).toStrictEqual([sourceKey(C_LOCAL)]);
+  });
+
+  it('names every source tied at the boundary', () => {
+    const items = mergeItems([post('a1', 30, A_HOME), post('b1', 30, B_HOME)], []);
+    const cursors = { [sourceKey(A_HOME)]: OPEN, [sourceKey(B_HOME)]: OPEN };
+
+    expect(blockingSources(items, cursors)).toStrictEqual([sourceKey(A_HOME), sourceKey(B_HOME)]);
+  });
+
+  it('skips exhausted sources, and names nothing when none is open', () => {
+    const cursors = { ...allOpen(), [sourceKey(C_LOCAL)]: DONE };
+
+    expect(blockingSources(ITEMS, cursors)).toStrictEqual([sourceKey(A_HOME)]);
+    expect(blockingSources(ITEMS, {})).toStrictEqual([]);
   });
 });

@@ -22,6 +22,7 @@ export type AppAction = CoreAction | BufferAction | ComposerAction;
 const BUFFER_ACTION_TYPES: Record<BufferAction['type'], true> = {
   statuses: true,
   notifications: true,
+  feed: true,
   statusUpdated: true,
   statusDeleted: true,
   select: true,

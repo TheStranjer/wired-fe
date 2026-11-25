@@ -17,12 +17,13 @@ export type WindowKind =
   | 'profile'
   | 'dm'
   | 'search'
-  | 'composer';
+  | 'composer'
+  | 'feed';
 
 /** What a window shows. */
 export type WindowRef = {
   readonly kind: WindowKind;
-  /** Owning account key; `null` only for the status window. */
+  /** Owning account key; `null` for the status window and feed windows (a feed's lines carry their own). */
   readonly accountKey: string | null;
   /** Status id, tag, account id or query; `null` when the kind needs none. */
   readonly target: string | null;
@@ -71,7 +72,8 @@ const STATUS_WINDOW: WindowState = {
 /**
  * The id of the view a ref names, so opening the same view twice finds the
  * window that already shows it. The status window is `status`; any other view
- * is `kind:account:target`, with `-` standing in for an absent part.
+ * is `kind:account:target`, with `-` standing in for an absent part (a feed
+ * window's target is its feed's id, so it is `feed:-:<id>`).
  */
 export function windowId(ref: WindowRef): string {
   if (ref.kind === 'status') {
