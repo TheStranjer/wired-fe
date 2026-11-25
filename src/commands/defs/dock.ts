@@ -6,6 +6,7 @@
 
 import { focusedFloat } from '../focusedFloat';
 import { OK, contextRun, fail } from '../outcome';
+import { tmuxBindings } from '../tmuxBindings';
 import type { CommandDefinition } from '../types';
 
 /** The refusal when the focused pane is not a float. */
@@ -16,6 +17,7 @@ export const command: CommandDefinition = {
   name: 'dock',
   usage: '/dock',
   summary: 'Dock the focused float into the tiled panes',
+  bindings: tmuxBindings('d', ''),
   run: contextRun((context) => {
     if (focusedFloat(context) === null) {
       return NOT_A_FLOAT;

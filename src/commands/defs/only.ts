@@ -6,6 +6,7 @@
 
 import { activeDesktop } from '../../windows/desktops';
 import { OK, contextRun, fail } from '../outcome';
+import { tmuxBindings } from '../tmuxBindings';
 import type { CommandDefinition } from '../types';
 
 /** The refusal on a desktop with nothing focused. */
@@ -16,6 +17,7 @@ export const command: CommandDefinition = {
   name: 'only',
   usage: '/only',
   summary: 'Close every other pane and float; their windows stay open (unlike /close)',
+  bindings: tmuxBindings('z', ''),
   run: contextRun((context) => {
     const { layout } = context.state;
     if (activeDesktop(layout).focusedPaneId === null) {

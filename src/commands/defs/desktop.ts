@@ -14,6 +14,7 @@ import type { CommandBinding } from '../bindingTypes';
 import { desktopLines } from '../desktopList';
 import { desktopNumber } from '../desktopNumber';
 import { OK, fail, syncRun } from '../outcome';
+import { tmuxBindings } from '../tmuxBindings';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** Every form of the command: /help shows it, a bad argument echoes it. */
@@ -23,9 +24,13 @@ const USAGE =
 /** The digits whose Alt+N binding jumps straight to desktop N. */
 const DESKTOP_DIGITS: readonly string[] = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
 
+/** The digits of `Ctrl+B 0..9`; 0 stands for desktop 10, as with Alt. */
+const TMUX_DIGITS: readonly string[] = ['0', ...DESKTOP_DIGITS];
+
 /**
  * The default bindings (decision 18): `Alt+1..9` jump, `Alt+0` standing for
- * desktop 10, in insert mode; `Alt+[` and `Alt+]` step left and right in both.
+ * desktop 10, in insert mode; `Alt+[` and `Alt+]` step left and right in both;
+ * the tmux-style `Ctrl+B c`, `n`, `p` and `0..9` work in both modes.
  */
 const BINDINGS: readonly CommandBinding[] = [
   ...DESKTOP_DIGITS.map((digit): CommandBinding => ({
@@ -38,6 +43,10 @@ const BINDINGS: readonly CommandBinding[] = [
   { mode: 'insert', chord: 'Alt+]', args: 'next' },
   { mode: 'navigation', chord: 'Alt+[', args: 'prev' },
   { mode: 'navigation', chord: 'Alt+]', args: 'next' },
+  ...tmuxBindings('c', 'new'),
+  ...tmuxBindings('n', 'next'),
+  ...tmuxBindings('p', 'prev'),
+  ...TMUX_DIGITS.flatMap((digit) => tmuxBindings(digit, digit === '0' ? '10' : digit)),
 ];
 
 /** The argument text matched none of the command's forms. */

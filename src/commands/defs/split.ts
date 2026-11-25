@@ -6,6 +6,7 @@
  */
 
 import { VIEW_USAGE, splitRun } from '../splitRun';
+import { tmuxBindings } from '../tmuxBindings';
 import type { CommandDefinition } from '../types';
 
 /** The command's grammar: /help shows it, a bad argument echoes it. */
@@ -18,4 +19,5 @@ export const command: CommandDefinition = {
   usage: USAGE,
   summary: 'Split the focused pane stacked',
   run: splitRun('column', USAGE),
+  bindings: tmuxBindings('"', ''),
 };
