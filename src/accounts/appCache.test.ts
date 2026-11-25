@@ -8,7 +8,7 @@
 import { HttpResponse, http } from 'msw';
 import { describe, expect, it } from 'vitest';
 
-import { forgetApp, getOrRegisterApp } from './appCache';
+import { cachedApp, forgetApp, getOrRegisterApp } from './appCache';
 import type { ApiError } from '../api/errors';
 import type { AppCredentials } from '../api/oauth';
 import { type Result, ok } from '../lib/result';
@@ -206,5 +206,18 @@ describe(forgetApp, () => {
     forgetApp(store, { origin: 'https://other.example', redirectUri: REDIRECT_URI });
 
     expect(backend.entries.size).toBe(0);
+  });
+});
+
+describe(cachedApp, () => {
+  it('reads a stored registration without registering, and nothing when none is stored', () => {
+    const backend = createFakeBackend();
+    const store = createStore('apps', backend);
+    backend.entries.set(STORED_KEY, JSON.stringify(FIRST_APP));
+
+    expect(cachedApp(store, { origin: ORIGIN, redirectUri: REDIRECT_URI })).toStrictEqual(
+      FIRST_APP,
+    );
+    expect(cachedApp(store, { origin: ORIGIN, redirectUri: OTHER_REDIRECT_URI })).toBeUndefined();
   });
 });
