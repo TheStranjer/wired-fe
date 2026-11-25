@@ -19,6 +19,7 @@ import styles from './NotificationLine.module.css';
 import { notificationText } from './notificationText';
 import { PostLine } from './PostLine';
 import { viewerFor } from './postLineProps';
+import { viaFor } from './via';
 import { fullHandle } from '../accounts/handle';
 import type { Status } from '../api/schemas/status';
 import type { AppState } from '../state/appState';
@@ -63,11 +64,17 @@ function mentionedPost(notification: NotificationLineData['notification']): Stat
   return notification.kind === 'mention' && status !== null && hasWords(status) ? status : null;
 }
 
-/** The `***` client message of a notification, its actor a click target when it leads. */
-function NotificationMessage(props: NotificationLineProps): JSX.Element {
+/**
+ * The `***` client message of a notification, its actor a click target when it
+ * leads. In a multi-account feed it carries the account marker, unless
+ * `marked` is false because the post under it already does.
+ */
+function NotificationMessage(
+  props: NotificationLineProps & { readonly marked: boolean },
+): JSX.Element {
   const state = useAppState();
   const dispatch = useAppDispatch();
-  const { windowId, line } = props;
+  const { windowId, line, marked } = props;
   const { notification } = line;
   const viewer = viewerFor(state, windowId);
   const sentence = notificationText(
@@ -91,6 +98,7 @@ function NotificationMessage(props: NotificationLineProps): JSX.Element {
       date={new Date(notification.created_at)}
       level="info"
       text={rest ?? sentence}
+      via={marked ? viaFor(state, windowId, line.key) : null}
     />
   );
 }
@@ -108,12 +116,12 @@ function IrcNotification(props: NotificationLineProps): JSX.Element {
   if (notification.kind === 'quote' && notification.status !== null) {
     return (
       <>
-        <NotificationMessage {...props} />
+        <NotificationMessage {...props} marked={false} />
         {mentionRow(props, notification.status)}
       </>
     );
   }
-  return <NotificationMessage {...props} />;
+  return <NotificationMessage {...props} marked />;
 }
 
 /** One notification: a card or an IRC line, as the window's resolved density says. */

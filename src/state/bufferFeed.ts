@@ -22,6 +22,7 @@ function lineOf(item: FeedItem): LineData {
       key: postKey(item.status.id),
       status: item.status,
       accountKey: item.accountKey,
+      seenBy: item.seenBy,
     };
   }
   return {
@@ -29,6 +30,7 @@ function lineOf(item: FeedItem): LineData {
     key: `notif:${item.accountKey}:${item.notification.id}`,
     notification: item.notification,
     accountKey: item.accountKey,
+    seenBy: item.seenBy,
   };
 }
 

@@ -1,0 +1,11 @@
+/* Which account a feed item came through: dim metadata, like the label. On a
+   card it sits at the right of the header line, before the clock. */
+
+.card,
+.line {
+  color: var(--color-dim);
+}
+
+.card {
+  margin-inline-start: auto;
+}

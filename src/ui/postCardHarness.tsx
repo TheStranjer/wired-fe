@@ -28,6 +28,7 @@ export const BASE_PROPS: PostCardProps = {
     displayNameEmojis: [],
   },
   boostedBy: null,
+  via: null,
   replyTo: null,
   quote: null,
   contentHtml: '<p>present day, present time</p>',

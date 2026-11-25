@@ -16,15 +16,15 @@ import { BoostLine } from './BoostLine';
 import type { EmojiRef } from './emojify';
 import { MediaList } from './MediaList';
 import type { MediaItem } from './MediaList';
-import { Nick } from './Nick';
 import { PollView } from './PollView';
 import type { PollViewData } from './PollView';
 import { PostBody } from './PostBody';
 import { PostMeta, type PostMetaProps } from './PostMeta';
 import styles from './PostRow.module.css';
+import { PostRowHead } from './PostRowHead';
 import { QuoteBlock, type QuoteBlockProps } from './QuoteBlock';
 import { postArticleProps } from './rowClick';
-import { Timestamp } from './Timestamp';
+import type { Via } from './ViaMark';
 import type { ClockFormat } from '../lib/time';
 
 /**
@@ -40,6 +40,9 @@ export type PostRowProps = {
   readonly date: Date;
   /** How the clock is rendered. */
   readonly clockFormat: ClockFormat;
+  /** The account a multi-account feed's item came through, drawn dim after the
+   * clock; null in every other window. */
+  readonly via: Via | null;
   /** The author, shown by {@link Nick}. */
   readonly author: {
     readonly handle: string;
@@ -109,36 +112,20 @@ type LineProps = Omit<
 /** The line itself: the label, the clock, the nick, who the post answers, its
  * body, everything the backend counted after it and its quote's ┌ line below. */
 function PostLine(props: LineProps): JSX.Element {
-  const {
-    label,
-    date,
-    clockFormat,
-    author,
-    replyTo,
-    spoilerText,
-    revealed,
-    visibility,
-    counts,
-    mine,
-    reactions,
-    edited,
-    onToggleReveal,
-    onSelectAuthor,
-  } = props;
+  const { spoilerText, revealed, visibility, counts, mine, reactions, edited, onToggleReveal } =
+    props;
 
   return (
     <>
-      <span className={styles['label']}>{`[${label}]`}</span>{' '}
-      <Timestamp date={date} format={clockFormat} />{' '}
-      <Nick
-        handle={author.handle}
-        fullHandle={author.fullHandle}
-        self={author.self}
-        onSelect={onSelectAuthor}
-      />{' '}
-      {replyTo === null ? undefined : (
-        <span className={styles['reply']}>{`↳ re ${replyTo}: `}</span>
-      )}
+      <PostRowHead
+        author={props.author}
+        clockFormat={props.clockFormat}
+        date={props.date}
+        label={props.label}
+        onSelectAuthor={props.onSelectAuthor}
+        replyTo={props.replyTo}
+        via={props.via}
+      />
       <PostBody
         contentHtml={props.contentHtml}
         emojis={props.emojis}

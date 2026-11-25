@@ -43,6 +43,7 @@ function renderLinks(onContentLink: PostRowProps['onContentLink']): () => void {
       selected={false}
       sensitive={false}
       spoilerText=""
+      via={null}
       visibility="public"
     />,
   );
