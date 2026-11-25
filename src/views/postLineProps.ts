@@ -5,6 +5,7 @@
  * the rendering; this module holds everything that does not depend on the pick.
  * Pure: state and a status in, plain props out.
  */
+import { collapsesHeader, recipientsOf } from './dmView';
 import { openContentLink } from './openContentLink';
 import type { PostView, Viewer } from './postView';
 import type { Account } from '../api/schemas/account';
@@ -56,6 +57,29 @@ export function cardName(status: Status): {
   return {
     displayName,
     displayNameEmojis: emojis.map(({ shortcode, static_url }) => ({ shortcode, url: static_url })),
+  };
+}
+
+/**
+ * The direct-message parts of a card (WFE-234): who the post names, and, in a
+ * DM window, how the bubble sits: the viewer's own to the right, and a
+ * header-less continuation of the author's run above it.
+ */
+export function dmCardProps(
+  state: AppState,
+  target: PostLineTarget,
+  view: PostView,
+): Pick<PostCardProps, 'recipients' | 'chat'> {
+  const { windowId, lineKey, status } = target;
+  const inDm = state.windows.windows.some((win) => win.id === windowId && win.ref.kind === 'dm');
+  return {
+    recipients: recipientsOf(status, viewerFor(state, windowId)),
+    chat: inDm
+      ? {
+          own: view.author.self,
+          collapsed: collapsesHeader(bufferFor(state, windowId).lines, lineKey),
+        }
+      : null,
   };
 }
 
