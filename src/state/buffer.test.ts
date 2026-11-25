@@ -58,12 +58,12 @@ function systemLines(count: number): SystemLineData[] {
 
 /** A post line with `key`. */
 function postLine(key: string): PostLineData {
-  return { kind: 'post', key, status: STATUS };
+  return { kind: 'post', key, status: STATUS, accountKey: null };
 }
 
 /** A notification line with `key`. */
 function notificationLine(key: string): NotificationLineData {
-  return { kind: 'notification', key, notification: NOTIFICATION };
+  return { kind: 'notification', key, notification: NOTIFICATION, accountKey: null };
 }
 
 /** A buffer in mid-chronicle: lines of every kind, labelled, selected, paging. */

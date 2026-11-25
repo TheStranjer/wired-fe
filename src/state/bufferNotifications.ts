@@ -53,6 +53,7 @@ function freshNotifications(
 function labelLines(
   labels: LabelBook,
   chronological: readonly Notification[],
+  accountKey: string | null,
 ): readonly [NotificationLineData[], LabelBook] {
   const lines: NotificationLineData[] = [];
   let book = labels;
@@ -61,7 +62,7 @@ function labelLines(
     if (status !== null) {
       [book] = assignLabel(book, status.id);
     }
-    lines.push({ kind: 'notification', key: notifKey(notification.id), notification });
+    lines.push({ kind: 'notification', key: notifKey(notification.id), notification, accountKey });
   }
   return [lines, book];
 }
@@ -72,21 +73,26 @@ function labelLines(
  * skipped, the rest are reversed into chronological order, each status they
  * carry labelled in the order its line joins, and appended under the existing
  * lines (`newer`) or prepended above them (`older`); the result is capped. The
- * same buffer comes back when nothing new arrived.
+ * same buffer comes back when nothing new arrived. Every line that joins
+ * records `accountKey`, the account that fetched it (decision 14);
+ * {@link addNotifications} is this for an unknown account.
  */
-export function addNotifications(
-  buffer: Buffer,
-  notifications: readonly Notification[],
-  where: Where,
-): Buffer {
-  const chronological = freshNotifications(buffer.lines, notifications).toReversed();
-  if (chronological.length === 0) {
-    return buffer;
-  }
-  const [lines, labels] = labelLines(buffer.labels, chronological);
-  const merged = where === 'newer' ? [...buffer.lines, ...lines] : [...lines, ...buffer.lines];
-  return { ...buffer, labels, lines: capLines(merged) };
+export function addNotificationsAs(
+  accountKey: string | null,
+): (buffer: Buffer, notifications: readonly Notification[], where: Where) => Buffer {
+  return (buffer, notifications, where) => {
+    const chronological = freshNotifications(buffer.lines, notifications).toReversed();
+    if (chronological.length === 0) {
+      return buffer;
+    }
+    const [lines, labels] = labelLines(buffer.labels, chronological, accountKey);
+    const merged = where === 'newer' ? [...buffer.lines, ...lines] : [...lines, ...buffer.lines];
+    return { ...buffer, labels, lines: capLines(merged) };
+  };
 }
+
+/** {@link addNotificationsAs} for lines whose fetching account is unknown (`accountKey` null). */
+export const addNotifications = addNotificationsAs(null);
 
 /**
  * Take one notification off the scrollback: the line keyed `notif:<id>` comes

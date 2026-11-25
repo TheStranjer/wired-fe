@@ -14,10 +14,11 @@
 import { putBuffer } from './appReducer';
 import type { AppState } from './appState';
 import type { Buffer, BufferLoad } from './buffer';
-import { addNotifications } from './bufferNotifications';
-import { addStatuses, removeStatus, replaceStatus, type Where } from './bufferPosts';
+import { addNotificationsAs } from './bufferNotifications';
+import { addStatusesAs, removeStatus, replaceStatus, type Where } from './bufferPosts';
 import { selectEdge, selectKey, selectRelative, toggleRevealed } from './bufferSelection';
 import { addedLines, markArrivals } from './bufferUnread';
+import { windowAccountKey } from './selectors';
 import type { PageCursor } from '../api/pagination';
 import type { Notification } from '../api/schemas/notification';
 import type { Status } from '../api/schemas/status';
@@ -116,10 +117,11 @@ function applyPage(state: AppState, action: PageAction): AppState {
   if (before === undefined) {
     return state;
   }
+  const accountKey = windowAccountKey(state, action.windowId);
   const after =
     action.type === 'statuses'
-      ? addStatuses(before, action.statuses, action.where)
-      : addNotifications(before, action.notifications, action.where);
+      ? addStatusesAs(accountKey)(before, action.statuses, action.where)
+      : addNotificationsAs(accountKey)(before, action.notifications, action.where);
   const buffers = putBuffer(state.buffers, action.windowId, after);
   const added = action.where === 'newer' ? addedLines(before, after) : [];
   const windows = markArrivals(state, action.windowId, added);

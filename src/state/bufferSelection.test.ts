@@ -28,7 +28,12 @@ function mixed(): Buffer {
 
 /** A notification line keyed `nt:<id>`, as the notifications window holds them. */
 function notificationLine(id: string, shown: Status | null): NotificationLineData {
-  return { kind: 'notification', key: `nt:${id}`, notification: notification(id, shown) };
+  return {
+    kind: 'notification',
+    key: `nt:${id}`,
+    notification: notification(id, shown),
+    accountKey: null,
+  };
 }
 
 /** {@link mixed} with a mention carrying a status and a follow request carrying none. */

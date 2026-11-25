@@ -21,7 +21,7 @@ import type { Status } from '../api/schemas/status';
 import type { ApiSession } from '../api/session';
 import { NOT_LOGGED_IN_MESSAGE } from '../lib/refusal';
 import { type Result, err, ok } from '../lib/result';
-import { selectedStatus, statusForLabel } from '../state/bufferSelection';
+import { type LineStatus, lineStatusForLabel, selectedLineStatus } from '../state/bufferSelection';
 import { accountByKey, activeBuffer, sessionFor, windowAccountKey } from '../state/selectors';
 import { activeWindow } from '../windows/model';
 
@@ -40,7 +40,7 @@ export type StatusTarget = {
   readonly status: Status;
   /** The argument text after a consumed label; all of it when the selection stood. */
   readonly rest: string;
-  /** The account the active window acts as. */
+  /** The account that fetched the line, else the one the active window acts as. */
   readonly accountKey: string | null;
   /** That account's connection to its instance. */
   readonly session: ApiSession;
@@ -52,7 +52,7 @@ export type AccountTarget = {
   readonly account: Account;
   /** The argument text after a consumed handle or label; all of it when the selection stood. */
   readonly rest: string;
-  /** The account the active window acts as. */
+  /** The account that fetched the line, else the one the active window acts as. */
   readonly accountKey: string | null;
   /** That account's connection to its instance. */
   readonly session: ApiSession;
@@ -71,16 +71,25 @@ function displayed(status: Status): Status {
   return status.reblog ?? status;
 }
 
+/**
+ * The account a command on a line acts as (decision 14): the one that fetched
+ * the line when it is still signed in, else {@link fallback}, the window's.
+ */
+function actingForLine(context: CommandContext, fallback: Acting, lineKey: string | null): Acting {
+  const session = sessionFor(context.state, lineKey);
+  return session === null ? fallback : { accountKey: lineKey, session };
+}
+
 /** The post the active window gave {@link word} as its label, or the refusal naming it. */
-function labelledPost(context: CommandContext, word: string): Result<Status, string> {
-  const status = statusForLabel(activeBuffer(context.state), word);
-  return status === null ? err(`No post ${word} here`) : ok(status);
+function labelledPost(context: CommandContext, word: string): Result<LineStatus, string> {
+  const found = lineStatusForLabel(activeBuffer(context.state), word);
+  return found === null ? err(`No post ${word} here`) : ok(found);
 }
 
 /** The post the active window's selection stands on, or the refusal to run without one. */
-function selectedPost(context: CommandContext): Result<Status, string> {
-  const status = selectedStatus(activeBuffer(context.state));
-  return status === null ? err('Select a post first (j/k) or give a label') : ok(status);
+function selectedPost(context: CommandContext): Result<LineStatus, string> {
+  const found = selectedLineStatus(activeBuffer(context.state));
+  return found === null ? err('Select a post first (j/k) or give a label') : ok(found);
 }
 
 /**
@@ -103,9 +112,9 @@ export function resolveStatusTarget(
     return picked;
   }
   return ok({
-    status: displayed(picked.value),
+    status: displayed(picked.value.status),
     rest: byLabel ? rest : args.trim(),
-    ...acting.value,
+    ...actingForLine(context, acting.value, picked.value.accountKey),
   });
 }
 
@@ -173,8 +182,8 @@ export async function resolveAccountTarget(
     return picked;
   }
   return ok({
-    account: displayed(picked.value).account,
+    account: displayed(picked.value.status).account,
     rest: byLabel ? rest : args.trim(),
-    ...acting.value,
+    ...actingForLine(context, acting.value, picked.value.accountKey),
   });
 }

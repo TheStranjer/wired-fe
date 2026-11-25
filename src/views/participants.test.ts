@@ -49,7 +49,7 @@ const NINE = author('nine@pleroma.example');
 
 /** A post line by {@link who}, keyed by its status id. */
 function post(id: string, who: Account): LineData {
-  return { kind: 'post', key: postKey(id), status: status(id, { account: who }) };
+  return { kind: 'post', key: postKey(id), status: status(id, { account: who }), accountKey: null };
 }
 
 /** A boost of status `2` by {@link who}: the line's own account boosts. */
@@ -58,6 +58,7 @@ function boost(id: string, who: Account): LineData {
     kind: 'post',
     key: postKey(id),
     status: status(id, { account: who, reblog: status(`${id}-orig`, { account: ALICE }) }),
+    accountKey: null,
   };
 }
 
@@ -113,6 +114,7 @@ describe(participants, () => {
         report: null,
         chat_message: null,
       },
+      accountKey: null,
     };
 
     expect(participants(bufferWith([post('1', ALICE), line]), 50).map((a) => a.acct)).toStrictEqual(

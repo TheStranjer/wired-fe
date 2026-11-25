@@ -36,6 +36,9 @@ export type PostLineData = {
   /** Identity stable for the life of the buffer; the status carries its own id. */
   readonly key: string;
   readonly status: Status;
+  /** The key of the account that fetched this line (decision 14); null when unknown,
+   * and commands then act as the window's account. */
+  readonly accountKey: string | null;
 };
 
 /** One notification in the scrollback, the notifications window's line. */
@@ -44,6 +47,9 @@ export type NotificationLineData = {
   /** Identity stable for the life of the buffer; the notification carries its own id. */
   readonly key: string;
   readonly notification: Notification;
+  /** The key of the account that fetched this line (decision 14); null when unknown,
+   * and commands then act as the window's account. */
+  readonly accountKey: string | null;
 };
 
 /** Anything that can sit on a line of a window's scrollback. */
