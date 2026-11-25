@@ -26,3 +26,13 @@ test('boots the built bundle under its CSP without console errors', async ({ pag
   await expect(bannerArt).toHaveCSS('white-space', 'pre');
   expect(errors).toStrictEqual([]);
 });
+
+test('declares the bundled favicon, served as a PNG', async ({ page }) => {
+  await page.goto('/');
+
+  const href = await page.locator('link[rel="icon"]').getAttribute('href');
+  expect(href).toBe('./favicon.png');
+  const response = await page.request.get(new URL('./favicon.png', page.url()).href);
+  expect(response.status()).toBe(200);
+  expect(response.headers()['content-type']).toContain('image/png');
+});
