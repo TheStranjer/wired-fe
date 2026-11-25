@@ -18,11 +18,18 @@ import { bufferReducer, type BufferAction } from './bufferActions';
 import { type ComposerAction, composerReducer, withLiveComposers } from './composerActions';
 import { type ComposerMediaAction, composerMediaReducer } from './composerMedia';
 import { type RestoreAction, restoreReducer } from './deskRestore';
+import { type PlaceAction, placeReducer } from './placeAction';
 import { type SignInAction, signInReducer } from './signIn';
 
 /** One thing that can happen to the application as a whole. */
 export type AppAction =
-  CoreAction | RestoreAction | SignInAction | BufferAction | ComposerAction | ComposerMediaAction;
+  | CoreAction
+  | RestoreAction
+  | SignInAction
+  | PlaceAction
+  | BufferAction
+  | ComposerAction
+  | ComposerMediaAction;
 
 /** The action types the buffer reducer owns, every one of them by name. */
 const BUFFER_ACTION_TYPES: Record<BufferAction['type'], true> = {
@@ -62,6 +69,9 @@ export function appReducer(state: AppState, action: AppAction): AppState {
   }
   if (action.type === 'signedIn') {
     return signInReducer(state, action);
+  }
+  if (action.type === 'openPlaced') {
+    return withLiveComposers(placeReducer(state, action));
   }
   return withLiveComposers(coreReducer(state, action));
 }

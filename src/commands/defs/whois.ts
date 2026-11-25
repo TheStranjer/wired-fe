@@ -13,6 +13,7 @@
  */
 
 import { profileWindowOpen } from '../../state/profileWindow';
+import { placedRun } from '../openWindowRun';
 import { OK, fail } from '../outcome';
 import { resolveAccountTarget } from '../targets';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
@@ -34,6 +35,6 @@ export const command: CommandDefinition = {
   aliases: ['wi', 'profile'],
   usage: '/whois [label | @user@host]',
   summary: "Open an account's profile window",
-  run: handle,
+  run: placedRun(handle),
   bindings: [{ mode: 'navigation', chord: 'w', args: '' }],
 };

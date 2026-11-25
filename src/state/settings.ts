@@ -12,12 +12,16 @@
  * like every knob, but deliberately absent from SETTING_KEYS: `/set` does not
  * list them, the `/bind` commands own them. The saved feeds (WFE-195) are
  * stored and defaulted the same way and equally hidden from `/set`, as is the
- * flag that the first-run `stream` feed was made (WFE-243).
+ * flag that the first-run `stream` feed was made (WFE-243). Where new
+ * windows open (decision 13) is `openIn`, listed; the per-kind choices over it
+ * (`openInByKind`) are turned by the dotted `/set openIn.<kind>` form, which
+ * ./placement's resolver reads, and are not in SETTING_KEYS.
  */
 
 import * as v from 'valibot';
 
 import { type Feeds, FeedsSchema } from './feeds';
+import { type KindPlacements, PLACEMENTS, type Placement, kindPlacements } from './placement';
 import type { Visibility } from '../api/schemas/status';
 import type { KeyOverride } from '../lib/keyOverride';
 import type { ClockFormat } from '../lib/time';
@@ -48,6 +52,10 @@ export type Settings = {
   readonly images: boolean;
   /** The reader's own key bindings over the defaults (WFE-130, `/bind`). */
   readonly keyOverrides: readonly KeyOverride[];
+  /** Where a newly opened window goes unless its kind or `--in` says otherwise (decision 13). */
+  readonly openIn: Placement;
+  /** Where windows of a kind go, over {@link openIn}; stored and shown by `/set openIn.<kind>`. */
+  readonly openInByKind: KindPlacements;
   /** Whether the first-run `stream` feed has been made (WFE-243); once true it is never made again. */
   readonly streamMade: boolean;
   /** Which theme paints the shell (src/theme/tokens.css, `/theme`). */
@@ -65,6 +73,8 @@ export const DEFAULT_SETTINGS: Settings = {
   feeds: [],
   images: true,
   keyOverrides: [],
+  openIn: 'here',
+  openInByKind: {},
   streamMade: false,
   theme: 'wired',
 };
@@ -105,12 +115,20 @@ export const SettingsSchema: v.GenericSchema<unknown, Settings> = v.object({
   feeds: v.optional(FeedsSchema, DEFAULT_SETTINGS.feeds),
   images: v.optional(v.boolean(), DEFAULT_SETTINGS.images),
   keyOverrides: v.optional(v.array(KeyOverrideSchema), DEFAULT_SETTINGS.keyOverrides),
+  openIn: v.optional(v.picklist(PLACEMENTS), DEFAULT_SETTINGS.openIn),
+  openInByKind: v.pipe(
+    v.optional(v.record(v.string(), v.picklist(PLACEMENTS)), {}),
+    v.transform(kindPlacements),
+  ),
   streamMade: v.optional(v.boolean(), DEFAULT_SETTINGS.streamMade),
   theme: v.optional(v.picklist(THEMES), DEFAULT_SETTINGS.theme),
 });
 
 /** The knobs `/set` lists and turns: every setting except the hidden key overrides. */
-type ListedSettingKey = Exclude<keyof Settings, 'keyOverrides' | 'feeds' | 'streamMade'>;
+type ListedSettingKey = Exclude<
+  keyof Settings,
+  'keyOverrides' | 'feeds' | 'openInByKind' | 'streamMade'
+>;
 
 /** One knob the reader can set, as the `/set` command lists and checks it. */
 export type SettingKey = {
@@ -163,6 +181,12 @@ export const SETTING_KEYS: readonly SettingKey[] = [
     key: 'images',
     kind: 'boolean',
     description: 'Show attachments inline instead of [IMG …] lines',
+  },
+  {
+    key: 'openIn',
+    kind: 'enum',
+    values: PLACEMENTS,
+    description: 'Where new windows open: here, vsplit, split, float or hidden',
   },
   {
     key: 'theme',

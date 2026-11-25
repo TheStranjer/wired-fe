@@ -7,13 +7,17 @@
  * false/yes/no and prints as on/off — dispatching the `settings` action and
  * printing `<key> = <value>` back; ./useSettingsPersistence stores the new
  * record. An unknown key answers `No setting <key>. Try /set`, a refused word
- * lists the words the knob takes, and a third word echoes the usage. The
+ * lists the words the knob takes, and a third word echoes the usage.
+ * `openIn` is where new windows open (decision 13); `openIn.<kind>` is the
+ * same per window kind (`/set openIn.thread vsplit`, `default` to take it
+ * back), which ../setPlacement handles. The
  * `local` audience of `defaultVisibility` needs `localOnlyPosts` on the active
  * account's instance (WFE-172) and is not listed without it.
  */
 
 import { requireFeature } from '../../capabilities/requireFeature';
 import { availableVisibilities } from '../../capabilities/visibilities';
+import { PLACEMENTS } from '../../state/placement';
 import { capabilitiesFor } from '../../state/selectors';
 import {
   CLOCK_FORMATS,
@@ -26,6 +30,7 @@ import {
 } from '../../state/settings';
 import { BOOLEAN_MEANINGS, BOOLEAN_WORDS, shown } from '../booleanWords';
 import { OK, fail, syncRun } from '../outcome';
+import { listKindPlacements, setPerKind } from '../setPlacement';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** The command's one form. */
@@ -88,9 +93,16 @@ function enumTurn(key: EnumKey, raw: string): Turn | null {
   }
 }
 
+/** Turn the default placement: the word, if it is a placement, becomes the patch and prints as itself. */
+function placementTurn(raw: string): Turn | null {
+  return isOneOf(PLACEMENTS, raw) ? { patch: { openIn: raw }, word: raw } : null;
+}
+
 /** Turn {@link meta} to {@link raw}: the patch and print word, or null to refuse. */
 function turnOf(meta: SettingKey, raw: string): Turn | null {
   switch (meta.key) {
+    case 'openIn':
+      return placementTurn(raw);
     case 'clockFormat':
     case 'defaultVisibility':
     case 'density':
@@ -131,14 +143,20 @@ function setOne(context: CommandContext, meta: SettingKey, raw: string): Command
   return OK;
 }
 
+/** Print every setting, then the placements chosen per kind. */
+function listAll(context: CommandContext): CommandOutcome {
+  for (const meta of SETTING_KEYS) {
+    context.print(listed(context, meta));
+  }
+  listKindPlacements(context);
+  return OK;
+}
+
 /** Do what one argument text asks: list every setting, show one, or turn one. */
 function handle(args: string, context: CommandContext): CommandOutcome {
   const [key = '', value, extra] = args.trim().split(/\s+/u);
   if (key === '') {
-    for (const meta of SETTING_KEYS) {
-      context.print(listed(context, meta));
-    }
-    return OK;
+    return listAll(context);
   }
   const meta = SETTING_KEYS.find((entry) => entry.key === key);
   if (meta === undefined) {
@@ -160,5 +178,5 @@ export const command: CommandDefinition = {
   aliases: ['settings'],
   usage: USAGE,
   summary: 'Show or change your settings',
-  run: syncRun(handle),
+  run: syncRun((args, context) => setPerKind(args, context) ?? handle(args, context)),
 };
