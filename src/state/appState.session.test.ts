@@ -186,6 +186,8 @@ describe('the settings', () => {
       feeds: [],
       images: true,
       keyOverrides: [],
+      openIn: 'here',
+      openInByKind: {},
       streamMade: false,
       theme: 'wired',
     });

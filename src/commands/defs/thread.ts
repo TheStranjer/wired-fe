@@ -13,6 +13,7 @@
  * what the command says back.
  */
 
+import { placedRun } from '../openWindowRun';
 import { fail, syncRun } from '../outcome';
 import { resolveStatusTarget } from '../targets';
 import { openThreadWindow } from '../threadWindow';
@@ -29,6 +30,6 @@ export const command: CommandDefinition = {
   name: 'thread',
   usage: '/thread [label]',
   summary: "Open a post's thread window",
-  run: syncRun(handle),
+  run: placedRun(syncRun(handle)),
   bindings: [{ mode: 'navigation', chord: 't', args: '' }],
 };

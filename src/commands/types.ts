@@ -98,6 +98,12 @@ export type CommandContext = {
   readonly deviceClass: DeviceClass;
   /** The build-time configuration of this bundle (decision 3). */
   readonly config: WiredConfig;
+  /**
+   * Set while a command runs for another that places its window itself
+   * (`/vsplit`, `/float`): the window opens it asks for go to
+   * {@link dispatchWindows} as they are, whatever `--in` or the settings say.
+   */
+  readonly placedByCaller?: true;
   /** The persisted stores a command may read and write (decision 10). */
   readonly stores: {
     readonly apps: Store;

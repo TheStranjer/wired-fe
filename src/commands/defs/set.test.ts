@@ -25,6 +25,7 @@ const LINES = [
   '  effects = off  — The CRT/glitch effects (they never flash)',
   '  expandMedia = off  — Media behind a content warning starts open',
   '  images = on  — Show attachments inline instead of [IMG …] lines',
+  '  openIn = here  — Where new windows open: here, vsplit, split, float or hidden',
   '  theme = wired  — The colors the shell is painted in',
 ];
 
@@ -72,6 +73,7 @@ describe('/set', () => {
       ['  effects = on  — The CRT/glitch effects (they never flash)'],
       [LINES[5]],
       [LINES[6]],
+      [LINES[7]],
       ['  theme = lain  — The colors the shell is painted in'],
     ]);
   });

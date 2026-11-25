@@ -162,6 +162,8 @@ function sameBehaviour(a: Settings, b: Settings): boolean {
     a.expandMedia === b.expandMedia &&
     a.feeds === b.feeds &&
     a.keyOverrides === b.keyOverrides &&
+    a.openIn === b.openIn &&
+    a.openInByKind === b.openInByKind &&
     a.streamMade === b.streamMade
   );
 }
