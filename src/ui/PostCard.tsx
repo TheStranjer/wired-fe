@@ -10,7 +10,10 @@
 import type { JSX } from 'react';
 
 import { Avatar } from './Avatar';
-import { BoostLine } from './BoostLine';
+import { CardBoost } from './CardBoost';
+import { bubbleName, cardClassKeys, dmStrip } from './cardDm';
+import type { ChatMark, DmRecipient } from './cardDm';
+import { CardHead } from './CardHead';
 import type { EmojiRef } from './emojify';
 import { MediaGrid } from './MediaGrid';
 import { Nick } from './Nick';
@@ -22,7 +25,6 @@ import type { PostRowProps } from './PostRow';
 import { QuoteBlock } from './QuoteBlock';
 import { RemoteHtml } from './RemoteHtml';
 import { postArticleProps } from './rowClick';
-import { Timestamp } from './Timestamp';
 import { escapeHtml } from '../lib/escapeHtml';
 
 /** An account's picture URLs: the (maybe animated) image and its still. */
@@ -44,51 +46,22 @@ export type PostCardProps = Omit<PostRowProps, 'author' | 'boostedBy'> & {
     (NonNullable<PostRowProps['boostedBy']> & { readonly avatar: AvatarUrls }) | null;
   /** Whether avatars show; false leaves the card text-only. */
   readonly showAvatar: boolean;
+  /** The accounts a direct message names besides its author, for its header strip. */
+  readonly recipients: readonly DmRecipient[];
+  /** The bubble placement in a DM window; null for a card anywhere else. */
+  readonly chat: ChatMark | null;
 };
-
-/** The top line of the frame: the label on the left, the clock on the right. */
-function CardHead(
-  props: Pick<PostCardProps, 'label' | 'date' | 'clockFormat' | 'selected'>,
-): JSX.Element {
-  const { label, date, clockFormat, selected } = props;
-  const labelClass = [styles['label'], selected ? styles['labelSelected'] : undefined].join(' ');
-  return (
-    <div className={styles['head']}>
-      <span className={labelClass}>{`[${label}]`}</span>
-      <Timestamp date={date} format={clockFormat} />
-    </div>
-  );
-}
-
-/** Who boosted the post, with their small picture when avatars show. */
-function CardBoost(props: Pick<PostCardProps, 'boostedBy' | 'showAvatar'>): JSX.Element | null {
-  const { boostedBy, showAvatar } = props;
-  if (boostedBy === null) {
-    return null;
-  }
-  return (
-    <div className={styles['boost']}>
-      {showAvatar ? (
-        <Avatar
-          animate={false}
-          handle={boostedBy.fullHandle}
-          size="small"
-          src={boostedBy.avatar.src}
-          staticSrc={boostedBy.avatar.staticSrc}
-        />
-      ) : undefined}
-      <BoostLine boostedBy={boostedBy} />
-    </div>
-  );
-}
 
 /** The author's display name (custom emoji included) over their handle, and
  * who the post answers. */
 function CardIdentity(
-  props: Pick<PostCardProps, 'author' | 'replyTo' | 'onSelectAuthor'>,
-): JSX.Element {
-  const { author, replyTo, onSelectAuthor } = props;
-  const name = author.displayName === '' ? author.handle : author.displayName;
+  props: Pick<PostCardProps, 'author' | 'replyTo' | 'onSelectAuthor' | 'chat'>,
+): JSX.Element | null {
+  const { author, replyTo, onSelectAuthor, chat } = props;
+  if (chat?.collapsed === true) {
+    return null;
+  }
+  const name = bubbleName(chat, author.displayName === '' ? author.handle : author.displayName);
   return (
     <>
       <div className={styles['name']}>
@@ -146,42 +119,57 @@ function CardContent(props: PostCardProps): JSX.Element {
   );
 }
 
+/** The author's picture beside the text; a chat bubble goes without one. */
+function CardAvatar(
+  props: Pick<PostCardProps, 'author' | 'showAvatar' | 'chat'>,
+): JSX.Element | null {
+  const { author, showAvatar, chat } = props;
+  if (!showAvatar || chat !== null) {
+    return null;
+  }
+  return (
+    <Avatar
+      animate={false}
+      handle={author.fullHandle}
+      size="medium"
+      src={author.avatar.src}
+      staticSrc={author.avatar.staticSrc}
+    />
+  );
+}
+
 /** One post as a card; clicking it selects it, clicking the nick opens the author. */
 export function PostCard(props: PostCardProps): JSX.Element {
-  const { author, selected, showAvatar, ref } = props;
-  const { avatar } = author;
+  const { author, selected, chat, ref } = props;
   return (
     <article
       {...postArticleProps({
         label: props.label,
         fullHandle: author.fullHandle,
         selected,
+        direct: props.visibility === 'direct',
         onSelect: props.onSelect,
         onContentLink: props.onContentLink,
       })}
-      className={[styles['card'], selected ? styles['selected'] : undefined].join(' ')}
+      className={cardClassKeys(props, selected)
+        .map((key) => styles[key])
+        .join(' ')}
       ref={ref}
     >
       <CardHead
         clockFormat={props.clockFormat}
         date={props.date}
+        dm={dmStrip(props)}
         label={props.label}
         selected={selected}
       />
-      <CardBoost boostedBy={props.boostedBy} showAvatar={showAvatar} />
+      <CardBoost boostedBy={props.boostedBy} showAvatar={props.showAvatar} />
       <div className={styles['main']}>
-        {showAvatar ? (
-          <Avatar
-            animate={false}
-            handle={author.fullHandle}
-            size="medium"
-            src={avatar.src}
-            staticSrc={avatar.staticSrc}
-          />
-        ) : undefined}
+        <CardAvatar author={author} chat={chat} showAvatar={props.showAvatar} />
         <div className={styles['text']}>
           <CardIdentity
             author={author}
+            chat={chat}
             onSelectAuthor={props.onSelectAuthor}
             replyTo={props.replyTo}
           />

@@ -1,0 +1,8 @@
+/* Who boosted a post: metadata, dimmed like the label. */
+
+.boost {
+  display: flex;
+  align-items: center;
+  gap: var(--space);
+  color: var(--color-dim);
+}

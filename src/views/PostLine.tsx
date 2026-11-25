@@ -6,7 +6,8 @@
  * are the very same thing. The window's resolved `density` (decision 15) picks
  * the rendering: a card by default, the IRC row when the setting or the
  * window's own override says `lines`; `avatars` decides whether a card shows
- * pictures. Nothing here holds state: the clock format, the label, the
+ * pictures; a direct post's card also names who it is between, and in a DM
+ * window sits as a chat bubble (WFE-234, ./dmView). Nothing here holds state: the clock format, the label, the
  * selection and the open content warnings all come from the app state, and a
  * click asks the one reducer for the transition. When the selection moves onto
  * the entry, the view keeps it in view. Clicking the nick opens the author's
@@ -16,7 +17,13 @@
 import { useEffect, useRef } from 'react';
 import type { JSX } from 'react';
 
-import { cardName, sharedPostProps, viewerFor, type PostLineTarget } from './postLineProps';
+import {
+  cardName,
+  dmCardProps,
+  sharedPostProps,
+  viewerFor,
+  type PostLineTarget,
+} from './postLineProps';
 import { postView } from './postView';
 import { labelForStatus } from '../state/bufferSelection';
 import { bufferFor, displayFor } from '../state/selectors';
@@ -62,6 +69,7 @@ export function PostLine(props: PostLineTarget): JSX.Element {
       boostedBy={view.boostedBy}
       ref={rowRef}
       showAvatar={display.avatars}
+      {...dmCardProps(state, props, view)}
     />
   );
 }
