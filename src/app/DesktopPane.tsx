@@ -42,7 +42,7 @@ export function Pane(props: {
       subtitle={accountLabel(view.state, win.ref.accountKey)}
       topic={windowTopic(win, view.state)}
       focused={paneId === view.focusedPaneId}
-      actions={<PaneActions paneId={paneId} title={win.title} />}
+      actions={<PaneActions paneId={paneId} win={win} />}
       titleBarProps={titleBarProps}
       onFocusRequest={() => {
         view.focus(paneId);

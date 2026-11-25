@@ -57,6 +57,7 @@ export function MenuList(props: MenuListProps): JSX.Element {
       {controls.items.map((item, index) => (
         <button
           aria-checked={item.checked}
+          aria-label={item.name}
           className={styles['item']}
           disabled={item.disabled === true}
           key={item.id}
