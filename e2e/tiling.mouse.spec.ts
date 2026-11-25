@@ -79,6 +79,21 @@ test('Existing window… lists the other windows and floats the one picked', asy
   await expect(pane(page, '#rust')).toBeVisible();
 });
 
+test('Hashtag… asks for the tag in a dialog, then splits with that tag', async ({ page }) => {
+  await routeTags(page);
+  await signIn(page);
+  await page.getByRole('button', { name: 'Split side by side' }).click();
+  await page.getByRole('menuitem', { name: 'Hashtag…', exact: true }).click();
+  const dialog = page.getByRole('dialog', { name: 'Split with hashtag' });
+  await expect(dialog).toBeVisible();
+  await dialog.getByRole('combobox').fill('rust');
+  await dialog.getByRole('combobox').press('Enter');
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(pane(page, 'home')).toHaveCount(1);
+  await expect(pane(page, '#rust')).toHaveCount(1);
+  await expect(pane(page, '#rust')).toHaveAttribute('aria-current', 'true');
+});
+
 /** The divider of the one split on the desktop. */
 function dividerOf(page: Page): Locator {
   return page.getByRole('separator', { name: 'Resize panes' });
