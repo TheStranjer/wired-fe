@@ -5,7 +5,7 @@
  * printed line visible, since no window kind can render it while the load
  * itself has failed.
  */
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import type { JSX } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -24,7 +24,7 @@ vi.mock(import('./startup'), () => ({ runStartup: vi.fn() }));
 function BufferReader(): JSX.Element {
   const { lines } = activeBuffer(useAppState());
   const texts = lines.map((line) => (line.kind === 'system' ? line.text : line.key));
-  return <div>{texts.join('\n')}</div>;
+  return <output aria-label="buffer">{texts.join('\n')}</output>;
 }
 
 describe(Root, () => {
@@ -36,6 +36,11 @@ describe(Root, () => {
       </AppStateProvider>,
     );
 
-    expect(screen.getAllByText('boom: no windowKind')).toHaveLength(1);
+    const buffer = screen.getByRole('status', { name: 'buffer' });
+
+    expect(within(buffer).getAllByText('boom: no windowKind')).toHaveLength(1);
+    expect(screen.getByRole('alertdialog', { name: 'Error' })).toHaveAccessibleDescription(
+      'boom: no windowKind',
+    );
   });
 });

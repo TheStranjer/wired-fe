@@ -19,6 +19,10 @@ export type OverlayProps = {
   readonly label: string;
   /** What Escape asks for; the box itself never decides what closing means. */
   readonly onClose: () => void;
+  /** `alertdialog` for a box that interrupts with a message (WFE-271); `dialog` when not given. */
+  readonly role?: 'dialog' | 'alertdialog';
+  /** The id of the element that describes the box, for assistive technology. */
+  readonly describedBy?: string;
   /** The box's contents; its fields are where the trapped focus lives. */
   readonly children: ReactNode;
 };
@@ -99,14 +103,16 @@ export function Overlay(props: OverlayProps): JSX.Element {
     return trapKeysIn(box, onCloseRef);
   }, []);
 
+  const role = props.role ?? 'dialog';
   return (
     <div className={styles['backdrop']}>
       <div
+        aria-describedby={props.describedBy}
         aria-label={props.label}
         aria-modal="true"
-        className={styles['box']}
+        className={[styles['box'], role === 'alertdialog' ? styles['alert'] : ''].join(' ')}
         ref={boxRef}
-        role="dialog"
+        role={role}
       >
         {props.children}
       </div>

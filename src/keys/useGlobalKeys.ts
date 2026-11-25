@@ -23,9 +23,13 @@ export type ChordHandler = (chord: string, event: KeyboardEvent) => boolean;
 /**
  * True when {@link event} was pressed on a field of an open modal dialog or
  * in an open dropdown menu (WFE-190): each owns its keys, so the shell's
- * global listener stays out of its way.
+ * global listener stays out of its way. An open error alert (WFE-271) owns
+ * every key, wherever focus happens to be.
  */
 function insideDialog(event: KeyboardEvent): boolean {
+  if (document.querySelector('[role="alertdialog"]') !== null) {
+    return true;
+  }
   const { target } = event;
   return target instanceof Element && target.closest('[role="dialog"], [role="menu"]') !== null;
 }

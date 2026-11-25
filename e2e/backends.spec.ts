@@ -13,6 +13,7 @@
 
 import { expect, test, type Page } from '@playwright/test';
 
+import { dismissAlert } from './fixtures/alert';
 import { POSTED_TEXT } from './fixtures/content';
 import {
   MASTODON,
@@ -111,6 +112,7 @@ async function reactToFirst(page: Page, one: BackendCase, reactions: string[]): 
   await submit(page, '/react a0 🔥');
   if (!one.reacts) {
     await expect(home).toContainText("server (Mastodon) can't react to posts with emoji");
+    await dismissAlert(page);
     expect(reactions).toStrictEqual([]);
     return;
   }

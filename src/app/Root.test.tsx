@@ -152,7 +152,9 @@ describe(Root, () => {
 
     submit('/nope');
 
-    const error = await screen.findByText('Unknown command: /nope. Try /help');
+    const error = await within(screen.getByRole('log', { name: 'status' })).findByText(
+      'Unknown command: /nope. Try /help',
+    );
 
     expect(error).toBeInTheDocument();
   });
@@ -162,7 +164,9 @@ describe(Root, () => {
 
     submit('hello there');
 
-    const refusal = await screen.findByText("You can't post in this window. Try /home");
+    const refusal = await within(screen.getByRole('log', { name: 'status' })).findByText(
+      "You can't post in this window. Try /home",
+    );
 
     expect(refusal).toBeInTheDocument();
   });

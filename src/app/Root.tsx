@@ -33,6 +33,7 @@ import { useDeskPersistence } from './useDeskPersistence';
 import { useDeskSync } from './useDeskSync';
 import { useDocumentTitle } from './useDocumentTitle';
 import { useDropAndPaste } from './useDropAndPaste';
+import { useErrorAlert } from './useErrorAlert';
 import { useHashRoute } from './useHashRoute';
 import { useLineRunnerApi } from './useLineRunnerApi';
 import { usePostActionsApi } from './usePostActionsApi';
@@ -88,6 +89,7 @@ export function Root(): JSX.Element {
   const ready = useStartup();
   useHashRoute(ready);
   const overlays = useRouteOverlays(ready);
+  const alert = useErrorAlert(overlays.open);
   useStateMirrors(state, ready);
   useStreams();
   const postActions = usePostActionsApi();
@@ -115,7 +117,8 @@ export function Root(): JSX.Element {
             />
           }
         />
-        {overlays}
+        {overlays.elements}
+        {alert}
         {drop}
         {attachments.input}
       </LineRunnerProvider>

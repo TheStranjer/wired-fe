@@ -5,6 +5,7 @@
  * with the line added.
  */
 
+import { type Alert, queueAlert } from './alerts';
 import { printTarget, putBuffer } from './appReducer';
 import { type Buffer, EMPTY_BUFFER, appendSystem, type LineLevel } from './buffer';
 import type { WindowsState } from '../windows/model';
@@ -37,4 +38,18 @@ export function withPrinted<S extends PrintSlice>(state: S, line: PrintLine): S 
     state.seq,
   );
   return { ...state, buffers: putBuffer(state.buffers, id, buffer), seq: state.seq + 1 };
+}
+
+/**
+ * {@link withPrinted}, and an error line also queues its modal alert (WFE-271),
+ * keyed by the counter value the line is printed under.
+ */
+export function withPrintedAlert<S extends PrintSlice & { readonly alerts: readonly Alert[] }>(
+  state: S,
+  line: PrintLine,
+): S {
+  const printed = withPrinted(state, line);
+  return line.level === 'error'
+    ? { ...printed, alerts: queueAlert(state.alerts, state.seq, line.text) }
+    : printed;
 }

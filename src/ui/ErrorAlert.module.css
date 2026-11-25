@@ -1,0 +1,25 @@
+/* The error alert: the message in the error colour, the repeat count dim and
+   one plain OK button under them. */
+
+.message {
+  margin: 0;
+  color: var(--color-error);
+}
+
+.count {
+  color: var(--color-dim);
+}
+
+.ok {
+  align-self: flex-start;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--color-accent);
+  font: inherit;
+  cursor: pointer;
+}
+
+.ok:focus-visible {
+  outline: 1px solid var(--color-dim);
+}
