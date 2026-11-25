@@ -1,6 +1,7 @@
 /**
- * The media endpoints: uploading a file for a post (`POST /api/v2/media`) and
- * reading one attachment back (`GET /api/v1/media/:id`). While the server is
+ * The media endpoints: uploading a file for a post (`POST /api/v2/media`),
+ * describing one (`PUT /api/v1/media/:id`) and reading one attachment back
+ * (`GET /api/v1/media/:id`). While the server is
  * still processing a file its answer is 202 — 206 to a poll — and its body is
  * already a MediaAttachment, only with `url: null` on Mastodon. The shared
  * {@link MediaAttachmentSchema} stays strict there (a status's attachments are
@@ -147,4 +148,23 @@ export async function uploadAndWait(
     return uploaded;
   }
   return pollMedia(session, uploaded.value.id, options);
+}
+
+/**
+ * Sets the alt text of attachment {@link id} on {@link session}'s instance: a
+ * PUT to `/api/v1/media/:id` with the description as JSON. An attachment can
+ * only be described this way until a post carries it, so a composer that asks
+ * for the text after the upload sends it just before the post.
+ */
+export async function updateMedia(
+  session: ApiSession,
+  id: string,
+  description: string,
+): Promise<Result<MediaAttachment, ApiError>> {
+  return sessionRequestData(session, {
+    path: `/api/v1/media/${encodeURIComponent(id)}`,
+    method: 'PUT',
+    json: { description },
+    schema: ProcessingAttachmentSchema,
+  });
 }

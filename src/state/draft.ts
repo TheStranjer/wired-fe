@@ -76,3 +76,20 @@ export function fieldsToDraft(fields: ComposerFields): Draft {
       : { poll: { ...poll, options: poll.options.map((option) => option.trim()) } }),
   };
 }
+
+/** One attachment line of a pane composer: a file on its way to the instance, or already there. */
+export type ComposerMedia = {
+  /** A key of this line alone, so a late upload answer finds its line again. */
+  readonly key: string;
+  /** The file's own name. */
+  readonly name: string;
+  readonly status: 'uploading' | 'ready' | 'failed';
+  /** The instance's id of the attachment, once it accepted the file. */
+  readonly mediaId: string | null;
+  /** The thumbnail of an image the instance accepted. */
+  readonly previewUrl: string | null;
+  /** The alt text the reader typed; empty means none. */
+  readonly description: string;
+  /** Why the upload failed; empty while it did not. */
+  readonly error: string;
+};

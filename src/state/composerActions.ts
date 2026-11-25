@@ -82,16 +82,26 @@ export function composerReducer(state: AppState, action: ComposerAction): AppSta
   }
 }
 
+/** {@link entries} without the windows that are not in {@link open}; the same map when none is dropped. */
+function live<V>(
+  entries: ReadonlyMap<string, V>,
+  open: ReadonlySet<string>,
+): ReadonlyMap<string, V> {
+  const kept = [...entries].filter(([id]) => open.has(id));
+  return kept.length === entries.size ? entries : new Map(kept);
+}
+
 /**
- * The state with only the drafts of windows still on the list: closing a
- * composer forgets its text, so opening one again starts empty. The same state
- * when nothing was dropped.
+ * The state with only the drafts and media of windows still on the list:
+ * closing a composer forgets its text and its attachments, so opening one again
+ * starts empty. The same state when nothing was dropped.
  */
 export function withLiveComposers(state: AppState): AppState {
   const open = new Set(state.windows.windows.map((win) => win.id));
-  const kept = [...state.composers].filter(([id]) => open.has(id));
-  if (kept.length === state.composers.size) {
+  const composers = live(state.composers, open);
+  const composerMedia = live(state.composerMedia, open);
+  if (composers === state.composers && composerMedia === state.composerMedia) {
     return state;
   }
-  return { ...state, composers: new Map(kept) };
+  return { ...state, composers, composerMedia };
 }

@@ -1,21 +1,28 @@
 /**
  * The composer window's content (decision 13): the same form the overlay shows
  * (src/views/ComposerForm), over the draft the app state keeps for this window,
- * with a "Post as" picker above it and the window's client messages — the
- * confirmation after a send — in the scrollback below. The window's account
- * sets the limit and the audiences offered; picking another account moves the
- * window to it, and an audience that account's instance does not serve (`local`
- * on Mastodon) falls back to the reader's default; an open poll is fitted to
- * the new instance's poll limits (WFE-206).
+ * with a "Post as" picker above it, the window's attachments under the text
+ * (./MediaLines, WFE-205) and the window's client messages — the confirmation
+ * after a send — in the scrollback below. The window's account sets the limit
+ * and the audiences offered; picking another account moves the window to it,
+ * and an audience that account's instance does not serve (`local` on Mastodon)
+ * falls back to the reader's default; an open poll is fitted to the new
+ * instance's poll limits (WFE-206). Attachments belong to the account that
+ * uploaded them, so picking another account takes them off the draft. Files
+ * pasted or dropped onto the pane attach to this composer alone.
  */
 
 import type { JSX } from 'react';
 
 import styles from './ComposerWindow.module.css';
+import { MediaLines } from './MediaLines';
 import { PostAs } from './PostAs';
+import { useAccountPick } from './useAccountPick';
+import { useComposerMedia } from './useComposerMedia';
 import { useComposerSend } from './useComposerSend';
+import { usePaneDrop } from './usePaneDrop';
 import { composerLimits } from '../../state/composerActions';
-import { fitPoll } from '../../state/pollEditor';
+import { mediaIdsOf } from '../../state/composerMedia';
 import { useAppDispatch, useAppState } from '../../state/StateContext';
 import { BufferView } from '../../views/BufferView';
 import { ComposerForm } from '../../views/ComposerForm';
@@ -28,32 +35,24 @@ export function ComposerWindow({ windowId }: { readonly windowId: string }): JSX
   const accountKey = win?.ref.accountKey ?? null;
   const limits = composerLimits(state, accountKey);
   const { fields, sending, error, send } = useComposerSend(windowId, accountKey);
-
-  function pick(key: string): void {
-    const next = composerLimits(state, key);
-    dispatch({ type: 'windows', action: { type: 'setAccount', id: windowId, accountKey: key } });
-    if (fields.poll !== undefined) {
-      dispatch({
-        type: 'composerEdit',
-        windowId,
-        patch: { poll: fitPoll(fields.poll, next.pollLimits) },
-      });
-    }
-    if (fields.visibility === 'local' && !next.allowLocal) {
-      dispatch({
-        type: 'composerEdit',
-        windowId,
-        patch: { visibility: state.settings.defaultVisibility },
-      });
-    }
-  }
+  const media = useComposerMedia(windowId, accountKey);
+  const { dragging, ...drop } = usePaneDrop(media.add);
+  const pick = useAccountPick(windowId, media.items.length > 0);
 
   return (
-    <div className={styles['window']}>
+    <div className={[styles['window'], dragging ? styles['dropping'] : ''].join(' ')} {...drop}>
       <ComposerForm
         allowLocal={limits.allowLocal}
+        attachments={
+          <MediaLines
+            items={media.items}
+            onDescribe={media.describe}
+            onFiles={media.add}
+            onRemove={media.remove}
+          />
+        }
         error={error}
-        fields={fields}
+        fields={{ ...fields, mediaIds: [...(fields.mediaIds ?? []), ...mediaIdsOf(media.items)] }}
         header={<PostAs accounts={state.accounts} onPick={pick} value={accountKey} />}
         maxCharacters={limits.maxCharacters}
         onChange={(patch) => {

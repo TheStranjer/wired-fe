@@ -6,12 +6,9 @@
  * fields — the overlay in local state (./Composer), the composer window in the
  * app state — and decides what a send does, so both show exactly the same
  * thing. Ctrl+Enter or the button asks to send, but only while the draft is
- * sendable: text, within the limit, a poll (when one is open) with every
- * option fine, nothing in flight. The poll editor (./PollSection) shows only
- * where the owner passes the instance's poll limits. The compact form
- * (WFE-207) is the chat-style one a DM window docks under its messages: one
- * line that grows with the text, no warning or audience (the window fixes
- * them), where Enter sends and Shift+Enter breaks the line.
+ * sendable: text, within the limit, a valid poll if one is open, nothing in
+ * flight. The poll editor (./PollSection) needs the instance's poll limits;
+ * attachments (WFE-205) go under the text; the compact form (WFE-207) is a DM chat line.
  */
 import { type ChangeEvent, type JSX, type KeyboardEvent, type ReactNode, useRef } from 'react';
 
@@ -46,6 +43,8 @@ export type ComposerFormProps = {
   readonly compact?: boolean;
   /** The text gained focus; a window that owns the keyboard mode uses it to leave navigation. */
   readonly onFocus?: () => void;
+  /** Controls to show under the text, such as the pane's attachments. */
+  readonly attachments?: ReactNode;
 };
 
 /** The audiences the select offers, in order; `local` last, when served. */
@@ -188,6 +187,7 @@ export function ComposerForm(props: ComposerFormProps): JSX.Element {
     <div className={props.compact === true ? styles['compact'] : styles['composer']}>
       {props.header}
       <PostText {...props} send={send} />
+      {props.attachments}
       <Poll {...props} />
       <OptionsRow {...props} sendable={sendable} send={send} />
       {props.error === null ? null : (

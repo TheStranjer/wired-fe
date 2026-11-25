@@ -14,12 +14,13 @@ import {
   mergedSettings,
   putBuffer,
   putProfile,
+  replacing,
   syncBuffers,
   withAccounts,
   withExpired,
 } from './appReducer';
 import { type Buffer, clearBuffer, type LineLevel } from './buffer';
-import type { ComposerFields } from './draft';
+import type { ComposerFields, ComposerMedia } from './draft';
 import { DEFAULT_SETTINGS, type Settings } from './settings';
 import type { StoredAccount } from '../accounts/accountStore';
 import type { InstanceProfile } from '../capabilities/detect';
@@ -57,6 +58,8 @@ export type AppState = {
   readonly profiles: ReadonlyMap<string, InstanceProfile>;
   /** The pane composers' drafts, by window id (./composerActions). */
   readonly composers: ReadonlyMap<string, ComposerFields>;
+  /** The pane composers' attachments, by window id (./composerMedia). */
+  readonly composerMedia: ReadonlyMap<string, readonly ComposerMedia[]>;
   readonly mode: InputModeState;
   readonly settings: Settings;
   /** The client-message counter: every printed line is keyed by its value. */
@@ -103,6 +106,7 @@ export function initialAppState(settings: Settings = DEFAULT_SETTINGS): AppState
     expired: new Set<string>(),
     profiles: new Map<string, InstanceProfile>(),
     composers: new Map<string, ComposerFields>(),
+    composerMedia: new Map<string, readonly ComposerMedia[]>(),
     mode: 'insert',
     settings,
     seq: 0,
@@ -125,11 +129,11 @@ export function coreReducer(state: AppState, action: CoreAction): AppState {
     case 'accountExpired':
       return { ...state, expired: withExpired(state.expired, action.accountKey) };
     case 'profile':
-      return applyProfile(state, action.profile);
+      return replacing(state, 'profiles', putProfile(state.profiles, action.profile));
     case 'mode':
       return applyMode(state, action.mode);
     case 'settings':
-      return applySettings(state, action.settings);
+      return replacing(state, 'settings', mergedSettings(state.settings, action.settings));
   }
 }
 
@@ -158,22 +162,7 @@ function applyClear(state: AppState, windowId: string): AppState {
   return { ...state, buffers: putBuffer(state.buffers, windowId, clearBuffer(buffer)) };
 }
 
-/** What one instance turned out to be, stored under its origin. */
-function applyProfile(state: AppState, profile: InstanceProfile): AppState {
-  const profiles = putProfile(state.profiles, profile);
-  if (profiles === state.profiles) {
-    return state;
-  }
-  return { ...state, profiles };
-}
-
 /** The mode the keyboard is in. */
 function applyMode(state: AppState, mode: InputModeState): AppState {
   return state.mode === mode ? state : { ...state, mode };
-}
-
-/** The reader's settings, with {@link patch} laid over them. */
-function applySettings(state: AppState, patch: Partial<Settings>): AppState {
-  const settings = mergedSettings(state.settings, patch);
-  return settings === state.settings ? state : { ...state, settings };
 }
