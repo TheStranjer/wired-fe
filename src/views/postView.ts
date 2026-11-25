@@ -31,6 +31,13 @@ export type Viewer = {
   readonly accountId: string | null;
 };
 
+/** An account's picture: the (maybe animated) image and its still. Either may
+ * be '' when the backend sent none; the Avatar then shows the bundled default. */
+type AvatarUrls = {
+  readonly src: string;
+  readonly staticSrc: string;
+};
+
 /** The data props of one PostRow, derived from a single status. */
 export type PostView = {
   /** The id of the displayed status (the original, for boosts). */
@@ -42,6 +49,7 @@ export type PostView = {
     readonly handle: string;
     readonly fullHandle: string;
     readonly self: boolean;
+    readonly avatar: AvatarUrls;
   };
   /** The body as hostile remote HTML; RemoteHtml sanitizes it. */
   readonly contentHtml: string;
@@ -62,6 +70,7 @@ export type PostView = {
   readonly boostedBy: {
     readonly handle: string;
     readonly fullHandle: string;
+    readonly avatar: AvatarUrls;
   } | null;
   /** Who the displayed status answers, as `@carol`: the mention the backend
    * resolved for it, or `a thread` when it names an account the status does
@@ -95,9 +104,18 @@ export type PostView = {
   readonly quote: QuoteView | null;
 };
 
-/** The nick's two forms for an account seen from `origin`. */
-function handles(account: Account, origin: string): Handles {
-  return { handle: account.acct, fullHandle: `@${fullHandle(account, origin)}` };
+/** The account's picture URLs, as the backend sent them. */
+function avatarOf(account: Account): AvatarUrls {
+  return { src: account.avatar, staticSrc: account.avatar_static };
+}
+
+/** The nick's two forms for an account seen from `origin`, with its picture. */
+function handles(account: Account, origin: string): Handles & { readonly avatar: AvatarUrls } {
+  return {
+    handle: account.acct,
+    fullHandle: `@${fullHandle(account, origin)}`,
+    avatar: avatarOf(account),
+  };
 }
 
 /** The displayed status's author, flagged when it is the viewer themself. */

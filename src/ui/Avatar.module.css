@@ -1,0 +1,21 @@
+/* A square account picture: a fixed size in line-heights so the layout never
+   shifts while it loads, a 1px border outline and no rounding (decision 16). */
+
+.avatar {
+  display: block;
+  flex: none;
+  box-sizing: border-box;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: 0;
+  object-fit: cover;
+}
+
+.small {
+  width: calc(2 * var(--line-height) * 1em);
+  height: calc(2 * var(--line-height) * 1em);
+}
+
+.medium {
+  width: calc(3 * var(--line-height) * 1em);
+  height: calc(3 * var(--line-height) * 1em);
+}

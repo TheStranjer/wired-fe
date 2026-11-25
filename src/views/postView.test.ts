@@ -20,6 +20,12 @@ const ORIGIN = 'https://wired.example';
 /** The viewer when nobody is signed in. */
 const SIGNED_OUT = { origin: ORIGIN, accountId: null };
 
+/** The avatar wireAccount gives `name`; its still is the same URL. */
+function pic(name: string): Record<string, string> {
+  const url = `https://wired.example/avatars/${name}.png`;
+  return { src: url, staticSrc: url };
+}
+
 /** Parses {@link input} as a Status, throwing on invalid input. */
 function parse(input: unknown): Status {
   const result = v.safeParse(StatusSchema, input);
@@ -91,7 +97,12 @@ describe(postView, () => {
     expect(postView(status, SIGNED_OUT)).toStrictEqual({
       id: '1',
       date: new Date('2026-11-12T21:14:05.000Z'),
-      author: { handle: 'lain', fullHandle: '@lain@wired.example', self: false },
+      author: {
+        handle: 'lain',
+        fullHandle: '@lain@wired.example',
+        self: false,
+        avatar: pic('lain'),
+      },
       contentHtml: '<p>post 1</p>',
       spoilerText: '',
       boostedBy: null,
@@ -105,7 +116,12 @@ describe(postView, () => {
     expect(postView(status, SIGNED_OUT)).toStrictEqual({
       id: 'AhZQp4rent1W1r3dSt4tus00',
       date: new Date('2026-11-12T21:14:05.000Z'),
-      author: { handle: 'lain@wired.example', fullHandle: '@lain@wired.example', self: false },
+      author: {
+        handle: 'lain@wired.example',
+        fullHandle: '@lain@wired.example',
+        self: false,
+        avatar: pic('lain'),
+      },
       contentHtml: '<p>She is everywhere now.</p>',
       spoilerText: '',
       boostedBy: null,
@@ -163,6 +179,7 @@ describe(postView, () => {
       handle: 'alice@other.example',
       fullHandle: '@alice@other.example',
       self: false,
+      avatar: pic('alice'),
     });
   });
 
@@ -184,10 +201,19 @@ describe(postView, () => {
     expect(postView(boost, SIGNED_OUT)).toStrictEqual({
       id: 'orig',
       date: new Date('2026-11-11T17:02:00.000Z'),
-      author: { handle: 'alice@other.example', fullHandle: '@alice@other.example', self: false },
+      author: {
+        handle: 'alice@other.example',
+        fullHandle: '@alice@other.example',
+        self: false,
+        avatar: pic('alice'),
+      },
       contentHtml: '<p>the original words</p>',
       spoilerText: 'cw on the original',
-      boostedBy: { handle: 'bob', fullHandle: '@bob@wired.example' },
+      boostedBy: {
+        handle: 'bob',
+        fullHandle: '@bob@wired.example',
+        avatar: pic('bob'),
+      },
       ...QUIET,
     });
   });
