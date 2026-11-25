@@ -19,6 +19,17 @@ function cacheKey(origin: string, redirectUri: string): string {
 }
 
 /**
+ * The cached registration for one instance and redirect URI, or undefined
+ * when none is stored (or the stored value is corrupt). Never registers.
+ */
+export function cachedApp(
+  store: Store,
+  params: { readonly origin: string; readonly redirectUri: string },
+): AppCredentials | undefined {
+  return store.get(cacheKey(params.origin, params.redirectUri), AppCredentialsSchema);
+}
+
+/**
  * The app credentials to log in with: the cached registration for this origin
  * and redirect URI when one is stored and valid (no request at all), else a
  * fresh {@link registerApp}. A successful registration is stored; a failed one
