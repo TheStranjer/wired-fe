@@ -149,7 +149,32 @@ describe(NotificationLine, () => {
   it('falls back to a client message for a mention with no status', () => {
     const { container } = renderLine(seeded(note('mention', null)));
 
-    expect(container.textContent).toMatch(/^\d\d:\d\d \*\*\* @lain@wired\.example mention$/u);
+    expect(container.textContent).toMatch(/^\d\d:\d\d \*\*\* @lain@wired\.example mentioned you$/u);
+    expect(screen.queryByRole('article')).toBeNull();
+  });
+
+  it('shows a mention whose post has no text as a sentence with its label', () => {
+    const { container } = renderLine(seeded(note('mention', status('e', { content: '' }))));
+
+    expect(container.textContent).toMatch(
+      /^\d\d:\d\d \*\*\* @lain@wired\.example mentioned you \[a0\] \(no text\)$/u,
+    );
+    expect(screen.queryByRole('article')).toBeNull();
+  });
+
+  it('shows a quote as its sentence over the quoting post', () => {
+    const quoting = status('q', { content: '<p>look at this</p>' });
+
+    const { container } = renderLine(seeded(note('quote', quoting)));
+
+    expect(container.textContent).toContain('@lain@wired.example quoted [a0] "look at this"');
+    expect(screen.getByRole('article', { name: 'Post a0 by @lain@wired.example' })).toBeVisible();
+  });
+
+  it('shows a quote with no status as its sentence alone', () => {
+    const { container } = renderLine(seeded(note('quote', null)));
+
+    expect(container.textContent).toMatch(/^\d\d:\d\d \*\*\* @lain@wired\.example quoted$/u);
     expect(screen.queryByRole('article')).toBeNull();
   });
 

@@ -10,6 +10,7 @@
  */
 import type { JSX } from 'react';
 
+import { hasWords } from './notificationExcerpt';
 import styles from './NotificationLine.module.css';
 import { notificationText } from './notificationText';
 import { PostLine, viewerFor } from './PostLine';
@@ -57,23 +58,25 @@ function withoutActor(sentence: string, handle: string): string | null {
   return sentence.startsWith(`${handle} `) ? sentence.slice(handle.length + 1) : null;
 }
 
-/** One notification line: a mention as its post, anything else as a client message. */
-export function NotificationLine(props: NotificationLineProps): JSX.Element {
+/** The post a mention shows as its own row: one with words; none for the rest. */
+function mentionedPost(notification: NotificationLineData['notification']): Status | null {
+  const { status } = notification;
+  return notification.kind === 'mention' && status !== null && hasWords(status) ? status : null;
+}
+
+/** The `***` client message of a notification, its actor a click target when it leads. */
+function NotificationMessage(props: NotificationLineProps): JSX.Element {
   const state = useAppState();
   const dispatch = useAppDispatch();
   const { windowId, line } = props;
   const { notification } = line;
-  const shown = notification.kind === 'mention' ? notification.status : null;
-  if (shown !== null) {
-    return mentionRow(props, shown);
-  }
-  const origin = viewerFor(state, windowId).origin;
+  const viewer = viewerFor(state, windowId);
   const sentence = notificationText(
     notification,
     statusLabel(state, windowId, notification),
-    origin,
+    viewer,
   );
-  const handle = `@${fullHandle(notification.account, origin)}`;
+  const handle = `@${fullHandle(notification.account, viewer.origin)}`;
   const rest = withoutActor(sentence, handle);
   const actor =
     rest === null
@@ -96,4 +99,25 @@ export function NotificationLine(props: NotificationLineProps): JSX.Element {
       text={rest ?? sentence}
     />
   );
+}
+
+/**
+ * One notification line: a mention with words as its post, a quote as its
+ * sentence over the quoting post, anything else as a client message.
+ */
+export function NotificationLine(props: NotificationLineProps): JSX.Element {
+  const { notification } = props.line;
+  const shown = mentionedPost(notification);
+  if (shown !== null) {
+    return mentionRow(props, shown);
+  }
+  if (notification.kind === 'quote' && notification.status !== null) {
+    return (
+      <>
+        <NotificationMessage {...props} />
+        {mentionRow(props, notification.status)}
+      </>
+    );
+  }
+  return <NotificationMessage {...props} />;
 }
