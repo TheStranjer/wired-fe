@@ -1,17 +1,15 @@
-/* The shell grid: header over scrollback + side pane, status line and
-   command line at the bottom. Below 640px the side pane gives way to the
-   scrollback. */
+/* The shell grid: header over the desktop, status line and command line at
+   the bottom. */
 
 .shell {
   display: grid;
   grid-template-rows: auto 1fr auto auto;
-  grid-template-columns: minmax(0, 1fr) 24ch;
+  grid-template-columns: minmax(0, 1fr);
   height: 100%;
 }
 
 .header {
   grid-row: 1;
-  grid-column: 1 / -1;
   background: var(--color-bar-bg);
   color: var(--color-bar-fg);
   padding: 0 var(--space);
@@ -19,22 +17,12 @@
 
 .scrollback {
   grid-row: 2;
-  grid-column: 1;
   min-width: 0;
   min-height: 0;
 }
 
-.sidePane {
-  grid-row: 2;
-  grid-column: 2;
-  min-height: 0;
-  border-left: 1px solid var(--color-dim);
-  overflow: hidden auto;
-}
-
 .footer {
   grid-row: 3 / -1;
-  grid-column: 1 / -1;
   display: flex;
   flex-direction: column;
 }
@@ -47,14 +35,4 @@
 
 .inputLine {
   padding: 0 var(--space);
-}
-
-@media (width < 640px) {
-  .shell {
-    grid-template-columns: 1fr;
-  }
-
-  .sidePane {
-    display: none;
-  }
 }
