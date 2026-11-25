@@ -15,5 +15,6 @@ export const command: CommandDefinition = {
   name: 'unreact',
   usage: '/unreact [label] <emoji>',
   summary: 'Remove your emoji reaction from a post',
+  requires: 'emojiReactions',
   run: reactionRun('unreact'),
 };

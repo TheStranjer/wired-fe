@@ -36,7 +36,7 @@ const MAX_CANDIDATES = 50;
  */
 export type CompletionProvider = {
   /** True when this provider handles a word with this prefix character, e.g. '@', ':', '#', '/'. */
-  readonly accepts: (word: string, isFirstWord: boolean) => boolean;
+  readonly accepts: (word: string, isFirstWord: boolean, line?: string) => boolean;
   /** Every full replacement word for {@link word}, sorted; empty when none match. */
   readonly candidates: (word: string) => readonly string[];
 };

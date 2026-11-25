@@ -7,9 +7,14 @@
  * false/yes/no and prints as on/off — dispatching the `settings` action and
  * printing `<key> = <value>` back; ./useSettingsPersistence stores the new
  * record. An unknown key answers `No setting <key>. Try /set`, a refused word
- * lists the words the knob takes, and a third word echoes the usage.
+ * lists the words the knob takes, and a third word echoes the usage. The
+ * `local` audience of `defaultVisibility` needs `localOnlyPosts` on the active
+ * account's instance (WFE-172) and is not listed without it.
  */
 
+import { requireFeature } from '../../capabilities/requireFeature';
+import { availableVisibilities } from '../../capabilities/visibilities';
+import { capabilitiesFor } from '../../state/selectors';
 import {
   CLOCK_FORMATS,
   SETTING_KEYS,
@@ -86,11 +91,25 @@ function turnOf(meta: SettingKey, raw: string): Turn | null {
   }
 }
 
+/** The words {@link meta} takes for the active account's backend: `local` only where it exists. */
+function wordsFor(context: CommandContext, meta: SettingKey): readonly string[] | undefined {
+  if (meta.key !== 'defaultVisibility') {
+    return meta.values;
+  }
+  return availableVisibilities(capabilitiesFor(context.state, context.state.activeAccountKey));
+}
+
 /** Turn one knob: dispatch the patch and print the word, or refuse the value. */
 function setOne(context: CommandContext, meta: SettingKey, raw: string): CommandOutcome {
+  if (meta.key === 'defaultVisibility' && raw === 'local') {
+    const local = requireFeature(context, context.state.activeAccountKey, 'localOnlyPosts');
+    if (!local.ok) {
+      return fail(local.error);
+    }
+  }
   const turned = turnOf(meta, raw);
   if (turned === null) {
-    const words = meta.values;
+    const words = wordsFor(context, meta);
     const list = words === undefined ? 'on|off|true|false|yes|no' : words.join('|');
     return fail(`${meta.key} takes ${list}`);
   }

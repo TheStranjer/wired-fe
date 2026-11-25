@@ -20,6 +20,7 @@ export const FEATURE_FLAGS = [
   'editing',
   'localOnlyPosts',
   'markdown',
+  'passwordResetApi',
 ] as const;
 
 /** A UI feature WiredFE can switch on (decision 5); never a raw feature string. */
@@ -75,9 +76,11 @@ function mastodonFlags(v2: InstanceV2 | null): readonly FeatureFlag[] {
 
 /**
  * The flags of the Pleroma dialect: what it advertises among {@link advertised},
- * `markdown` iff its v1 `post_formats` lists it, and `localOnlyPosts` always —
- * no document says whether local-only posts work, but Wired, Pleroma and
- * Akkoma all do, so the whole dialect is assumed to.
+ * `markdown` iff its v1 `post_formats` lists it, and `localOnlyPosts` and
+ * `passwordResetApi` always — no document says whether either works, but
+ * Wired, Pleroma and Akkoma all do (the reset is `/api/v1/pleroma/password_reset`
+ * or `/auth/password`; Mastodon has no such API), so the whole dialect is
+ * assumed to.
  */
 function pleromaFlags(
   advertised: ReadonlySet<string>,
@@ -88,7 +91,7 @@ function pleromaFlags(
   );
   const markdown: readonly FeatureFlag[] =
     v1?.postFormats.includes(MARKDOWN_FORMAT) === true ? ['markdown'] : [];
-  return [...advertisedFlags, 'localOnlyPosts', ...markdown];
+  return [...advertisedFlags, 'localOnlyPosts', 'passwordResetApi', ...markdown];
 }
 
 /** The flags a backend of {@link family} has, from the documents it answered. */

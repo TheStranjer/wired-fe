@@ -29,6 +29,7 @@ const ALL_FLAGS: readonly FeatureFlag[] = [
   'editing',
   'localOnlyPosts',
   'markdown',
+  'passwordResetApi',
 ];
 
 describe(deriveCapabilities, () => {
@@ -96,7 +97,9 @@ describe(deriveCapabilities, () => {
     });
 
     expect(caps.backend).toBe('akkoma');
-    expect(caps.features).toStrictEqual(new Set(['emojiReactions', 'localOnlyPosts']));
+    expect(caps.features).toStrictEqual(
+      new Set(['emojiReactions', 'localOnlyPosts', 'passwordResetApi']),
+    );
   });
 
   it('gives Mastodon quotePosting from API version 7 on', () => {

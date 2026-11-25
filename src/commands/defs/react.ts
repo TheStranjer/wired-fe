@@ -15,6 +15,7 @@ export const command: CommandDefinition = {
   name: 'react',
   usage: '/react [label] <emoji>',
   summary: 'React to a post with an emoji',
+  requires: 'emojiReactions',
   run: reactionRun('react'),
   bindings: [{ mode: 'navigation', chord: 'Shift+e', args: '{label}', prefill: true }],
 };

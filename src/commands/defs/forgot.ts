@@ -66,5 +66,6 @@ export const command: CommandDefinition = {
   aliases: ['resetpw'],
   usage: '/forgot <email|nick> [instance]',
   summary: 'Mail a password-reset letter',
+  requires: 'passwordResetApi',
   run: handle,
 };

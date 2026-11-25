@@ -111,18 +111,6 @@ describe('/set', () => {
     expect(print).toHaveBeenCalledWith('clockFormat = 12h');
   });
 
-  it('sets local visibility on its own — /vis is the one that asks the server', async () => {
-    const { context } = contextWith();
-
-    const outcome = await command.run('defaultVisibility local', context);
-
-    expect(outcome).toStrictEqual({ ok: true });
-    expect(context.dispatch).toHaveBeenCalledWith({
-      type: 'settings',
-      settings: { defaultVisibility: 'local' },
-    });
-  });
-
   it('refuses a value an enum does not list, naming its words', async () => {
     const { context, print } = contextWith();
 
@@ -133,14 +121,14 @@ describe('/set', () => {
     expect(print).not.toHaveBeenCalled();
   });
 
-  it('refuses an audience the visibility knob does not list', async () => {
+  it('refuses an audience the visibility knob does not list for this server', async () => {
     const { context } = contextWith();
 
     const outcome = await command.run('defaultVisibility everyone', context);
 
     expect(outcome).toStrictEqual({
       ok: false,
-      message: 'defaultVisibility takes public|unlisted|private|direct|local',
+      message: 'defaultVisibility takes public|unlisted|private|direct',
     });
     expect(context.dispatch).not.toHaveBeenCalled();
   });

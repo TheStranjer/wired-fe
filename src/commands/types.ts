@@ -11,6 +11,7 @@
 
 import type { AccountStore } from '../accounts/accountStore';
 import type { MediaAttachment } from '../api/schemas/mediaAttachment';
+import type { Capabilities, FeatureFlag } from '../capabilities/capabilities';
 import type { WiredConfig } from '../config/schema';
 import type { AppState } from '../state/appState';
 import type { Draft } from '../state/draft';
@@ -32,15 +33,16 @@ export type Registry = {
   readonly commands: readonly CommandDefinition[];
   /** Every name and every alias, mapped to the definition it belongs to. */
   readonly byName: ReadonlyMap<string, CommandDefinition>;
+  /** Names of commands the active backend cannot do (WFE-172), so typing one says why. */
+  readonly hidden?: ReadonlyMap<string, CommandDefinition>;
 };
 
 /**
- * Everything a command may do: talk to the user, read the command list, read
- * and change the window list, read and move the whole app state, post through
- * the active window, rewrite the command line, open the composer overlay,
- * attach media to the next post (WFE-126), read the effective key bindings and
- * canonicalize chords (WFE-130), navigate, and reach the persisted
- * stores and the build-time configuration. The app builds one per run.
+ * Everything a command may do: talk to the user, read the commands (only those
+ * the active backend can do, WFE-172), change windows and app state, post
+ * through the active window, rewrite the command line, open the composer,
+ * attach media (WFE-126), read key bindings (WFE-130), navigate, and reach the
+ * stores and the build configuration. The app builds one per run.
  */
 export type CommandContext = {
   /** Print a client message into the active window; no level means `info`. */
@@ -76,13 +78,7 @@ export type CommandContext = {
     readonly clear: () => void;
     readonly pending: readonly MediaAttachment[];
   };
-  /**
-   * What the keys layer lends to commands (WFE-130), wired up by src/app:
-   * `parseChord` turns binding text the reader types into a canonical chord
-   * or null, `blocksTyping` is the keymap's insert-mode guard, and `keymap`
-   * is the effective keymap — the registry's defaults with the reader's
-   * overrides applied — as `/binds` prints it.
-   */
+  /** The keys layer's helpers (WFE-130): chord parsing, the insert-mode guard, the effective keymap. */
   readonly keys: {
     readonly parseChord: (text: string) => string | null;
     readonly blocksTyping: (chord: string) => boolean;
@@ -116,11 +112,7 @@ export type KeymapEntry = {
   readonly prefill: boolean;
 };
 
-/**
- * The two hotkey maps and what went wrong building them (src/keys/keymap.ts
- * generates one): declared here so the command context can hand the effective
- * keymap — the reader's bindings as they now stand — to `/binds` (WFE-130).
- */
+/** The two hotkey maps and what went wrong building them (src/keys/keymap.ts); `/binds` reads one (WFE-130). */
 export type Keymap = {
   /** Chord -> entry while typing in the command line, e.g. `Alt+3` -> `/win 3`. */
   readonly insert: ReadonlyMap<string, KeymapEntry>;
@@ -130,12 +122,7 @@ export type Keymap = {
   readonly problems: readonly string[];
 };
 
-/**
- * One default key binding of a command: in {@link mode}, pressing
- * {@link chord} runs `/name args`, or — when {@link prefill} is set — fills
- * that line into the command line instead. The keymap is generated from the
- * bindings declared across the registry.
- */
+/** One default key binding: in {@link mode}, {@link chord} runs `/name args` (or fills it when {@link prefill}). */
 export type CommandBinding = {
   readonly mode: BindingMode;
   /** Canonical chord, e.g. `Alt+3` (see src/keys/chord.ts). */
@@ -164,4 +151,8 @@ export type CommandDefinition = {
   readonly run: (args: string, context: CommandContext) => Promise<CommandOutcome>;
   /** Default key bindings this command declares; absent means none. */
   readonly bindings?: readonly CommandBinding[];
+  /** Flags the backend must all carry for the command to exist (WFE-172); absent: any backend. */
+  readonly requires?: FeatureFlag | readonly FeatureFlag[];
+  /** The {@link usage} for a backend's capabilities (null: unknown); absent: always {@link usage}. */
+  readonly usageFor?: (capabilities: Capabilities | null) => string;
 };

@@ -49,6 +49,7 @@ export const command: CommandDefinition = {
   name: 'quote',
   usage: USAGE,
   summary: 'Quote a post with a new one',
+  requires: 'quotePosting',
   run: handle,
   bindings: [{ mode: 'navigation', chord: 'Shift+r', args: '{label}', prefill: true }],
 };
