@@ -4,8 +4,9 @@
  * first, then what the buffers have seen and what the account's instance
  * serves. Custom emoji are not offered on a `/react` line unless the instance
  * has `customEmojiReactions`. Without a loadable registry there are no
- * commands to offer, and the rest stands on its own. `/display` arguments
- * (its keys and their values) are offered ahead of everything else.
+ * commands to offer, and the rest stands on its own. The arguments of
+ * `/display` (its keys and their values), `/focus` and `/swap` (directions) are
+ * offered ahead of everything else.
  */
 
 import { appRegistry } from './registry';
@@ -13,6 +14,7 @@ import { useAvailableRegistry } from './useAvailableRegistry';
 import { hasFeature } from '../capabilities/capabilities';
 import { type Provider, commandProvider } from '../commands/complete';
 import { desktopProvider } from '../commands/desktopWords';
+import { directionProvider } from '../commands/directionWords';
 import { displayProvider } from '../commands/displayWords';
 import { capabilitiesFor } from '../state/selectors';
 import { useAppState } from '../state/StateContext';
@@ -34,6 +36,12 @@ export function useCompletionProviders(): readonly Provider[] {
     custom ? emoji : withoutReactionWords(emoji),
   ];
   return appRegistry().ok
-    ? [displayProvider(), desktopProvider(), commandProvider(registry), ...seen]
+    ? [
+        displayProvider(),
+        desktopProvider(),
+        directionProvider(),
+        commandProvider(registry),
+        ...seen,
+      ]
     : seen;
 }
