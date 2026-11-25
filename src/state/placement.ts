@@ -106,13 +106,16 @@ export function chosenPlacement(
   return override ?? settings.openInByKind[kind] ?? null;
 }
 
-/** Where a window of {@link kind} opens: {@link override}, else its kind's setting, else the default. */
+/** The kinds whose placement starts as something other than `openIn`: a composer pops up over what you are reading. */
+const KIND_DEFAULTS: KindPlacements = { composer: 'float' };
+
+/** Where a window of {@link kind} opens: {@link override}, else its kind's setting, else the kind's own default, else `openIn`. */
 export function resolvePlacement(
   settings: PlacementSettings,
   kind: WindowKind,
   override: Placement | null,
 ): Placement {
-  return chosenPlacement(settings, kind, override) ?? settings.openIn;
+  return chosenPlacement(settings, kind, override) ?? KIND_DEFAULTS[kind] ?? settings.openIn;
 }
 
 /** The slice with the desktops changed by {@link change} and window {@link id} shown and active. */

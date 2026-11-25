@@ -2,7 +2,7 @@
  * The `composer` window kind (decision 13, WFE-198): the composer as a pane
  * view. Its ref is `{ kind: 'composer', accountKey: <posting account>, target:
  * <draft number> }`, titled `compose` or `compose/<n>` (src/state/composerWindow);
- * the form is the overlay's own (src/views/ComposerForm) with a "Post as"
+ * the form is the shared one (src/views/ComposerForm) with a "Post as"
  * picker (./PostAs). Plain text typed at the command line while it is focused is
  * not a post: it goes into the composer's text, the way the command line is
  * "one way to use" the composer — the form's `[ send ]` is what posts.

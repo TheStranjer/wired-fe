@@ -167,6 +167,12 @@ describe('which placement wins', () => {
     expect(resolvePlacement(settings('split', by), 'dm', null)).toBe('split');
   });
 
+  it('floats a composer unless the reader or --in says otherwise', () => {
+    expect(resolvePlacement(settings('here', {}), 'composer', null)).toBe('float');
+    expect(resolvePlacement(settings('here', { composer: 'here' }), 'composer', null)).toBe('here');
+    expect(resolvePlacement(settings('here', {}), 'composer', 'vsplit')).toBe('vsplit');
+  });
+
   it('reports no choice for a kind the reader did not place, so a command can keep its own default', () => {
     expect(chosenPlacement(settings('float', by), 'dm', null)).toBeNull();
     expect(chosenPlacement(settings('float', by), 'thread', null)).toBe('vsplit');

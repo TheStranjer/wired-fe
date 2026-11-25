@@ -1,8 +1,9 @@
 /**
  * Tests for the composer window in the running shell (WFE-198): `/composer`
- * opens a fresh composer window in the active window's place, plain text typed
+ * opens a composer window (a float, by default), plain text typed
  * at the command line while it is focused lands in the composer's text instead
- * of posting, and a second `/composer` is a window of its own. Startup is
+ * of posting, and a second `/composer` once the first holds a draft is a window
+ * of its own. Startup is
  * mocked; the window's own behaviour is in src/features/composer.
  */
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
@@ -114,6 +115,9 @@ describe('the composer window in the shell', () => {
     const second = await screen.findByRole('log', { name: 'compose/2' });
 
     expect(second).toBeInTheDocument();
-    expect(screen.getByRole('textbox', { name: 'Post text' })).toHaveValue('');
+
+    const [, fresh] = screen.getAllByRole('textbox', { name: 'Post text' });
+
+    expect(fresh).toHaveValue('');
   });
 });

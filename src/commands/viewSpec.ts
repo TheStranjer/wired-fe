@@ -33,7 +33,7 @@ const VIEWS: ReadonlyMap<string, View> = new Map<string, View>([
   ['local', { command: 'local', arity: 'none' }],
   ['federated', { command: 'federated', arity: 'none' }],
   ['notifications', { command: 'notifications', arity: 'none' }],
-  ['composer', { command: 'composer', arity: 'none' }],
+  ['composer', { command: 'compose', arity: 'none' }],
   ['tag', { command: 'tag', arity: 'required' }],
   ['search', { command: 'search', arity: 'required' }],
   ['dm', { command: 'query', arity: 'required' }],

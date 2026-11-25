@@ -1,7 +1,7 @@
 /**
  * Tests for placement through the real open commands (decision 13), over the
  * real app reducer: a trailing `--in <placement>` puts the window of `/tag`,
- * `/home`, `/query`, `/search` and `/composer` in a split, a float or nowhere
+ * `/home`, `/query`, `/search` and `/compose` in a split, a float or nowhere
  * in particular; `/set openIn` and `/set openIn.<kind>` do the same for every
  * open, with `--in` over the kind's setting over the default; a bad `--in`
  * opens nothing; and `/vsplit`, which places its window itself, is not
@@ -9,7 +9,7 @@
  */
 import { describe, expect, it } from 'vitest';
 
-import { command as composer } from './composer';
+import { command as compose } from './compose';
 import { command as home } from './home';
 import { command as query } from './query';
 import { command as search } from './search';
@@ -74,7 +74,7 @@ describe('--in on the open commands', () => {
   it('opens a composer where it is told', async () => {
     const session = desk([LAIN]);
 
-    await session.run(composer, '--in vsplit');
+    await session.run(compose, '--in vsplit');
 
     expect(direction(session.state())).toBe('row');
     expect(session.state().windows.windows).toHaveLength(2);
@@ -110,6 +110,16 @@ describe('the settings that place every open', () => {
     await session.run(set, 'openIn.hashtag float');
 
     await session.run(tag, 'rust');
+
+    expect(activeDesktop(session.state().layout).floats).toHaveLength(1);
+    expect(direction(session.state())).toBe('pane');
+  });
+
+  it('floats a composer by default, whatever openIn says', async () => {
+    const session = desk([LAIN]);
+    await session.run(set, 'openIn vsplit');
+
+    await session.run(compose, '');
 
     expect(activeDesktop(session.state().layout).floats).toHaveLength(1);
     expect(direction(session.state())).toBe('pane');

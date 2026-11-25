@@ -10,11 +10,15 @@ import { initialAppState } from './appState';
 import type { AppState } from './appState';
 import {
   composerFields,
+  composerIsEmpty,
   composerLimits,
   composerReducer,
   withLiveComposers,
 } from './composerActions';
+import { uploadingMedia } from './composerMedia';
 import { composerWindowOpen } from './composerWindow';
+import type { ComposerFields } from './draft';
+import { newPoll } from './pollEditor';
 import { type AppAction, appReducer } from './reducer';
 import type { StoredAccount } from '../accounts/accountStore';
 import {
@@ -101,6 +105,26 @@ describe(composerFields, () => {
       spoiler: '',
       visibility: state.settings.defaultVisibility,
     });
+  });
+});
+
+describe(composerIsEmpty, () => {
+  it('is true for a fresh composer, and false once anything is in it', () => {
+    const [state, windowId] = withComposer(session(false));
+    const edit = (patch: Partial<ComposerFields>): AppState =>
+      appReducer(state, { type: 'composerEdit', windowId, patch });
+    const poll = newPoll(DEFAULT_POLL_LIMITS);
+    const media: AppAction = {
+      type: 'composerMediaAdd',
+      windowId,
+      item: uploadingMedia('a', 'a.png'),
+    };
+
+    expect(composerIsEmpty(state, windowId)).toBe(true);
+    expect(composerIsEmpty(edit({ text: 'x' }), windowId)).toBe(false);
+    expect(composerIsEmpty(edit({ spoiler: 'cw' }), windowId)).toBe(false);
+    expect(composerIsEmpty(edit({ poll }), windowId)).toBe(false);
+    expect(composerIsEmpty(appReducer(state, media), windowId)).toBe(false);
   });
 });
 

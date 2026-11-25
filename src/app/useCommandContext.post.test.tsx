@@ -102,7 +102,7 @@ function contextShowing(
   ref: WindowRef,
   attachments: CommandContext['attachments'] = NO_MEDIA,
 ): CommandContext {
-  const { result } = renderHook(() => useCommandContext(vi.fn(), vi.fn(), attachments), {
+  const { result } = renderHook(() => useCommandContext(vi.fn(), attachments, ''), {
     wrapper: showing(ref),
   });
 

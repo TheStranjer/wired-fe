@@ -1,5 +1,5 @@
 /**
- * The composer window's content (decision 13): the same form the overlay shows
+ * The composer window's content (decision 13): the shared form
  * (src/views/ComposerForm), over the draft the app state keeps for this window,
  * with a "Post as" picker above it, the window's attachments under the text
  * (./MediaLines, WFE-205) and the window's client messages — the confirmation

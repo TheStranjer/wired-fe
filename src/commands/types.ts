@@ -70,8 +70,8 @@ export type CommandContext = {
   readonly post: (draft: Draft) => Promise<string | null>;
   /** Replaces the command-line text (used by prefill hotkeys and /edit). */
   readonly setInput: (text: string) => void;
-  /** Opens the composer overlay for a long post, filled with {@link initialText} (WFE-125). */
-  readonly openComposer: (initialText: string) => void;
+  /** What the command line holds right now, so `/compose` can take a half-typed post into a composer window. */
+  readonly line: string;
   /**
    * The media waiting for the next post (WFE-126): {@link pick} opens the
    * app's file dialog asking for alt text to give whatever is chosen,

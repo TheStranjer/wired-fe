@@ -15,10 +15,9 @@ import { fakeAttachments } from '../test/commandContext';
 
 /** Renders the context hook over a session built from {@link actions}. */
 function renderContext(actions: readonly AppAction[]): CommandContext {
-  const { result } = renderHook(
-    () => useCommandContext(vi.fn(), () => undefined, fakeAttachments()),
-    { wrapper: seeded(actions) },
-  );
+  const { result } = renderHook(() => useCommandContext(vi.fn(), fakeAttachments(), ''), {
+    wrapper: seeded(actions),
+  });
   return result.current;
 }
 
