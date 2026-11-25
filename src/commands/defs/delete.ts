@@ -6,6 +6,8 @@
  * window's own account wrote can go: a boost is the boosted author's post.
  * `Shift+d` prefills the line with the selected post's label, so Enter on the
  * filled `/delete a3` is the confirmation; there is no dialog in an IRC client.
+ * A click on the card's `⋯` → Delete does ask in a dialog instead (WFE-266),
+ * then runs the same line.
  * The instance answers with the status as it was; the id is what every
  * scrollback is told to drop, boost lines and all, and the window prints the
  * label of the line that showed it.

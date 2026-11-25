@@ -4,7 +4,9 @@
  * and, depending on whose post it is, pin, unpin, edit and delete (your own) or
  * mute and block (someone else's). A row exists only for a command the
  * registry carries a line for, and the menu itself only when it has a row.
- * Choosing a row hands that command's line on.
+ * Choosing a row hands that command's line on; a line marked `confirm`
+ * (Delete, Block author; WFE-266) is for the caller to ask about in a dialog
+ * before it runs, since this menu is presentational and holds no such state.
  */
 import type { JSX } from 'react';
 
