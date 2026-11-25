@@ -14,6 +14,9 @@ import { Pane, windowOf } from './DesktopPane';
 import type { View } from './DesktopPane';
 import styles from './DesktopView.module.css';
 import { FloatLayer } from './FloatLayer';
+import { MobileDesktop } from './MobileDesktop';
+import { DEVICE_CLASS } from './readDeviceClass';
+import type { DeviceClass } from '../lib/deviceClass';
 import { useAppDispatch, useAppState } from '../state/StateContext';
 import { Divider } from '../ui/Divider';
 import { activeDesktop } from '../windows/desktops';
@@ -88,8 +91,17 @@ function Node(props: {
   );
 }
 
-/** The active desktop: its tree of panes, or a hint when it has none. */
-export function DesktopView(): JSX.Element {
+/** The hint shown where an empty desktop has no pane to draw. */
+const EMPTY_HINT = (
+  <div className={styles['empty']}>empty desktop — /vsplit, /split or Ctrl+B %</div>
+);
+
+/**
+ * The active desktop: its tree of panes, or a hint when it has none. On a
+ * mobile device class (decision 17) only the focused pane or float is drawn.
+ */
+export function DesktopView(props: { readonly deviceClass?: DeviceClass }): JSX.Element {
+  const { deviceClass = DEVICE_CLASS } = props;
   const state = useAppState();
   const dispatch = useAppDispatch();
   const desktop = activeDesktop(state.layout);
@@ -106,13 +118,16 @@ export function DesktopView(): JSX.Element {
     [dispatch],
   );
   const view: View = { state, focusedPaneId: desktop.focusedPaneId, focus, setRatio };
+  if (deviceClass === 'mobile') {
+    return (
+      <div className={styles['desktop']}>
+        <MobileDesktop desktop={desktop} view={view} empty={EMPTY_HINT} />
+      </div>
+    );
+  }
   return (
     <div className={styles['desktop']}>
-      {desktop.tree === null ? (
-        <div className={styles['empty']}>empty desktop — /vsplit, /split or Ctrl+B %</div>
-      ) : (
-        <Node tree={desktop.tree} path={[]} view={view} />
-      )}
+      {desktop.tree === null ? EMPTY_HINT : <Node tree={desktop.tree} path={[]} view={view} />}
       <FloatLayer floats={desktop.floats} view={view} />
     </div>
   );
