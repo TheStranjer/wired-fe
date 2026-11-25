@@ -2,7 +2,7 @@
  * The status line wired to real state (AGENTS.md "Windows, like IRC
  * buffers"): the clock, the active account, every window numbered in display
  * order with its unread count, the pending media and the hotkey mode, and a
- * click on a window's entry activates it (decision 6). The topic bar shows an
+ * click on a window's entry activates it (decision 6). The header and pane titles show an
  * account the same way, through {@link accountLabel}.
  */
 

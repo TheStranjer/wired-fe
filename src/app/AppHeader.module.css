@@ -1,0 +1,19 @@
+/* The header line: product name left, active account right, one row. */
+
+.bar {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.name {
+  color: var(--color-accent);
+}
+
+.account {
+  color: var(--color-fg);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

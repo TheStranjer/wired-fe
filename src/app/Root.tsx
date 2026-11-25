@@ -1,8 +1,9 @@
 /**
  * The shell wired to real state (AGENTS.md "Windows, like IRC buffers"): every
  * region is drawn from the app state the AppStateProvider above holds. The
- * active window's kind decides its topic, its scrollback and its side pane of
- * who is in the window (./SidePane, WFE-133); the window list, the active
+ * header (./AppHeader) names the active account; every pane's title bar
+ * carries its window's title, account and topic (./DesktopView); the active
+ * window's kind decides its side pane of who is in the window (./SidePane, WFE-133); the window list, the active
  * account, the clock and the hotkey mode fill the status line; the command
  * line (./CommandLine) hands every typed or chord-bound line to the
  * dispatcher (decision 6), which runs a command or posts through the window's
@@ -17,13 +18,14 @@
 import { useEffect } from 'react';
 import type { JSX } from 'react';
 
+import { AppHeader } from './AppHeader';
 import { CommandLine } from './CommandLine';
 import { DesktopView } from './DesktopView';
 import { KINDS } from './loadedKinds';
 import { appRegistry } from './registry';
 import { Shell } from './Shell';
 import { SidePane } from './SidePane';
-import { StatusBar, accountLabel } from './StatusBar';
+import { StatusBar } from './StatusBar';
 import { appStores } from './stores';
 import { useAttachments } from './useAttachments';
 import { useCompletionProviders } from './useCompletionProviders';
@@ -36,41 +38,20 @@ import { useRouteOverlays } from './useRouteOverlays';
 import { useSettingsPersistence } from './useSettingsPersistence';
 import { useStartup } from './useStartup';
 import { useTheme } from './useTheme';
-import { windowTopic } from './WindowBody';
 import { usePendingKeys } from '../keys/useGlobalKeys';
 import type { Result } from '../lib/result';
 import { type AppState, printAction } from '../state/appState';
 import { useAppDispatch, useAppState } from '../state/StateContext';
-import { TopicBar } from '../ui/TopicBar';
 import { PostActionsProvider } from '../views/PostActionsContext';
 import { useStreams } from '../views/useStreams';
 import { STATUS_WINDOW_ID, activeWindow } from '../windows/model';
-import type { WindowState } from '../windows/model';
 
 /** The one load of the command registry every mount shares. */
 const REGISTRY = appRegistry();
 
-/** Props of the topic bar: the active window, and all of state. */
-type RegionProps = {
-  readonly win: WindowState;
-  readonly state: AppState;
-};
-
 /** Why {@link loaded} could not be loaded, or null when it could. */
 function failure<E>(loaded: Result<unknown, E>): E | null {
   return loaded.ok ? null : loaded.error;
-}
-
-/** The topic bar: the window's title, its account and its kind's topic. */
-function Topic(props: RegionProps): JSX.Element {
-  const { win, state } = props;
-  return (
-    <TopicBar
-      windowTitle={win.title}
-      accountLabel={accountLabel(state, win.ref.accountKey)}
-      topic={windowTopic(win, state)}
-    />
-  );
 }
 
 /** Mirrors settings and window state out to storage, the theme and the tab title. */
@@ -113,7 +94,7 @@ export function Root(): JSX.Element {
   return (
     <PostActionsProvider actions={postActions.actions}>
       <Shell
-        topic={<Topic win={active} state={state} />}
+        header={<AppHeader />}
         scrollback={<DesktopView />}
         scrollbackLabel={`Desktop ${String(state.layout.active + 1)}`}
         sidePane={<SidePane win={active} />}

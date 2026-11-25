@@ -1,6 +1,6 @@
 /**
  * Tests for the status window kind: the definition it self-registers, the topic
- * line it shows in the TopicBar, that posting is not possible in it, and that
+ * line it shows in its pane title, that posting is not possible in it, and that
  * its component renders the status buffer's lines through the shared scrollback.
  */
 import { render, screen } from '@testing-library/react';

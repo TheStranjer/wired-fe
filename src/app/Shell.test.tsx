@@ -9,7 +9,7 @@ import type { ShellProps } from './Shell';
 
 /** One marker per slot, to see where the shell places it. */
 const SLOTS: ShellProps = {
-  topic: <span>topic-slot</span>,
+  header: <span>header-slot</span>,
   scrollback: <span>scrollback-slot</span>,
   sidePane: <span>side-pane-slot</span>,
   statusLine: <span>status-line-slot</span>,
@@ -17,10 +17,10 @@ const SLOTS: ShellProps = {
 };
 
 describe(Shell, () => {
-  it('renders the topic slot in the banner', () => {
+  it('renders the header slot in the banner', () => {
     render(<Shell {...SLOTS} />);
 
-    expect(within(screen.getByRole('banner')).getByText('topic-slot')).toBeInTheDocument();
+    expect(within(screen.getByRole('banner')).getByText('header-slot')).toBeInTheDocument();
   });
 
   it('renders the scrollback slot in the main region', () => {
