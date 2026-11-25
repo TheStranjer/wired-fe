@@ -23,7 +23,7 @@ import { PostBody } from './PostBody';
 import { PostMeta, type PostMetaProps } from './PostMeta';
 import styles from './PostRow.module.css';
 import { QuoteBlock, type QuoteBlockProps } from './QuoteBlock';
-import { routeRowClick } from './rowClick';
+import { postArticleProps } from './rowClick';
 import { Timestamp } from './Timestamp';
 import type { ClockFormat } from '../lib/time';
 
@@ -166,16 +166,14 @@ export function PostRow(props: PostRowProps): JSX.Element {
 
   return (
     <article
-      aria-current={selected ? 'true' : undefined}
-      aria-label={`Post ${line.label} by ${line.author.fullHandle}`}
+      {...postArticleProps({
+        label: line.label,
+        fullHandle: line.author.fullHandle,
+        selected,
+        onSelect,
+        onContentLink,
+      })}
       className={[styles['row'], selected ? styles['selected'] : undefined].join(' ')}
-      // The row click is mouse-only on purpose: keyboard selection lives in the
-      // navigation keymap, one action for every row, not a tab stop per row. The
-      // strict jsx-a11y gate reads the onClick name alone, never its semantics,
-      // so the same synthetic event is caught in its capture phase.
-      onClickCapture={(event) => {
-        routeRowClick(event, { onSelect, onContentLink });
-      }}
       ref={ref}
     >
       {boostedBy === null ? undefined : <BoostLine boostedBy={boostedBy} />}
