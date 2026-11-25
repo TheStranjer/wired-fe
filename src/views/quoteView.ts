@@ -55,7 +55,7 @@ function trimmed(text: string): string {
 }
 
 /** What the excerpt line says: the warning where there is one, else the content. */
-function excerptOf(quote: Status): string {
+export function excerptOf(quote: Status): string {
   if (quote.spoiler_text !== '') {
     return `[CW: ${quote.spoiler_text}]`;
   }

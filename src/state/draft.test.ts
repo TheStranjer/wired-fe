@@ -7,6 +7,7 @@ import { describe, expect, it } from 'vitest';
 
 import { type Draft, draftToNewStatus, fieldsToDraft } from './draft';
 import type { NewStatus } from '../api/endpoints/statusWrite';
+import { status } from '../test/fixtures';
 
 /** A poll in the shape Draft keeps and NewStatus sends. */
 const POLL: NonNullable<NewStatus['poll']> = {
@@ -114,5 +115,14 @@ describe(fieldsToDraft, () => {
       mediaIds: ['m1'],
     });
     expect(fieldsToDraft({ ...fields, mediaIds: [] })).not.toHaveProperty('mediaIds');
+  });
+
+  it('answers the post a reply composer is bound to, and no post otherwise', () => {
+    const fields = { text: 'a', spoiler: '', visibility: 'public' } as const;
+
+    expect(
+      fieldsToDraft({ ...fields, inReplyTo: { status: status('7'), accountKey: 'a#1' } }),
+    ).toStrictEqual({ text: 'a', visibility: 'public', inReplyToId: '7' });
+    expect(fieldsToDraft(fields)).not.toHaveProperty('inReplyToId');
   });
 });

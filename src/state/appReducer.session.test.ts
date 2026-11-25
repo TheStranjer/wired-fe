@@ -122,6 +122,7 @@ describe(mergedSettings, () => {
       keyOverrides: [],
       openIn: 'here',
       openInByKind: {},
+      replyIn: 'split',
       streamMade: false,
       theme: 'wired',
     });

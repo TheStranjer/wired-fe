@@ -43,10 +43,15 @@ describe(postActionLines, () => {
     ]);
   });
 
+  it('runs reply with no text, which opens a composer, although its hotkey prefills', () => {
+    const lines = postActionLines(realRegistry(), 'a3');
+
+    expect(lines.reply).toStrictEqual({ line: '/reply a3', prefill: false });
+  });
+
   it('prefills the lines whose hotkey prefills them', () => {
     const lines = postActionLines(realRegistry(), 'a3');
 
-    expect(lines.reply).toStrictEqual({ line: '/reply a3', prefill: true });
     expect(lines.react).toStrictEqual({ line: '/react a3', prefill: true });
     expect(lines.mute).toStrictEqual({ line: '/mute a3', prefill: true });
   });

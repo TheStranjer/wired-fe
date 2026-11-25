@@ -188,6 +188,7 @@ describe('the settings', () => {
       keyOverrides: [],
       openIn: 'here',
       openInByKind: {},
+      replyIn: 'split',
       streamMade: false,
       theme: 'wired',
     });

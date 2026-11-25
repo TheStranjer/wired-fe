@@ -1,5 +1,5 @@
 /**
- * `/reply [label] <text>` (alias `/r`; decision 6, AGENTS.md navigation mode
+ * `/reply [label] [text]` (alias `/r`; decision 6, AGENTS.md navigation mode
  * "`r` reply"): answer one post in one line from wherever you are. The post
  * resolves the way the other post commands resolve theirs — a leading label
  * names a post of the active window's scrollback, otherwise the navigation
@@ -14,23 +14,31 @@
  * prints `↳ replied to [a3]`, naming the line the window shows; a failed
  * create comes back as what {@link describeApiError} says of it. `r` prefills
  * the line with the selected post's label; type the answer and Enter sends it.
+ * With no text — `/reply a3`, the card's reply button, `Shift+r` — it opens a
+ * reply composer instead (WFE-244): a composer window bound to the post, as the
+ * line's account, its text holding the mentions, its audience the post's
+ * capped by the default and its content warning the post's; it opens where
+ * `--in`, `openIn.composer` or `replyIn` (default `split`) say.
  */
 
 import { type NewStatus, createStatus } from '../../api/endpoints/statusWrite';
 import { describeApiError } from '../../api/errors';
 import type { Status } from '../../api/schemas/status';
+import { composerWindowFor } from '../../state/composerWindow';
 import { draftToNewStatus } from '../../state/draft';
 import { statusesAction } from '../../state/pageActions';
-import { replyDraft } from '../../state/replyDraft';
+import type { Placement } from '../../state/placement';
+import { replyDraft, replyFields } from '../../state/replyDraft';
 import { accountByKey } from '../../state/selectors';
-import { type WindowKind, activeWindow } from '../../windows/model';
+import { type WindowKind, activeWindow, windowId } from '../../windows/model';
+import { openReplyWindow, splitPlacement } from '../openWindowRun';
 import { OK, fail } from '../outcome';
 import { targetLabel } from '../statusLabel';
 import { type StatusTarget, resolveStatusTarget } from '../targets';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** The command's grammar: /help shows it, a bare label echoes it. */
-const USAGE = '/reply [label] <text>';
+const USAGE = '/reply [label] [text]';
 
 /** The window kinds that show one account's conversation and take posts. */
 const FEED_KINDS: ReadonlySet<WindowKind> = new Set<WindowKind>([
@@ -41,6 +49,9 @@ const FEED_KINDS: ReadonlySet<WindowKind> = new Set<WindowKind>([
   'thread',
   'dm',
 ]);
+
+/** Text that is only a `--in` flag, with or without its word: it asks for the composer, not a post. */
+const FLAG_ONLY = /^--in(?:\s+\S+)?$/u;
 
 /** The handle the {@link accountKey} account replies under; none while unknown. */
 function ownHandle(context: CommandContext, accountKey: string | null): string {
@@ -62,6 +73,26 @@ function addToActiveWindow(context: CommandContext, created: Status): void {
   context.dispatch(statusesAction(win.id, [created], 'newer'));
 }
 
+/** Open a composer window bound to {@link target}'s post, placed as {@link override} and the settings say. */
+function openComposer(
+  context: CommandContext,
+  target: StatusTarget,
+  override: Placement | null,
+): CommandOutcome {
+  const open = composerWindowFor(target.accountKey, context.windows.windows);
+  openReplyWindow(context, open, override);
+  context.dispatch({
+    type: 'composerEdit',
+    windowId: windowId(open.ref),
+    patch: replyFields(target.status, {
+      ownAcct: ownHandle(context, target.accountKey),
+      accountKey: target.accountKey,
+      defaultVisibility: context.state.settings.defaultVisibility,
+    }),
+  });
+  return OK;
+}
+
 /** Resolve the post, create the answer as its window's account, echo, report. */
 async function handle(args: string, context: CommandContext): Promise<CommandOutcome> {
   const target = resolveStatusTarget(args, context);
@@ -70,8 +101,11 @@ async function handle(args: string, context: CommandContext): Promise<CommandOut
   }
   const { status, rest, session } = target.value;
   const text = rest.trim();
-  if (text === '') {
-    return fail(`Usage: ${USAGE}`);
+  if (text === '' || FLAG_ONLY.test(text)) {
+    const placed = splitPlacement(text);
+    return placed.ok
+      ? openComposer(context, target.value, placed.value.placement)
+      : fail(placed.error);
   }
   const created = await createStatus(
     session,
@@ -91,7 +125,10 @@ export const command: CommandDefinition = {
   name: 'reply',
   aliases: ['r'],
   usage: USAGE,
-  summary: 'Reply to a post in one line',
+  summary: 'Reply in one line; with no text, open a composer (r prefills, Shift+r composes)',
   run: handle,
-  bindings: [{ mode: 'navigation', chord: 'r', args: '{label}', prefill: true }],
+  bindings: [
+    { mode: 'navigation', chord: 'r', args: '{label}', prefill: true },
+    { mode: 'navigation', chord: 'Shift+r', args: '' },
+  ],
 };

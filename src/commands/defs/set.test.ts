@@ -4,9 +4,9 @@
  * unknown key answers `No setting <key>. Try /set`; a value the knob takes
  * dispatches the settings action and prints `key = value` back — booleans
  * normalize on/off/true/false/yes/no to on and off; and a refused word lists
- * the words that would have passed. Nothing a refusal touches reaches state.
+ * the words that would have passed. A refusal changes no state.
  * The theme knob's own turning and listing lives in ./set.theme.test.ts, the
- * density, avatars and images knobs' in ./set.display.test.ts.
+ * density, avatars and images in ./set.display.test.ts.
  */
 import { describe, expect, it, vi, type Mock } from 'vitest';
 
@@ -26,6 +26,7 @@ const LINES = [
   '  expandMedia = off  — Media behind a content warning starts open',
   '  images = on  — Show attachments inline instead of [IMG …] lines',
   '  openIn = here  — Where new windows open: here, vsplit, split, float or hidden',
+  '  replyIn = split  — Where a reply composer opens: here, vsplit, split, float or hidden',
   '  theme = wired  — The colors the shell is painted in',
 ];
 
@@ -74,6 +75,7 @@ describe('/set', () => {
       [LINES[5]],
       [LINES[6]],
       [LINES[7]],
+      [LINES[8]],
       ['  theme = lain  — The colors the shell is painted in'],
     ]);
   });

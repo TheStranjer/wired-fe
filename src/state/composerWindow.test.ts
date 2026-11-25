@@ -5,7 +5,7 @@
  */
 import { describe, expect, it } from 'vitest';
 
-import { composerWindowOpen } from './composerWindow';
+import { composerWindowFor, composerWindowOpen } from './composerWindow';
 import type { StoredAccount } from '../accounts/accountStore';
 import { initialWindowsState } from '../windows/model';
 import type { WindowsState } from '../windows/model';
@@ -60,5 +60,20 @@ describe(composerWindowOpen, () => {
       'compose/2',
       'compose',
     ]);
+  });
+});
+
+describe(composerWindowFor, () => {
+  it('opens a fresh composer for any account key, even none', () => {
+    const windows = initialWindowsState().windows;
+
+    expect(composerWindowFor(ACCOUNT.key, windows)).toStrictEqual(
+      composerWindowOpen(ACCOUNT, windows),
+    );
+    expect(composerWindowFor(null, windows).ref).toStrictEqual({
+      kind: 'composer',
+      accountKey: null,
+      target: '1',
+    });
   });
 });

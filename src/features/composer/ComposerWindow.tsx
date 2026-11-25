@@ -9,7 +9,10 @@
  * falls back to the reader's default; an open poll is fitted to the new
  * instance's poll limits (WFE-206). Attachments belong to the account that
  * uploaded them, so picking another account takes them off the draft. Files
- * pasted or dropped onto the pane attach to this composer alone.
+ * pasted or dropped onto the pane attach to this composer alone. A reply
+ * composer (WFE-244) is bound to the post it answers: the picker gives way to
+ * the dim excerpt of that post (./ReplyingTo), since the answer is posted as
+ * the account of the line it answers.
  */
 
 import type { JSX } from 'react';
@@ -17,6 +20,7 @@ import type { JSX } from 'react';
 import styles from './ComposerWindow.module.css';
 import { MediaLines } from './MediaLines';
 import { PostAs } from './PostAs';
+import { ReplyingTo } from './ReplyingTo';
 import { useAccountPick } from './useAccountPick';
 import { useComposerMedia } from './useComposerMedia';
 import { useComposerSend } from './useComposerSend';
@@ -53,7 +57,13 @@ export function ComposerWindow({ windowId }: { readonly windowId: string }): JSX
         }
         error={error}
         fields={{ ...fields, mediaIds: [...(fields.mediaIds ?? []), ...mediaIdsOf(media.items)] }}
-        header={<PostAs accounts={state.accounts} onPick={pick} value={accountKey} />}
+        header={
+          fields.inReplyTo === undefined ? (
+            <PostAs accounts={state.accounts} onPick={pick} value={accountKey} />
+          ) : (
+            <ReplyingTo status={fields.inReplyTo.status} />
+          )
+        }
         maxCharacters={limits.maxCharacters}
         onChange={(patch) => {
           dispatch({ type: 'composerEdit', windowId, patch });

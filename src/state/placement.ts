@@ -118,6 +118,24 @@ export function resolvePlacement(
   return chosenPlacement(settings, kind, override) ?? KIND_DEFAULTS[kind] ?? settings.openIn;
 }
 
+/** The part of the settings that places a reply composer: placement's own plus `replyIn`. */
+export type ReplySettings = PlacementSettings & {
+  /** Where a reply composer opens when `--in` and `openIn.composer` say nothing. */
+  readonly replyIn: Placement;
+};
+
+/**
+ * Where the composer a reply opens goes (WFE-244): {@link override}, else the
+ * `composer` kind's setting, else `replyIn` — not the global default, which
+ * would put a reply over the post it answers.
+ */
+export function resolveReplyPlacement(
+  settings: ReplySettings,
+  override: Placement | null,
+): Placement {
+  return chosenPlacement(settings, 'composer', override) ?? settings.replyIn;
+}
+
 /** The slice with the desktops changed by {@link change} and window {@link id} shown and active. */
 function shown(
   slice: SyncSlice,

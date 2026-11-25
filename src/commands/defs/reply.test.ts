@@ -122,13 +122,16 @@ function feedState(ref: WindowRef, posts: readonly Status[]): CommandContext {
 }
 
 describe('/reply', () => {
-  it('declares its name, alias, grammar, summary and r prefill binding', () => {
+  it('declares its name, alias, grammar, summary and r prefill and Shift+r composer bindings', () => {
     expect(command.name).toBe('reply');
     expect(command.aliases).toStrictEqual(['r']);
-    expect(command.usage).toBe('/reply [label] <text>');
-    expect(command.summary).toBe('Reply to a post in one line');
+    expect(command.usage).toBe('/reply [label] [text]');
+    expect(command.summary).toBe(
+      'Reply in one line; with no text, open a composer (r prefills, Shift+r composes)',
+    );
     expect(command.bindings).toStrictEqual([
       { mode: 'navigation', chord: 'r', args: '{label}', prefill: true },
+      { mode: 'navigation', chord: 'Shift+r', args: '' },
     ]);
   });
 

@@ -3,11 +3,12 @@
  * trailing `--in <placement>` is cut off the arguments (and refused when it
  * names nothing real), and the windows the wrapped run opens are placed by
  * `--in`, else the kind's setting, else the default — `here` being the plain
- * open, which is also what a caller that places the window itself gets.
+ * open, which is also what a caller that places the window itself gets. A
+ * reply composer follows `--in`, the composer kind's setting, then `replyIn`.
  */
 import { describe, expect, it } from 'vitest';
 
-import { placedRun, splitPlacement } from './openWindowRun';
+import { openReplyWindow, placedRun, splitPlacement } from './openWindowRun';
 import { OK } from './outcome';
 import type { CommandContext, CommandDefinition } from './types';
 import { initialAppState } from '../state/appState';
@@ -167,6 +168,57 @@ describe(placedRun, () => {
 
     expect(outcome).toStrictEqual(OK);
     expect(context.dispatchWindows).toHaveBeenCalledWith(THREAD);
+    expect(context.dispatch).not.toHaveBeenCalled();
+  });
+});
+
+describe(openReplyWindow, () => {
+  /** The ask to open a reply composer. */
+  const COMPOSER: Extract<WindowsAction, { readonly type: 'open' }> = {
+    type: 'open',
+    ref: { kind: 'composer', accountKey: 'a#1', target: '1' },
+    title: 'compose',
+  };
+
+  it('places by replyIn, split unless the reader chose otherwise', () => {
+    const context = contextWith(DEFAULT_SETTINGS);
+
+    openReplyWindow(context, COMPOSER, null);
+
+    expect(context.dispatch).toHaveBeenCalledWith({
+      type: 'openPlaced',
+      action: COMPOSER,
+      placement: 'split',
+    });
+  });
+
+  it('places by the composer kind’s setting over replyIn', () => {
+    const context = contextWith({ ...DEFAULT_SETTINGS, openInByKind: { composer: 'float' } });
+
+    openReplyWindow(context, COMPOSER, null);
+
+    expect(context.dispatch).toHaveBeenCalledWith({
+      type: 'openPlaced',
+      action: COMPOSER,
+      placement: 'float',
+    });
+  });
+
+  it('places by --in over both, here being the plain open', () => {
+    const context = contextWith({ ...DEFAULT_SETTINGS, openInByKind: { composer: 'float' } });
+
+    openReplyWindow(context, COMPOSER, 'here');
+
+    expect(context.dispatchWindows).toHaveBeenCalledWith(COMPOSER);
+    expect(context.dispatch).not.toHaveBeenCalled();
+  });
+
+  it('leaves the placing to a caller that places the window itself', () => {
+    const context = contextWith(DEFAULT_SETTINGS, { placedByCaller: true });
+
+    openReplyWindow(context, COMPOSER, 'float');
+
+    expect(context.dispatchWindows).toHaveBeenCalledWith(COMPOSER);
     expect(context.dispatch).not.toHaveBeenCalled();
   });
 });

@@ -6,7 +6,9 @@
  * (src/state/describeMedia). A pane is persistent, so success clears the fields
  * and the attachments and keeps the window, and says so in the window's own
  * scrollback; a failure stays inside the form for the retry. While a file is
- * still uploading the form is busy: sending waits for its id.
+ * still uploading the form is busy: sending waits for its id. A reply composer
+ * (WFE-244) has served its purpose once its answer is up: success closes its
+ * window and says so in the status window.
  */
 
 import { useState } from 'react';
@@ -25,8 +27,9 @@ import {
 } from '../../state/draft';
 import { createPost } from '../../state/postStatus';
 import { useRefreshDeps } from '../../state/RefreshContext';
-import { useAppDispatch, useAppState } from '../../state/StateContext';
+import { type Dispatch, useAppDispatch, useAppState } from '../../state/StateContext';
 import type { PostContext } from '../../state/windowKind';
+import { STATUS_WINDOW_ID } from '../../windows/model';
 
 /** What the form needs of a send: whether one is in flight, its failure, and the trigger. */
 export type ComposerSend = {
@@ -45,6 +48,30 @@ async function publish(
 ): Promise<Result<Status, string>> {
   const refused = await describeMedia(context, accountKey, what.media);
   return refused === null ? await createPost(context, accountKey, what.draft) : err(refused);
+}
+
+/** The composer window that sent, and the fields it sent from. */
+type SentWindow = { readonly windowId: string; readonly fields: ComposerFields };
+
+/**
+ * What a successful send leaves behind: a reply composer closes (its answer is
+ * up, WFE-244) and says so in the status window; any other clears its fields
+ * and attachments and confirms in its own scrollback.
+ */
+function sent(dispatch: Dispatch, origin: SentWindow, created: Status): void {
+  const { windowId, fields } = origin;
+  if (fields.inReplyTo !== undefined) {
+    dispatch({ type: 'windows', action: { type: 'close', id: windowId } });
+    dispatch(printAction(STATUS_WINDOW_ID, 'info', `↳ replied to @${created.account.acct}`));
+    return;
+  }
+  dispatch({
+    type: 'composerEdit',
+    windowId,
+    patch: { text: '', spoiler: '', poll: undefined, mediaIds: undefined },
+  });
+  dispatch({ type: 'composerMediaClear', windowId });
+  dispatch(printAction(windowId, 'info', `Posted as @${created.account.acct}`));
 }
 
 /** The sending state of window {@link windowId}'s composer, and its trigger. */
@@ -69,13 +96,7 @@ export function useComposerSend(windowId: string, accountKey: string | null): Co
       return;
     }
     setError(null);
-    dispatch({
-      type: 'composerEdit',
-      windowId,
-      patch: { text: '', spoiler: '', poll: undefined, mediaIds: undefined },
-    });
-    dispatch({ type: 'composerMediaClear', windowId });
-    dispatch(printAction(windowId, 'info', `Posted as @${created.value.account.acct}`));
+    sent(dispatch, { windowId, fields }, created.value);
   }
 
   return {

@@ -32,6 +32,20 @@ describe('the stored placement settings', () => {
     });
   });
 
+  it('defaults where a reply composer opens to split, and reads every placement back', () => {
+    expect(parse({}).replyIn).toBe('split');
+
+    for (const replyIn of PLACEMENTS) {
+      expect(parse({ replyIn }).replyIn).toBe(replyIn);
+    }
+  });
+
+  it('lists the placements as the values of the replyIn knob', () => {
+    const meta = SETTING_KEYS.find((entry) => entry.key === 'replyIn');
+
+    expect(meta?.values).toStrictEqual(PLACEMENTS);
+  });
+
   it('lists the placements as the values of the openIn knob', () => {
     const meta = SETTING_KEYS.find((entry) => entry.key === 'openIn');
 
@@ -53,6 +67,7 @@ describe('the stored placement settings', () => {
 
   it.each([
     ['a default placement it does not list', { openIn: 'sideways' }],
+    ['a reply placement it does not list', { replyIn: 'sideways' }],
     ['a per-kind placement it does not list', { openInByKind: { thread: 'sideways' } }],
     ['per-kind placements that are not a record', { openInByKind: 'float' }],
   ])('refuses %s', (_name, input) => {

@@ -20,6 +20,7 @@ import {
   type Placement,
   isPlacement,
   resolvePlacement,
+  resolveReplyPlacement,
 } from '../state/placement';
 import { activeAccount } from '../state/selectors';
 import type { WindowsAction } from '../windows/reducer';
@@ -50,14 +51,35 @@ export function splitPlacement(args: string): Result<Placed, string> {
   return ok({ rest: args.slice(0, found.index).trimEnd(), placement: word });
 }
 
-/** Opens {@link action} where {@link override}, else its kind's setting, else the default says; `here` is the plain open. */
-function placeOpen(context: CommandContext, action: OpenAction, override: Placement | null): void {
-  const placement = resolvePlacement(context.state.settings, action.ref.kind, override);
+/** Opens {@link action} as {@link placement} says; `here` is the plain open. */
+function openAs(context: CommandContext, action: OpenAction, placement: Placement): void {
   if (placement === 'here') {
     context.dispatchWindows(action);
   } else {
     context.dispatch({ type: 'openPlaced', action, placement });
   }
+}
+
+/** Opens {@link action} where {@link override}, else its kind's setting, else the default says. */
+function placeOpen(context: CommandContext, action: OpenAction, override: Placement | null): void {
+  openAs(context, action, resolvePlacement(context.state.settings, action.ref.kind, override));
+}
+
+/**
+ * Opens the reply composer {@link action} where {@link override}, else the
+ * `composer` kind's setting, else `replyIn` says (WFE-244); a caller that
+ * places the window itself gets the plain open.
+ */
+export function openReplyWindow(
+  context: CommandContext,
+  action: OpenAction,
+  override: Placement | null,
+): void {
+  if (context.placedByCaller === true) {
+    context.dispatchWindows(action);
+    return;
+  }
+  openAs(context, action, resolveReplyPlacement(context.state.settings, override));
 }
 
 /** {@link context} with the window opens placed as {@link override}, the kind's setting or the default say. */

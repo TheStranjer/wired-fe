@@ -32,6 +32,7 @@ const CHOSEN: Settings = {
   keyOverrides: [{ mode: 'navigation', chord: 'Ctrl+e', line: '/fav' }],
   openIn: 'float',
   openInByKind: { thread: 'vsplit' },
+  replyIn: 'float',
   streamMade: true,
   theme: 'bnet',
 };
