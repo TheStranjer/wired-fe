@@ -4,7 +4,7 @@
  */
 import { describe, expect, it } from 'vitest';
 
-import { findPane, onlyPane, panes, panesShowing, setPaneWindow, singlePane } from './splitTree';
+import { findPane, panes, panesShowing, setPaneWindow, singlePane } from './splitTree';
 import { nestedTree, shape } from './splitTreeFixtures';
 
 describe(singlePane, () => {
@@ -80,27 +80,5 @@ describe(setPaneWindow, () => {
     setPaneWindow(tree, 'p3', 'w9');
 
     expect(shape(tree)).toBe('row(p1:w1 col(p2:w2 row(p3:w3 p4:w4)))');
-  });
-});
-
-describe(onlyPane, () => {
-  it('reduces a tree to the named pane', () => {
-    expect(onlyPane(nestedTree(), 'p3')).toStrictEqual({
-      type: 'pane',
-      paneId: 'p3',
-      windowId: 'w3',
-    });
-  });
-
-  it('returns a single-pane tree as it is', () => {
-    const tree = singlePane('p1', 'w1');
-
-    expect(onlyPane(tree, 'p1')).toBe(tree);
-  });
-
-  it('returns the same tree for an unknown pane', () => {
-    const tree = nestedTree();
-
-    expect(onlyPane(tree, 'nope')).toBe(tree);
   });
 });

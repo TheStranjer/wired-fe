@@ -78,8 +78,3 @@ export function setPaneWindow(tree: SplitTree, paneId: string, windowId: string)
     pane.windowId === windowId ? pane : { ...pane, windowId },
   );
 }
-
-/** The tree reduced to the pane `paneId` alone (vim `:only`). */
-export function onlyPane(tree: SplitTree, paneId: string): SplitTree {
-  return findPane(tree, paneId) ?? tree;
-}

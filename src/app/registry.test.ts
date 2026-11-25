@@ -25,11 +25,13 @@ const EXPECTED = [
   'local',
   'more',
   'notifications',
+  'only',
   'open',
   'query',
   'select',
   'tag',
   'thread',
+  'unsplit',
   'whois',
   'win',
 ];
