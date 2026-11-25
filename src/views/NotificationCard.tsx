@@ -1,0 +1,171 @@
+/**
+ * One notification drawn as a card (decision 15, WFE-233), used when the
+ * window's density is `cards`. A mention, reply or quote with a post is a header
+ * line (`@ alice mentioned you`) above the post's own card. Every other kind is
+ * one compact line: a small avatar (when the window shows avatars), a glyph per
+ * kind (★ ⟳ ☰ ✎ ●, the emoji for a reaction), who did what, the clock and, when
+ * there is a post, a dim one-line excerpt that opens its thread. The actor's
+ * handle is a click target to their profile (WFE-106) wherever the sentence
+ * names one. The IRC rendering stays in ./NotificationLine.
+ */
+import type { JSX } from 'react';
+
+import { openActor, withoutActor } from './notificationActor';
+import styles from './NotificationCard.module.css';
+import { excerpt, join } from './notificationExcerpt';
+import { notificationText } from './notificationText';
+import { PostLine } from './PostLine';
+import { viewerFor } from './postLineProps';
+import { fullHandle } from '../accounts/handle';
+import type { Notification, NotificationKind } from '../api/schemas/notification';
+import type { NotificationLineData } from '../state/buffer';
+import { labelForStatus } from '../state/bufferSelection';
+import { bufferFor, displayFor, windowAccountKey } from '../state/selectors';
+import { useAppDispatch, useAppState } from '../state/StateContext';
+import { threadWindowOpen } from '../state/threadWindow';
+import { Avatar } from '../ui/Avatar';
+import { Timestamp } from '../ui/Timestamp';
+
+/** Props of {@link NotificationCard}: the window the line is shown in, and the line. */
+export type NotificationCardProps = {
+  readonly windowId: string;
+  readonly line: NotificationLineData;
+};
+
+/** The glyph each kind leads its line with; a reaction shows its own emoji instead. */
+const GLYPHS: Record<NotificationKind, string> = {
+  mention: '@',
+  quote: '@',
+  favourite: '★',
+  reblog: '⟳',
+  reaction: '☺',
+  poll: '☰',
+  update: '✎',
+  status: '●',
+  follow: '*',
+  follow_request: '*',
+  move: '*',
+  quoted_update: '✎',
+  sign_up: '*',
+  report: '*',
+  chat_mention: '*',
+  severed_relationships: '*',
+  moderation_warning: '*',
+  annual_report: '*',
+  other: '*',
+};
+
+/** What the kinds that act on a post say after the actor. */
+const VERBS: Partial<Record<NotificationKind, string>> = {
+  mention: 'mentioned you',
+  quote: 'quoted you',
+  favourite: 'favourited your post',
+  reblog: 'boosted your post',
+  reaction: 'reacted to your post',
+  update: 'edited a post',
+  status: 'posted',
+};
+
+/** The words after the glyph, and whether the actor's handle leads them. */
+type Entry = { readonly glyph: string; readonly text: string; readonly actor: boolean };
+
+/** What a notification says in a card: its glyph and sentence, from the viewer's side. */
+function entryOf(notification: Notification, origin: string): Entry {
+  const { kind, status, emoji } = notification;
+  const glyph = emoji ?? GLYPHS[kind];
+  if (kind === 'mention' && status !== null && status.in_reply_to_id !== null) {
+    return { glyph, text: 'replied to you', actor: true };
+  }
+  const verb = VERBS[kind];
+  if (verb !== undefined) {
+    return { glyph, text: verb, actor: true };
+  }
+  if (kind === 'poll') {
+    return { glyph, text: 'a poll ended', actor: false };
+  }
+  const sentence = notificationText(notification, null, { origin, accountId: null });
+  const rest = withoutActor(sentence, `@${fullHandle(notification.account, origin)}`);
+  return { glyph, text: rest ?? sentence, actor: rest !== null };
+}
+
+/** The notification's header: avatar, glyph, who did what, and the clock. */
+function Header(props: NotificationCardProps): JSX.Element {
+  const state = useAppState();
+  const dispatch = useAppDispatch();
+  const { windowId, line } = props;
+  const { account, created_at: createdAt } = line.notification;
+  const origin = viewerFor(state, windowId).origin;
+  const entry = entryOf(line.notification, origin);
+  const handle = fullHandle(account, origin);
+  return (
+    <div className={styles['header']}>
+      {displayFor(state, windowId).avatars ? (
+        <Avatar
+          animate={false}
+          handle={`@${handle}`}
+          size="small"
+          src={account.avatar}
+          staticSrc={account.avatar_static}
+        />
+      ) : undefined}
+      <span aria-hidden="true" className={styles['glyph']}>
+        {entry.glyph}
+      </span>
+      <span className={styles['text']}>
+        {entry.actor ? (
+          <button
+            className={styles['actor']}
+            onClick={openActor({ state, go: dispatch }, windowId, account)}
+            type="button"
+          >{`@${handle}`}</button>
+        ) : undefined}
+        {entry.actor ? ' ' : undefined}
+        {entry.text}
+      </span>
+      <Timestamp date={new Date(createdAt)} format={state.settings.clockFormat} />
+    </div>
+  );
+}
+
+/** The post's words in one dim line; clicking it opens the post's thread. */
+function Excerpt(props: NotificationCardProps): JSX.Element | null {
+  const state = useAppState();
+  const dispatch = useAppDispatch();
+  const { windowId, line } = props;
+  const { status } = line.notification;
+  if (status === null) {
+    return null;
+  }
+  const label = labelForStatus(bufferFor(state, windowId), status.id) ?? status.id;
+  const accountKey = windowAccountKey(state, windowId);
+  return (
+    <button
+      className={styles['excerpt']}
+      onClick={() => {
+        dispatch({ type: 'windows', action: threadWindowOpen(status.id, accountKey, label) });
+      }}
+      type="button"
+    >
+      {join([excerpt(status)])}
+    </button>
+  );
+}
+
+/** One notification as a card: a post's own card under a header, or a compact line. */
+export function NotificationCard(props: NotificationCardProps): JSX.Element {
+  const { kind, status } = props.line.notification;
+  if (status !== null && (kind === 'mention' || kind === 'quote')) {
+    return (
+      <div>
+        <Header {...props} />
+        <PostLine lineKey={props.line.key} status={status} windowId={props.windowId} />
+      </div>
+    );
+  }
+  return (
+    <div className={styles['compact']}>
+      <Header {...props} />
+      <Excerpt {...props} />
+    </div>
+  );
+}

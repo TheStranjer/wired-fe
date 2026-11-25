@@ -9,14 +9,11 @@ import { OK } from './outcome';
 import { printedLabel } from './statusLabel';
 import type { StatusTarget } from './targets';
 import type { CommandContext, CommandOutcome } from './types';
+import { threadWindowOpen } from '../state/threadWindow';
 
 /** Open (or activate) the thread window of {@link target}'s post. */
 export function openThreadWindow(context: CommandContext, target: StatusTarget): CommandOutcome {
   const { status, accountKey } = target;
-  context.dispatchWindows({
-    type: 'open',
-    ref: { kind: 'thread', accountKey, target: status.id },
-    title: `thread/${printedLabel(context, status)}`,
-  });
+  context.dispatchWindows(threadWindowOpen(status.id, accountKey, printedLabel(context, status)));
   return OK;
 }

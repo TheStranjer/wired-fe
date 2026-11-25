@@ -1,0 +1,58 @@
+/* A notification as a card (decision 15). Everything but a mention or quote is
+   one compact line: a small avatar, a glyph, who did what, the clock and a dim
+   one-line excerpt of the post. A mention or quote puts the same header line
+   above the post's own card. The glyph is decorative; the words carry the
+   meaning. */
+
+.compact {
+  margin-block-end: var(--space);
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space);
+  margin-block-end: var(--space);
+}
+
+.compact > .header {
+  margin-block-end: 0;
+}
+
+.glyph {
+  flex: none;
+  color: var(--color-accent);
+}
+
+.text {
+  color: var(--color-dim);
+  overflow-wrap: anywhere;
+}
+
+/* The actor handle and the excerpt are buttons dressed as the plain text they
+   replace, like the nick in a post row. */
+.actor,
+.excerpt {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.excerpt {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  color: var(--color-dim);
+  text-align: start;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.actor:focus-visible,
+.excerpt:focus-visible {
+  outline: 1px solid var(--color-dim);
+}
