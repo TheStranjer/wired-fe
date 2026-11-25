@@ -43,6 +43,7 @@ const BASE_PROPS: PostCardProps = {
   edited: false,
   selected: false,
   showAvatar: true,
+  showImages: true,
   onToggleReveal: vi.fn<() => void>(),
   onSelect: vi.fn<() => void>(),
   onSelectAuthor: vi.fn<() => void>(),
