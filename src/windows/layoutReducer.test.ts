@@ -55,6 +55,13 @@ describe(layoutReducer, () => {
       expect(layoutReducer(state, { type: 'closeDesktop', n: 1 })).toBe(state);
     });
 
+    it('pruneDesktops removes the empty desktops but the active one', () => {
+      const state = layoutReducer(three(), { type: 'pruneDesktops' });
+
+      expect(state.desktops).toHaveLength(2);
+      expect(state.active).toBe(1);
+    });
+
     it('movePaneToDesktop moves a pane to another desktop', () => {
       const state = layoutReducer(twoPanes(), { type: 'movePaneToDesktop', paneId: 'p1', n: 2 });
 

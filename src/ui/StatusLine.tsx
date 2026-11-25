@@ -32,6 +32,8 @@ export type StatusLineProps = {
   readonly sync?: 'pending' | 'error' | null;
   /** Called with the desktop number when a desktop entry is clicked. */
   readonly onSelectDesktop: (number: number) => void;
+  /** Called with the desktop number when its `×` is clicked or its entry middle-clicked. */
+  readonly onCloseDesktop: (number: number) => void;
   /** Called with the window number when a window entry is clicked. */
   readonly onSelectWindow: (number: number) => void;
 };
@@ -102,7 +104,11 @@ export function StatusLine(props: StatusLineProps): JSX.Element {
     <div className={styles['line']}>
       <span>{`[${clock}]`}</span> <span>{`[${accountLabel ?? NO_ACCOUNT}]`}</span>{' '}
       <span>
-        <Desktops desktops={props.desktops} onSelect={props.onSelectDesktop} />
+        <Desktops
+          desktops={props.desktops}
+          onSelect={props.onSelectDesktop}
+          onClose={props.onCloseDesktop}
+        />
         <HiddenWindows windows={props.windows} onSelect={props.onSelectWindow} />
       </span>{' '}
       <PendingMedia count={pendingMedia} />

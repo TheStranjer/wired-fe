@@ -14,6 +14,7 @@ import {
   focusDesktopPane,
   focusedWindow,
   insertDesktopPane,
+  isEmptyDesktop,
   removeDesktopPane,
   splitDesktop,
 } from './desktopPanes';
@@ -98,6 +99,16 @@ export function closeDesktop(state: DesktopsState, n: number): DesktopsState {
   const active =
     state.active > index ? state.active - 1 : Math.min(state.active, desktops.length - 1);
   return { ...state, desktops, active };
+}
+
+/** Closes every empty desktop except the active one, so at least that one stays. The active index follows. */
+export function pruneDesktops(state: DesktopsState): DesktopsState {
+  const kept = state.desktops.filter((d, i) => i === state.active || !isEmptyDesktop(d));
+  if (kept.length === state.desktops.length) {
+    return state;
+  }
+  const active = state.desktops.slice(0, state.active).filter((d) => !isEmptyDesktop(d)).length;
+  return { ...state, desktops: kept, active };
 }
 
 /** Focuses a pane or float of the active desktop; a float is raised. */

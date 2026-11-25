@@ -28,6 +28,11 @@ export type PlacedPane = {
 /** A desktop with nothing on it. */
 export const EMPTY_DESKTOP: Desktop = { tree: null, floats: [], focusedPaneId: null };
 
+/** Whether the desktop has no split tree and no floats. */
+export function isEmptyDesktop(desktop: Desktop): boolean {
+  return desktop.tree === null && desktop.floats.length === 0;
+}
+
 /** The pane or float with this id, wherever it sits on the desktop, or null. */
 export function findPlaced(desktop: Desktop, paneId: string): PlacedPane | null {
   const leaf = desktop.tree === null ? null : findPane(desktop.tree, paneId);

@@ -23,6 +23,7 @@ describe(desktopProvider, () => {
     expect(candidates('/desktop l')).toStrictEqual(['list']);
     expect(candidates('/d n')).toStrictEqual(['new', 'next']);
     expect(tab('/desktop c')).toBe('/desktop close ');
+    expect(tab('/desktop pru')).toBe('/desktop prune ');
   });
 
   it('matches any case of the command and the word', () => {

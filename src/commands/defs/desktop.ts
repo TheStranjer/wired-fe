@@ -2,13 +2,15 @@
  * `/desktop` (decision 6, alias `/d`; decisions 12 and 18): list the desktops,
  * switch to one by number (creating the missing ones), step to the next or
  * previous one (left of the first wraps to the last, right of the last makes a
- * new one), make a new one, or close one. Closing drops the desktop's panes
- * but no window: they stay open, hidden. The last desktop is never closed. The
+ * new one), make a new one, close one (`Ctrl+B &`) or prune the empty ones.
+ * Closing drops the desktop's panes but no window: they stay open, hidden. The
+ * last desktop is never closed. The
  * layout reducer performs every change; this command reads the layout and
  * hands the matching action over.
  */
 
 import { wordsOf } from '../../lib/words';
+import { isEmptyDesktop } from '../../windows/desktopPanes';
 import type { LayoutAction } from '../../windows/layoutAction';
 import type { CommandBinding } from '../bindingTypes';
 import { desktopLines } from '../desktopList';
@@ -19,7 +21,7 @@ import type { CommandContext, CommandDefinition, CommandOutcome } from '../types
 
 /** Every form of the command: /help shows it, a bad argument echoes it. */
 const USAGE =
-  '/desktop [list] | /desktop <number> | /desktop next | /desktop prev | /desktop new | /desktop close [number]';
+  '/desktop [list] | /desktop <number> | /desktop next | /desktop prev | /desktop new | /desktop close [number] | /desktop prune';
 
 /** The digits whose Alt+N binding jumps straight to desktop N. */
 const DESKTOP_DIGITS: readonly string[] = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
@@ -46,6 +48,7 @@ const BINDINGS: readonly CommandBinding[] = [
   ...tmuxBindings('c', 'new'),
   ...tmuxBindings('n', 'next'),
   ...tmuxBindings('p', 'prev'),
+  ...tmuxBindings('&', 'close'),
   ...TMUX_DIGITS.flatMap((digit) => tmuxBindings(digit, digit === '0' ? '10' : digit)),
 ];
 
@@ -79,9 +82,25 @@ function close(context: CommandContext, word: string | undefined): CommandOutcom
   if (desktops.length < 2) {
     return LAST_DESKTOP;
   }
-  return n > desktops.length
-    ? fail(`No desktop ${String(n)}`)
-    : layout(context, { type: 'closeDesktop', n });
+  if (n > desktops.length) {
+    return fail(`No desktop ${String(n)}`);
+  }
+  layout(context, { type: 'closeDesktop', n });
+  context.print(`closed desktop ${String(n)} (its windows are still open: /win)`);
+  return OK;
+}
+
+/** Close every empty desktop but the active one, and say how many went. */
+function prune(context: CommandContext): CommandOutcome {
+  const { desktops, active } = context.state.layout;
+  const count = desktops.filter((desktop, i) => i !== active && isEmptyDesktop(desktop)).length;
+  if (count === 0) {
+    context.print('no empty desktops');
+    return OK;
+  }
+  layout(context, { type: 'pruneDesktops' });
+  context.print(`closed ${String(count)} empty desktop${count === 1 ? '' : 's'}`);
+  return OK;
 }
 
 /** Read the argument words and do the one thing they ask for. */
@@ -102,6 +121,9 @@ function handle(args: string, context: CommandContext): CommandOutcome {
   if (word === 'close') {
     return close(context, second);
   }
+  if (word === 'prune') {
+    return prune(context);
+  }
   const n = desktopNumber(word, USAGE_ERROR);
   return typeof n === 'number' ? layout(context, { type: 'goToDesktop', n }) : n;
 }
@@ -111,7 +133,8 @@ export const command: CommandDefinition = {
   name: 'desktop',
   aliases: ['d'],
   usage: USAGE,
-  summary: 'List, switch (Alt+1..9, Alt+[ and Alt+]), create or close desktops',
+  summary:
+    'List, switch (Alt+1..9, Alt+[ and Alt+]), create, close (Ctrl+B &, a × or a middle-click on the status line) or prune empty desktops',
   run: syncRun(handle),
   bindings: BINDINGS,
 };

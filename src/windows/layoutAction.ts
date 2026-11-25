@@ -15,6 +15,7 @@ export type DesktopAction =
   | { readonly type: 'stepDesktop'; readonly step: 1 | -1 }
   | { readonly type: 'newDesktop' }
   | { readonly type: 'closeDesktop'; readonly n: number }
+  | { readonly type: 'pruneDesktops' }
   | { readonly type: 'movePaneToDesktop'; readonly paneId: string; readonly n: number };
 
 /** Actions on the panes of the active desktop. */

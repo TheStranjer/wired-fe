@@ -71,10 +71,34 @@ function windowLabel(entry: StatusLineWindow): string {
   return parts.join(', ');
 }
 
-/** The desktop buttons, one `[N]` each; the active one is marked and inverted. */
+/** The `×` after the active desktop's marker: closes that desktop. */
+function CloseDesktop(props: {
+  readonly number: number;
+  readonly onClose: (number: number) => void;
+}): JSX.Element {
+  return (
+    <button
+      aria-label={`Close desktop ${String(props.number)}`}
+      className={styles['closeDesktop']}
+      onClick={() => {
+        props.onClose(props.number);
+      }}
+      type="button"
+    >
+      ×
+    </button>
+  );
+}
+
+/**
+ * The desktop buttons, one `[N]` each; the active one is marked and inverted
+ * and, while there is more than one desktop, followed by a `×` that closes it.
+ * A middle-click on any marker closes that desktop.
+ */
 export function Desktops(props: {
   readonly desktops: readonly StatusLineDesktop[];
   readonly onSelect: (number: number) => void;
+  readonly onClose: (number: number) => void;
 }): JSX.Element {
   return (
     <>
@@ -85,13 +109,22 @@ export function Desktops(props: {
             aria-current={entry.active ? 'true' : undefined}
             aria-label={desktopLabel(entry)}
             className={desktopClasses(entry)}
+            onAuxClick={(event) => {
+              if (event.button === 1) {
+                props.onClose(entry.number);
+              }
+            }}
             onClick={() => {
               props.onSelect(entry.number);
             }}
+            title={`Desktop ${String(entry.number)}: click to switch, middle-click to close`}
             type="button"
           >
             {desktopText(entry)}
           </button>
+          {entry.active && props.desktops.length > 1 ? (
+            <CloseDesktop number={entry.number} onClose={props.onClose} />
+          ) : null}
         </Fragment>
       ))}
     </>

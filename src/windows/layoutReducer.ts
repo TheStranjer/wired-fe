@@ -15,6 +15,7 @@ import {
   goToDesktop,
   movePaneToDesktop,
   newDesktop,
+  pruneDesktops,
   splitFocused,
   stepDesktop,
 } from './desktops';
@@ -28,6 +29,7 @@ const DESKTOP_TYPES: ReadonlySet<string> = new Set<DesktopAction['type']>([
   'stepDesktop',
   'newDesktop',
   'closeDesktop',
+  'pruneDesktops',
   'movePaneToDesktop',
 ]);
 
@@ -58,6 +60,8 @@ function desktopReducer(state: DesktopsState, action: DesktopAction): DesktopsSt
       return newDesktop(state);
     case 'closeDesktop':
       return closeDesktop(state, action.n);
+    case 'pruneDesktops':
+      return pruneDesktops(state);
     case 'movePaneToDesktop':
       return movePaneToDesktop(state, action.paneId, action.n);
   }

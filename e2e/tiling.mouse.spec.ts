@@ -13,6 +13,7 @@ import {
   type Box,
   boxOf,
   centerOf,
+  desktopButton,
   dragFrom,
   expectInsideViewport,
   floatOf,
@@ -121,4 +122,20 @@ test('Home and End send a focused divider to its limits', async ({ page }) => {
   await expect(divider).toHaveAttribute('aria-valuenow', '90');
   await divider.press('Home');
   await expect(divider).toHaveAttribute('aria-valuenow', '10');
+});
+
+test('a middle-click closes a desktop, and the × on the active one closes that', async ({
+  page,
+}) => {
+  await signIn(page);
+  await submit(page, '/desktop 3');
+  const markers = page.getByRole('button', { name: /^Desktop \d/u });
+  await expect(markers).toHaveCount(3);
+  await desktopButton(page, 2).click({ button: 'middle' });
+  await expect(markers).toHaveCount(2);
+  await expect(desktopButton(page, 2)).toHaveAttribute('aria-current', 'true');
+  await page.getByRole('button', { name: 'Close desktop 2' }).click();
+  await expect(markers).toHaveCount(1);
+  await expect(page.getByRole('button', { name: /^Close desktop/u })).toHaveCount(0);
+  await expect(desktopButton(page, 1)).toHaveAttribute('aria-current', 'true');
 });

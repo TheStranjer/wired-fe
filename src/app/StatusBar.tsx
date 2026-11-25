@@ -2,8 +2,9 @@
  * The status line wired to real state (AGENTS.md "Windows, like IRC
  * buffers"): the clock, the active account, the desktops and the hidden
  * windows with activity (./statusEntries), the pending media and the hotkey
- * mode. A click on a desktop runs what `/desktop N` runs and a click on a
- * window what `/win N` runs (decision 6). The header and pane titles show an
+ * mode. A click on a desktop runs what `/desktop N` runs, the `×` after
+ * the active one (or a middle-click on any) what `/desktop close N` runs, and a
+ * click on a window what `/win N` runs (decision 6). The header and pane titles show an
  * account the same way, through {@link accountLabel}.
  */
 
@@ -51,6 +52,9 @@ export function StatusBar(props: {
       sync={syncMarker(state.sync)}
       onSelectDesktop={(n: number) => {
         dispatch({ type: 'layout', action: { type: 'goToDesktop', n } });
+      }}
+      onCloseDesktop={(n: number) => {
+        dispatch({ type: 'layout', action: { type: 'closeDesktop', n } });
       }}
       onSelectWindow={(number: number) => {
         dispatch({ type: 'windows', action: { type: 'activateNumber', number } });

@@ -34,3 +34,22 @@
 .entry:focus-visible {
   outline: 1px solid var(--color-dim);
 }
+
+/* The × after the active desktop: dim until hovered or focused, like the pane title-bar buttons. */
+.closeDesktop {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--color-dim);
+  font: inherit;
+  cursor: pointer;
+}
+
+.closeDesktop:hover,
+.closeDesktop:focus-visible {
+  color: var(--color-fg);
+}
+
+.closeDesktop:focus-visible {
+  outline: 1px solid var(--color-dim);
+}
