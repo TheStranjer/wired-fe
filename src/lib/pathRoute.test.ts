@@ -57,6 +57,39 @@ describe(pathToHash, () => {
     },
   );
 
+  describe('hosted under /fe/', () => {
+    /** The hash of {@link pathname} for a bundle hosted under `/fe/`. */
+    function underFe(pathname: string, search = ''): string | null {
+      return pathToHash({ pathname, search }, '/fe/');
+    }
+
+    it.each([
+      ['/fe/notice/abc', '', '#/notice/abc'],
+      ['/fe/lain', '', '#/@lain'],
+      ['/fe/users/lain', '', '#/@lain'],
+      ['/fe/oauth/authorize', '?x=1', '#/oauth/authorize?x=1'],
+      ['/fe/registration/tok', '', '#/registration/tok'],
+      ['/fe/password_reset/tok', '', '#/password_reset/tok'],
+      ['/fe/authorize_interaction', '?uri=u', '#/authorize_interaction?uri=u'],
+    ])('strips the base from %s%s', (path, search, hash) => {
+      expect(underFe(path, search)).toBe(hash);
+    });
+
+    it.each(['/fe/', '/fe', '/fe/index.html', '/fe/notice', '/fe/notice/'])(
+      'treats %j as the page itself',
+      (path) => {
+        expect(underFe(path)).toBeNull();
+      },
+    );
+
+    it('ignores paths outside the base', () => {
+      expect(underFe('/notice/abc')).toBeNull();
+      expect(underFe('/oauth/authorize')).toBeNull();
+      expect(underFe('/fed/notice/abc')).toBeNull();
+      expect(underFe('/')).toBeNull();
+    });
+  });
+
   it('keeps the path segment as the address bar spells it, escapes and all', () => {
     expect(hashOf('/notice/%C3%A9t%C3%A9')).toBe('#/notice/%C3%A9t%C3%A9');
     expect(parseRoute(hashOf('/notice/%C3%A9') ?? '')).toStrictEqual({

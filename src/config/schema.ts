@@ -40,7 +40,19 @@ export type InstancesConfig =
 export type WiredConfig = {
   readonly appName: string;
   readonly instances: InstancesConfig;
+  /**
+   * The path the bundle is served under, `/` when absent: `/fe/` for a page at
+   * `https://host/fe/`. Starts and ends with `/`. `pathToHash` strips it from
+   * the redirect paths wired-be sends (its `FRONTEND_BASE_URL` path).
+   */
+  readonly basePath?: string | undefined;
 };
+
+/** A path that starts and ends with `/`, with no empty, query or fragment parts. */
+const BasePathSchema = v.pipe(
+  v.string(),
+  v.regex(/^\/(?:[^/?#\s\\]+\/)*$/u, 'must start and end with "/", e.g. "/fe/"'),
+);
 
 const InstancesSchema = v.variant('mode', [
   v.strictObject({ mode: v.literal('same-origin') }),
@@ -68,6 +80,7 @@ export const WiredConfigSchema: v.GenericSchema<unknown, WiredConfig> = v.strict
     v.maxLength(MAX_APP_NAME_LENGTH),
   ),
   instances: InstancesSchema,
+  basePath: v.optional(BasePathSchema),
 });
 
 /** Formats one valibot issue as `"<dot.path>: <message>"`, `(root)` when unpathed. */

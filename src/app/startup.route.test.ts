@@ -10,7 +10,7 @@ import { createAccountStore } from '../accounts/accountStore';
 import { createStore } from '../storage/store';
 
 /** Startup over empty stores and a page at {@link pathname}; the rewrites it asked for. */
-async function rewritesAt(pathname: string): Promise<readonly string[]> {
+async function rewritesAt(pathname: string, basePath?: string): Promise<readonly string[]> {
   const replaceUrl = vi.fn<(path: string) => void>();
   await runStartup({
     dispatch: vi.fn(),
@@ -20,7 +20,7 @@ async function rewritesAt(pathname: string): Promise<readonly string[]> {
       accounts: createAccountStore(createStore('route-test-accounts', null)),
       settings: createStore('route-test-settings', null),
     },
-    config: { appName: 'WIRED', instances: { mode: 'same-origin' } },
+    config: { appName: 'WIRED', instances: { mode: 'same-origin' }, basePath },
     now: () => new Date('2026-11-15T09:00:00.000Z'),
     location: { search: '', pathname, hash: '', replaceUrl },
   });
@@ -31,6 +31,14 @@ describe(runStartup, () => {
   it('rewrites a path route into its hash route', async () => {
     await expect(rewritesAt('/notice/abc')).resolves.toStrictEqual(['/#/notice/abc']);
     await expect(rewritesAt('/lain')).resolves.toStrictEqual(['/#/@lain']);
+  });
+
+  it('keeps the base path when the bundle is hosted under one', async () => {
+    await expect(rewritesAt('/fe/notice/abc', '/fe/')).resolves.toStrictEqual(['/fe/#/notice/abc']);
+    await expect(rewritesAt('/fe/oauth/authorize', '/fe/')).resolves.toStrictEqual([
+      '/fe/#/oauth/authorize',
+    ]);
+    await expect(rewritesAt('/fe/', '/fe/')).resolves.toStrictEqual([]);
   });
 
   it('leaves the page at its own path alone', async () => {

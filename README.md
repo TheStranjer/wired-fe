@@ -26,12 +26,13 @@ Other scripts: `pnpm build`, `pnpm preview`, `pnpm test`, `pnpm e2e`, `pnpm lint
 
 The build reads one JSON configuration file (decision 3): the `WIRED_CONFIG` environment variable names it if set, otherwise `wired.config.json` if it exists (deployments keep their own; it is gitignored), otherwise `wired.config.example.json`. It is validated at build time and injected into the bundle as a constant; there is no runtime config fetch.
 
-| Field               | Meaning                                                   |
-| ------------------- | --------------------------------------------------------- |
-| `appName`           | The name shown in the UI                                  |
-| `instances.mode`    | `same-origin` \| `fixed` \| `list` \| `open` (decision 3) |
-| `instances.origin`  | The one instance origin, for mode `fixed`                 |
-| `instances.origins` | The origins the user may pick from, for mode `list`       |
+| Field               | Meaning                                                                                            |
+| ------------------- | -------------------------------------------------------------------------------------------------- |
+| `appName`           | The name shown in the UI                                                                           |
+| `instances.mode`    | `same-origin` \| `fixed` \| `list` \| `open` (decision 3)                                          |
+| `instances.origin`  | The one instance origin, for mode `fixed`                                                          |
+| `instances.origins` | The origins the user may pick from, for mode `list`                                                |
+| `basePath`          | Optional. The path the bundle is hosted under, e.g. `/fe/` (starts and ends with `/`); default `/` |
 
 ## Output
 
@@ -46,6 +47,10 @@ WiredFE routes by hash (decision 4): `/#/notice/<id>`, `/#/@user@host`, `/#/user
 When someone on another server clicks "follow" or "interact" for a user of this instance, their server sends the browser to the instance's WebFinger subscribe template. wired-be's template must be `{FRONTEND_BASE_URL}/#/authorize_interaction?uri={uri}` (a wired-be change, tracked separately). The path form `{FRONTEND_BASE_URL}/authorize_interaction?uri={uri}` (Mastodon's) also works: startup rewrites it to the hash form. The old `acct=` parameter is accepted in place of `uri=`, and a leading `acct:` is stripped. WiredFE searches the value with `resolve=true` as the active account: an account opens its profile window with `Type /follow to follow @<acct>` printed in it, a post opens its thread window, and no result prints `Could not find <value>`. With nobody signed in it prints the `/connect` hint and keeps the link for after login.
 
 For that the static host must serve `index.html` for unknown paths (SPA fallback), e.g. nginx `try_files $uri /index.html;`. The bundle refers to its JS and CSS relatively, so serve it from the origin root and also answer `/<any path>/wired.<hash>.js` and `.css` with the root files (an nginx `rewrite ^/.+/(wired\..+)$ /$1 last;`), or the page loaded at `/notice/<id>` has no script. In the same-origin proxy setup keep `/notice/` and the nickname paths on the frontend, not the backend, or the redirect loops.
+
+#### Hosting under a sub-path
+
+To serve WiredFE at `https://host/fe/`, set `"basePath": "/fe/"` in the build config and `FRONTEND_BASE_URL=https://host/fe` in wired-be. On startup WiredFE strips `basePath` before matching, so `/fe/notice/<id>` opens the thread, `/fe/oauth/authorize?...` the consent overlay, and `/fe/` and `/fe/index.html` are the page itself; the rewrite keeps the base (`/fe/#/notice/<id>`). The host must serve `index.html` for unknown paths under `/fe/` (nginx `location /fe/ { try_files $uri /fe/index.html; }`) and answer the nested asset requests (`/fe/<any path>/wired.<hash>.js` and `.css`) with the files in `/fe/` (`rewrite ^/fe/.+/(wired\..+)$ /fe/$1 last;`). Without `basePath` the bundle only recognises redirect paths at the origin root.
 
 ## Contributing
 

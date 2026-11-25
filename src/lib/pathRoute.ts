@@ -33,11 +33,31 @@ const KEPT = /^\/(?:authorize_interaction|(?:registration|password_reset|oauth)\
 const PATH = /^\/(?:(notice)\/|users\/)?(?!(?:@|index\.html|notice|users)$)@?([^/]+)$/u;
 
 /**
+ * {@link pathname} relative to the hosting path {@link basePath} (ending in
+ * `/`), as an absolute path (`/fe/notice/a` under `/fe/` is `/notice/a`; the
+ * bare `/fe` is `/`), or null when the path lies outside the base.
+ */
+function underBase(pathname: string, basePath: string): string | null {
+  if (pathname === basePath.slice(0, -1)) {
+    return '/';
+  }
+  return pathname.startsWith(basePath) ? pathname.slice(basePath.length - 1) : null;
+}
+
+/**
  * The hash route (leading `#` included) that {@link location}'s path stands
  * for, or null when the path is not one of wired-be's redirect targets: the
- * page's own root, `index.html`, an asset, or anything unknown.
+ * page's own root, `index.html`, an asset, or anything unknown. The bundle may
+ * be hosted under {@link basePath} (the build's `basePath`, `/` by default):
+ * it is stripped before matching, so `/fe/notice/a` under `/fe/` is the
+ * notice route and `/fe/` itself is the page.
  */
-export function pathToHash({ pathname, search }: PathLocation): string | null {
+export function pathToHash(location: PathLocation, basePath = '/'): string | null {
+  const { search } = location;
+  const pathname = underBase(location.pathname, basePath);
+  if (pathname === null) {
+    return null;
+  }
   if (KEPT.test(pathname)) {
     return `#${pathname}${search}`;
   }
