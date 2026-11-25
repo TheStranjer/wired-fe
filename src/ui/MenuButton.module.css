@@ -1,0 +1,59 @@
+/* The dropdown menu button: a plain button with a framed list under it. */
+
+.root {
+  position: relative;
+  display: inline-block;
+}
+
+.button {
+  padding: 0 var(--space);
+  border: var(--border-width) solid var(--color-border);
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font: inherit;
+  cursor: pointer;
+}
+
+.button:focus-visible {
+  outline: 1px solid var(--color-dim);
+}
+
+.menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  min-width: max-content;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg);
+  font-family: var(--font-mono);
+}
+
+.menu:focus-visible {
+  outline: none;
+}
+
+.item {
+  padding: 0 var(--space);
+  border: 0;
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font: inherit;
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.item:disabled {
+  color: var(--color-dim);
+  cursor: default;
+}
+
+.item:focus,
+.item:hover:not(:disabled) {
+  background: var(--color-fg);
+  color: var(--color-bg);
+  outline: none;
+}

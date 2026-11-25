@@ -2,7 +2,7 @@
  * useGlobalKeys: the one capture-phase keydown listener on window, its chord
  * conversion, and its lifetime.
  */
-import { fireEvent, render } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import type { JSX } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -72,6 +72,24 @@ describe(useGlobalKeys, () => {
     const event = new KeyboardEvent('keydown', { key: 'e', bubbles: true, cancelable: true });
     Object.defineProperty(event, 'isComposing', { value: true });
     fireEvent(window, event);
+
+    expect(handler).not.toHaveBeenCalled();
+  });
+
+  it('does not call the handler for a key pressed inside an open menu', () => {
+    const handler = recorder(true);
+    render(
+      <>
+        <Probe handler={handler} />
+        <div role="menu">
+          <button role="menuitem" type="button">
+            item
+          </button>
+        </div>
+      </>,
+    );
+
+    fireEvent.keyDown(screen.getByRole('menuitem'), { key: 'j' });
 
     expect(handler).not.toHaveBeenCalled();
   });
