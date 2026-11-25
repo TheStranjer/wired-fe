@@ -9,6 +9,7 @@
  */
 
 import { createAccountStore } from '../accounts/accountStore';
+import { createSyncStore } from '../accounts/syncPrefs';
 import type { CommandContext } from '../commands/types';
 import { createSessionStore, createStore } from '../storage/store';
 
@@ -25,6 +26,7 @@ function create(): AppStores {
     login: createStore('login'),
     accounts: createAccountStore(createStore('accounts')),
     settings: createStore('settings'),
+    sync: createSyncStore(createStore('sync')),
     profiles: createSessionStore('profiles'),
   };
 }

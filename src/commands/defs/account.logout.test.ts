@@ -67,6 +67,19 @@ describe('/account logout', () => {
     expect(context.print).toHaveBeenCalledWith('Logged out @bob@wired.example');
   });
 
+  it('drops the logged-out account from the sync list and keeps the others in order', async () => {
+    serveRevoke();
+    const context = signedIn([LAIN, BOB]);
+    context.stores.sync.write({ syncAccounts: [keyOf(1), keyOf(2)], syncEnabled: true });
+
+    await command.run('logout', context);
+
+    expect(context.stores.sync.read()).toStrictEqual({
+      syncAccounts: [keyOf(2)],
+      syncEnabled: true,
+    });
+  });
+
   it('logs out anyway and warns when the instance refuses the revoke', async () => {
     serveRevokeRefused();
     const context = signedIn([LAIN]);

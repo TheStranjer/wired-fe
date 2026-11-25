@@ -12,6 +12,7 @@
 
 import type { CommandBinding, Keymap } from './bindingTypes';
 import type { AccountStore } from '../accounts/accountStore';
+import type { SyncStore } from '../accounts/syncPrefs';
 import type { MediaAttachment } from '../api/schemas/mediaAttachment';
 import type { Capabilities, FeatureFlag } from '../capabilities/capabilities';
 import type { WiredConfig } from '../config/schema';
@@ -103,6 +104,8 @@ export type CommandContext = {
     readonly login: Store;
     readonly accounts: AccountStore;
     readonly settings: Store;
+    /** Which accounts hold the synced desk, local only (decision 17). */
+    readonly sync: SyncStore;
     /** Per-session store (`sessionStorage`) of the instance profiles detected this session (decision 5). */
     readonly profiles: Store;
   };

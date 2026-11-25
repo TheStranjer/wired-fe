@@ -10,6 +10,7 @@ import { describe, expect, it, vi, type Mock } from 'vitest';
 import { type StartupDeps, runStartup } from './startup';
 import type { AppStores } from './stores';
 import type { StoredAccount } from '../accounts/accountStore';
+import { createSyncStore } from '../accounts/syncPrefs';
 import type { AppAction } from '../state/reducer';
 import { DEFAULT_SETTINGS, type Settings } from '../state/settings';
 import type { Dispatch } from '../state/StateContext';
@@ -55,6 +56,7 @@ function storesFor(backend: StorageBackend | null): AppStores {
     login: inert,
     settings: createStore('startup-settings', backend),
     profiles: createStore('startup-profiles', null),
+    sync: createSyncStore(createStore('startup-sync', null)),
     accounts: {
       list: () => noAccounts,
       get: () => undefined,

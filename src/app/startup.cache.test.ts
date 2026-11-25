@@ -8,6 +8,7 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { type Detect, runStartup } from './startup';
 import { createAccountStore } from '../accounts/accountStore';
+import { createSyncStore } from '../accounts/syncPrefs';
 import { DEFAULT_POLL_LIMITS } from '../capabilities/capabilities';
 import type { InstanceProfile } from '../capabilities/detect';
 import { ok } from '../lib/result';
@@ -48,6 +49,7 @@ describe('startup session cache', () => {
         apps: createStore('cache-apps', null),
         login: createStore('cache-login', null),
         settings: createStore('cache-settings', null),
+        sync: createSyncStore(createStore('cache-sync', null)),
         accounts,
         profiles,
       };

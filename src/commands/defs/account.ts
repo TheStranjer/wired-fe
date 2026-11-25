@@ -143,6 +143,7 @@ async function logout(query: string | undefined, context: CommandContext): Promi
   }
   await revokeQuietly(account, context);
   context.stores.accounts.remove(account.key);
+  context.stores.sync.forget(account.key);
   syncAccounts(context);
   closeWindowsOf(context, account.key);
   context.print(`Logged out @${account.handle}`);
