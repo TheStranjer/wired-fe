@@ -1,0 +1,46 @@
+/* The desktop: nested flex containers for the split tree, a 1px border-coloured
+   gap between panes. The share of each half is set from the split's ratio. */
+
+.desktop {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+}
+
+.row,
+.column {
+  display: flex;
+  flex: 1;
+  gap: 1px;
+  min-width: 0;
+  min-height: 0;
+  background: var(--color-border);
+}
+
+.row {
+  flex-direction: row;
+}
+
+.column {
+  flex-direction: column;
+}
+
+.half {
+  display: grid;
+  grid-template: minmax(0, 1fr) / minmax(0, 1fr);
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 0;
+}
+
+.empty {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  border: var(--border-width) solid var(--color-border);
+  color: var(--color-dim);
+  font-family: var(--font-mono);
+}

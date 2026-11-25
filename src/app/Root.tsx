@@ -14,10 +14,12 @@
  * routes (./useHashRoute, decision 4) among them.
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import type { JSX } from 'react';
 
 import { CommandLine } from './CommandLine';
+import { DesktopView } from './DesktopView';
+import { KINDS } from './loadedKinds';
 import { appRegistry } from './registry';
 import { Shell } from './Shell';
 import { SidePane } from './SidePane';
@@ -34,34 +36,21 @@ import { useRouteOverlays } from './useRouteOverlays';
 import { useSettingsPersistence } from './useSettingsPersistence';
 import { useStartup } from './useStartup';
 import { useTheme } from './useTheme';
-import { loadWindowKinds } from './windowKinds';
+import { windowTopic } from './WindowBody';
 import { usePendingKeys } from '../keys/useGlobalKeys';
 import type { Result } from '../lib/result';
-import type { ClockFormat } from '../lib/time';
 import { type AppState, printAction } from '../state/appState';
 import { useAppDispatch, useAppState } from '../state/StateContext';
-import type { WindowKindDefinition } from '../state/windowKind';
-import { Scrollback } from '../ui/Scrollback';
-import { SystemLine } from '../ui/SystemLine';
 import { TopicBar } from '../ui/TopicBar';
 import { PostActionsProvider } from '../views/PostActionsContext';
 import { useStreams } from '../views/useStreams';
 import { STATUS_WINDOW_ID, activeWindow } from '../windows/model';
-import type { WindowKind, WindowState } from '../windows/model';
+import type { WindowState } from '../windows/model';
 
-/** The one loads every mount shares: the window kinds and the command registry. */
-const KINDS = loadWindowKinds();
+/** The one load of the command registry every mount shares. */
 const REGISTRY = appRegistry();
 
-/** The kind map the shell draws from; empty when the load failed. */
-const WINDOW_KINDS: ReadonlyMap<WindowKind, WindowKindDefinition> = KINDS.ok
-  ? KINDS.value
-  : new Map();
-
-/** What the scrollback says when the window's kind has no component. */
-const NO_VIEW = 'No view for this window';
-
-/** Props of the two regions that draw the active window, and all of state. */
+/** Props of the topic bar: the active window, and all of state. */
 type RegionProps = {
   readonly win: WindowState;
   readonly state: AppState;
@@ -75,35 +64,13 @@ function failure<E>(loaded: Result<unknown, E>): E | null {
 /** The topic bar: the window's title, its account and its kind's topic. */
 function Topic(props: RegionProps): JSX.Element {
   const { win, state } = props;
-  const kind = WINDOW_KINDS.get(win.ref.kind);
   return (
     <TopicBar
       windowTitle={win.title}
       accountLabel={accountLabel(state, win.ref.accountKey)}
-      topic={kind === undefined ? '' : kind.topic(win, state)}
+      topic={windowTopic(win, state)}
     />
   );
-}
-
-/** The stand-in scrollback for a window whose kind never loaded. */
-function NoView(props: { readonly title: string; readonly clockFormat: ClockFormat }): JSX.Element {
-  const [date] = useState(() => new Date());
-  return (
-    <Scrollback label={props.title}>
-      <SystemLine clockFormat={props.clockFormat} date={date} level="error" text={NO_VIEW} />
-    </Scrollback>
-  );
-}
-
-/** The scrollback: the active window kind's own component, or a notice. */
-function WindowBody(props: RegionProps): JSX.Element {
-  const { win, state } = props;
-  const kind = WINDOW_KINDS.get(win.ref.kind);
-  if (kind === undefined) {
-    return <NoView clockFormat={state.settings.clockFormat} title={win.title} />;
-  }
-  const Body = kind.Component;
-  return <Body windowId={win.id} />;
 }
 
 /** Mirrors settings and window state out to storage, the theme and the tab title. */
@@ -147,7 +114,8 @@ export function Root(): JSX.Element {
     <PostActionsProvider actions={postActions.actions}>
       <Shell
         topic={<Topic win={active} state={state} />}
-        scrollback={<WindowBody win={active} state={state} />}
+        scrollback={<DesktopView />}
+        scrollbackLabel={`Desktop ${String(state.layout.active + 1)}`}
         sidePane={<SidePane win={active} />}
         statusLine={
           <StatusBar pendingMedia={attachments.pending.length} pendingKeys={pendingKeys.prefix} />
