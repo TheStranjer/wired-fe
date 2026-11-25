@@ -125,4 +125,13 @@ describe(fieldsToDraft, () => {
     ).toStrictEqual({ text: 'a', visibility: 'public', inReplyToId: '7' });
     expect(fieldsToDraft(fields)).not.toHaveProperty('inReplyToId');
   });
+
+  it('quotes the post a quote composer is bound to, and none otherwise', () => {
+    const fields = { text: 'a', spoiler: '', visibility: 'public' } as const;
+
+    expect(
+      fieldsToDraft({ ...fields, quoteOf: { status: status('7'), accountKey: 'a#1' } }),
+    ).toStrictEqual({ text: 'a', visibility: 'public', quoteId: '7' });
+    expect(fieldsToDraft(fields)).not.toHaveProperty('quoteId');
+  });
 });

@@ -39,6 +39,13 @@ describe('the shipped reply keys', () => {
     });
   });
 
+  it('runs the quote composer on Shift+c, since Shift+q closes the window (WFE-262)', () => {
+    const { navigation } = realKeymap();
+
+    expect(navigation.get('Shift+c')).toStrictEqual({ line: '/quote', prefill: false });
+    expect(navigation.get('Shift+q')).toMatchObject({ line: '/close' });
+  });
+
   it('refuses no default binding', () => {
     expect(realKeymap().problems).toStrictEqual([]);
   });

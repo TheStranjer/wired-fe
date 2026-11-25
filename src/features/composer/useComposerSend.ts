@@ -7,8 +7,11 @@
  * and the attachments and keeps the window, and says so in the window's own
  * scrollback; a failure stays inside the form for the retry. While a file is
  * still uploading the form is busy: sending waits for its id. A reply composer
- * (WFE-244) has served its purpose once its answer is up: success closes its
- * window and says so in the status window.
+ * (WFE-244) has served its purpose once its answer is up, and a quote composer
+ * (WFE-262) once its quote is: success closes the window and says so in the
+ * status window. The draft goes out as the window's account, which a bound
+ * composer was opened for — the account of the line it came from — and
+ * {@link fieldsToDraft} carries the `inReplyToId` or `quoteId`.
  */
 
 import { useState } from 'react';
@@ -53,16 +56,25 @@ async function publish(
 /** The composer window that sent, and the fields it sent from. */
 type SentWindow = { readonly windowId: string; readonly fields: ComposerFields };
 
+/** The line a bound composer leaves in the status window once its post is up; null for a plain one. */
+function closingNote(fields: ComposerFields, created: Status): string | null {
+  if (fields.inReplyTo !== undefined) {
+    return `↳ replied to @${created.account.acct}`;
+  }
+  return fields.quoteOf === undefined ? null : `❝ quoted @${fields.quoteOf.status.account.acct}`;
+}
+
 /**
- * What a successful send leaves behind: a reply composer closes (its answer is
- * up, WFE-244) and says so in the status window; any other clears its fields
- * and attachments and confirms in its own scrollback.
+ * What a successful send leaves behind: a reply or quote composer closes (its
+ * post is up, WFE-244, WFE-262) and says so in the status window; any other
+ * clears its fields and attachments and confirms in its own scrollback.
  */
 function sent(dispatch: Dispatch, origin: SentWindow, created: Status): void {
   const { windowId, fields } = origin;
-  if (fields.inReplyTo !== undefined) {
+  const note = closingNote(fields, created);
+  if (note !== null) {
     dispatch({ type: 'windows', action: { type: 'close', id: windowId } });
-    dispatch(printAction(STATUS_WINDOW_ID, 'info', `↳ replied to @${created.account.acct}`));
+    dispatch(printAction(STATUS_WINDOW_ID, 'info', note));
     return;
   }
   dispatch({
