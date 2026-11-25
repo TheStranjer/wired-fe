@@ -21,6 +21,7 @@ export const FEATURE_FLAGS = [
   'localOnlyPosts',
   'markdown',
   'passwordResetApi',
+  'settingsStore',
 ] as const;
 
 /** A UI feature WiredFE can switch on (decision 5); never a raw feature string. */
@@ -80,7 +81,9 @@ function mastodonFlags(v2: InstanceV2 | null): readonly FeatureFlag[] {
  * `passwordResetApi` always — no document says whether either works, but
  * Wired, Pleroma and Akkoma all do (the reset is `/api/v1/pleroma/password_reset`
  * or `/auth/password`; Mastodon has no such API), so the whole dialect is
- * assumed to.
+ * assumed to. `settingsStore` (`/api/v1/pleroma/settings/:app`) is likewise
+ * always present: Wired serves it and Pleroma and Akkoma have for longer than
+ * any version supported.
  */
 function pleromaFlags(
   advertised: ReadonlySet<string>,
@@ -91,7 +94,7 @@ function pleromaFlags(
   );
   const markdown: readonly FeatureFlag[] =
     v1?.postFormats.includes(MARKDOWN_FORMAT) === true ? ['markdown'] : [];
-  return [...advertisedFlags, 'localOnlyPosts', 'passwordResetApi', ...markdown];
+  return [...advertisedFlags, 'localOnlyPosts', 'passwordResetApi', 'settingsStore', ...markdown];
 }
 
 /** The flags a backend of {@link family} has, from the documents it answered. */
