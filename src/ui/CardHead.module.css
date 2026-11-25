@@ -1,6 +1,7 @@
 /* The top line of a card: the label, the clock and, for a direct message, the
    strip naming who it is between. The strip is words and a glyph, so it never
-   rests on colour alone. */
+   rests on colour alone. The account marker of a multi-account feed, when
+   there is one, pushes itself and the clock over. */
 
 .head {
   display: flex;

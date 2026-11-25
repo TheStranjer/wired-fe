@@ -17,6 +17,7 @@ const BASE_PROPS: PostRowProps = {
   clockFormat: '24h',
   author: { handle: 'alice', fullHandle: '@alice@m.example', self: false },
   boostedBy: null,
+  via: null,
   replyTo: null,
   quote: null,
   contentHtml: '<p>present day, present time</p>',

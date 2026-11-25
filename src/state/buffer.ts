@@ -40,6 +40,9 @@ export type PostLineData = {
   /** The key of the account that fetched this line (decision 14); null when unknown,
    * and commands then act as the window's account. */
   readonly accountKey: string | null;
+  /** Every account that saw this line, the acting one first (a feed's merge, WFE-226);
+   * omitted when only the fetching account did. */
+  readonly seenBy?: readonly string[];
 };
 
 /** One notification in the scrollback, the notifications window's line. */
@@ -51,6 +54,9 @@ export type NotificationLineData = {
   /** The key of the account that fetched this line (decision 14); null when unknown,
    * and commands then act as the window's account. */
   readonly accountKey: string | null;
+  /** Every account that saw this line, the acting one first (a feed's merge, WFE-226);
+   * omitted when only the fetching account did. */
+  readonly seenBy?: readonly string[];
 };
 
 /** Anything that can sit on a line of a window's scrollback. */

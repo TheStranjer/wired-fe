@@ -11,6 +11,7 @@ import type { JSX } from 'react';
 
 import styles from './SystemLine.module.css';
 import { Timestamp } from './Timestamp';
+import { type Via, ViaMark } from './ViaMark';
 import type { ClockFormat } from '../lib/time';
 
 /** Props of {@link SystemLine}. */
@@ -29,6 +30,9 @@ export type SystemLineProps = {
   /** The text is decorative ASCII art (WFE-135): the whole line is hidden from
    * assistive technology and rendered unwrapped, so the art keeps its shape. */
   readonly decorative?: boolean | undefined;
+  /** The account a multi-account feed's notification came through (WFE-226),
+   * drawn dim after the clock. Omitted or null for every other message. */
+  readonly via?: Via | null | undefined;
 };
 
 /** The text span's colour class per level. */
@@ -47,7 +51,7 @@ const SR_PREFIX: Record<SystemLineProps['level'], string | undefined> = {
 
 /** One scrollback line of client output: `23:04 *** text`. */
 export function SystemLine(props: SystemLineProps): JSX.Element {
-  const { date, clockFormat, level, text, actor, decorative } = props;
+  const { date, clockFormat, level, text, actor, decorative, via } = props;
   const prefix = SR_PREFIX[level];
 
   return (
@@ -56,6 +60,11 @@ export function SystemLine(props: SystemLineProps): JSX.Element {
       aria-hidden={decorative}
     >
       <Timestamp date={date} format={clockFormat} />{' '}
+      {via === null || via === undefined ? undefined : (
+        <>
+          <ViaMark via={via} form="line" />{' '}
+        </>
+      )}
       <span aria-hidden="true" className={styles['marker']}>
         ***
       </span>{' '}

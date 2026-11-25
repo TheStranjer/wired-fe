@@ -8,6 +8,7 @@
 import { collapsesHeader, recipientsOf } from './dmView';
 import { openContentLink } from './openContentLink';
 import type { PostView, Viewer } from './postView';
+import { viaFor } from './via';
 import type { Account } from '../api/schemas/account';
 import type { Status } from '../api/schemas/status';
 import type { AppState } from '../state/appState';
@@ -131,5 +132,6 @@ export function sharedPostProps(
     selected: buffer.selectedKey === lineKey,
     sensitive: view.sensitive,
     spoilerText: view.spoilerText,
+    via: viaFor(state, windowId, lineKey),
   };
 }

@@ -31,6 +31,20 @@ describe(setFeedLines, () => {
     ).toStrictEqual([A_HOME.accountKey, B_HOME.accountKey]);
   });
 
+  it('records every account that saw a post or a notification on its line', () => {
+    const seen = [A_HOME.accountKey, B_HOME.accountKey];
+    const items = [
+      { ...post('p', 5, A_HOME), seenBy: seen },
+      { ...notificationItem(notification('n', null), B_HOME), seenBy: seen },
+    ];
+    const next = setFeedLines(EMPTY_BUFFER, items);
+
+    expect(next.lines.map((line) => (line.kind === 'system' ? null : line.seenBy))).toStrictEqual([
+      seen,
+      seen,
+    ]);
+  });
+
   it('labels ids in line order and keeps the labels when shown again', () => {
     const first = setFeedLines(EMPTY_BUFFER, [post('b', 5, A_HOME), post('a', 1, A_HOME)]);
 

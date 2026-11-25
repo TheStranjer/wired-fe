@@ -130,6 +130,7 @@ export function PostCard(props: PostCardProps): JSX.Element {
         dm={dmStrip(props)}
         label={props.label}
         selected={selected}
+        via={props.via}
       />
       <CardBoost boostedBy={props.boostedBy} showAvatar={props.showAvatar} />
       <div className={styles['main']}>

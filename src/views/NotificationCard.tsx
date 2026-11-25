@@ -16,6 +16,7 @@ import { excerpt, join } from './notificationExcerpt';
 import { notificationText } from './notificationText';
 import { PostLine } from './PostLine';
 import { viewerFor } from './postLineProps';
+import { viaFor } from './via';
 import { fullHandle } from '../accounts/handle';
 import type { Notification, NotificationKind } from '../api/schemas/notification';
 import type { NotificationLineData } from '../state/buffer';
@@ -25,6 +26,7 @@ import { useAppDispatch, useAppState } from '../state/StateContext';
 import { threadWindowOpen } from '../state/threadWindow';
 import { Avatar } from '../ui/Avatar';
 import { Timestamp } from '../ui/Timestamp';
+import { ViaMark } from '../ui/ViaMark';
 
 /** Props of {@link NotificationCard}: the window the line is shown in, and the line. */
 export type NotificationCardProps = {
@@ -88,11 +90,15 @@ function entryOf(notification: Notification, origin: string): Entry {
   return { glyph, text: rest ?? sentence, actor: rest !== null };
 }
 
-/** The notification's header: avatar, glyph, who did what, and the clock. */
-function Header(props: NotificationCardProps): JSX.Element {
+/**
+ * The notification's header: avatar, glyph, who did what, the account of a
+ * multi-account feed it came through when `marked`, and the clock.
+ */
+function Header(props: NotificationCardProps & { readonly marked: boolean }): JSX.Element {
   const state = useAppState();
   const dispatch = useAppDispatch();
-  const { windowId, line } = props;
+  const { windowId, line, marked } = props;
+  const via = marked ? viaFor(state, windowId, line.key) : null;
   const { account, created_at: createdAt } = line.notification;
   const origin = viewerFor(state, windowId).origin;
   const entry = entryOf(line.notification, origin);
@@ -122,6 +128,7 @@ function Header(props: NotificationCardProps): JSX.Element {
         {entry.actor ? ' ' : undefined}
         {entry.text}
       </span>
+      {via === null ? undefined : <ViaMark via={via} form="card" />}
       <Timestamp date={new Date(createdAt)} format={state.settings.clockFormat} />
     </div>
   );
@@ -157,14 +164,14 @@ export function NotificationCard(props: NotificationCardProps): JSX.Element {
   if (status !== null && (kind === 'mention' || kind === 'quote')) {
     return (
       <div>
-        <Header {...props} />
+        <Header {...props} marked={false} />
         <PostLine lineKey={props.line.key} status={status} windowId={props.windowId} />
       </div>
     );
   }
   return (
     <div className={styles['compact']}>
-      <Header {...props} />
+      <Header {...props} marked />
       <Excerpt {...props} />
     </div>
   );
