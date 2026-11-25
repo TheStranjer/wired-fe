@@ -6,9 +6,10 @@
  * canonical chord (see `./chord`) and is handed to `handler`; what a chord
  * does is the caller's decision, not this module's. The handler lives in a
  * ref, so re-renders swap behaviour without re-registering the listener. The
- * one exception: a key pressed inside an open modal dialog belongs to that
- * dialog (WFE-125) and never reaches any handler. {@link usePendingKeys} holds
- * the prefix of a multi-chord binding between two presses (decision 18).
+ * one exception: a key pressed inside an open modal dialog (WFE-125) or
+ * dropdown menu (WFE-190) belongs to it and never reaches any handler.
+ * {@link usePendingKeys} holds the prefix of a multi-chord binding between two
+ * presses (decision 18).
  */
 import { useEffect, useRef, useState } from 'react';
 
@@ -19,12 +20,13 @@ import type { InputMode } from './mode';
 export type ChordHandler = (chord: string, event: KeyboardEvent) => boolean;
 
 /**
- * True when {@link event} was pressed on a field of an open modal dialog: the
- * dialog owns its keys, so the shell's global listener stays out of its way.
+ * True when {@link event} was pressed on a field of an open modal dialog or
+ * in an open dropdown menu (WFE-190): each owns its keys, so the shell's
+ * global listener stays out of its way.
  */
 function insideDialog(event: KeyboardEvent): boolean {
   const { target } = event;
-  return target instanceof Element && target.closest('[role="dialog"]') !== null;
+  return target instanceof Element && target.closest('[role="dialog"], [role="menu"]') !== null;
 }
 
 /**
@@ -32,7 +34,8 @@ function insideDialog(event: KeyboardEvent): boolean {
  * latest `handler`. Handled chords have their default prevented and their
  * propagation stopped; IME composing events, events without a chord
  * (bare modifiers, unnameable keys) and events pressed inside an open modal
- * dialog — which owns its keys (WFE-125) — never reach the handler.
+ * dialog or dropdown menu — which own their keys (WFE-125, WFE-190) — never
+ * reach the handler.
  */
 export function useGlobalKeys(handler: ChordHandler): void {
   const handlerRef = useRef(handler);
