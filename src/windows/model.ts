@@ -20,7 +20,8 @@ export type WindowKind =
   | 'composer'
   | 'feed'
   | 'feedEditor'
-  | 'people';
+  | 'people'
+  | 'media';
 
 /** What a window shows. */
 export type WindowRef = {

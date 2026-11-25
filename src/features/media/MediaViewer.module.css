@@ -1,0 +1,110 @@
+/* The media window: the attachment fitted to the pane, contained and centred
+   and never drawn larger than its own size, so it re-fits as the float is
+   resized; the description and the controls sit under it. Tokens only. */
+
+.viewer {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  height: 100%;
+  padding: var(--space);
+  gap: var(--space);
+  font-family: var(--font-mono);
+  color: var(--color-fg);
+}
+
+.stage {
+  display: flex;
+  flex: 1 1 0;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.media {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.player {
+  display: block;
+  width: 100%;
+}
+
+.link {
+  overflow-wrap: anywhere;
+  color: var(--color-accent);
+}
+
+.unavailable {
+  color: var(--color-warn);
+}
+
+.description {
+  margin: 0;
+  color: var(--color-dim);
+  white-space: pre-wrap;
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space);
+}
+
+.place {
+  color: var(--color-dim);
+}
+
+.button {
+  border: var(--border-width) solid var(--color-border);
+  padding: 0 var(--space);
+  background: var(--color-bg);
+  font: inherit;
+  color: var(--color-fg);
+  cursor: pointer;
+}
+
+.button:disabled {
+  border-color: var(--color-dim);
+  color: var(--color-dim);
+  cursor: default;
+}
+
+.cover {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  margin: var(--space);
+  border: var(--border-width) solid var(--color-dim);
+  padding: calc(var(--space) * 3) var(--space);
+  background: var(--color-bar-bg);
+  font: inherit;
+  color: var(--color-error);
+  cursor: pointer;
+}
+
+.button:focus-visible,
+.cover:focus-visible,
+.link:focus-visible {
+  outline: var(--border-width-focus) solid var(--color-fg);
+  outline-offset: 2px;
+}
+
+.notice {
+  margin: 0;
+  padding: 0 var(--space);
+  color: var(--color-dim);
+}
+
+.error {
+  margin: 0;
+  padding: 0 var(--space);
+  color: var(--color-error);
+}

@@ -35,6 +35,7 @@ export const PEOPLE_TITLES: Record<WindowKind, string | null> = {
   feed: null,
   feedEditor: null,
   people: null,
+  media: null,
 };
 
 /** The account's full handle as the window's account grounds it; alone if none. */

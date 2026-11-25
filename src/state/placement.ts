@@ -42,6 +42,7 @@ export const PLACEABLE_KINDS: readonly WindowKind[] = [
   'composer',
   'feed',
   'people',
+  'media',
 ];
 
 /** The per-kind placements a reader has chosen; a kind not listed follows the default. */
@@ -106,8 +107,8 @@ export function chosenPlacement(
   return override ?? settings.openInByKind[kind] ?? null;
 }
 
-/** The kinds whose placement starts as something other than `openIn`: a composer pops up over what you are reading. */
-const KIND_DEFAULTS: KindPlacements = { composer: 'float' };
+/** The kinds whose placement starts as something other than `openIn`: a composer pops up over what you are reading, and so does a media viewer. */
+const KIND_DEFAULTS: KindPlacements = { composer: 'float', media: 'float' };
 
 /** Where a window of {@link kind} opens: {@link override}, else its kind's setting, else the kind's own default, else `openIn`. */
 export function resolvePlacement(

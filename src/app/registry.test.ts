@@ -26,6 +26,7 @@ const EXPECTED = [
   'help',
   'home',
   'local',
+  'media',
   'more',
   'mvd',
   'notifications',

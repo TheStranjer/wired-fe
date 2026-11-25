@@ -151,6 +151,7 @@ const TAKES_UPDATE: Record<WindowKind, TakesUpdate> = {
   feed: TAKES_NOTHING,
   feedEditor: TAKES_NOTHING,
   people: TAKES_NOTHING,
+  media: TAKES_NOTHING,
 };
 
 /**

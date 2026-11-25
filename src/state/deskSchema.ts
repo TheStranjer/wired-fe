@@ -28,6 +28,7 @@ const KindSchema = v.picklist([
   'composer',
   'feed',
   'feedEditor',
+  'media',
 ]);
 
 /** What a window shows. */
