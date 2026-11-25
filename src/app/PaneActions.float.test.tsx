@@ -9,6 +9,7 @@ import type { JSX } from 'react';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { DesktopView } from './DesktopView';
+import type { StoredAccount } from '../accounts/accountStore';
 import { command as dock } from '../commands/defs/dock';
 import { command as float } from '../commands/defs/float';
 import { dispatchInput } from '../commands/dispatch';
@@ -87,6 +88,20 @@ function floatedA(): AppState {
   return appReducer(focused, { type: 'layout', action: { type: 'float' } });
 }
 
+/** {@link state} with a signed-in account, whose handle the account suggestions offer. */
+function withAlice(state: AppState): AppState {
+  const alice: StoredAccount = {
+    key: 'https://mastodon.test#1',
+    origin: 'https://mastodon.test',
+    accountId: '1',
+    handle: 'alice@mastodon.test',
+    token: 'not-a-real-token',
+    refreshToken: null,
+    expiresAt: null,
+  };
+  return appReducer(state, { type: 'accounts', accounts: [alice], activeKey: null });
+}
+
 /** Opens the pop-out menu of pane a, the first pane. */
 function openPopOut(): void {
   const [button] = screen.getAllByRole('button', { name: 'Pop out' });
@@ -138,14 +153,53 @@ describe('the pop-out button', () => {
     });
   });
 
-  it('fills the command line for a row that ends in …', async () => {
+  it('asks for the tag in a dialog before it runs /float tag <name>', async () => {
     renderDesk(twoPanes());
 
     openPopOut();
     fireEvent.click(screen.getByRole('menuitem', { name: 'Hashtag…' }));
 
+    expect(lines).toStrictEqual([]);
+
+    fireEvent.change(screen.getByRole('combobox', { name: 'Pop out' }), {
+      target: { value: 'rust' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'OK' }));
+
     await waitFor(() => {
-      expect(lines).toStrictEqual(['/float tag']);
+      expect(lines).toStrictEqual(['/float tag rust']);
+    });
+  });
+
+  it('suggests the signed-in accounts for Profile… and runs the one chosen', async () => {
+    renderDesk(withAlice(twoPanes()));
+
+    openPopOut();
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Profile…' }));
+    const input = screen.getByRole('combobox', { name: 'Pop out' });
+    fireEvent.change(input, { target: { value: 'al' } });
+    fireEvent.click(screen.getByRole('option', { name: '@alice@mastodon.test' }));
+    fireEvent.click(screen.getByRole('button', { name: 'OK' }));
+
+    await waitFor(() => {
+      expect(lines).toStrictEqual(['/float whois @alice@mastodon.test']);
+    });
+  });
+
+  it('offers no suggestion for Search… and runs its words as typed', async () => {
+    renderDesk(withAlice(twoPanes()));
+
+    openPopOut();
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Search…' }));
+    const input = screen.getByRole('combobox', { name: 'Pop out' });
+    fireEvent.change(input, { target: { value: 'al' } });
+
+    expect(screen.queryByRole('option')).not.toBeInTheDocument();
+
+    fireEvent.keyDown(input, { key: 'Enter' });
+
+    await waitFor(() => {
+      expect(lines).toStrictEqual(['/float search al']);
     });
   });
 });

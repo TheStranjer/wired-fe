@@ -3,13 +3,24 @@
  * list, built from the commands the backend can run and the reader's saved
  * feeds, shared by `┃▾` (`/vsplit`) and `━▾` (`/split`). Pure. A row whose
  * command is missing is left out, so no menu offers what a line would refuse.
- * A row either runs at once or only fills the command line for the user to
- * finish (the `…` rows), through the same prefill the hotkeys use.
+ * A row either runs at once, asks for its argument in a small dialog (the
+ * `…` rows but the last, WFE-269), or only fills the command line for the user
+ * to finish (`Existing window…`, through the same prefill the hotkeys use).
  */
 
 import type { Registry } from '../commands/types';
 import type { Feeds } from '../state/feeds';
 import type { MenuItem } from '../ui/MenuButton';
+
+/** What a row that needs one argument asks for, in a dialog, before it runs. */
+export type PaneAsk = {
+  /** The dialog's title, e.g. `Open profile`. */
+  readonly title: string;
+  /** What the empty field hints at. */
+  readonly placeholder: string;
+  /** Which completion words the field suggests, and how its answer is cleaned up; null for plain text. */
+  readonly suggest: 'accounts' | 'tags' | null;
+};
 
 /** One row of the menu, with what choosing it runs. */
 export type PaneMenuEntry = MenuItem & {
@@ -19,6 +30,8 @@ export type PaneMenuEntry = MenuItem & {
   readonly literal: boolean;
   /** True fills the line into the command line instead of running it. */
   readonly prefill: boolean;
+  /** Set for a row that asks for an argument in a dialog, then runs `text` with it. */
+  readonly ask: PaneAsk | null;
 };
 
 /** A row of the fixed part of the menu: the command it needs and the view it opens. */
@@ -29,39 +42,71 @@ type Row = {
   readonly needs: string | null;
   readonly view: string;
   readonly prefill: boolean;
+  readonly ask: PaneAsk | null;
 };
+
+/** A row that runs `view` at once. */
+function plain(id: string, label: string, view = id): Row {
+  return { id, label, needs: id, view, prefill: false, ask: null };
+}
+
+/** A row whose view is finished by the answer to {@link ask}. */
+function asking(row: Pick<Row, 'id' | 'label' | 'needs' | 'ask'>): Row {
+  return { ...row, view: row.id, prefill: false };
+}
 
 /** The rows before the saved feeds. */
 const HEAD: readonly Row[] = [
-  { id: 'same', label: 'Same window', needs: null, view: '', prefill: false },
+  { id: 'same', label: 'Same window', needs: null, view: '', prefill: false, ask: null },
 ];
 
 /** The rows after the saved feeds. */
 const TAIL: readonly Row[] = [
-  { id: 'composer', label: 'Composer', needs: 'composer', view: 'composer', prefill: false },
-  { id: 'home', label: 'Home', needs: 'home', view: 'home', prefill: false },
-  {
-    id: 'notifications',
-    label: 'Notifications',
-    needs: 'notifications',
-    view: 'notifications',
-    prefill: false,
-  },
-  { id: 'local', label: 'Local', needs: 'local', view: 'local', prefill: false },
-  { id: 'federated', label: 'Federated', needs: 'federated', view: 'federated', prefill: false },
-  { id: 'dms', label: 'Direct messages', needs: 'dms', view: 'dms', prefill: false },
-  { id: 'people', label: 'People here', needs: 'people', view: '/people', prefill: false },
-  { id: 'tag', label: 'Hashtag…', needs: 'tag', view: 'tag', prefill: true },
-  { id: 'search', label: 'Search…', needs: 'search', view: 'search', prefill: true },
-  { id: 'whois', label: 'Profile…', needs: 'whois', view: 'whois @', prefill: true },
-  { id: 'dm', label: 'DM…', needs: 'query', view: 'dm @', prefill: true },
-  { id: 'win', label: 'Existing window…', needs: 'win', view: 'win', prefill: true },
+  plain('composer', 'Composer'),
+  plain('home', 'Home'),
+  plain('notifications', 'Notifications'),
+  plain('local', 'Local'),
+  plain('federated', 'Federated'),
+  plain('dms', 'Direct messages'),
+  plain('people', 'People here', '/people'),
+  asking({
+    id: 'tag',
+    label: 'Hashtag…',
+    needs: 'tag',
+    ask: { title: 'Split with hashtag', placeholder: '#tag', suggest: 'tags' },
+  }),
+  asking({
+    id: 'search',
+    label: 'Search…',
+    needs: 'search',
+    ask: { title: 'Search', placeholder: 'words, @account or #tag', suggest: null },
+  }),
+  asking({
+    id: 'whois',
+    label: 'Profile…',
+    needs: 'whois',
+    ask: { title: 'Open profile', placeholder: '@user@instance', suggest: 'accounts' },
+  }),
+  asking({
+    id: 'dm',
+    label: 'DM…',
+    needs: 'query',
+    ask: { title: 'Direct message', placeholder: '@user@instance', suggest: 'accounts' },
+  }),
+  { id: 'win', label: 'Existing window…', needs: 'win', view: 'win', prefill: true, ask: null },
 ];
 
 /** The entry for {@link row}: a view spec, or a whole line when the view starts with a slash (`/people` opens its own split). */
 function viewEntry(row: Row): PaneMenuEntry {
   const literal = row.view.startsWith('/');
-  return { id: row.id, label: row.label, text: row.view, literal, prefill: row.prefill };
+  return {
+    id: row.id,
+    label: row.label,
+    text: row.view,
+    literal,
+    prefill: row.prefill,
+    ask: row.ask,
+  };
 }
 
 /** The rows of {@link rows} whose command the registry has. */
@@ -80,6 +125,7 @@ function feedEntries(registry: Registry, feeds: Feeds): readonly PaneMenuEntry[]
     text: `feed ${feed.name}`,
     literal: false,
     prefill: false,
+    ask: null,
   }));
   const created: PaneMenuEntry = {
     id: 'feed-new',
@@ -87,6 +133,7 @@ function feedEntries(registry: Registry, feeds: Feeds): readonly PaneMenuEntry[]
     text: '/feed new',
     literal: true,
     prefill: false,
+    ask: null,
   };
   return [...saved, created];
 }
@@ -106,6 +153,7 @@ const THIS_PANE: PaneMenuEntry = {
   text: '',
   literal: false,
   prefill: false,
+  ask: null,
 };
 
 /** The rows of the pop-out menu: `This pane`, then {@link entries} less `Same window`, which `This pane` replaces. */
@@ -116,4 +164,23 @@ export function popOutEntries(entries: readonly PaneMenuEntry[]): readonly PaneM
 /** The command line {@link entry} runs or fills when chosen from the `/`{@link command} button. */
 export function entryLine(entry: PaneMenuEntry, command: ViewCommand): string {
   return entry.literal ? entry.text : `/${command} ${entry.text}`.trim();
+}
+
+/** {@link answer} as the argument of an `ask` row: no `#` before a tag, an `@` before an account. */
+function askedArgument(suggest: PaneAsk['suggest'], answer: string): string {
+  const typed = answer.trim();
+  switch (suggest) {
+    case 'tags':
+      return typed.replace(/^#/u, '');
+    case 'accounts':
+      return typed.startsWith('@') ? typed : `@${typed}`;
+    case null:
+      return typed;
+  }
+}
+
+/** The command line {@link entry} runs from the `/`{@link command} button once its dialog was answered with {@link answer}. */
+export function askedLine(entry: PaneMenuEntry, command: ViewCommand, answer: string): string {
+  const argument = askedArgument(entry.ask?.suggest ?? null, answer);
+  return `${entryLine(entry, command)} ${argument}`;
 }

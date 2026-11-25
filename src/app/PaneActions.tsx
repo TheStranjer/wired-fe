@@ -3,7 +3,9 @@
  * each one focuses its own pane, then runs a command line through the runner
  * the command line lends the views, exactly as a hotkey or a typed command
  * would. `┃▾` and `━▾` split that pane side by side or stacked with a view
- * chosen from a menu (`/vsplit <view>`, `/split <view>`); `◐▾` sets how its
+ * chosen from a menu (`/vsplit <view>`, `/split <view>`; the rows that need an
+ * argument ask for it in a small dialog, then run the finished line, and only
+ * `Existing window…` still fills the command line, WFE-269); `◐▾` sets how its
  * posts are drawn; `✕` closes it. A tree pane also has `⧉▾`, which pops it
  * (`This pane`) or a view out into a float (`/float [view]`); a float has `⊞`
  * (`/dock`) instead, and no split buttons (WFE-230).
@@ -13,8 +15,9 @@ import type { JSX } from 'react';
 
 import { displayItems, displayLine, showsPosts } from './displayMenu';
 import styles from './PaneActions.module.css';
-import { entryLine, paneMenuEntries, popOutEntries } from './paneMenu';
-import type { PaneMenuEntry, ViewCommand } from './paneMenu';
+import { paneMenuEntries, popOutEntries } from './paneMenu';
+import { SplitMenu } from './SplitMenu';
+import type { SplitButton } from './SplitMenu';
 import { useAvailableRegistry } from './useAvailableRegistry';
 import { feedById } from '../state/feeds';
 import { useAppDispatch, useAppState } from '../state/StateContext';
@@ -24,13 +27,6 @@ import { usePostActions } from '../views/PostActionsContext';
 import { activeDesktop } from '../windows/desktops';
 import { findFloat } from '../windows/floats';
 import type { WindowState } from '../windows/model';
-
-/** One of the view-menu buttons: its glyph, accessible name and command. */
-type SplitButton = {
-  readonly glyph: string;
-  readonly label: string;
-  readonly command: ViewCommand;
-};
 
 /** The split buttons, side by side first. */
 const SPLIT_BUTTONS: readonly SplitButton[] = [
@@ -73,21 +69,6 @@ function DisplayMenu(props: { readonly paneId: string; readonly win: WindowState
       }}
     />
   );
-}
-
-/** One view-menu button over {@link entries}. */
-function SplitMenu(props: {
-  readonly button: SplitButton;
-  readonly entries: readonly PaneMenuEntry[];
-  readonly runOnPane: (line: PostActionLine) => void;
-}): JSX.Element {
-  const { button, entries, runOnPane } = props;
-  const select = (id: string): void => {
-    for (const entry of entries.filter((candidate) => candidate.id === id)) {
-      runOnPane({ line: entryLine(entry, button.command), prefill: entry.prefill });
-    }
-  };
-  return <MenuButton label={button.label} glyph={button.glyph} items={entries} onSelect={select} />;
 }
 
 /** The `⊞` button of a float: puts it back in the tree. */

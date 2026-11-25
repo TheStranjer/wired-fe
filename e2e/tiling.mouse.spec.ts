@@ -18,6 +18,7 @@ import {
   floatOf,
   grabOf,
   pane,
+  routeTags,
   titleBar,
 } from './fixtures/tiling';
 
@@ -63,6 +64,21 @@ test('the buttons split a pane, pop it out, and a float drags and docks', async 
     .click();
   await expect(floatOf(page, 'home')).toHaveCount(0);
   await expect(pane(page, 'home')).toHaveCount(2);
+});
+
+test('Hashtag… asks for the tag in a dialog, then splits with that tag', async ({ page }) => {
+  await routeTags(page);
+  await signIn(page);
+  await page.getByRole('button', { name: 'Split side by side' }).click();
+  await page.getByRole('menuitem', { name: 'Hashtag…', exact: true }).click();
+  const dialog = page.getByRole('dialog', { name: 'Split with hashtag' });
+  await expect(dialog).toBeVisible();
+  await dialog.getByRole('combobox').fill('rust');
+  await dialog.getByRole('combobox').press('Enter');
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(pane(page, 'home')).toHaveCount(1);
+  await expect(pane(page, '#rust')).toHaveCount(1);
+  await expect(pane(page, '#rust')).toHaveAttribute('aria-current', 'true');
 });
 
 /** The divider of the one split on the desktop. */

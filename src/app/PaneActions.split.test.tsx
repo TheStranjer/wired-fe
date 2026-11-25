@@ -1,8 +1,9 @@
 /**
  * Tests for the split buttons of a pane's title bar (WFE-229): `┃▾` and `━▾`
  * split the pane whose button was clicked, not the focused one, with the view
- * chosen from the menu; the rows that end in `…` fill the command line for the
- * user instead; and the menu offers only what the registry can run.
+ * chosen from the menu; the rows that ask for an argument open a dialog and
+ * run the finished line (WFE-269), `Existing window…` fills the command line
+ * for the user instead; and the menu offers only what the registry can run.
  */
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { useEffect, useRef } from 'react';
@@ -34,6 +35,9 @@ function shape(tree: SplitTree | null): string {
 /** The lines the buttons filled into the command line instead of running. */
 const filled: string[] = [];
 
+/** The lines the buttons ran, which never went near the command line. */
+const ran: string[] = [];
+
 /** Runs lines through the real split commands over the live state; collects the prefilled ones. */
 function Runner(props: { readonly children: JSX.Element }): JSX.Element {
   const state = useAppState();
@@ -49,6 +53,7 @@ function Runner(props: { readonly children: JSX.Element }): JSX.Element {
         filled.push(line);
         return;
       }
+      ran.push(line);
       const context = fakeCommandContext({
         state,
         windows: state.windows,
@@ -77,6 +82,7 @@ function Runner(props: { readonly children: JSX.Element }): JSX.Element {
 /** The desktop of two panes, a and b, b focused, inside a running {@link Runner}. */
 function renderDesk(): void {
   filled.length = 0;
+  ran.length = 0;
   render(
     <AppStateProvider initial={twoPanes()}>
       <Runner>
@@ -123,28 +129,77 @@ describe('the split buttons', () => {
     });
   });
 
-  it('fills the command line, without running it, for a row that ends in …', async () => {
+  it('fills the command line, without running it, for Existing window…', async () => {
     renderDesk();
 
     openFirst('Split stacked');
-    fireEvent.click(screen.getByRole('menuitem', { name: 'Hashtag…' }));
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Existing window…' }));
 
     await waitFor(() => {
-      expect(filled).toStrictEqual(['/split tag']);
+      expect(filled).toStrictEqual(['/split win']);
     });
 
+    expect(ran).toStrictEqual([]);
     expect(screen.getByLabelText('shape')).toHaveTextContent('row(phantom:-:a,phantom:-:b)');
   });
 
-  it('fills a handle prompt for the DM row', async () => {
+  it('asks for the tag in a dialog, then runs the finished line without prefilling', async () => {
     renderDesk();
 
     openFirst('Split side by side');
-    fireEvent.click(screen.getByRole('menuitem', { name: 'DM…' }));
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Hashtag…' }));
+    const input = screen.getByRole('combobox', { name: 'Split side by side' });
+
+    fireEvent.change(input, { target: { value: '#rust' } });
+    fireEvent.click(screen.getByRole('button', { name: 'OK' }));
 
     await waitFor(() => {
-      expect(filled).toStrictEqual(['/vsplit dm @']);
+      expect(ran).toStrictEqual(['/vsplit tag rust']);
     });
+
+    expect(filled).toStrictEqual([]);
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('opens the tag dialog with its title, placeholder and focus in the field', () => {
+    renderDesk();
+
+    openFirst('Split side by side');
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Hashtag…' }));
+    const input = screen.getByRole('combobox', { name: 'Split side by side' });
+
+    expect(screen.getByRole('dialog', { name: 'Split with hashtag' })).toBeInTheDocument();
+    expect(input).toHaveFocus();
+    expect(input).toHaveAttribute('placeholder', '#tag');
+  });
+
+  it('asks for a handle for the DM row and adds the @ the answer lacks', async () => {
+    renderDesk();
+
+    openFirst('Split stacked');
+    fireEvent.click(screen.getByRole('menuitem', { name: 'DM…' }));
+    const input = screen.getByRole('combobox', { name: 'Split stacked' });
+    fireEvent.change(input, { target: { value: 'bob@wired2.test' } });
+    fireEvent.keyDown(input, { key: 'Enter' });
+
+    await waitFor(() => {
+      expect(ran).toStrictEqual(['/split dm @bob@wired2.test']);
+    });
+
+    expect(filled).toStrictEqual([]);
+  });
+
+  it('runs nothing and gives focus back to the menu button when the dialog is cancelled', () => {
+    renderDesk();
+
+    openFirst('Split stacked');
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Search…' }));
+    fireEvent.keyDown(screen.getByRole('combobox'), { key: 'Escape' });
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(screen.getAllByRole('button', { name: 'Split stacked' })[0]).toHaveFocus();
+    expect(ran).toStrictEqual([]);
+    expect(filled).toStrictEqual([]);
   });
 
   it('offers the views the registry has and leaves out the ones it lacks', () => {
