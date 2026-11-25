@@ -136,3 +136,58 @@ describe('buildKeymap with the reader’s overrides', () => {
     expect(keymap.navigation.get('b')).toStrictEqual({ line: '/fav', prefill: false });
   });
 });
+
+describe('buildKeymap with sequence overrides', () => {
+  it('installs an override sequence and lets a stored single chord stay valid', () => {
+    const keymap = keymapWith(
+      [override('navigation', 'w v', '/vsplit'), override('navigation', 'f', '/pin')],
+      withBindings('fav', [{ mode: 'navigation', chord: 'f', args: '' }]),
+    );
+
+    expect(keymap.navigation.get('w v')).toStrictEqual({ line: '/vsplit', prefill: false });
+    expect(keymap.navigation.get('f')).toStrictEqual({ line: '/pin', prefill: false });
+    expect(keymap.problems).toStrictEqual([]);
+  });
+
+  it('deletes a default sequence with a null line', () => {
+    const keymap = keymapWith(
+      [override('navigation', 'w v', null)],
+      withBindings('vsplit', [{ mode: 'navigation', chord: 'w v', args: '' }]),
+    );
+
+    expect(keymap.navigation.size).toBe(0);
+    expect(keymap.problems).toStrictEqual([]);
+  });
+
+  it('refuses an override that is a prefix of a default', () => {
+    const keymap = keymapWith(
+      [override('navigation', 'w', '/pin')],
+      withBindings('vsplit', [{ mode: 'navigation', chord: 'w v', args: '' }]),
+    );
+
+    expect(keymap.navigation.has('w')).toBe(false);
+    expect(keymap.problems).toStrictEqual(['override: w conflicts with w v']);
+  });
+
+  it('refuses an override that extends a default', () => {
+    const keymap = keymapWith(
+      [override('navigation', 'f x', '/pin')],
+      withBindings('fav', [{ mode: 'navigation', chord: 'f', args: '' }]),
+    );
+
+    expect(keymap.navigation.has('f x')).toBe(false);
+    expect(keymap.problems).toStrictEqual(['override: f x conflicts with f']);
+  });
+
+  it('refuses an invalid sequence and an insert sequence led by a plain character', () => {
+    const keymap = keymapWith([
+      override('navigation', 'w V', '/pin'),
+      override('insert', 'w v', '/pin'),
+    ]);
+
+    expect(keymap.problems).toStrictEqual([
+      'override: invalid key w V',
+      'override: w v would block typing in insert mode',
+    ]);
+  });
+});

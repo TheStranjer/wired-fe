@@ -21,6 +21,7 @@ import type { Provider } from '../commands/complete';
 import { dispatchInput } from '../commands/dispatch';
 import { parseInput } from '../commands/parseInput';
 import type { CommandContext } from '../commands/types';
+import type { PendingKeys } from '../keys/useGlobalKeys';
 import { useAppDispatch, useAppState } from '../state/StateContext';
 import { InputLine } from '../ui/InputLine';
 
@@ -31,6 +32,8 @@ export type CommandLineProps = {
   readonly openComposer: (initialText: string) => void;
   /** The media waiting for the next post (WFE-126); the app owns the list. */
   readonly attachments: CommandContext['attachments'];
+  /** The prefix of a key sequence under way (decision 18); the shell shows it in the status line. */
+  readonly pendingKeys: PendingKeys;
 };
 
 /**
@@ -73,7 +76,7 @@ export function CommandLine(props: CommandLineProps): JSX.Element {
   const lineOpener = composerOpener(props.openComposer, value, setValue);
   const context = useCommandContext(setValue, lineOpener, props.attachments);
   const inputRef = useRef<HTMLInputElement>(null);
-  useHotkeys(inputRef, context);
+  useHotkeys(inputRef, context, props.pendingKeys);
   const history = useCommandHistory(state.mode, value, setValue);
   const completion = useCompletion({
     inputRef,

@@ -9,31 +9,27 @@
  * same dispatcher and the same text handler the command line itself uses, so
  * the hotkey and the typed command are one path. A prefill chord instead
  * fills its line into the command line for the user to finish, `{label}`
- * standing for the selected post's label. Keys pressed inside an open modal
- * dialog never reach the keymap: the dialog owns them (WFE-125). Bindings the
- * keymap refused to install are printed into the status window as `warn`
- * lines once, on mount: the shell boots and says what is missing.
+ * standing for the selected post's label (./hotkeyPrefill). A binding may be a
+ * sequence of chords (decision 18): the first chord of one waits as the
+ * pending prefix, and the next chord completes it or cancels it. Keys pressed
+ * inside an open modal dialog never reach the keymap: the dialog owns them
+ * (WFE-125). Bindings the keymap refused to install are printed into the
+ * status window as `warn` lines once, on mount: the shell boots and says what
+ * is missing.
  */
 
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo } from 'react';
 import type { RefObject } from 'react';
 
+import { fillCommandLine, useCaretToEnd } from './hotkeyPrefill';
 import { type TextHandler, dispatchInput } from '../commands/dispatch';
 import type { CommandContext, Keymap } from '../commands/types';
-import { decideKey } from '../keys/decide';
+import { type KeyDecision, continueKey, decideKey } from '../keys/decide';
 import { buildKeymap } from '../keys/keymap';
 import type { InputMode } from '../keys/mode';
-import { useGlobalKeys } from '../keys/useGlobalKeys';
-import { type AppState, printAction } from '../state/appState';
-import { labelForStatus, selectedStatus } from '../state/bufferSelection';
-import { activeBuffer } from '../state/selectors';
+import { type PendingKeys, useGlobalKeys } from '../keys/useGlobalKeys';
+import { printAction } from '../state/appState';
 import { STATUS_WINDOW_ID } from '../windows/model';
-
-/** The part of a prefill line that stands for the selected post's label. */
-const LABEL_PLACEHOLDER = '{label}';
-
-/** What a prefill prints when its line wants a label and nothing is selected. */
-const NEED_SELECTION = 'Select a post first (j/k)';
 
 /**
  * What a line of plain text does wherever it was entered — Enter on the
@@ -76,114 +72,72 @@ function moveCaret(mode: InputMode, inputRef: RefObject<HTMLInputElement | null>
   }
 }
 
-/** The label the active window gave its selected post, or null while none stands there. */
-function selectedLabel(state: AppState): string | null {
-  const buffer = activeBuffer(state);
-  const status = selectedStatus(buffer);
-  return status === null ? null : labelForStatus(buffer, status.id);
-}
+/** What carrying out a decision touches: the command line, the app and the pending prefix. */
+type Env = {
+  readonly context: CommandContext;
+  readonly inputRef: RefObject<HTMLInputElement | null>;
+  readonly pending: PendingKeys;
+  readonly askCaretToEnd: (text: string) => void;
+};
 
 /**
- * Fill {@link line} into the command line (AGENTS.md "prefill bindings") and
- * switch to insert mode: `{label}` becomes the selected post's label, and a
- * line that wants one with nothing selected prints {@link NEED_SELECTION} and
- * changes nothing. Else the line lands in the input with a trailing space —
- * {@link caretBehind} is asked for first, so the caret follows the text into
- * the render it brings about — and the user finishes it in insert mode.
+ * Carry out {@link decision}; true when the chord was used up. A mode change
+ * dispatches `mode` and moves the caret; a run goes through the dispatcher
+ * exactly as if it had been typed; a prefill fills the command line, switches
+ * to insert mode and carries the caret behind the new text; a pending prefix
+ * waits for the next chord; a cancel only ends the wait; nothing leaves the key
+ * to type, focus and scroll as usual.
  */
-function fillCommandLine(
-  line: string,
-  context: CommandContext,
-  caretBehind: (text: string) => void,
-): void {
-  let text = line;
-  if (text.includes(LABEL_PLACEHOLDER)) {
-    const label = selectedLabel(context.state);
-    if (label === null) {
-      context.print(NEED_SELECTION);
-      return;
-    }
-    text = text.replaceAll(LABEL_PLACEHOLDER, label);
+function perform(decision: KeyDecision, env: Env): boolean {
+  const { context, inputRef, pending, askCaretToEnd } = env;
+  switch (decision.kind) {
+    case 'mode':
+      context.dispatch({ type: 'mode', mode: decision.mode });
+      moveCaret(decision.mode, inputRef);
+      return true;
+    case 'run':
+      void dispatchInput(decision.line, context, textHandler(context));
+      return true;
+    case 'prefill':
+      fillCommandLine(decision.line, context, askCaretToEnd);
+      return true;
+    case 'pending':
+      pending.setPrefix(decision.prefix);
+      return true;
+    case 'cancel':
+      return true;
+    case 'none':
+      return false;
   }
-  const filled = `${text} `;
-  caretBehind(filled);
-  context.setInput(filled);
-  context.dispatch({ type: 'mode', mode: 'insert' });
 }
 
 /**
- * The caret handoff beside {@link moveCaret} (AGENTS.md "prefill bindings"):
- * the returned request names the text the command line is about to show, and
- * the effect carries out every request as soon as a commit puts that text in
- * {@link inputRef} — focusing the line and putting the caret behind it. While
- * no request stands, or none has come due yet, the effect does nothing.
- */
-function useCaretToEnd(inputRef: RefObject<HTMLInputElement | null>): (text: string) => void {
-  const pendingRef = useRef<string | null>(null);
-
-  useEffect(() => {
-    const input = inputRef.current;
-    const wanted = pendingRef.current;
-    if (input === null || wanted === null) {
-      return;
-    }
-    if (input.value !== wanted) {
-      return;
-    }
-    pendingRef.current = null;
-    placeCaret(input, wanted);
-  });
-
-  return (text: string): void => {
-    const input = inputRef.current;
-    if (input !== null && input.value === text) {
-      placeCaret(input, text);
-      return;
-    }
-    pendingRef.current = text;
-  };
-}
-
-/** Focus the command line and put the caret behind {@link text}, its whole content. */
-function placeCaret(input: HTMLInputElement, text: string): void {
-  input.focus();
-  input.setSelectionRange(text.length, text.length);
-}
-
-/**
- * Handle every global chord while the caller is mounted. {@link decideKey}
- * says what {@link chord} means in the mode the state holds: a mode change,
- * which dispatches `mode` and moves the caret (true); a bound command line,
- * which runs through the dispatcher exactly as if it had been typed (true); a
- * prefill line, which fills the command line, switches to insert mode and
- * carries the caret behind the new text (true); or nothing, which leaves the
- * key to type, focus and scroll as usual (false). {@link inputRef} is the
- * command line, so the modes and prefills can move the caret in it. A chord
- * pressed inside an open modal dialog is always left alone: the dialog owns
- * its keys (WFE-125).
+ * Handle every global chord while the caller is mounted. With no prefix
+ * pending, {@link decideKey} says what the chord means in the mode the state
+ * holds; with one, {@link continueKey} says whether it completes the sequence
+ * or cancels it. Whatever the chord does, the wait for the rest of a sequence
+ * ends first; a decision that starts a new wait sets it again.
+ * {@link inputRef} is the command line, so the modes and prefills can move the
+ * caret in it, and {@link pending} is the prefix the status line shows. A
+ * chord pressed inside an open modal dialog is always left alone: the dialog
+ * owns its keys (WFE-125).
  */
 export function useHotkeys(
   inputRef: RefObject<HTMLInputElement | null>,
   context: CommandContext,
+  pending: PendingKeys,
 ): void {
   const keymap = useKeymap(context);
   const askCaretToEnd = useCaretToEnd(inputRef);
 
   useGlobalKeys((chord) => {
-    const decision = decideKey(context.state.mode, chord, keymap);
-    if (decision.kind === 'mode') {
-      context.dispatch({ type: 'mode', mode: decision.mode });
-      moveCaret(decision.mode, inputRef);
-      return true;
+    const { mode } = context.state;
+    const { prefix } = pending;
+    const decision =
+      prefix === null ? decideKey(mode, chord, keymap) : continueKey(keymap[mode], prefix, chord);
+    if (prefix !== null) {
+      pending.setPrefix(null);
     }
-    if (decision.kind === 'run') {
-      void dispatchInput(decision.line, context, textHandler(context));
-      return true;
-    }
-    if (decision.kind === 'prefill') {
-      fillCommandLine(decision.line, context, askCaretToEnd);
-      return true;
-    }
-    return false;
+    return perform(decision, { context, inputRef, pending, askCaretToEnd });
   });
 }

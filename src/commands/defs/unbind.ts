@@ -1,7 +1,8 @@
 /**
  * `/unbind <insert|navigation> <chord>` (decision 6, WFE-130): take one chord
  * out of one mode's map, straight from the command line. The mode word and the
- * chord are read exactly as `/bind` reads them — text naming no bindable key
+ * chord — every word after the mode, so a sequence such as `w v` works
+ * (decision 18) — are read exactly as `/bind` reads them — text naming no bindable key
  * answers `Not a key: <chord>`. An override the reader made for that mode and
  * chord is simply dropped, putting the command's default binding back; where
  * there was no override, one with a null line is added, so a default binding
@@ -19,9 +20,10 @@ const USAGE = '/unbind <insert|navigation> <chord>';
 
 /** Do what one argument text asks, or echo the usage back. */
 function handle(args: string, context: CommandContext): CommandOutcome {
-  const [modeWord, chordText, extra] = wordsOf(args);
+  const [modeWord, ...chordWords] = wordsOf(args);
   const mode = modeOf(modeWord);
-  if (mode === null || chordText === undefined || extra !== undefined) {
+  const chordText = chordWords.join(' ');
+  if (mode === null || chordText === '') {
     return fail(`Usage: ${USAGE}`);
   }
   const chord = context.keys.parseChord(chordText);

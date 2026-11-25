@@ -30,3 +30,19 @@ export function storeRebind(context: CommandContext, override: KeyOverride): voi
     override.line !== null || kept.length === overrides.length ? [...kept, override] : kept;
   context.dispatch({ type: 'settings', settings: { keyOverrides: next } });
 }
+
+/**
+ * Split the words after the mode word of `/bind` into the key sequence and
+ * the command line (decision 18): the sequence is the first word, which is
+ * always a chord — `/` itself is one —, plus every word up to the first that
+ * starts with `/`; the line is that word and everything after it. With no such
+ * word the line is whatever follows the first chord, for the caller to refuse.
+ */
+export function splitBinding(words: readonly string[]): {
+  readonly chords: string;
+  readonly line: string;
+} {
+  const slash = words.findIndex((word, index) => index > 0 && word.startsWith('/'));
+  const cut = slash === -1 ? 1 : slash;
+  return { chords: words.slice(0, cut).join(' '), line: words.slice(cut).join(' ') };
+}

@@ -34,6 +34,7 @@ import { useSettingsPersistence } from './useSettingsPersistence';
 import { useStartup } from './useStartup';
 import { useTheme } from './useTheme';
 import { loadWindowKinds } from './windowKinds';
+import { usePendingKeys } from '../keys/useGlobalKeys';
 import type { Result } from '../lib/result';
 import type { ClockFormat } from '../lib/time';
 import { type AppState, printAction } from '../state/appState';
@@ -119,6 +120,7 @@ export function Root(): JSX.Element {
   const attachments = useAttachments();
   const drop = useDropAndPaste(attachments);
   const composer = useComposerOverlay(attachments);
+  const pendingKeys = usePendingKeys(state.mode);
   const ready = useStartup();
   useHashRoute(ready);
   const overlays = useRouteOverlays(ready);
@@ -139,10 +141,13 @@ export function Root(): JSX.Element {
         topic={<Topic win={active} state={state} />}
         scrollback={<WindowBody win={active} state={state} />}
         sidePane={<SidePane win={active} />}
-        statusLine={<StatusBar pendingMedia={attachments.pending.length} />}
+        statusLine={
+          <StatusBar pendingMedia={attachments.pending.length} pendingKeys={pendingKeys.prefix} />
+        }
         input={
           <CommandLine
             attachments={attachments}
+            pendingKeys={pendingKeys}
             completion={providers}
             openComposer={composer.openComposer}
           />

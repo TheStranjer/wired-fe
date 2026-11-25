@@ -15,6 +15,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { useHotkeys } from './useHotkeys';
 import { buildRegistry } from '../commands/registry';
 import type { CommandContext, CommandOutcome, Registry } from '../commands/types';
+import { usePendingKeys } from '../keys/useGlobalKeys';
 import { initialAppState } from '../state/appState';
 import type { AppState } from '../state/appState';
 import { EMPTY_BUFFER } from '../state/buffer';
@@ -77,7 +78,7 @@ type HostProps = {
 function Host({ context }: HostProps): JSX.Element {
   const inputRef: RefObject<HTMLInputElement | null> = useRef<HTMLInputElement>(null);
   const [value, setValue] = useState('');
-  useHotkeys(inputRef, context);
+  useHotkeys(inputRef, context, usePendingKeys(context.state.mode));
 
   function handleChange(event: ChangeEvent<HTMLInputElement>): void {
     setValue(event.target.value);

@@ -7,11 +7,13 @@
  * does is the caller's decision, not this module's. The handler lives in a
  * ref, so re-renders swap behaviour without re-registering the listener. The
  * one exception: a key pressed inside an open modal dialog belongs to that
- * dialog (WFE-125) and never reaches any handler.
+ * dialog (WFE-125) and never reaches any handler. {@link usePendingKeys} holds
+ * the prefix of a multi-chord binding between two presses (decision 18).
  */
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { chordFromEvent } from './chord';
+import type { InputMode } from './mode';
 
 /** Return true when the chord was handled: the event's default is then prevented. */
 export type ChordHandler = (chord: string, event: KeyboardEvent) => boolean;
@@ -59,4 +61,42 @@ export function useGlobalKeys(handler: ChordHandler): void {
       window.removeEventListener('keydown', onKeyDown, options);
     };
   }, []);
+}
+
+/** The prefix of a key sequence waiting for its next chord (decision 18), and how to change it. */
+export type PendingKeys = {
+  /** The canonical chords pressed so far, e.g. `Ctrl+B`; null when no sequence is under way. */
+  readonly prefix: string | null;
+  /** Wait for more chords after {@link prefix}, or give up waiting with null. */
+  readonly setPrefix: (prefix: string | null) => void;
+};
+
+/** A prefix and the mode it was pressed in: it is void once the mode moves on. */
+type HeldPrefix = { readonly prefix: string | null; readonly mode: InputMode };
+
+/**
+ * The pending key prefix of a keyboard in {@link mode}. It resets when the mode
+ * changes — a prefix never carries across modes — and when the window loses
+ * focus, so a half-typed sequence cannot wait forever behind another tab. No
+ * timers: only a chord, a mode change or a blur ends the wait.
+ */
+export function usePendingKeys(mode: InputMode): PendingKeys {
+  const [held, setHeld] = useState<HeldPrefix>({ prefix: null, mode });
+
+  useEffect(() => {
+    const onBlur = (): void => {
+      setHeld({ prefix: null, mode });
+    };
+    window.addEventListener('blur', onBlur);
+    return () => {
+      window.removeEventListener('blur', onBlur);
+    };
+  }, [mode]);
+
+  return {
+    prefix: held.mode === mode ? held.prefix : null,
+    setPrefix: (prefix) => {
+      setHeld({ prefix, mode });
+    },
+  };
 }

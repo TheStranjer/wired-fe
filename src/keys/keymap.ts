@@ -2,18 +2,21 @@
  * The keymap (decision 6): one hotkey map per mode (AGENTS.md "Two hotkey
  * modes"), generated from the default bindings declared across the command
  * registry and the reader's own overrides (WFE-130, `/bind`). Chords are
- * canonical strings (see ./chord) and every entry names the command line the
+ * canonical sequences of one or more chords (decision 18, see ./chord, e.g.
+ * `Ctrl+B %`) and every entry names the command line the
  * chord carries — to run, or to fill into the command line when the binding is
  * a prefill — so a hotkey and the typed command are one path.
  *
  * A binding that cannot work is reported in `problems` (for the status
  * window) instead of installed: a chord that is not canonical, one that would
- * swallow typing in insert mode, or one an earlier command already took. The
- * first binding of a chord wins, in registry order; overrides come after the
+ * swallow typing in insert mode, one an earlier command already took, or a
+ * sequence that is a strict prefix of another (`w` beside `w v`) or has one as
+ * its prefix. The first binding of a chord wins, in registry order; overrides come after the
  * defaults and replace, add to, or — with a null line — delete their chord.
  */
 
-import { blocksTyping, parseChord } from './chord';
+import { blocksTyping, parseSequence } from './chord';
+import { conflictingSequence } from './sequence';
 import type {
   CommandBinding,
   CommandDefinition,
@@ -37,7 +40,7 @@ function commandLine(definition: CommandDefinition, binding: CommandBinding): st
 
 /** Why {@link binding} cannot be installed, or null when it can. */
 function bindingProblem(definition: CommandDefinition, binding: CommandBinding): string | null {
-  if (parseChord(binding.chord) !== binding.chord) {
+  if (parseSequence(binding.chord) !== binding.chord) {
     return `/${definition.name}: invalid key ${binding.chord}`;
   }
   if (binding.mode === 'insert' && blocksTyping(binding.chord)) {
@@ -68,6 +71,11 @@ function addBinding(
     target.problems.push(`/${definition.name}: ${binding.chord} already bound to ${existing.line}`);
     return;
   }
+  const conflict = conflictingSequence(byMode.keys(), binding.chord);
+  if (conflict !== null) {
+    target.problems.push(`/${definition.name}: ${binding.chord} conflicts with ${conflict}`);
+    return;
+  }
   byMode.set(binding.chord, {
     line: commandLine(definition, binding),
     prefill: binding.prefill ?? false,
@@ -76,7 +84,7 @@ function addBinding(
 
 /** Apply {@link override} over the defaults already in {@link target}: replace, add, or delete. */
 function applyOverride(override: KeyOverride, target: PartialKeymap): void {
-  if (parseChord(override.chord) !== override.chord) {
+  if (parseSequence(override.chord) !== override.chord) {
     target.problems.push(`override: invalid key ${override.chord}`);
     return;
   }
@@ -87,6 +95,11 @@ function applyOverride(override: KeyOverride, target: PartialKeymap): void {
   }
   if (override.mode === 'insert' && blocksTyping(override.chord)) {
     target.problems.push(`override: ${override.chord} would block typing in insert mode`);
+    return;
+  }
+  const conflict = conflictingSequence(byMode.keys(), override.chord);
+  if (conflict !== null) {
+    target.problems.push(`override: ${override.chord} conflicts with ${conflict}`);
     return;
   }
   byMode.set(override.chord, { line: override.line, prefill: false });

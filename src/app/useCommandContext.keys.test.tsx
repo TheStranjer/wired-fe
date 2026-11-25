@@ -28,6 +28,7 @@ describe('the context’s key-binding helpers', () => {
 
     expect(context.keys.parseChord('ctrl+e')).toBe('Ctrl+e');
     expect(context.keys.parseChord('banana+')).toBeNull();
+    expect(context.keys.parseChord('ctrl+b %')).toBe('Ctrl+b %');
     expect(context.keys.blocksTyping('a')).toBe(true);
     expect(context.keys.blocksTyping('Alt+3')).toBe(false);
   });

@@ -4,7 +4,7 @@
  */
 import { describe, expect, it } from 'vitest';
 
-import { blocksTyping, chordFromEvent, parseChord } from './chord';
+import { blocksTyping, chordFromEvent, parseChord, parseSequence } from './chord';
 import type { KeyLike } from './chord';
 
 /** A keyboard event whose modifiers default to off. */
@@ -154,4 +154,30 @@ describe(blocksTyping, () => {
       expect(blocksTyping(chord)).toBe(false);
     },
   );
+});
+
+describe(parseSequence, () => {
+  it.each([
+    { label: 'a single chord', text: 'ctrl+e', sequence: 'Ctrl+e' },
+    { label: 'two bare characters', text: 'w v', sequence: 'w v' },
+    { label: 'a modified prefix', text: 'ctrl+b %', sequence: 'Ctrl+b %' },
+    { label: 'ragged spacing', text: '  CTRL+B    shift+5  ', sequence: 'Ctrl+b 5' },
+    { label: 'three chords', text: 'ctrl+b w escape', sequence: 'Ctrl+b w Escape' },
+    { label: 'the plus key in a sequence', text: 'w +', sequence: 'w +' },
+  ])('reads $label', ({ text, sequence }) => {
+    expect(parseSequence(text)).toBe(sequence);
+  });
+
+  it.each(['', '   ', 'w banana', 'banana w', 'ctrl+ v'])('refuses %j', (text) => {
+    expect(parseSequence(text)).toBeNull();
+  });
+});
+
+describe('blocksTyping over a sequence', () => {
+  it('looks at the first chord only', () => {
+    expect(blocksTyping('Ctrl+b %')).toBe(false);
+    expect(blocksTyping('Ctrl+b a')).toBe(false);
+    expect(blocksTyping('w Ctrl+b')).toBe(true);
+    expect(blocksTyping('Shift+w v')).toBe(true);
+  });
 });
