@@ -1,12 +1,9 @@
 /**
  * Tests for the shared line views: a client message as stored, a post row seen
  * through its window's account, and a notification as the client message it is
- * until its own view lands. Each renders inside AppStateProvider over a state
- * holding one window and one buffer with a line of every kind, and the
- * reader's own moves — selection, content-warning reveal, keeping a new
- * selection in view (./LineView.scroll.test.tsx) and the nick click that opens
- * a profile window (./LineView.profile.test.tsx) — are asserted on the rendered
- * row.
+ * until its own view lands, in line density (cards: ./LineView.cards.test.tsx).
+ * Each renders in AppStateProvider over one window with a line of every kind;
+ * selection and content-warning reveal are asserted on the rendered row.
  */
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
@@ -20,6 +17,7 @@ import { appReducer } from '../state/reducer';
 import { bufferFor } from '../state/selectors';
 import { AppStateProvider } from '../state/StateContext';
 import { notification, status } from '../test/fixtures';
+import { LINE_SETTINGS } from '../test/lineSettings';
 import { windowId } from '../windows/model';
 import type { WindowRef } from '../windows/model';
 
@@ -51,7 +49,7 @@ const WARNED: Status = status('cw', {
 
 /** The signed-in app state with the home window open. */
 function opened(): AppState {
-  const signed = coreReducer(initialAppState(), {
+  const signed = coreReducer(initialAppState(LINE_SETTINGS), {
     type: 'accounts',
     accounts: [ACCOUNT],
     activeKey: ACCOUNT_KEY,

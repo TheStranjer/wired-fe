@@ -17,6 +17,7 @@ import { appReducer } from '../state/reducer';
 import { bufferFor } from '../state/selectors';
 import { AppStateProvider, useAppState } from '../state/StateContext';
 import { notification, status } from '../test/fixtures';
+import { LINE_SETTINGS } from '../test/lineSettings';
 import { windowId } from '../windows/model';
 import type { WindowRef } from '../windows/model';
 
@@ -47,7 +48,7 @@ const WARNED: Status = status('cw', {
 
 /** The signed-in app state with {@link WINDOW} open. */
 function opened(): AppState {
-  const signed = coreReducer(initialAppState(), {
+  const signed = coreReducer(initialAppState(LINE_SETTINGS), {
     type: 'accounts',
     accounts: [ACCOUNT],
     activeKey: ACCOUNT.key,
