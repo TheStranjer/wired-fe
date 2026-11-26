@@ -5,7 +5,7 @@
  * attachment's id and the group goes away with the list; /detach empties the
  * list, echoes, and leaves the next post without media. Startup is mocked.
  */
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -134,6 +134,9 @@ describe('attachments in the shell', () => {
     expect(screen.getByText('[+1 media]')).toBeInTheDocument();
 
     submit('look at this');
+    // The attachment has no description, so the media are reviewed first (WFE-290).
+    const review = await screen.findByRole('dialog', { name: 'Describe media' });
+    fireEvent.click(within(review).getByRole('button', { name: 'Submit' }));
 
     await waitFor(() => {
       expect(posted).toStrictEqual([

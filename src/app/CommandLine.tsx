@@ -19,8 +19,9 @@ import { useCommandContext } from './useCommandContext';
 import { useCommandHistory } from './useCommandHistory';
 import { useCompletion } from './useCompletion';
 import { textHandler, useHotkeys } from './useHotkeys';
-import { type LineRestorer, useRegisterLineRestorer } from './useLineRestoreApi';
+import type { LineRestorer } from './useLineRestoreApi';
 import { useRegisterLineRunner } from './useLineRunnerApi';
+import { useLineWriter } from './useLineWriter';
 import { usePostActionRunner } from './usePostActionRunner';
 import type { PostActionRunner } from './usePostActionsApi';
 import type { Provider } from '../commands/complete';
@@ -63,12 +64,12 @@ export function CommandLine(props: CommandLineProps): JSX.Element {
   const state = useAppState();
   const dispatch = useAppDispatch();
   const [value, setValue] = useState('');
-  const context = useCommandContext(setValue, props.attachments, value);
+  const writer = useLineWriter({ value, setValue }, props.registerRestorer);
+  const context = useCommandContext(writer.setInput, props.attachments, value);
   const inputRef = useRef<HTMLInputElement>(null);
   useHotkeys(inputRef, context, props.pendingKeys);
   usePostActionRunner(inputRef, context, props.registerRunner);
   useRegisterLineRunner(context, props.registerLineRunner);
-  useRegisterLineRestorer({ value, setValue }, props.registerRestorer);
   const history = useCommandHistory(state.mode, value, setValue);
   const completion = useCompletion({
     inputRef,
@@ -77,17 +78,17 @@ export function CommandLine(props: CommandLineProps): JSX.Element {
     value,
     setValue,
   });
-  /** Do what one submitted line asks — command or post — then clear the line. */
+  /** Do what one submitted line asks — command or post — then clear the line (./useLineWriter). */
   async function runLine(line: string): Promise<void> {
     history.remember(line);
-    await dispatchInput(line, context, textHandler(context));
-    setValue('');
+    await writer.settle(async () => {
+      await dispatchInput(line, context, textHandler(context));
+    });
   }
   function handleKeyDown(event: KeyboardEvent<HTMLInputElement>): void {
     completion(event);
     history.onKeyDown(event);
   }
-
   function handleInputFocus(): void {
     if (state.mode === 'navigation') {
       dispatch({ type: 'mode', mode: 'insert' });

@@ -11,7 +11,6 @@
 
 import { OK, fail } from './outcome';
 import type { CommandContext, CommandOutcome } from './types';
-import { withPendingMedia } from '../state/draft';
 import type { postStatus } from '../state/postStatus';
 
 /** How a window kind posts a draft as its account; the shape of {@link postStatus}. */
@@ -19,9 +18,10 @@ export type TextPoster = typeof postStatus;
 
 /**
  * Posts {@link text} through the `poster` of {@link target} as the account and
- * window it names, carrying the pending media when there are any; those are
- * cleared only once the post is up, so a refused one keeps them for the retry.
- * A refusal is the command's failure.
+ * window it names, carrying the pending media when there are any (after the
+ * reader reviewed their alt text, WFE-290: cancelling that posts nothing); those
+ * are cleared only once the post is up, so a refused one keeps them for the
+ * retry. A refusal is the command's failure.
  */
 export async function postIntoWindow(
   context: CommandContext,
@@ -33,8 +33,11 @@ export async function postIntoWindow(
   text: string,
 ): Promise<CommandOutcome> {
   const { poster, ...where } = target;
-  const draft = withPendingMedia({ text }, context.attachments.pending);
-  const error = await poster(context, { ...where, draft });
+  const carried = await context.carryMedia({ text });
+  if (!carried.ok) {
+    return fail(carried.error);
+  }
+  const error = await poster(context, { ...where, draft: carried.value });
   if (error !== null) {
     return fail(error);
   }

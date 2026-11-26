@@ -178,4 +178,16 @@ describe(Overlay, () => {
 
     expect(onClose).toHaveBeenCalledTimes(1);
   });
+
+  it('is a dialog of the wider size too (WFE-290)', () => {
+    render(
+      <Overlay label="Describe media" onClose={vi.fn()} size="wide">
+        <input aria-label="field" />
+      </Overlay>,
+    );
+
+    expect(screen.getByRole('dialog', { name: 'Describe media' })).toContainElement(
+      screen.getByRole('textbox', { name: 'field' }),
+    );
+  });
 });

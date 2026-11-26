@@ -6,7 +6,8 @@
  * `window.location`, the command line's text back through the `setInput` the
  * caller passes in and its current text as `line`, the
  * pending media (WFE-126, WFE-287) through the `attachments` Root's useAttachments
- * hands down, the registry narrowed to what the active account's backend can
+ * hands down and the gate every post carries them through (./useMediaCarry,
+ * WFE-290), the registry narrowed to what the active account's backend can
  * do (WFE-172), and the key-binding helpers (WFE-130) from src/keys: the
  * effective keymap — the registry's defaults under the reader's overrides —
  * flattened into the bindings `/binds` prints. Posting is the active window's
@@ -17,12 +18,12 @@
 
 import { useMemo } from 'react';
 
-import { withPendingMedia } from './pendingMedia';
 import { buildPostContext } from './postContext';
 import { DEVICE_CLASS } from './readDeviceClass';
 import { appStores } from './stores';
 import { requestSync } from './syncRequests';
 import { useAvailableRegistry } from './useAvailableRegistry';
+import { useMediaCarry } from './useMediaCarry';
 import { loadWindowKinds } from './windowKinds';
 import type { CommandContext, PrintLevel } from '../commands/types';
 import { buildConfig } from '../config/config';
@@ -59,25 +60,26 @@ function postHandler(win: WindowState, postContext: PostContext): CommandContext
 }
 
 /**
- * The context's post: the draft goes out carrying the pending media, after the
- * alt text typed in the tray (WFE-287), and a send that worked takes those ids
- * out of the list with it — a refused post, or alt text the instance refused,
- * keeps its media for the retry.
+ * The context's post: the draft goes out carrying the pending media
+ * ({@link CommandContext.carryMedia}: the alt text reviewed and sent first,
+ * WFE-287, WFE-290), and a send that worked takes those ids out of the list
+ * with it — a refused post, a cancelled review, or alt text the instance
+ * refused, keeps its media for the retry.
  */
 function posting(
   win: WindowState,
   postContext: PostContext,
-  attachments: CommandContext['attachments'],
+  media: Pick<CommandContext, 'attachments' | 'carryMedia'>,
 ): CommandContext['post'] {
   const send = postHandler(win, postContext);
   return async (draft: Draft) => {
-    const carried = await withPendingMedia(draft, attachments.pending, postContext);
+    const carried = await media.carryMedia(draft);
     if (!carried.ok) {
       return carried.error;
     }
     const error = await send(carried.value);
     if (error === null) {
-      attachments.clear();
+      media.attachments.clear();
     }
     return error;
   };
@@ -105,6 +107,7 @@ export function useCommandContext(
   const registry = useAvailableRegistry();
   const overrides = state.settings.keyOverrides;
   const keymap = useMemo(() => buildKeymap(registry, overrides), [registry, overrides]);
+  const carryMedia = useMediaCarry({ pending: attachments.pending, text: line, setInput });
 
   return {
     print: (text: string, level?: PrintLevel) => {
@@ -121,10 +124,11 @@ export function useCommandContext(
     state,
     dispatch,
     now,
-    post: posting(active, buildPostContext(state, dispatch, refresh), attachments),
+    post: posting(active, buildPostContext(state, dispatch, refresh), { attachments, carryMedia }),
     setInput,
     line,
     attachments,
+    carryMedia,
     keys: { parseChord: parseSequence, blocksTyping, keymap },
     navigate: (url: string) => {
       window.location.assign(url);

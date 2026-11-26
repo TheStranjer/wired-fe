@@ -17,6 +17,7 @@ import { command as notifications } from './defs/notifications';
 import type { CommandContext, CommandDefinition } from './types';
 import { accountKey, type StoredAccount } from '../accounts/accountStore';
 import type { Status } from '../api/schemas/status';
+import { err } from '../lib/result';
 import { coreReducer, initialAppState } from '../state/appState';
 import { fakeAttachments, fakeCommandContext } from '../test/commandContext';
 import { status } from '../test/fixtures';
@@ -143,6 +144,23 @@ describe.each([
 
     await command.run('sup', context);
 
+    expect(clear).not.toHaveBeenCalled();
+  });
+
+  it('posts nothing and keeps the pending media when the media gate refuses (WFE-290)', async () => {
+    const bodies = serveCreate(CREATED);
+    const clear = vi.fn();
+    const carryMedia = vi.fn<CommandContext['carryMedia']>().mockResolvedValue(err('Cancelled'));
+    const context = signedIn({
+      attachments: fakeAttachments({ pending: [PENDING], clear }),
+      carryMedia,
+    });
+
+    const outcome = await command.run('sup', context);
+
+    expect(outcome).toStrictEqual({ ok: false, message: 'Cancelled' });
+    expect(carryMedia).toHaveBeenCalledWith({ text: 'sup' });
+    expect(bodies).toStrictEqual([]);
     expect(clear).not.toHaveBeenCalled();
   });
 });

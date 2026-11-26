@@ -1,0 +1,107 @@
+/* The media review box's words, its scrolling list of rows and its two
+   buttons; the box itself is Overlay's. The list takes the height it needs up
+   to a share of the viewport and scrolls inside, so the box never outgrows
+   the screen. */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space);
+}
+
+.title {
+  margin: 0;
+  font: inherit;
+  font-weight: bold;
+}
+
+.summary {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  max-height: 70vh;
+  margin: 0;
+  padding: 0;
+  gap: var(--space);
+  list-style: none;
+}
+
+.row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space);
+}
+
+.thumb {
+  display: block;
+  flex: none;
+  box-sizing: border-box;
+  width: calc(4 * var(--line-height) * 1em);
+  height: calc(4 * var(--line-height) * 1em);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: 0;
+  object-fit: cover;
+}
+
+.fields {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  gap: calc(var(--space) / 2);
+}
+
+.name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.missing {
+  color: var(--color-warn);
+  font-weight: bold;
+}
+
+.description {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 0 var(--space);
+  border: var(--border-width) solid var(--color-dim);
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font: inherit;
+  resize: vertical;
+}
+
+.description[aria-invalid='true'] {
+  border-color: var(--color-warn);
+}
+
+.buttons {
+  display: flex;
+  gap: var(--space);
+  justify-content: flex-end;
+}
+
+.button {
+  padding: 0 calc(var(--space) * 2);
+  border: var(--border-width) solid var(--color-dim);
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font: inherit;
+  cursor: pointer;
+}
+
+.button:hover {
+  border-color: var(--color-border);
+}
+
+.description:focus-visible,
+.button:focus-visible {
+  outline: var(--border-width-focus) solid var(--color-accent);
+}

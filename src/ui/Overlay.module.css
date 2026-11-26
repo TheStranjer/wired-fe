@@ -25,3 +25,8 @@
 .alert {
   border-color: var(--color-error);
 }
+
+/* A box that holds a list to read through (WFE-290): wider than the standard one. */
+.wide {
+  width: min(110ch, calc(100% - var(--space) * 2));
+}

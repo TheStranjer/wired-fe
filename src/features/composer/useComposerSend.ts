@@ -15,7 +15,10 @@
  * composer (WFE-268) saves the post instead of creating one, through
  * src/state/editPost: the new text and content warning over what the post
  * keeps; it closes on success with `✎ edited [a4]` in the status window, and a
- * failure keeps the text and shows the message.
+ * failure keeps the text and shows the message. A send carrying an attachment
+ * without a description first has the reader review them all in a modal
+ * (WFE-290, src/state/mediaReview): cancelling it sends nothing and keeps the
+ * fields and the attachments, with the descriptions typed there.
  */
 
 import { useState } from 'react';
@@ -33,10 +36,12 @@ import {
   fieldsToDraft,
 } from '../../state/draft';
 import { editPost, editedNote } from '../../state/editPost';
+import { type ReviewMedia, reviewed } from '../../state/mediaReview';
 import { createPost } from '../../state/postStatus';
 import { useRefreshDeps } from '../../state/RefreshContext';
 import { type Dispatch, useAppDispatch, useAppState } from '../../state/StateContext';
 import type { PostContext } from '../../state/windowKind';
+import { useReviewMedia } from '../../views/MediaReviewContext';
 import { STATUS_WINDOW_ID } from '../../windows/model';
 
 /** What the form needs of a send: whether one is in flight, its failure, and the trigger. */
@@ -64,6 +69,34 @@ type SentWindow = {
   readonly fields: ComposerFields;
   readonly state: AppState;
 };
+
+/** What one send works from: how to post, how to ask the reader, as whom, and from which window. */
+type Sending = {
+  readonly context: Pick<PostContext, 'state' | 'dispatch' | 'refresh'>;
+  readonly review: ReviewMedia;
+  readonly accountKey: string | null;
+  readonly origin: SentWindow;
+};
+
+/**
+ * The post, or the edit of a composer that edits. A post first has the reader
+ * review the alt text of its attachments (WFE-290): null when they cancelled,
+ * so nothing goes out.
+ */
+async function create(send: Sending): Promise<Result<Status, string> | null> {
+  const { context, review, accountKey, origin } = send;
+  const { windowId, fields, state } = origin;
+  const draft = fieldsToDraft(fields);
+  if (fields.editing !== undefined) {
+    const { status } = fields.editing;
+    return await editPost(context, accountKey, { status, draft, now: new Date() });
+  }
+  const media = await reviewed(review, windowId, composerMediaOf(state, windowId));
+  if (media === null) {
+    return null;
+  }
+  return await publish(context, accountKey, { draft: draftWithMedia(draft, media), media });
+}
 
 /** The line a bound composer leaves in the status window once its post is up; null for a plain one. */
 function closingNote(origin: SentWindow, created: Status): string | null {
@@ -104,6 +137,7 @@ export function useComposerSend(windowId: string, accountKey: string | null): Co
   const state = useAppState();
   const dispatch = useAppDispatch();
   const refresh = useRefreshDeps();
+  const review = useReviewMedia();
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fields = composerFields(state, windowId);
@@ -112,18 +146,16 @@ export function useComposerSend(windowId: string, accountKey: string | null): Co
   async function submit(): Promise<void> {
     setSending(true);
     const context = { state, dispatch, refresh };
-    const created =
-      fields.editing === undefined
-        ? await publish(context, accountKey, {
-            draft: draftWithMedia(fieldsToDraft(fields), media),
-            media,
-          })
-        : await editPost(context, accountKey, {
-            status: fields.editing.status,
-            draft: fieldsToDraft(fields),
-            now: new Date(),
-          });
+    const created = await create({
+      context,
+      review,
+      accountKey,
+      origin: { windowId, fields, state },
+    });
     setSending(false);
+    if (created === null) {
+      return;
+    }
     if (!created.ok) {
       setError(created.error);
       return;
