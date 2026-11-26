@@ -95,6 +95,23 @@ describe(describeMedia, () => {
     expect(puts).toStrictEqual(['1: first', '4: second']);
   });
 
+  it('skips an attachment whose text went up with the file and puts one edited since', async () => {
+    const puts: string[] = [];
+    recordingPuts(puts);
+
+    const refused = await describeMedia(
+      { state: signedIn(), dispatch: () => undefined },
+      ACCOUNT.key,
+      [
+        { ...line('1', 'same', 'ready'), sent: ' same ' },
+        { ...line('2', 'changed', 'ready'), sent: 'same' },
+      ],
+    );
+
+    expect(refused).toBeNull();
+    expect(puts).toStrictEqual(['2: changed']);
+  });
+
   it('asks nothing of anyone when no attachment is described', async () => {
     const puts: string[] = [];
     recordingPuts(puts);

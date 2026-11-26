@@ -42,4 +42,13 @@ describe(Shell, () => {
     expect(within(footer).getByText('status-line-slot')).toBeInTheDocument();
     expect(within(footer).getByText('input-slot')).toBeInTheDocument();
   });
+
+  it('renders the tray slot in the footer between the status line and the input', () => {
+    render(<Shell {...SLOTS} tray={<span>tray-slot</span>} />);
+
+    const footer = screen.getByRole('contentinfo');
+    const order = [...footer.querySelectorAll('span')].map((slot) => slot.textContent);
+
+    expect(order).toStrictEqual(['status-line-slot', 'tray-slot', 'input-slot']);
+  });
 });

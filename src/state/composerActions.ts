@@ -8,6 +8,7 @@
  */
 
 import type { AppState } from './appState';
+import { COMMAND_LINE_MEDIA } from './composerMedia';
 import type { ComposerFields } from './draft';
 import { capabilitiesFor } from './selectors';
 import type { PollLimits } from '../api/schemas/pollLimits';
@@ -107,10 +108,11 @@ function live<V>(
 /**
  * The state with only the drafts and media of windows still on the list:
  * closing a composer forgets its text and its attachments, so opening one again
- * starts empty. The same state when nothing was dropped.
+ * starts empty, while the command line's own media (WFE-287) stays. The same
+ * state when nothing was dropped.
  */
 export function withLiveComposers(state: AppState): AppState {
-  const open = new Set(state.windows.windows.map((win) => win.id));
+  const open = new Set([COMMAND_LINE_MEDIA, ...state.windows.windows.map((win) => win.id)]);
   const composers = live(state.composers, open);
   const composerMedia = live(state.composerMedia, open);
   if (composers === state.composers && composerMedia === state.composerMedia) {

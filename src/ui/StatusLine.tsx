@@ -36,6 +36,8 @@ export type StatusLineProps = {
   readonly onCloseDesktop: (number: number) => void;
   /** Called with the window number when a window entry is clicked. */
   readonly onSelectWindow: (number: number) => void;
+  /** Called when the waiting-media group is clicked: the app shows the tray's first description. */
+  readonly onShowMedia: () => void;
 };
 
 /** What each mode is abbreviated to on the line. */
@@ -47,15 +49,28 @@ const MODE_LABEL: Record<StatusLineProps['mode'], string> = {
 /** What the account group shows while logged out. */
 const NO_ACCOUNT = '-';
 
-/** The pending-media group between the windows and the mode, or nothing (WFE-126). */
-function PendingMedia(props: { readonly count: number }): JSX.Element | null {
+/**
+ * The pending-media group between the windows and the mode, or nothing
+ * (WFE-126): a button that sends the reader to the tray's first description
+ * (WFE-287).
+ */
+function PendingMedia(props: {
+  readonly count: number;
+  readonly onShow: () => void;
+}): JSX.Element | null {
   if (props.count <= 0) {
     return null;
   }
-  const group = `[+${String(props.count)} media]`;
   return (
     <>
-      <span>{group}</span>{' '}
+      <button
+        aria-label={`${String(props.count)} media waiting, show`}
+        className={styles['media']}
+        onClick={props.onShow}
+        type="button"
+      >
+        {`[+${String(props.count)} media]`}
+      </button>{' '}
     </>
   );
 }
@@ -111,7 +126,7 @@ export function StatusLine(props: StatusLineProps): JSX.Element {
         />
         <HiddenWindows windows={props.windows} onSelect={props.onSelectWindow} />
       </span>{' '}
-      <PendingMedia count={pendingMedia} />
+      <PendingMedia count={pendingMedia} onShow={props.onShowMedia} />
       <PendingKeys keys={props.pendingKeys} />
       <SyncGroup marker={props.sync} />
       <span>{`[${MODE_LABEL[mode]}]`}</span>

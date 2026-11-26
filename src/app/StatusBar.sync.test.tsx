@@ -4,7 +4,7 @@
  * error wins over a push that waits again.
  */
 import { render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { StatusBar } from './StatusBar';
 import { initialAppState } from '../state/appState';
@@ -17,7 +17,7 @@ function renderBar(status: Partial<SyncStatus>): void {
   const state = appReducer(initialAppState(), { type: 'sync', status });
   render(
     <AppStateProvider initial={state}>
-      <StatusBar pendingMedia={0} pendingKeys={null} />
+      <StatusBar attachments={{ pending: [], showMedia: vi.fn() }} pendingKeys={null} />
     </AppStateProvider>,
   );
 }

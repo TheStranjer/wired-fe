@@ -28,6 +28,7 @@ const BASE_PROPS: StatusLineProps = {
   onSelectDesktop: NOOP,
   onCloseDesktop: NOOP,
   onSelectWindow: NOOP,
+  onShowMedia: NOOP,
 };
 
 /** Renders the status line with the base props changed. */

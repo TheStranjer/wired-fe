@@ -13,6 +13,13 @@ import { capabilitiesFor } from './selectors';
 import type { MediaAttachment } from './uploadAttachment';
 import { DEFAULT_MAX_MEDIA_ATTACHMENTS } from '../capabilities/capabilities';
 
+/**
+ * The reserved key the command line's own pending media (WFE-287) lives under,
+ * beside the composers' window ids. No window has this id, so the slice is never
+ * mistaken for a composer's and is kept when composers are swept.
+ */
+export const COMMAND_LINE_MEDIA = 'command-line';
+
 /** One thing that can happen to a pane composer's media. */
 export type ComposerMediaAction =
   | { readonly type: 'composerMediaAdd'; readonly windowId: string; readonly item: ComposerMedia }
@@ -81,10 +88,13 @@ function putMedia(state: AppState, windowId: string, media: readonly ComposerMed
   return { ...state, composerMedia: next };
 }
 
-/** Move the composers' media along by one action; the same state when the window is not a composer. */
+/**
+ * Move the composers' media along by one action; the same state when the window
+ * is not a composer, unless the action names {@link COMMAND_LINE_MEDIA}.
+ */
 export function composerMediaReducer(state: AppState, action: ComposerMediaAction): AppState {
   const win = state.windows.windows.find((candidate) => candidate.id === action.windowId);
-  if (win?.ref.kind !== 'composer') {
+  if (action.windowId !== COMMAND_LINE_MEDIA && win?.ref.kind !== 'composer') {
     return state;
   }
   const media = composerMediaOf(state, action.windowId);

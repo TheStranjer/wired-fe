@@ -15,7 +15,6 @@ import { command as local } from './defs/local';
 import { command as notifications } from './defs/notifications';
 import type { CommandContext, CommandDefinition } from './types';
 import { accountKey, type StoredAccount } from '../accounts/accountStore';
-import type { MediaAttachment } from '../api/schemas/mediaAttachment';
 import type { Status } from '../api/schemas/status';
 import { coreReducer, initialAppState } from '../state/appState';
 import { fakeAttachments, fakeCommandContext } from '../test/commandContext';
@@ -40,16 +39,8 @@ const ACCOUNT: StoredAccount = {
 /** The status the instance answers a create with. */
 const CREATED = status('42');
 
-/** An uploaded attachment waiting for the next post. */
-const PENDING: MediaAttachment = {
-  id: '12',
-  type: 'image',
-  url: 'https://wired.example/media/12.png',
-  preview_url: null,
-  remote_url: null,
-  description: null,
-  blurhash: null,
-};
+/** The id of an uploaded attachment waiting for the next post. */
+const PENDING = '12';
 
 /** A signed-in context whose window and reducer asks are recorded. */
 function signedIn(extra: Partial<CommandContext> = {}): CommandContext {

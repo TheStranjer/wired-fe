@@ -24,7 +24,7 @@ import { DropHighlight } from '../ui/DropHighlight';
  * Attachments.add}, each other file comes back as a refusal in the active
  * window, printed the way a command prints.
  */
-function accept(files: readonly File[], seam: Attachments, dispatch: Dispatch): void {
+function accept(files: readonly File[], seam: Pick<Attachments, 'add'>, dispatch: Dispatch): void {
   for (const file of files) {
     if (isMedia(file)) {
       seam.add(file);
@@ -42,7 +42,7 @@ function accept(files: readonly File[], seam: Attachments, dispatch: Dispatch): 
  * the caller puts up what the hook returns — the {@link DropHighlight} while
  * a file drag is over the window, null the rest of the time.
  */
-export function useDropAndPaste(attachments: Attachments): JSX.Element | null {
+export function useDropAndPaste(attachments: Pick<Attachments, 'add'>): JSX.Element | null {
   const dispatch = useAppDispatch();
   const [dragging, setDragging] = useState(false);
   const seamRef = useRef(attachments);

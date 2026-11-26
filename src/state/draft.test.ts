@@ -137,7 +137,7 @@ describe(fieldsToDraft, () => {
 });
 
 describe(withPendingMedia, () => {
-  const PENDING = [{ id: 'm1' }, { id: 'm2' }];
+  const PENDING = ['m1', 'm2'];
 
   it('carries the pending ids when the draft names none', () => {
     expect(withPendingMedia({ text: 'hi' }, PENDING)).toStrictEqual({

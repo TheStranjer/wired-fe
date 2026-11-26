@@ -1,0 +1,9 @@
+/* The tray above the command line: a few rows tall at most, scrolling inside
+   so the desktop above never gives up more than that. */
+
+.tray {
+  overflow-y: auto;
+  max-height: calc(9 * var(--line-height) * 1em);
+  padding: 0 var(--space);
+  border-top: var(--border-width) solid var(--color-border);
+}
