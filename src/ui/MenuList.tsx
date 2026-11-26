@@ -58,7 +58,9 @@ export function MenuList(props: MenuListProps): JSX.Element {
         <button
           aria-checked={item.checked}
           aria-label={item.name}
-          className={styles['item']}
+          className={
+            item.separated === true ? [styles['item'], styles['apart']].join(' ') : styles['item']
+          }
           disabled={item.disabled === true}
           key={item.id}
           onClick={() => {

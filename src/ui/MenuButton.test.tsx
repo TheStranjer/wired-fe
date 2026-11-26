@@ -175,6 +175,20 @@ describe(MenuButton, () => {
   });
 });
 
+describe('MenuButton separated items', () => {
+  it('shows a separated row as an ordinary menu item that can be chosen', () => {
+    const { button, onSelect } = setup([
+      { id: 'a', label: 'Alpha' },
+      { id: 's', label: 'Set apart', separated: true },
+    ]);
+
+    fireEvent.click(button);
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Set apart' }));
+
+    expect(onSelect).toHaveBeenCalledWith('s');
+  });
+});
+
 describe('MenuButton item names', () => {
   it('uses an item name as its accessible name instead of its text', () => {
     const { button } = setup([{ id: 'a', label: 'Avatars •', checked: true, name: 'Avatars, on' }]);

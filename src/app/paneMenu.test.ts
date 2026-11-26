@@ -105,6 +105,34 @@ describe(paneMenuEntries, () => {
   });
 });
 
+describe('the Attach media… row', () => {
+  const withAttach = registryOf('home', 'attach');
+
+  it('comes last, set apart, and runs /attach whole from every button', () => {
+    const entries = paneMenuEntries(withAttach, []);
+    const last = entries.at(-1);
+
+    expect(last?.id).toBe('attach');
+    expect(last?.label).toBe('Attach media…');
+    expect(last?.separated).toBe(true);
+    expect(entries.filter((candidate) => candidate.separated === true)).toHaveLength(1);
+
+    for (const command of ['vsplit', 'split', 'float'] as const) {
+      expect(last === undefined ? '' : entryLine(last, command)).toBe('/attach');
+    }
+  });
+
+  it('is left out when the registry has no /attach', () => {
+    expect(paneMenuEntries(ALL, FEEDS).map((item) => item.id)).not.toContain('attach');
+  });
+
+  it('stays in the pop-out menu', () => {
+    expect(popOutEntries(paneMenuEntries(withAttach, [])).map((item) => item.id)).toContain(
+      'attach',
+    );
+  });
+});
+
 describe('the Existing window… row', () => {
   it('is a window picker, not a prefill, and no other row is a picker', () => {
     const entries = paneMenuEntries(ALL, FEEDS);

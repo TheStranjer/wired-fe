@@ -15,6 +15,8 @@ export type MenuItem = {
   readonly checked?: boolean;
   /** A disabled row is shown but can be neither focused nor selected. */
   readonly disabled?: boolean;
+  /** Draws a rule above the row, to set it apart from the rows before it. */
+  readonly separated?: boolean;
   /** Accessible name when the visible text alone would not say it all. */
   readonly name?: string;
 };

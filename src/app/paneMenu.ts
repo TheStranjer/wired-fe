@@ -5,22 +5,16 @@
  * command is missing is left out, so no menu offers what a line would refuse.
  * A row either runs at once, asks for its argument in a small dialog (the
  * `…` rows that need typed text, WFE-269), or opens a picker of the open
- * windows (`Existing window…`, WFE-270). No row fills the command line.
+ * windows (`Existing window…`, WFE-270). No row fills the command line. The
+ * last row, `Attach media…` (WFE-288), is no view: it only runs `/attach`,
+ * which opens the file dialog and opens no pane, and sits apart below the views.
  */
 
+import { askedArgument } from './paneAsk';
+import type { PaneAsk } from './paneAsk';
 import type { Registry } from '../commands/types';
 import type { Feeds } from '../state/feeds';
 import type { MenuItem } from '../ui/MenuButton';
-
-/** What a row that needs one argument asks for, in a dialog, before it runs. */
-export type PaneAsk = {
-  /** The dialog's title, e.g. `Open profile`. */
-  readonly title: string;
-  /** What the empty field hints at. */
-  readonly placeholder: string;
-  /** Which completion words the field suggests, and how its answer is cleaned up; null for plain text. */
-  readonly suggest: 'accounts' | 'tags' | null;
-};
 
 /** One row of the menu, with what choosing it runs. */
 export type PaneMenuEntry = MenuItem & {
@@ -138,9 +132,32 @@ function feedEntries(registry: Registry, feeds: Feeds): readonly PaneMenuEntry[]
   return [...saved, created];
 }
 
+/** The `Attach media…` row, set apart from the views: it runs `/attach` and opens no pane; none without the command. */
+function attachEntries(registry: Registry): readonly PaneMenuEntry[] {
+  if (!registry.byName.has('attach')) {
+    return [];
+  }
+  return [
+    {
+      id: 'attach',
+      label: 'Attach media…',
+      text: '/attach',
+      literal: true,
+      pick: null,
+      ask: null,
+      separated: true,
+    },
+  ];
+}
+
 /** The menu's rows for the commands in {@link registry} and the saved {@link feeds}, top to bottom. */
 export function paneMenuEntries(registry: Registry, feeds: Feeds): readonly PaneMenuEntry[] {
-  return [...offered(registry, HEAD), ...feedEntries(registry, feeds), ...offered(registry, TAIL)];
+  return [
+    ...offered(registry, HEAD),
+    ...feedEntries(registry, feeds),
+    ...offered(registry, TAIL),
+    ...attachEntries(registry),
+  ];
 }
 
 /** The commands whose menus share the view list: the two splits and the pop-out. */
@@ -164,19 +181,6 @@ export function popOutEntries(entries: readonly PaneMenuEntry[]): readonly PaneM
 /** The command line {@link entry} runs or fills when chosen from the `/`{@link command} button. */
 export function entryLine(entry: PaneMenuEntry, command: ViewCommand): string {
   return entry.literal ? entry.text : `/${command} ${entry.text}`.trim();
-}
-
-/** {@link answer} as the argument of an `ask` row: no `#` before a tag, an `@` before an account. */
-function askedArgument(suggest: PaneAsk['suggest'], answer: string): string {
-  const typed = answer.trim();
-  switch (suggest) {
-    case 'tags':
-      return typed.replace(/^#/u, '');
-    case 'accounts':
-      return typed.startsWith('@') ? typed : `@${typed}`;
-    case null:
-      return typed;
-  }
 }
 
 /** The command line {@link entry} runs from the `/`{@link command} button once its dialog was answered with {@link answer}. */
