@@ -27,7 +27,8 @@ jobs:
           target_languages: 'es,ru,ja,zh-Hans,de'
           author_name: ${{ secrets.AUTHOR_NAME }}
           author_email: ${{ secrets.AUTHOR_EMAIL }}
-          api_token: ${{ secrets.OPENAI_TRANSLATE_KEY }}
+          # OPENAI_API_KEY is the name Prism's README uses; accept either.
+          api_token: ${{ secrets.OPENAI_TRANSLATE_KEY || secrets.OPENAI_API_KEY }}
           github_token: ${{ secrets.PAT }}
           delivery_method: 'push'
           llm_commit_messages: true
