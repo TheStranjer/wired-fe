@@ -6,7 +6,8 @@
  * names one) it sets the default of the feed the active window shows, or the
  * global default when the window is no feed, has its own account or `--global`
  * is given. `--clear` forgets the feed's default, or the global one. Feeds and
- * the settings are saved and synced like any setting (decision 17).
+ * the settings are saved and synced like any setting (decision 17). `Shift+a`
+ * in navigation mode and `Ctrl+B A` open the picker (WFE-285).
  */
 
 import { findAccount } from '../../accounts/findAccount';
@@ -15,6 +16,7 @@ import type { FeedSpec } from '../../state/feeds';
 import { postingLine, postingPatch, postingSetLine } from '../../state/postingDefault';
 import { activeWindow } from '../../windows/model';
 import { NOT_LOGGED_IN, OK, fail, syncRun } from '../outcome';
+import { tmuxBindings } from '../tmuxBindings';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** The command's grammar: /help shows it, a bad argument echoes it. */
@@ -124,4 +126,5 @@ export const command: CommandDefinition = {
   usage: USAGE,
   summary: 'Show or set which account feeds post as',
   run: syncRun(handle),
+  bindings: [...tmuxBindings('Shift+a', ''), { mode: 'navigation', chord: 'Shift+a', args: '' }],
 };

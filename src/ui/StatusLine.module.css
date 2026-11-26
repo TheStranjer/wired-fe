@@ -67,3 +67,17 @@
 .closeDesktop:focus-visible {
   outline: 1px solid var(--color-dim);
 }
+
+/* The posting-account entry is a button made to look like the rest of the line, in the text colour. */
+.posting {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.posting:focus-visible {
+  outline: 1px solid var(--color-dim);
+}

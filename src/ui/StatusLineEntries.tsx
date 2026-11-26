@@ -7,7 +7,7 @@ import { Fragment } from 'react';
 import type { JSX } from 'react';
 
 import styles from './StatusLine.module.css';
-import type { StatusLineDesktop, StatusLineWindow } from './statusLineTypes';
+import type { StatusLineDesktop, StatusLinePostingAs, StatusLineWindow } from './statusLineTypes';
 
 /** The visible text of one desktop, e.g. "[2*:12]". */
 function desktopText(entry: StatusLineDesktop): string {
@@ -69,6 +69,36 @@ function windowLabel(entry: StatusLineWindow): string {
     parts.push('highlighted');
   }
   return parts.join(', ');
+}
+
+/**
+ * The posting-account button, `→@handle` or `→?`, or nothing (WFE-285): a
+ * click sends the reader to the account picker.
+ */
+export function PostingAs(props: {
+  readonly posting: StatusLinePostingAs | null;
+}): JSX.Element | null {
+  const { posting } = props;
+  if (posting === null) {
+    return null;
+  }
+  const name = posting.label.startsWith('@')
+    ? `Posting as ${posting.label}, change`
+    : 'No posting account, choose';
+  return (
+    <>
+      <button
+        aria-label={name}
+        className={styles['posting']}
+        onClick={() => {
+          posting.onPick();
+        }}
+        type="button"
+      >
+        {`→${posting.label}`}
+      </button>{' '}
+    </>
+  );
 }
 
 /** The `×` after the active desktop's marker: closes that desktop. */

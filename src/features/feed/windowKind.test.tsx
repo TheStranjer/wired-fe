@@ -56,3 +56,24 @@ describe('the feed window kind', () => {
     expect(screen.getByRole('log', { name: 'feed' })).toHaveTextContent('present day');
   });
 });
+
+describe('the feed window kind topic', () => {
+  const win: WindowState = {
+    id: feedWindowId('f1'),
+    ref: { kind: 'feed', accountKey: null, target: 'f1' },
+    title: '~main',
+    unread: 0,
+    highlight: false,
+    display: {},
+  };
+
+  it('names the account the feed posts as when one resolves', () => {
+    const feeds = [{ ...FEEDS[0], postAs: A_ACCOUNT.key }];
+
+    expect(windowKind.topic(win, feedState(feeds))).toBe(`~main, posting as @${A_ACCOUNT.handle}`);
+  });
+
+  it('stays the title when nothing decides who posts', () => {
+    expect(windowKind.topic(win, feedState(FEEDS))).toBe('~main');
+  });
+});
