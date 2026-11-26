@@ -47,6 +47,8 @@ export type Provider = {
    * for a word with nothing to say. A provider without it has no list.
    */
   readonly describe?: (candidate: string) => Described | undefined;
+  /** True when the provider is also asked about the empty word after a space (`/fav `). */
+  readonly bare?: true;
 };
 
 /**
@@ -125,7 +127,8 @@ function stateOf(found: Found): CompletionState {
 /**
  * The candidates for the word ending at {@link cursor}: the first provider that
  * accepts the word answers, and a later one is never asked. Null when there is
- * no word, no provider accepts it, or the accepting provider has nothing to offer.
+ * no word (only a bare provider is asked about one), no provider accepts it,
+ * or the accepting provider has nothing to offer.
  */
 export function candidatesAt(
   text: string,
@@ -135,8 +138,9 @@ export function candidatesAt(
   const end = clampedCursor(text, cursor);
   const wordStart = wordStartBefore(text, end);
   const word = text.slice(wordStart, end);
-  const provider =
-    word === '' ? undefined : providers.find((one) => one.accepts(word, wordStart === 0, text));
+  const provider = providers.find(
+    (one) => (word !== '' || one.bare === true) && one.accepts(word, wordStart === 0, text),
+  );
   if (provider === undefined) {
     return null;
   }

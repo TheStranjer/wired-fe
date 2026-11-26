@@ -37,8 +37,22 @@ const MAX_CANDIDATES = 50;
 export type CompletionProvider = {
   /** True when this provider handles a word with this prefix character, e.g. '@', ':', '#', '/'. */
   readonly accepts: (word: string, isFirstWord: boolean, line?: string) => boolean;
-  /** Every full replacement word for {@link word}, sorted; empty when none match. */
-  readonly candidates: (word: string) => readonly string[];
+  /**
+   * Every full replacement word for {@link word}, sorted; empty when none
+   * match. {@link before} is the line's text in front of the word.
+   */
+  readonly candidates: (word: string, before?: string) => readonly string[];
+  /** The suggestion row of one candidate, the shape of the engine's Described. */
+  readonly describe?: (candidate: string) => CompletionNote | undefined;
+  /** True when the provider also answers the empty word after a space. */
+  readonly bare?: true;
+};
+
+/** How a suggestion list shows one candidate: Described of src/commands/complete, restated. */
+export type CompletionNote = {
+  readonly word: string;
+  readonly label: string;
+  readonly description: string;
 };
 
 /** The accepts of a kind: {@link prefix} and at least {@link rest} more characters. */

@@ -8,7 +8,9 @@
  * (its keys and their values), `/desktop` and `/mvd` arguments, `/focus` and
  * `/swap` directions, and the view names after `/vsplit` and `/split` are
  * offered ahead of everything else, as are the subcommands, feed names and
- * sources after `/feed`.
+ * sources after `/feed`. The post labels of the active window (WFE-301) come
+ * before all of them, so the argument of a command that takes a post prefers
+ * a label, and a `[` word completes to one anywhere on the line.
  */
 
 import { appRegistry } from './registry';
@@ -20,10 +22,12 @@ import { desktopProvider } from '../commands/desktopWords';
 import { directionProvider } from '../commands/directionWords';
 import { displayProvider } from '../commands/displayWords';
 import { feedProvider } from '../commands/feedWords';
+import { postTargetWords } from '../commands/postTargets';
 import { viewProvider } from '../commands/viewProvider';
 import { capabilitiesFor } from '../state/selectors';
 import { useAppState } from '../state/StateContext';
 import { emojiProvider, handleProvider, tagProvider } from '../views/completionProviders';
+import { labelProvider } from '../views/labelProvider';
 import { withoutReactionWords } from '../views/reactionProviders';
 import { useCustomEmojis } from '../views/useCustomEmojis';
 
@@ -40,8 +44,10 @@ export function useCompletionProviders(): readonly Provider[] {
     tagProvider(state),
     custom ? emoji : withoutReactionWords(emoji),
   ];
+  const labels = labelProvider(state, postTargetWords(registry));
   return appRegistry().ok
     ? [
+        labels,
         displayProvider(),
         desktopProvider(),
         directionProvider(),
@@ -50,5 +56,5 @@ export function useCompletionProviders(): readonly Provider[] {
         commandProvider(registry),
         ...seen,
       ]
-    : seen;
+    : [labels, ...seen];
 }
