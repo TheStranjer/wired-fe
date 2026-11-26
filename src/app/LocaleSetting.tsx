@@ -2,14 +2,15 @@
  * Keep the language in use equal to the reader's choice (decision 19,
  * WFE-310): whenever the `language` setting changes — `/lang`, a sync from
  * another device, the settings read at startup — the language to show is
- * worked out again from it and the browser's language list, and the switch
- * starts. The instance default joins the choice in a later ticket. Renders
+ * worked out again from it, the build's default language (`defaultLocale`,
+ * WFE-309) and the browser's language list, and the switch starts. Renders
  * nothing.
  */
 
 import type { JSX } from 'react';
 import { useEffect } from 'react';
 
+import { buildConfig } from '../config/config';
 import { setLocale } from '../i18n/activeLocale';
 import { resolveLocale } from '../i18n/resolveLocale';
 import { useAppState } from '../state/StateContext';
@@ -18,7 +19,13 @@ import { useAppState } from '../state/StateContext';
 export function LocaleSetting(): JSX.Element | null {
   const { language } = useAppState().settings;
   useEffect(() => {
-    void setLocale(resolveLocale({ user: language ?? undefined, browser: navigator.languages }));
+    void setLocale(
+      resolveLocale({
+        user: language ?? undefined,
+        instance: buildConfig.defaultLocale,
+        browser: navigator.languages,
+      }),
+    );
   }, [language]);
   return null;
 }
