@@ -10,7 +10,8 @@
  * layering gives views no path to commands), so it passes their words in.
  */
 
-import type { CompletionNote, CompletionProvider } from './completionProviders';
+import type { CompletionNote } from './completionKit';
+import type { CompletionProvider } from './completionProviders';
 import { plainText } from './quoteView';
 import type { Status } from '../api/schemas/status';
 import { wordsOf } from '../lib/words';

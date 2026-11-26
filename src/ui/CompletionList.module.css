@@ -54,3 +54,11 @@
   padding: 0 var(--space);
   color: var(--color-dim);
 }
+
+.image {
+  flex: none;
+  align-self: center;
+  width: 1.2em;
+  height: 1.2em;
+  object-fit: contain;
+}
