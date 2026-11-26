@@ -14,6 +14,8 @@ import type { JSX, ReactNode } from 'react';
 import styles from './PostMeta.module.css';
 import { ReactionChip } from './ReactionChip';
 import type { PostReaction } from './ReactionChip';
+import { formatNumber } from '../i18n/format';
+import { useLocale } from '../i18n/I18nProvider';
 
 /** The audiences a post can have: the ui twin of api's Visibility, which this
  * layer may not import (AGENTS.md "Layout"). */
@@ -84,17 +86,17 @@ function own(key: string, text: ReactNode, title: string): Token {
 }
 
 /** The counters, each only above zero, and the viewer's bookmark. */
-function tallyTokens(counts: PostCounts, mine: PostMine): readonly Token[] {
+function tallyTokens(counts: PostCounts, mine: PostMine, locale: string): readonly Token[] {
   const tokens: Token[] = [];
   if (counts.replies > 0) {
-    tokens.push(plain('replies', `↩${String(counts.replies)}`));
+    tokens.push(plain('replies', `↩${formatNumber(locale, counts.replies)}`));
   }
   if (counts.boosts > 0) {
-    const boosts = `⟳${String(counts.boosts)}`;
+    const boosts = `⟳${formatNumber(locale, counts.boosts)}`;
     tokens.push(mine.boosted ? own('boosts', boosts, 'you boosted this') : plain('boosts', boosts));
   }
   if (counts.favourites > 0) {
-    const favourites = `★${String(counts.favourites)}`;
+    const favourites = `★${formatNumber(locale, counts.favourites)}`;
     tokens.push(
       mine.favourited
         ? own('favourites', favourites, 'you favourited this')
@@ -115,9 +117,9 @@ function reactionToken(reaction: PostReaction): Token {
 }
 
 /** Every piece after the audience in reading order: tallies, reactions, edit. */
-function allTokens(props: PostMetaProps): readonly Token[] {
+function allTokens(props: PostMetaProps, locale: string): readonly Token[] {
   const { counts, mine, reactions, edited } = props;
-  const tokens = [...tallyTokens(counts, mine), ...reactions.map(reactionToken)];
+  const tokens = [...tallyTokens(counts, mine, locale), ...reactions.map(reactionToken)];
   return edited ? [...tokens, plain('edited', '(edited)')] : tokens;
 }
 
@@ -145,7 +147,8 @@ function TallyToken(props: { readonly token: Token }): JSX.Element {
 /** Everything that follows a post's body: the audience, then the tallies. */
 export function PostMeta(props: PostMetaProps): JSX.Element {
   const { visibility } = props;
-  const tokens = allTokens(props);
+  const locale = useLocale();
+  const tokens = allTokens(props, locale);
 
   return (
     <>

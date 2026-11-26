@@ -7,7 +7,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { command } from './sync';
-import { formatClock } from '../../lib/time';
+import { formatClock } from '../../i18n/format';
 import { appReducer } from '../../state/reducer';
 import { K_EVE, K_LAIN, desk, listed, printed, refused } from '../../test/syncDesk';
 
@@ -71,8 +71,8 @@ describe('/sync history', () => {
     await command.run('', { ...base, state });
 
     expect(printed({ ...base, state }).slice(-3)).toStrictEqual([
-      `Last pull: ${formatClock(new Date(at(9, 5)), '24h')}`,
-      `Last push: ${formatClock(new Date(at(9, 6)), '24h')}`,
+      `Last pull: ${formatClock('en', new Date(at(9, 5)), '24h')}`,
+      `Last push: ${formatClock('en', new Date(at(9, 6)), '24h')}`,
       'Last error: Sync failed. HTTP 500: Boom',
     ]);
   });

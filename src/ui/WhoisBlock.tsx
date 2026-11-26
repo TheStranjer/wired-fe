@@ -12,6 +12,8 @@ import type { JSX, ReactNode } from 'react';
 
 import { RemoteHtml } from './RemoteHtml';
 import styles from './WhoisBlock.module.css';
+import { formatDay } from '../i18n/format';
+import { useLocale, useT } from '../i18n/I18nProvider';
 
 /** One profile metadata row, as the whois block shows it. */
 type WhoisField = {
@@ -39,8 +41,8 @@ export type WhoisBlockProps = {
     readonly following: number;
     readonly followers: number;
   };
-  /** The day the account joined, e.g. `2024-01-02`. */
-  readonly joined: string;
+  /** The moment the account joined; the block shows its day as digits in the language in use. */
+  readonly joined: Date;
   /** Which relationships between viewer and account actually hold. */
   readonly relationships: {
     readonly following: boolean;
@@ -101,6 +103,8 @@ function FieldLine(props: { readonly field: WhoisField }): JSX.Element {
 export function WhoisBlock(props: WhoisBlockProps): JSX.Element {
   const { displayName, handle, bioHtml, fields, counts, joined, relationships } = props;
   const words = relationshipWords(relationships);
+  const locale = useLocale();
+  const t = useT();
   return (
     <div className={styles['block']}>
       <WhoisLine>{`${displayName} (@${handle})`}</WhoisLine>
@@ -113,9 +117,7 @@ export function WhoisBlock(props: WhoisBlockProps): JSX.Element {
         <FieldLine field={field} key={`${field.name}-${String(index)}`} />
       ))}
       <WhoisLine indent>
-        {`posts ${String(counts.posts)} · following ${String(counts.following)} · followers ${String(
-          counts.followers,
-        )} · joined ${joined}`}
+        {t('format.whois_counts', { ...counts, joined: formatDay(locale, joined) })}
       </WhoisLine>
       {words.length === 0 ? undefined : <WhoisLine indent>{words.join(' · ')}</WhoisLine>}
     </div>
