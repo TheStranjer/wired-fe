@@ -19,8 +19,13 @@ import type { WindowState } from '../windows/model';
 
 /** The split buttons, side by side first. */
 const SPLIT_BUTTONS: readonly SplitButton[] = [
-  { glyph: '◫▾', label: 'Split side by side', command: 'vsplit' },
-  { glyph: '⊟▾', label: 'Split stacked', command: 'split' },
+  {
+    glyph: '◫▾',
+    label: 'Split side by side',
+    action: 'Split side by side with a view',
+    command: 'vsplit',
+  },
+  { glyph: '⊟▾', label: 'Split stacked', action: 'Split stacked with a view', command: 'split' },
 ];
 
 /** The split buttons of the tree pane `paneId`, which shows the window `win`. */

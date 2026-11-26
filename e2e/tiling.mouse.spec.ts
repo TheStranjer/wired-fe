@@ -2,7 +2,7 @@
  * The tiling desktop by mouse (WFE-250, decisions 12 and 13): the `◫▾` split
  * button and its view menu, the `⧉` float button, the start menu that opens a
  * view as a float (WFE-299), a float dragged by its title bar and docked back
- * with `⊞`, and the dividers between panes, dragged
+ * with `⇲`, and the dividers between panes, dragged
  * and driven with the arrow keys. The keyboard and command flows are in
  * ./tiling.spec. Everything is found by role and accessible name.
  */

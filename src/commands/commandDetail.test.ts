@@ -9,7 +9,7 @@ import { describe, expect, it } from 'vitest';
 
 import { availableCommands } from './available';
 import type { Keymap } from './bindingTypes';
-import { commandDetail, commandDetailLines } from './commandDetail';
+import { commandDetail, commandDetailLines, commandTip } from './commandDetail';
 import type { CommandDefinition, CommandOutcome } from './types';
 import type { Capabilities } from '../capabilities/capabilities';
 import { MASTODON_CAPABILITIES, WIRED_CAPABILITIES } from '../capabilities/testCapabilities';
@@ -91,5 +91,42 @@ describe(commandDetail, () => {
 
     expect(detailOn(WIRED_CAPABILITIES)).toMatch(/^\/plain wired\n/u);
     expect(detailOn(MASTODON_CAPABILITIES)).toMatch(/^\/plain\n/u);
+  });
+});
+
+describe(commandTip, () => {
+  const registry = { commands: [ALIASED], byName: new Map([['float', ALIASED]]) };
+
+  it('words the action, the command and the distinct chords of both modes', () => {
+    const keymap = keymapOf(
+      [['Ctrl+b f', '/float']],
+      [
+        ['Ctrl+b f', '/float'],
+        ['w f', '/float'],
+      ],
+    );
+
+    expect(commandTip('Tear off', 'float', { registry, keymap })).toBe(
+      'Tear off: /float (Ctrl+b f, w f)',
+    );
+  });
+
+  it('shows the command alone when nothing is bound to it', () => {
+    expect(commandTip('Tear off', 'float', { registry, keymap: EMPTY_KEYMAP })).toBe(
+      'Tear off: /float',
+    );
+  });
+
+  it('looks the command up by the first word of what it shows', () => {
+    const keymap = keymapOf([], [['e', '/float edit']]);
+
+    expect(commandTip('Edit', 'float edit', { registry, keymap })).toBe('Edit: /float edit (e)');
+  });
+
+  it('shows no keys for a command the registry lacks', () => {
+    const keymap = keymapOf([], [['f', '/float']]);
+    const empty = { commands: [], byName: new Map() };
+
+    expect(commandTip('Tear off', 'float', { registry: empty, keymap })).toBe('Tear off: /float');
   });
 });

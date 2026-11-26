@@ -1,6 +1,6 @@
 /**
  * Tests for the float buttons of a pane's title bar (WFE-230, WFE-299): `⧉`
- * floats the clicked pane (not the focused one) and has no menu, `⊞` docks a
+ * floats the clicked pane (not the focused one) and has no menu, `⇲` docks a
  * float back into the tree, and a float has no split or float buttons.
  */
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
