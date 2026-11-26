@@ -7,7 +7,7 @@
  * the reader typed meanwhile is never overwritten.
  */
 
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useLayoutEffect, useRef } from 'react';
 
 /** Puts text on the command line when it is empty; answers whether it did. */
 export type LineRestorer = (text: string) => boolean;
@@ -25,13 +25,19 @@ export function useLineRestoreApi(): {
   return { restore, register };
 }
 
-/** Register a restorer over the line's {@link value} and {@link setValue} with {@link register}, after every render. */
+/**
+ * Register a restorer over the line's {@link value} and {@link setValue} with
+ * {@link register} in the same commit as every render. A layout effect, not a
+ * passive one: the line is cleared after an awaited post, outside any event, so
+ * a passive effect could still be pending when the picker is cancelled, and the
+ * stale restorer would see the old text and refuse.
+ */
 export function useRegisterLineRestorer(
   line: { readonly value: string; readonly setValue: (text: string) => void },
   register: (restorer: LineRestorer) => void,
 ): void {
   const { value, setValue } = line;
-  useEffect(() => {
+  useLayoutEffect(() => {
     register((text) => {
       if (value !== '') {
         return false;
