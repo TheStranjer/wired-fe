@@ -7,6 +7,7 @@
  */
 import { isEmptyDesktop } from './desktopPanes';
 import type { Desktop } from './desktopPanes';
+import { t } from '../i18n/translate';
 
 /** The part of the desktops state the rule reads. */
 type Desks = { readonly desktops: readonly Desktop[]; readonly active: number };
@@ -27,11 +28,13 @@ export function appendRefusal(state: Desks, n: number): string | null {
     return null;
   }
   if (n > count + 1) {
-    return `No desktop ${String(n)}; desktops run 1–${String(count)}`;
+    return t('windows.no_desktop', { number: String(n), count: String(count) });
   }
   if (canAppendDesktop(state)) {
     return null;
   }
-  const how = state.active === count - 1 ? 'put something on it' : 'use it';
-  return `Desktop ${String(count)} is empty: ${how} before making another`;
+  return t('windows.desktop_empty', {
+    count: String(count),
+    last: state.active === count - 1 ? 'yes' : 'no',
+  });
 }

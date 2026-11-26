@@ -10,6 +10,7 @@
 
 import { OK, fail } from './outcome';
 import type { CommandContext, CommandOutcome } from './types';
+import { t } from '../i18n/translate';
 import {
   PLACEABLE_KINDS,
   PLACEMENTS,
@@ -56,7 +57,12 @@ function turnKind(context: CommandContext, kind: WindowKind, word: string): Comm
     return OK;
   }
   if (!isPlacement(lower)) {
-    return fail(`${PREFIX}${kind} takes ${PLACEMENTS.join('|')}|${DEFAULT_WORD}`);
+    return fail(
+      t('commands.placement_takes', {
+        key: `${PREFIX}${kind}`,
+        words: `${PLACEMENTS.join('|')}|${DEFAULT_WORD}`,
+      }),
+    );
   }
   turn(context, kind, lower);
   return OK;
@@ -74,10 +80,11 @@ export function setPerKind(args: string, context: CommandContext): CommandOutcom
   }
   const kind = key.slice(PREFIX.length);
   if (!isPlaceableKind(kind)) {
-    return fail(`No window kind ${kind}. Kinds: ${PLACEABLE_KINDS.join(', ')}`);
+    return fail(t('commands.no_window_kind', { kind, kinds: PLACEABLE_KINDS.join(', ') }));
   }
   if (extra !== undefined) {
-    return fail(`Usage: /set ${PREFIX}${kind} [${PLACEMENTS.join('|')}|${DEFAULT_WORD}]`);
+    const form = `[${PLACEMENTS.join('|')}|${DEFAULT_WORD}]`;
+    return fail(t('commands.usage', { usage: `/set ${PREFIX}${kind} ${form}` }));
   }
   if (value === undefined) {
     context.print(kindLine(context, kind));

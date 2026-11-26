@@ -3,8 +3,12 @@
  * text and the names of the commands it covers. `/help` prints the paragraph
  * and then one line per covered command, read from the registry, so a
  * command's summary is never written twice. A test fails when a topic lists a
- * command the registry does not have.
+ * command the registry does not have. The paragraphs are catalog messages
+ * (decision 19) read by a getter, so they follow the language in use; the
+ * topic names stay English, since they are typed.
  */
+
+import { t } from '../i18n/translate';
 
 /** One help topic. */
 export type HelpTopic = {
@@ -19,14 +23,9 @@ export type HelpTopic = {
 /** The desktop, its panes and floats, and how to move around them. */
 const LAYOUT: HelpTopic = {
   name: 'layout',
-  text:
-    'The screen is a desktop of panes split side by side (row) or stacked (column); any pane can be torn off into a float, a window you drag around inside the viewport. ' +
-    'Keys: Ctrl+B % / " split, Ctrl+B arrows focus, Ctrl+B x closes the pane, Ctrl+B z keeps only this one, Ctrl+B f / d float and dock; in navigation mode (Esc) w v / w s split, w h j k l focus, w c closes the pane, w o keeps only this one, w = equalizes, w f / w d float and dock. Ctrl+B Space / w Space (or the [≡ wired] button at the left of the status line) opens the start menu, whose rows open a view as a float. ' +
-    'Alt+1..9 jump to a desktop, Alt+[ and Alt+] step to the previous and next one. ' +
-    'Ctrl+B & (or the × after the active desktop in the status line, or a middle-click on any desktop) closes a desktop and keeps its windows open (/win); /desktop prune closes every empty one. ' +
-    'Buttons: ◫▾ and ⊟▾ split with a view, ⧉ floats a pane, ⇲ docks a float, ✕ closes. Shift-drag a float over a pane to dock it against that edge. ' +
-    'Ctrl+click opens in a float, Shift+click in a side-by-side split, middle-click hidden; --in here|vsplit|split|float|hidden places any opened window. ' +
-    'On a phone one pane shows at a time, with a ‹ 2/4 › switcher in its title bar. Closing a pane keeps its window; /close ends the window.',
+  get text(): string {
+    return t('commands.help_topics.layout');
+  },
   commands: [
     'vsplit',
     'split',
@@ -51,12 +50,9 @@ const LAYOUT: HelpTopic = {
 /** Feeds, cards and lines. */
 const FEEDS: HelpTopic = {
   name: 'feeds',
-  text:
-    'A feed merges any sources from any signed-in accounts into one stream, newest first, with a post several accounts see shown once. ' +
-    'Your first run makes one called stream (home, mentions, DMs and notifications of every account); /feed edit <name>, /feed new or the ✎ button in a feed pane opens the editor. ' +
-    'Sources are home, mentions, dms, notifications, local, federated and tag:<name>. ' +
-    'Posts show as cards by default; /display density lines switches this window to IRC lines, /display avatars off and /display images off hide those, /display reset clears the overrides, and /set density, /set avatars and /set images change the default for every window. ' +
-    'Every post has a short label like [a3]: /fav a3, /reply a3, /pop a3 act on it, as the account that fetched it.',
+  get text(): string {
+    return t('commands.help_topics.feeds', { name: '<name>' });
+  },
   commands: [
     'feed',
     'display',
@@ -74,13 +70,9 @@ const FEEDS: HelpTopic = {
 /** Desk sync. */
 const SYNC: HelpTopic = {
   name: 'sync',
-  text:
-    'Your desktops, floats, open windows, feeds and settings are saved in this browser and synced through your server, so the desk follows you. ' +
-    'A primary account holds the synced copy; ordered fallbacks take over when it has no settings store or its token fails (/sync primary <handle>, /sync fallback add|rm|up <handle>). ' +
-    'Desktop browsers (Windows, macOS, Linux, ChromeOS) and mobile ones (Android, iOS, iPadOS) each keep their own layout, and the newer copy wins. ' +
-    'A push follows the last change by 3 seconds; /sync now pulls and pushes at once, /sync off and /sync on switch it. ' +
-    'The server caps the whole store at 1 MiB, so a desk too big for the 384 KiB budget leaves out hidden windows, empty desktops and extra key overrides from the synced copy only, and says so. ' +
-    'Mastodon has no settings store: an account there keeps its desk in this browser alone.',
+  get text(): string {
+    return t('commands.help_topics.sync', { handle: '<handle>' });
+  },
   commands: ['sync'],
 };
 

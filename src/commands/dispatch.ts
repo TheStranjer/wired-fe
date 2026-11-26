@@ -11,6 +11,7 @@ import { unavailableRefusal } from './available';
 import { parseInput } from './parseInput';
 import { lookupCommand } from './registry';
 import type { CommandContext, CommandOutcome } from './types';
+import { t } from '../i18n/translate';
 
 /** What plain text does in the active window (post, reply, DM…). Supplied by the app. */
 export type TextHandler = (text: string) => Promise<void>;
@@ -35,13 +36,13 @@ async function runCommand(name: string, rest: string, context: CommandContext): 
   const definition = lookupCommand(context.registry, name);
   if (definition === undefined) {
     const refusal = unavailableRefusal(context, name);
-    context.print(refusal ?? `Unknown command: /${name}. Try /help`, 'error');
+    context.print(refusal ?? t('commands.unknown_command', { name }), 'error');
     return;
   }
   try {
     reportOutcome(await definition.run(rest, context), context);
   } catch (error) {
-    context.print(`Command failed: ${errorMessage(error)}`, 'error');
+    context.print(t('commands.command_failed', { error: errorMessage(error) }), 'error');
   }
 }
 
@@ -50,7 +51,7 @@ async function sendText(text: string, context: CommandContext, onText: TextHandl
   try {
     await onText(text);
   } catch (error) {
-    context.print(`Failed: ${errorMessage(error)}`, 'error');
+    context.print(t('commands.failed', { error: errorMessage(error) }), 'error');
   }
 }
 

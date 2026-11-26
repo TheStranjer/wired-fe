@@ -10,6 +10,7 @@
 import { bareName, feedAndSources, parseSources, reservedName, saveFeeds } from './feedArgs';
 import { OK, fail } from './outcome';
 import type { CommandContext, CommandOutcome } from './types';
+import { t } from '../i18n/translate';
 import { type Result, err, ok } from '../lib/result';
 import { feedEditorOpen } from '../state/feedEditorWindow';
 import { nextFeedId } from '../state/feedId';
@@ -49,7 +50,7 @@ export function feedNew(words: readonly string[], context: CommandContext): Comm
     return fail(added.error);
   }
   saveFeeds(context, added.value);
-  context.print(`Made ~${spec.value.name}`);
+  context.print(t('commands.feed_made', { name: spec.value.name }));
   return OK;
 }
 
@@ -61,7 +62,7 @@ export function feedAdd(words: readonly string[], context: CommandContext): Comm
   }
   const { feed, refs } = read.value;
   saveFeeds(context, addSource(context.state.settings.feeds, feed.id, refs));
-  context.print(`~${feed.name} reads ${words.slice(1).join(' ')}`);
+  context.print(t('commands.feed_reads', { name: feed.name, sources: words.slice(1).join(' ') }));
   return OK;
 }
 
@@ -75,14 +76,14 @@ export function feedRemove(words: readonly string[], context: CommandContext): C
   const held = refs.filter((ref) =>
     feed.sources.some((s) => s.accountKey === ref.accountKey && s.source === ref.source),
   );
-  const text = words.slice(1).join(' ');
+  const values = { name: feed.name, sources: words.slice(1).join(' ') };
   if (held.length === 0) {
-    return fail(`~${feed.name} reads none of ${text}`);
+    return fail(t('commands.feed_reads_none', values));
   }
   saveFeeds(
     context,
     held.reduce((next, ref) => removeSource(next, feed.id, ref), context.state.settings.feeds),
   );
-  context.print(`~${feed.name} no longer reads ${text}`);
+  context.print(t('commands.feed_reads_no_longer', values));
   return OK;
 }

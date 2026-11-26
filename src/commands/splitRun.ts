@@ -13,6 +13,7 @@ import { OK, fail } from './outcome';
 import { lookupCommand } from './registry';
 import type { CommandContext, CommandDefinition, CommandOutcome } from './types';
 import { type ViewSpec, VIEW_WORDS, parseViewSpec } from './viewSpec';
+import { t } from '../i18n/translate';
 import { type Result, err, ok } from '../lib/result';
 import type { OpenAction } from '../state/placement';
 import type { LayoutAction } from '../windows/layoutAction';
@@ -29,7 +30,7 @@ export const VIEW_USAGE = `[${VIEW_WORDS.join('|')} …]`;
 function numbered(context: CommandContext, number: number): Result<Shown, string> {
   const win = context.windows.windows[number - 1];
   return win === undefined
-    ? err(`No window ${String(number)}`)
+    ? err(t('commands.no_window', { number: String(number) }))
     : ok({ windowId: win.id, open: null });
 }
 
@@ -47,7 +48,7 @@ async function runOpen(
 ): Promise<Result<Shown, string>> {
   const definition = lookupCommand(context.registry, spec.command);
   if (definition === undefined) {
-    return err(`/${spec.command} is not available here`);
+    return err(t('commands.not_available_here', { command: spec.command }));
   }
   const asked: OpenAction[] = [];
   const outcome = await definition.run(spec.args, {
@@ -64,7 +65,7 @@ async function runOpen(
     return err(outcome.message);
   }
   return open === undefined
-    ? err(`/${spec.command} opened no window`)
+    ? err(t('commands.opened_no_window', { command: spec.command }))
     : ok(shownFor(context, open));
 }
 
@@ -88,7 +89,9 @@ export async function viewToShow(
     return ok({ windowId: context.windows.activeId, open: null });
   }
   const spec = parseViewSpec(args);
-  return spec.ok ? await shownBy(context, spec.value) : err(`${spec.error}. Usage: ${usage}`);
+  return spec.ok
+    ? await shownBy(context, spec.value)
+    : err(t('commands.error_with_usage', { error: spec.error, usage }));
 }
 
 /**

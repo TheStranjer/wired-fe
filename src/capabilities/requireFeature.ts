@@ -10,6 +10,8 @@
 
 import type { Backend } from './backend';
 import { type Capabilities, type FeatureFlag, hasFeature } from './capabilities';
+import type { MessageKey } from '../i18n/messages';
+import { t } from '../i18n/translate';
 import { type Result, err, ok } from '../lib/result';
 
 /**
@@ -28,16 +30,16 @@ type FeatureContext = {
   };
 };
 
-/** What each flag lets the reader do, as the verb phrase a refusal ends with. */
-const FEATURE_PHRASES: Readonly<Record<FeatureFlag, string>> = {
-  emojiReactions: 'react to posts with emoji',
-  customEmojiReactions: 'react with custom emoji',
-  quotePosting: 'quote posts',
-  editing: 'edit posts',
-  localOnlyPosts: 'post local-only',
-  markdown: 'format posts with Markdown',
-  passwordResetApi: 'reset passwords',
-  settingsStore: 'sync settings',
+/** The catalog message that refuses each flag, a whole sentence naming the server and what it cannot do. */
+const FEATURE_MESSAGES: Readonly<Record<FeatureFlag, MessageKey>> = {
+  emojiReactions: 'capabilities.cannot.emoji_reactions',
+  customEmojiReactions: 'capabilities.cannot.custom_emoji_reactions',
+  quotePosting: 'capabilities.cannot.quote_posting',
+  editing: 'capabilities.cannot.editing',
+  localOnlyPosts: 'capabilities.cannot.local_only_posts',
+  markdown: 'capabilities.cannot.markdown',
+  passwordResetApi: 'capabilities.cannot.password_reset_api',
+  settingsStore: 'capabilities.cannot.settings_store',
 };
 
 /** How a backend family is named on screen; null where the family says nothing. */
@@ -62,10 +64,12 @@ function refusal(
   handle: string | null,
   capabilities: Capabilities | null,
 ): string {
-  const owner = handle === null ? 'This server' : `@${handle}'s server`;
   const name = capabilities === null ? null : backendName(capabilities.backend);
-  const brand = name === null ? '' : ` (${name})`;
-  return `${owner}${brand} can't ${FEATURE_PHRASES[flag]}`;
+  return t(FEATURE_MESSAGES[flag], {
+    owner: handle === null ? 'none' : 'handle',
+    handle: handle ?? '',
+    brand: name === null ? '' : ` (${name})`,
+  });
 }
 
 /**

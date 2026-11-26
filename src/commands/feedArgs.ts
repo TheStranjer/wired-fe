@@ -8,6 +8,7 @@
 
 import { fail } from './outcome';
 import type { CommandContext, CommandOutcome } from './types';
+import { t } from '../i18n/translate';
 import { type Result, err, ok } from '../lib/result';
 import { feedByName, type FeedSourceRef, type FeedSpec, type Feeds } from '../state/feeds';
 import { parseSource } from '../state/feedSource';
@@ -26,7 +27,7 @@ export const FEED_SUBCOMMANDS: readonly string[] = [
 
 /** The refusal of a subcommand given the wrong words: its form, behind `/feed`. */
 export function feedUsage(form: string): CommandOutcome {
-  return fail(`Usage: /feed ${form}`);
+  return fail(t('commands.usage', { usage: `/feed ${form}` }));
 }
 
 /** {@link word} without the one leading `~` a feed window's title writes before its name. */
@@ -40,7 +41,7 @@ export function bareName(word: string): string {
  */
 export function reservedName(name: string): string | null {
   return FEED_SUBCOMMANDS.includes(name.toLowerCase())
-    ? `"${name}" is a /feed word; pick another name`
+    ? t('commands.feed_reserved', { name })
     : null;
 }
 
@@ -48,7 +49,7 @@ export function reservedName(name: string): string | null {
 export function findFeed(context: CommandContext, word: string): Result<FeedSpec, string> {
   const name = bareName(word);
   const feed = feedByName(context.state.settings.feeds, name);
-  return feed === undefined ? err(`No feed named "${name}"`) : ok(feed);
+  return feed === undefined ? err(t('commands.feed_not_found', { name })) : ok(feed);
 }
 
 /** Every word of {@link words} read as source text; the first one that is not a source is the error. */

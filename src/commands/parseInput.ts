@@ -4,6 +4,8 @@
  * argument grammars and registry lookup live elsewhere (decision 6).
  */
 
+import { t } from '../i18n/translate';
+
 /** A command name once lowercased: a letter, then letters, digits, hyphens. */
 const COMMAND_NAME = /^[a-z][a-z0-9-]*$/;
 
@@ -35,11 +37,11 @@ export function parseInput(input: string): ParsedInput {
   const body = input.slice(1);
   const [typedName = ''] = body.split(/\s/);
   if (typedName === '') {
-    return { kind: 'invalid', reason: 'Missing command name after /' };
+    return { kind: 'invalid', reason: t('commands.missing_name') };
   }
   const name = typedName.toLowerCase();
   if (!COMMAND_NAME.test(name)) {
-    return { kind: 'invalid', reason: `Invalid command name: /${typedName}` };
+    return { kind: 'invalid', reason: t('commands.invalid_name', { name: typedName }) };
   }
   return { kind: 'command', name, rest: body.slice(typedName.length).trimStart() };
 }
