@@ -11,8 +11,9 @@
 import type { JSX } from 'react';
 
 import styles from './PollView.module.css';
+import { formatClock, formatPercent } from '../i18n/format';
+import { useLocale, useT } from '../i18n/I18nProvider';
 import { bar } from '../lib/bars';
-import { formatClock } from '../lib/time';
 import type { ClockFormat } from '../lib/time';
 
 /** What a poll shows: the ui twin of api's Poll (AGENTS.md "Layout"), minus
@@ -33,6 +34,13 @@ export type PollViewData = {
 type PollViewProps = {
   readonly poll: PollViewData;
   readonly label: string;
+  readonly clockFormat: ClockFormat;
+};
+
+/** What the poll's text needs to speak the language in use: its words, its figures and its clock. */
+type Speech = {
+  readonly t: ReturnType<typeof useT>;
+  readonly locale: string;
   readonly clockFormat: ClockFormat;
 };
 
@@ -67,35 +75,32 @@ function shareOf(option: Option, totalVotes: number): number {
 }
 
 /** The option's rounded percentage, or `?` where the backend hides its tally. */
-function percentOf(option: Option, totalVotes: number): string {
+function percentOf(option: Option, totalVotes: number, locale: string): string {
   if (option.votes === null) {
     return HIDDEN;
   }
-  return `${String(Math.round(shareOf(option, totalVotes) * 100))}%`;
+  return formatPercent(locale, Math.round(shareOf(option, totalVotes) * 100) / 100);
 }
 
 /** Every option as one line: `[n] title  bar  pct`, titles padded to the longest. */
-function linesOf(poll: PollViewData): readonly OptionLine[] {
+function linesOf(poll: PollViewData, locale: string): readonly OptionLine[] {
   const longest = poll.options.reduce((wide, option) => Math.max(wide, option.title.length), 0);
   return poll.options.map((option, index) => ({
     key: `option-${String(index + 1)}`,
     own: poll.ownVotes.includes(index),
-    text: `[${String(index + 1)}] ${option.title.padEnd(longest)}  ${bar(shareOf(option, poll.totalVotes), BAR_WIDTH)}  ${percentOf(option, poll.totalVotes).padStart(PERCENT_WIDTH)}`,
+    text: `[${String(index + 1)}] ${option.title.padEnd(longest)}  ${bar(shareOf(option, poll.totalVotes), BAR_WIDTH)}  ${percentOf(option, poll.totalVotes, locale).padStart(PERCENT_WIDTH)}`,
   }));
-}
-
-/** How many votes the footer counts, singular when it counts one. */
-function votesText(totalVotes: number): string {
-  return `${String(totalVotes)} ${totalVotes === 1 ? 'vote' : 'votes'}`;
 }
 
 /** When the poll closes: its clock while it is open, `closed` once it is not,
  * and nothing at all when the backend never named a deadline. */
-function closeText(poll: PollViewData, clockFormat: ClockFormat): string | null {
+function closeText(poll: PollViewData, speech: Speech): string | null {
+  const { t, locale, clockFormat } = speech;
   if (poll.expired) {
-    return 'closed';
+    return t('format.closed');
   }
-  return poll.expiresAt === null ? null : `closes ${formatClock(poll.expiresAt, clockFormat)}`;
+  const time = poll.expiresAt === null ? null : formatClock(locale, poll.expiresAt, clockFormat);
+  return time === null ? null : t('format.closes', { time });
 }
 
 /** The command that still votes on this poll, or nothing when it cannot. */
@@ -104,10 +109,11 @@ function voteHint(poll: PollViewData, label: string): string | null {
 }
 
 /** The footer line: the tally, the deadline, the hint and the kind of poll. */
-function footerText(poll: PollViewData, label: string, clockFormat: ClockFormat): string {
-  const parts = [votesText(poll.totalVotes), closeText(poll, clockFormat), voteHint(poll, label)];
+function footerText(poll: PollViewData, label: string, speech: Speech): string {
+  const votes = speech.t('format.vote_count', { count: poll.totalVotes });
+  const parts = [votes, closeText(poll, speech), voteHint(poll, label)];
   if (poll.multiple) {
-    parts.push('(multiple choice)');
+    parts.push(speech.t('format.multiple_choice'));
   }
   return parts.filter((part) => part !== null).join(SEPARATOR);
 }
@@ -115,9 +121,12 @@ function footerText(poll: PollViewData, label: string, clockFormat: ClockFormat)
 /** The poll of one post: its option lines and the footer below them. */
 export function PollView(props: PollViewProps): JSX.Element {
   const { poll, label, clockFormat } = props;
+  const locale = useLocale();
+  const t = useT();
+  const speech = { t, locale, clockFormat };
   return (
     <div className={styles['poll']}>
-      {linesOf(poll).map((line) => (
+      {linesOf(poll, locale).map((line) => (
         <div key={line.key}>
           {line.text}
           {line.own ? (
@@ -127,7 +136,7 @@ export function PollView(props: PollViewProps): JSX.Element {
           ) : undefined}
         </div>
       ))}
-      <div className={styles['footer']}>{footerText(poll, label, clockFormat)}</div>
+      <div className={styles['footer']}>{footerText(poll, label, speech)}</div>
     </div>
   );
 }

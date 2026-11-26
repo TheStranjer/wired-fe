@@ -60,7 +60,7 @@ function whoisView(
       following: account.following_count,
       followers: account.followers_count,
     },
-    joined: account.created_at.slice(0, 10),
+    joined: new Date(account.created_at),
     relationships: {
       following: relationship?.following ?? false,
       followedBy: relationship?.followed_by ?? false,

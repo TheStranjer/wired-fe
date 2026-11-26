@@ -11,9 +11,13 @@ import type { Messages } from '../i18n/messages';
 /** The language tag the fake catalog is installed under. */
 export const FAKE_LOCALE = 'qps-ploc';
 
-/** Make {@link messages} the catalog of {@link FAKE_LOCALE} and switch to it. */
-export function installFakeLocale(messages: Messages): void {
-  activateCatalog(FAKE_LOCALE, messages);
+/**
+ * Make {@link messages} the catalog of {@link locale} and switch to it. The
+ * default is {@link FAKE_LOCALE}; a real tag such as `de` also gets that
+ * language's own digit grouping, clock and dates from `Intl`.
+ */
+export function installFakeLocale(messages: Messages, locale: string = FAKE_LOCALE): void {
+  activateCatalog(locale, messages);
 }
 
 /** Back to English with every installed catalog dropped. */

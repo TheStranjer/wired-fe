@@ -22,7 +22,18 @@
     "not_signed_in_as": "You aren't signed in as {handle}. {count, plural, =0 {No account is signed in.} other {Signed in: {accounts}.}} Type /connect to add an account."
   },
   "features": {},
-  "format": {},
+  "format": {
+    "boost_count": "{count, plural, one {# boost} other {# boosts}}",
+    "closed": "closed",
+    "closes": "closes {time}",
+    "favourite_count": "{count, plural, one {# favourite} other {# favourites}}",
+    "multiple_choice": "(multiple choice)",
+    "reaction_label": "{name}, {count, plural, one {# reaction} other {# reactions}}",
+    "reply_to": "Reply to post {label}",
+    "reply_to_counted": "Reply to post {label} ({count, plural, one {# reply} other {# replies}})",
+    "vote_count": "{count, plural, one {# vote} other {# votes}}",
+    "whois_counts": "posts {posts, number} · following {following, number} · followers {followers, number} · joined {joined}"
+  },
   "keys": {},
   "state": {},
   "ui": {},

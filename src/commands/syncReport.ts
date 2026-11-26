@@ -7,7 +7,8 @@
  */
 
 import type { SyncPrefs } from '../accounts/syncPrefs';
-import { formatClock } from '../lib/time';
+import { activeLocale } from '../i18n/activeLocale';
+import { formatClock } from '../i18n/format';
 import type { AppState } from '../state/appState';
 import { type SyncWorld, pickSyncAccount, skipReason } from '../state/syncAccount';
 
@@ -38,7 +39,7 @@ type SyncReportWorld = SyncWorld & Pick<AppState, 'sync' | 'settings'>;
 function historyLines(world: SyncReportWorld): readonly string[] {
   const { lastPull, lastPush, lastError } = world.sync;
   const clock = (moment: number): string =>
-    formatClock(new Date(moment), world.settings.clockFormat);
+    formatClock(activeLocale(), new Date(moment), world.settings.clockFormat);
   return [
     ...(lastPull === null ? [] : [`Last pull: ${clock(lastPull)}`]),
     ...(lastPush === null ? [] : [`Last push: ${clock(lastPush)}`]),

@@ -2,7 +2,7 @@
  * Tests for the profile loader: the window's target and account drive one
  * getAccount + relationships([id]) fetch (MSW-backed) whose answer maps onto
  * the whois props — the handle completed against the window's origin, joined
- * cut to its day, fields verified by their stamp, relationships off without
+ * as the moment, fields verified by their stamp, relationships off without
  * one. A failed lookup prints its description into the window; a failed
  * relationship check keeps the account; no target and no account mean no
  * request at all; and a fetch whose window closed reports nothing.
@@ -83,7 +83,7 @@ function Probe(props: { readonly whois: WhoisBlockProps | null }): JSX.Element {
     .join(',');
   return (
     <section aria-label="whois">
-      {`${whois.displayName} @${whois.handle} joined ${whois.joined}, `}
+      {`${whois.displayName} @${whois.handle} joined ${whois.joined.toISOString()}, `}
       {`fields ${whois.fields.map((field) => `${field.name}:${String(field.verified)}`).join(' ')}; `}
       {`posts ${String(whois.counts.posts)}; holds ${held === '' ? 'nothing' : held}`}
     </section>
@@ -135,7 +135,9 @@ describe(useProfile, () => {
 
     await screen.findByText(/posts 120; holds following,followedBy,muted/u);
 
-    expect(screen.getByText(/Nine @nine@wired\.example joined 2024-01-02/u)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Nine @nine@wired\.example joined 2024-01-02T10:00:00\.000Z/u),
+    ).toBeInTheDocument();
     expect(screen.getByText(/site:true pronouns:false/u)).toBeInTheDocument();
   });
 

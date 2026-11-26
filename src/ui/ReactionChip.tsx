@@ -9,6 +9,8 @@ import type { JSX } from 'react';
 
 import { isHttps } from './emojify';
 import styles from './ReactionChip.module.css';
+import { formatNumber } from '../i18n/format';
+import { useLocale, useT } from '../i18n/I18nProvider';
 
 /** One emoji reaction on a post and its tally. */
 export type PostReaction = {
@@ -23,12 +25,6 @@ export type PostReaction = {
 export function shortcodeOf(name: string): string {
   const at = name.indexOf('@');
   return at > 0 ? name.slice(0, at) : name;
-}
-
-/** What assistive technology reads for the whole chip. */
-function spokenLabel(reaction: PostReaction): string {
-  const noun = reaction.count === 1 ? 'reaction' : 'reactions';
-  return `${reaction.name}, ${String(reaction.count)} ${noun}`;
 }
 
 /** The emoji itself: its picture when it has an https one, else its name. */
@@ -51,10 +47,13 @@ function Emoji(props: { readonly reaction: PostReaction }): JSX.Element {
 /** One reaction: its emoji, then how many accounts sent it. */
 export function ReactionChip(props: { readonly reaction: PostReaction }): JSX.Element {
   const { reaction } = props;
+  const t = useT();
+  const locale = useLocale();
+  const label = t('format.reaction_label', { name: reaction.name, count: reaction.count });
   return (
-    <span aria-label={spokenLabel(reaction)} role="img">
+    <span aria-label={label} role="img">
       <Emoji reaction={reaction} />
-      <span className={styles['count']}>{String(reaction.count)}</span>
+      <span className={styles['count']}>{formatNumber(locale, reaction.count)}</span>
     </span>
   );
 }

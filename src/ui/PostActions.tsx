@@ -15,6 +15,7 @@
  */
 import type { JSX } from 'react';
 
+import { BoostButton, FavouriteButton, ReplyButton, ToggleButton } from './PostActionButtons';
 import styles from './PostActions.module.css';
 import { PostActionsMore } from './PostActionsMore';
 import type { PostActionLine, PostActionLines, ReactPicker } from './postActionTypes';
@@ -35,101 +36,25 @@ export type PostActionsProps = Pick<PostMetaProps, 'counts' | 'mine' | 'reaction
   readonly picker: ReactPicker;
 };
 
-/** One button's look, and the line its press hands on; no line, no button. */
-type ButtonProps = {
-  readonly glyph: string;
-  /** The tally drawn after the glyph by CSS, so the button's text is the glyph alone. */
-  readonly count?: string | undefined;
-  readonly name: string;
-  readonly title?: string | undefined;
-  /** Present for a toggle: whether the viewer's mark is on. */
-  readonly pressed?: boolean | undefined;
-  readonly line: PostActionLine | undefined;
-  readonly onAction: (line: PostActionLine) => void;
-};
-
-/** The tally as the attribute the stylesheet draws after the glyph, if above zero. */
-function tally(count: number): string | undefined {
-  return count > 0 ? String(count) : undefined;
-}
-
-/** "2 replies" for a tally above zero, nothing for none. */
-function noun(count: number, singular: string, plural: string): string | undefined {
-  return count > 0 ? `${String(count)} ${count === 1 ? singular : plural}` : undefined;
-}
-
-/** The reply button's name: "Reply to post a3", with the tally when there is one. */
-function replyName(label: string, count: number): string {
-  const replies = noun(count, 'reply', 'replies');
-  return `Reply to post ${label}${replies === undefined ? '' : ` (${replies})`}`;
-}
-
-/** One bar button, or nothing while its command has no line. */
-function BarButton(props: ButtonProps): JSX.Element | null {
-  const { glyph, count, name, title, pressed, line, onAction } = props;
-  if (line === undefined) {
-    return null;
-  }
-  return (
-    <button
-      aria-label={name}
-      aria-pressed={pressed}
-      className={[styles['button'], pressed === true ? styles['on'] : undefined].join(' ')}
-      data-count={count}
-      onClick={() => {
-        onAction(line);
-      }}
-      title={title}
-      type="button"
-    >
-      {glyph}
-    </button>
-  );
-}
-
-/** A toggle button: its own mark decides between the command and its undo. */
-function ToggleButton(
-  props: Omit<ButtonProps, 'line' | 'pressed'> & {
-    readonly on: boolean;
-    readonly lines: PostActionLines;
-    readonly commands: readonly [string, string];
-  },
-): JSX.Element {
-  const { on, lines, commands, ...button } = props;
-  return <BarButton {...button} line={lines[commands[on ? 1 : 0]]} pressed={on} />;
-}
-
 /** The action bar of one post card. */
 export function PostActions(props: PostActionsProps): JSX.Element {
   const { label, counts, mine, own, lines, onAction } = props;
   return (
     <div aria-label={`Actions for post ${label}`} className={styles['bar']} role="group">
-      <BarButton
-        count={tally(counts.replies)}
-        glyph="↩"
-        line={lines['reply']}
-        name={replyName(label, counts.replies)}
-        onAction={onAction}
-      />
-      <ToggleButton
-        commands={['boost', 'unboost']}
-        count={tally(counts.boosts)}
-        glyph="⟳"
+      <ReplyButton count={counts.replies} label={label} lines={lines} onAction={onAction} />
+      <BoostButton
+        count={counts.boosts}
+        label={label}
         lines={lines}
-        name={`Boost post ${label}`}
         on={mine.boosted}
         onAction={onAction}
-        title={noun(counts.boosts, 'boost', 'boosts')}
       />
-      <ToggleButton
-        commands={['fav', 'unfav']}
-        count={tally(counts.favourites)}
-        glyph="★"
+      <FavouriteButton
+        count={counts.favourites}
+        label={label}
         lines={lines}
-        name={`Favourite post ${label}`}
         on={mine.favourited}
         onAction={onAction}
-        title={noun(counts.favourites, 'favourite', 'favourites')}
       />
       <ReactButton
         label={label}

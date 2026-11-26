@@ -4,7 +4,8 @@
  * a request can fail; callers switch on `kind`.
  */
 
-import { formatClock } from '../lib/time';
+import { activeLocale } from '../i18n/activeLocale';
+import { formatClock } from '../i18n/format';
 
 /** Per-field validation messages of a refused request, keyed by field name. */
 export type FieldErrors = Readonly<Record<string, readonly string[]>>;
@@ -35,7 +36,7 @@ export function describeApiError(error: ApiError): string {
     case 'rate-limited':
       return error.resetAt === null
         ? 'Rate limited'
-        : `Rate limited until ${formatClock(error.resetAt, '24h')}`;
+        : `Rate limited until ${formatClock(activeLocale(), error.resetAt, '24h')}`;
     case 'parse':
       return `Unexpected response: ${error.message}`;
   }

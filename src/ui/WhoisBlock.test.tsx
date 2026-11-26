@@ -22,7 +22,7 @@ const BASE_PROPS: WhoisBlockProps = {
     { name: 'pronouns', valueHtml: 'none', verified: false },
   ],
   counts: { posts: 120, following: 80, followers: 300 },
-  joined: '2024-01-02',
+  joined: new Date('2024-01-02T10:00:00.000Z'),
   relationships: NOBODY,
 };
 
