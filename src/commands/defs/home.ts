@@ -11,6 +11,7 @@
  */
 
 import { homeWindowOpen } from '../../state/homeWindow';
+import { postStatus } from '../../state/postStatus';
 import { accountWindowRun } from '../openWindowRun';
 import type { CommandDefinition } from '../types';
 
@@ -19,5 +20,5 @@ export const command: CommandDefinition = {
   name: 'home',
   usage: '/home [text] [--in <placement>]',
   summary: 'Open your home timeline',
-  run: accountWindowRun(homeWindowOpen, { postsText: true }),
+  run: accountWindowRun(homeWindowOpen, { postsText: postStatus }),
 };

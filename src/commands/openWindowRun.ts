@@ -12,7 +12,7 @@
  */
 
 import { NOT_LOGGED_IN, OK, fail } from './outcome';
-import { postIntoWindow } from './postIntoWindow';
+import { type TextPoster, postIntoWindow } from './postIntoWindow';
 import type { CommandContext, CommandDefinition } from './types';
 import type { StoredAccount } from '../accounts/accountStore';
 import { type Result, err, ok } from '../lib/result';
@@ -119,8 +119,11 @@ export function placedRun(run: CommandDefinition['run']): CommandDefinition['run
 
 /** What an account-window command does besides opening its window. */
 export type AccountWindowOptions = {
-  /** Whether text after the command is posted into the opened window (WFE-279). */
-  readonly postsText: boolean;
+  /**
+   * How text after the command is posted into the opened window (WFE-279,
+   * WFE-283): the window kind's own posting, or false to ignore the text.
+   */
+  readonly postsText: TextPoster | false;
 };
 
 /**
@@ -128,8 +131,8 @@ export type AccountWindowOptions = {
  * account, titled against the active account key, and refuses with the
  * not-logged-in message when there is no account. `--in` places the window.
  * With {@link options}' `postsText` the arguments left after `--in` are
- * posted as that account into the opened window, as typing them there would;
- * otherwise they are ignored.
+ * posted as that account through that poster, as typing them in the opened
+ * window would; otherwise they are ignored.
  */
 export function accountWindowRun(
   open: (account: StoredAccount, activeKey: string | null) => OpenAction,
@@ -143,12 +146,12 @@ export function accountWindowRun(
     const action = open(account, context.state.activeAccountKey);
     context.dispatchWindows(action);
     const text = args.trim();
-    if (!options.postsText || text === '') {
+    if (options.postsText === false || text === '') {
       return OK;
     }
     return await postIntoWindow(
       context,
-      { accountKey: account.key, windowId: windowId(action.ref) },
+      { poster: options.postsText, accountKey: account.key, windowId: windowId(action.ref) },
       text,
     );
   });

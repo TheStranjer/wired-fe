@@ -12,6 +12,7 @@
  */
 
 import { accountWindowOpen } from '../../state/accountWindow';
+import { postStatus } from '../../state/postStatus';
 import { accountWindowRun } from '../openWindowRun';
 import type { CommandDefinition } from '../types';
 
@@ -24,7 +25,7 @@ export const command: CommandDefinition = {
   run: accountWindowRun(
     (account, activeKey) => accountWindowOpen('federated', account, activeKey),
     {
-      postsText: true,
+      postsText: postStatus,
     },
   ),
 };

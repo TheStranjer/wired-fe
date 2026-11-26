@@ -1,7 +1,7 @@
 /**
  * Tests for the people window kind (WFE-220, migrated from the side pane's
- * tests): the definition, headings per watched kind, nicks named from the
- * watched window's account, the list following the buffer, the dim notices,
+ * tests): the definition (posting is in ./windowKind.post.test.tsx), headings
+ * per watched kind, nicks named from the watched window's account, the list following the buffer, the dim notices,
  * and a nick click opening the author's profile window.
  */
 import { fireEvent, render, screen, within } from '@testing-library/react';
@@ -136,13 +136,13 @@ function renderPeople(actions: readonly AppAction[], ref: WindowRef): void {
 }
 
 describe('the people window kind', () => {
-  it('is the definition for the people kind, titled as its window, and takes no posts', () => {
+  it('is the definition for the people kind, titled as its window, and takes posts', () => {
     const state = session(seedHome());
     const opening = peopleWindowOpen(winOf(state, HOME));
     const people = appReducer(state, { type: 'windows', action: opening });
 
     expect(windowKind.kind).toBe('people');
-    expect(windowKind.onPost).toBeUndefined();
+    expect(windowKind.onPost).toBeTypeOf('function');
     expect(windowKind.topic(winOf(people, opening.ref), people)).toBe('people:home');
   });
 

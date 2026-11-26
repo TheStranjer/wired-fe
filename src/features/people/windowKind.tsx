@@ -7,8 +7,9 @@
  * `in conversation`, `recently here`) or leaves it empty; a nick click opens
  * that account's profile window through the transition a nick click in a post
  * asks for (src/state/profileWindow). When the watched window closes the
- * window says so, dimly. Nothing is posted into it: the definition carries no
- * `onPost`.
+ * window says so, dimly. Plain text typed here posts as the watched window's
+ * account (src/state/postAsWindowAccount); a window with no account of its
+ * own, such as a feed, refuses.
  */
 
 import type { JSX } from 'react';
@@ -16,6 +17,7 @@ import type { JSX } from 'react';
 import { PEOPLE_TITLES, listedPeople } from './peopleList';
 import styles from './PeopleWindow.module.css';
 import { clickOpen } from '../../state/placementFromClick';
+import { postAsWindowAccount } from '../../state/postAsWindowAccount';
 import { profileWindowOpen } from '../../state/profileWindow';
 import { accountByKey, bufferFor, windowAccountKey } from '../../state/selectors';
 import { useAppDispatch, useAppState } from '../../state/StateContext';
@@ -66,4 +68,5 @@ export const windowKind: WindowKindDefinition = {
   kind: 'people',
   topic: (window) => window.title,
   Component: PeopleWindow,
+  onPost: postAsWindowAccount,
 };

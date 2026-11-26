@@ -1,8 +1,8 @@
 /**
  * Tests for the search window kind's definition and component: it
  * self-registers the `search` kind, topics its window as the search it is —
- * and plainly when there is nothing to search — takes no posts, and its
- * component fetches the answer (one served document, src/test/searchWindow)
+ * and plainly when there is nothing to search — posts as the account without
+ * entering the results, and its component fetches the answer (one served document, src/test/searchWindow)
  * into a log region named after the window's title, sections above posts. An
  * unopened window names itself plainly and asks for nothing.
  */
@@ -12,6 +12,7 @@ import { describe, expect, it } from 'vitest';
 import { windowKind } from './windowKind';
 import type { AppState } from '../../state/appState';
 import { AppStateProvider } from '../../state/StateContext';
+import { runKindPost } from '../../test/kindPost';
 import {
   SEARCH_QUERY,
   SEARCH_REF,
@@ -20,6 +21,8 @@ import {
   serveSearch,
 } from '../../test/searchWindow';
 import { type WindowState, activeWindow } from '../../windows/model';
+
+const ORIGIN = 'https://wired.example';
 
 /** The same window with nothing to target, the way a bare ref opens it. */
 function targetless(): WindowState {
@@ -45,10 +48,10 @@ function renderSearch(state: AppState, windowId: string): void {
 }
 
 describe('the search window kind', () => {
-  it('is the definition for the search kind, and it takes no posts', () => {
+  it('is the definition for the search kind, and it takes posts', () => {
     expect(windowKind.kind).toBe('search');
     expect(windowKind.Component).toBeTypeOf('function');
-    expect(windowKind.onPost).toBeUndefined();
+    expect(windowKind.onPost).toBeTypeOf('function');
   });
 
   it('topics its window as the search it is', () => {
@@ -78,5 +81,28 @@ describe('the search window kind', () => {
     renderSearch(searchState(), 'search:never:opened');
 
     expect(screen.getByRole('log', { name: 'search' })).toBeEmptyDOMElement();
+  });
+
+  it('posts as its window’s account, not into the buffer, and confirms it', async () => {
+    const state = searchState();
+    const win = activeWindow(state.windows);
+
+    const run = await runKindPost(windowKind, { state, win, origin: ORIGIN }, 'sup');
+
+    expect(run.result).toBeNull();
+    expect(run.bodies).toStrictEqual([{ status: 'sup', visibility: 'public' }]);
+    expect(run.dispatch).not.toHaveBeenCalledWith(expect.objectContaining({ type: 'statuses' }));
+    expect(run.dispatch).toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'print', text: 'posted as @lain@wired.example' }),
+    );
+  });
+
+  it('resolves the API error when the post is refused', async () => {
+    const state = searchState();
+    const win = activeWindow(state.windows);
+
+    const run = await runKindPost(windowKind, { state, win, origin: ORIGIN, refused: true }, 'sup');
+
+    expect(run.result).toBe('HTTP 422: Text is too long');
   });
 });

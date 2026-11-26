@@ -2,8 +2,8 @@
  * Tests for /notifications: with an account signed in it asks the window list
  * for that account's notifications window, titled plain `notifs`, and reports
  * success — the window the action opens is the active one; without an account
- * the command refuses and asks for nothing; arguments change neither, and /n
- * and /notifs are the same command.
+ * the command refuses and asks for nothing, and /n and /notifs are the same
+ * command (the text after it is tested in ../openWindowRun.post.test.ts).
  */
 import { describe, expect, it, vi, type Mock } from 'vitest';
 
@@ -99,21 +99,8 @@ describe('/notifications', () => {
     expect(dispatchWindows).not.toHaveBeenCalled();
   });
 
-  it('ignores its arguments and opens the active account’s window all the same', async () => {
-    const { context, dispatchWindows } = stubContext(true);
-
-    const outcome = await command.run('spare words', context);
-
-    expect(outcome).toStrictEqual({ ok: true });
-    expect(onlyAsk(dispatchWindows)).toStrictEqual({
-      type: 'open',
-      ref: NOTIFICATIONS,
-      title: 'notifs',
-    });
-  });
-
-  it('answers to /n and /notifs as well, and its usage is one word', () => {
+  it('answers to /n and /notifs as well, and its usage shows the text and --in', () => {
     expect(command.aliases).toStrictEqual(['n', 'notifs']);
-    expect(command.usage).toBe('/notifications');
+    expect(command.usage).toBe('/notifications [text] [--in <placement>]');
   });
 });

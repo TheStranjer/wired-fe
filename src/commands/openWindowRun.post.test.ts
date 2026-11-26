@@ -4,7 +4,8 @@
  * the active account with the reader's default audience, landing in that
  * window's scrollback as newer; no text posts nothing; a refused create is the
  * command's failure; pending media ride along and are cleared only when the
- * post is up. /notifications still ignores text.
+ * post is up. /notifications posts too (WFE-283), but only confirms the post:
+ * its list is not a timeline.
  */
 import { HttpResponse, http } from 'msw';
 import { describe, expect, it, vi } from 'vitest';
@@ -156,7 +157,7 @@ describe.each([
 });
 
 describe('/notifications <text>', () => {
-  it('still ignores the text and posts nothing', async () => {
+  it('opens the window and posts the text as the active account, only confirming it', async () => {
     const bodies = serveCreate(CREATED);
     const context = signedIn();
 
@@ -164,6 +165,35 @@ describe('/notifications <text>', () => {
 
     expect(outcome).toStrictEqual({ ok: true });
     expect(context.dispatchWindows).toHaveBeenCalledTimes(1);
+    expect(bodies).toStrictEqual([{ status: 'sup', visibility: 'public' }]);
+    expect(context.dispatch).not.toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'statuses' }),
+    );
+    expect(context.dispatch).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: 'print',
+        windowId: windowId({ kind: 'notifications', accountKey: ACCOUNT.key, target: null }),
+        text: 'posted as @lain@wired.example',
+      }),
+    );
+  });
+
+  it('posts nothing without text', async () => {
+    const bodies = serveCreate(CREATED);
+    const context = signedIn();
+
+    await expect(notifications.run('', context)).resolves.toStrictEqual({ ok: true });
+
     expect(bodies).toStrictEqual([]);
+  });
+
+  it('fails with the instance’s error', async () => {
+    server.use(
+      http.post(CREATE, () => HttpResponse.json({ error: 'Text is too long' }, { status: 422 })),
+    );
+
+    const outcome = await notifications.run('sup', signedIn());
+
+    expect(outcome).toStrictEqual({ ok: false, message: 'HTTP 422: Text is too long' });
   });
 });

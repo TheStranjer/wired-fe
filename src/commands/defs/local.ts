@@ -12,6 +12,7 @@
  */
 
 import { accountWindowOpen } from '../../state/accountWindow';
+import { postStatus } from '../../state/postStatus';
 import { accountWindowRun } from '../openWindowRun';
 import type { CommandDefinition } from '../types';
 
@@ -21,6 +22,6 @@ export const command: CommandDefinition = {
   usage: '/local [text] [--in <placement>]',
   summary: 'Open the local timeline',
   run: accountWindowRun((account, activeKey) => accountWindowOpen('local', account, activeKey), {
-    postsText: true,
+    postsText: postStatus,
   }),
 };

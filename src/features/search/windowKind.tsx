@@ -4,14 +4,14 @@
  * once — the accounts and tags it found printed as sections, the matching
  * posts as post lines — and the log region carries the window's title
  * (`search/<query>`, the way /search opened it) while the topic line says
- * plainly what is being searched. A search is something you look at, not
- * something you say into: the definition carries no `onPost`, the way the
- * profile window does.
+ * plainly what is being searched. Plain text typed here posts as the window's
+ * account, not into the results (src/state/postAsWindowAccount).
  */
 
 import type { JSX } from 'react';
 
 import { useSearch } from './useSearch';
+import { postAsWindowAccount } from '../../state/postAsWindowAccount';
 import { useAppState } from '../../state/StateContext';
 import type { WindowKindDefinition } from '../../state/windowKind';
 import { BufferView } from '../../views/BufferView';
@@ -33,4 +33,5 @@ export const windowKind: WindowKindDefinition = {
   kind: 'search',
   topic: (window) => searchTopic(window.ref.target),
   Component: SearchWindow,
+  onPost: postAsWindowAccount,
 };
