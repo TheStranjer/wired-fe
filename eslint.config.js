@@ -18,6 +18,7 @@ import globals from 'globals';
 import { configs as tsConfigs } from 'typescript-eslint';
 
 import { LAYER_POLICIES, LAYERS } from './tooling/eslint/layers.js';
+import { noLiteralUserText } from './tooling/eslint/noLiteralUserText.ts';
 import {
   BASE_RULES,
   REMOTE_HTML_RULES,
@@ -77,6 +78,14 @@ export default defineConfig(
       'boundaries/no-unknown-files': 'error',
       'boundaries/no-unknown-dependencies': 'error',
     },
+  },
+  {
+    // AGENTS.md "Linting": text a reader sees comes from t(), never a literal.
+    // Tests and the shared test helpers write English on purpose.
+    files: ['src/**/*.{ts,tsx}'],
+    ignores: ['src/**/*.test.{ts,tsx}', 'src/test/**'],
+    plugins: { wired: { rules: { 'no-literal-user-text': noLiteralUserText } } },
+    rules: { 'wired/no-literal-user-text': 'error' },
   },
   {
     // AGENTS.md "Security" bans fetch/WebSocket *outside* their owning module,

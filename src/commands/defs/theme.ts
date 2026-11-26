@@ -15,6 +15,9 @@ import { type Theme, THEMES } from '../../state/settings';
 import { OK, fail, syncRun } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
+/** The setting the command turns, as the line it prints back names it. */
+const SETTING = 'theme';
+
 /** The command's one form. */
 function usage(): string {
   return t('commands.defs.theme.usage');
@@ -51,7 +54,7 @@ function handle(args: string, context: CommandContext): CommandOutcome {
     return fail(t('commands.defs.theme.no_theme', { name }));
   }
   context.dispatch({ type: 'settings', settings: { theme: name } });
-  context.print(`theme = ${name}`);
+  context.print(`${SETTING} = ${name}`);
   return OK;
 }
 

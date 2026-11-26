@@ -25,6 +25,7 @@ import styles from './ComposerWindow.module.css';
 import { useAccountPick } from './useAccountPick';
 import { useComposerCompletion } from './useComposerCompletion';
 import { useComposerSend } from './useComposerSend';
+import { useT } from '../../i18n/I18nProvider';
 import { composerLimits } from '../../state/composerActions';
 import { mediaIdsOf } from '../../state/composerMedia';
 import { useAppDispatch, useAppState } from '../../state/StateContext';
@@ -63,6 +64,7 @@ export function ComposerWindow({ windowId }: { readonly windowId: string }): JSX
   const pick = useAccountPick(windowId, media.items.length > 0);
   const editing = fields.editing !== undefined;
   const completion = useComposerCompletion(windowId, fields.text);
+  const logLabel = useT()('features.composer.log_label');
 
   return (
     <div className={[styles['window'], dragging ? styles['dropping'] : ''].join(' ')} {...drop}>
@@ -89,7 +91,7 @@ export function ComposerWindow({ windowId }: { readonly windowId: string }): JSX
         sending={sending}
       />
       <div className={styles['messages']}>
-        <BufferView label={win?.title ?? 'compose'} windowId={windowId} />
+        <BufferView label={win?.title ?? logLabel} windowId={windowId} />
       </div>
     </div>
   );

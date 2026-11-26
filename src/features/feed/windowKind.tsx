@@ -13,6 +13,7 @@
 import type { JSX } from 'react';
 
 import { useFeed } from './useFeed';
+import { useT } from '../../i18n/I18nProvider';
 import { t } from '../../i18n/translate';
 import { postAccountless } from '../../state/postAccountless';
 import { postingAccount } from '../../state/postingAccount';
@@ -22,7 +23,8 @@ import { BufferView } from '../../views/BufferView';
 /** The feed window: its buffer's lines, kept full by the feed's sources. */
 function FeedWindow({ windowId }: { readonly windowId: string }): JSX.Element {
   useFeed(windowId);
-  return <BufferView label="feed" windowId={windowId} />;
+  const label = useT()('features.feed.log_label');
+  return <BufferView label={label} windowId={windowId} />;
 }
 
 /** The self-registered definition src/app/windowKinds.ts collects. */

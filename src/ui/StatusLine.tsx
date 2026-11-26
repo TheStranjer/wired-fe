@@ -74,7 +74,7 @@ function PendingMedia(props: {
         onClick={props.onShow}
         type="button"
       >
-        {`[+${String(props.count)} media]`}
+        {t('ui.status_line.media_pending', { count: props.count })}
       </button>{' '}
     </>
   );

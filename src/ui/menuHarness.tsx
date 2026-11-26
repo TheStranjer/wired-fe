@@ -16,14 +16,17 @@ const ITEMS: readonly MenuItem[] = [
   { id: 'd', label: 'Delta', checked: false },
 ];
 
+/** The button's name; a test helper writes English on purpose. */
+const BUTTON_NAME = 'Split side by side';
+
 /** Renders the button over `items`; returns it and the select spy. */
 export function setup(items: readonly MenuItem[] = ITEMS): {
   button: HTMLElement;
   onSelect: (id: string) => void;
 } {
   const onSelect = vi.fn<(id: string) => void>();
-  render(<MenuButton glyph="◫▾" items={items} label="Split side by side" onSelect={onSelect} />);
-  return { button: screen.getByRole('button', { name: 'Split side by side' }), onSelect };
+  render(<MenuButton glyph="◫▾" items={items} label={BUTTON_NAME} onSelect={onSelect} />);
+  return { button: screen.getByRole('button', { name: BUTTON_NAME }), onSelect };
 }
 
 /** The open menu's row with the given text. */

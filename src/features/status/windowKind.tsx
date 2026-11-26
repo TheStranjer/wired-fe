@@ -8,6 +8,7 @@
 import type { JSX } from 'react';
 
 import { buildConfig } from '../../config/config';
+import { useT } from '../../i18n/I18nProvider';
 import { t } from '../../i18n/translate';
 import { postAccountless } from '../../state/postAccountless';
 import type { WindowKindDefinition } from '../../state/windowKind';
@@ -18,7 +19,8 @@ import { BufferView } from '../../views/BufferView';
  * accessible name of the log region BufferView opens.
  */
 function StatusWindow({ windowId }: { readonly windowId: string }): JSX.Element {
-  return <BufferView windowId={windowId} label="status" />;
+  const label = useT()('features.status.log_label');
+  return <BufferView windowId={windowId} label={label} />;
 }
 
 /** The self-registered definition src/app/windowKinds.ts collects. */

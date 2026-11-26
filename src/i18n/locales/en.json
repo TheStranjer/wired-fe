@@ -670,6 +670,7 @@
     "composer": {
       "attachments_removed": "attachments removed: they belong to the old account",
       "editing": "editing [{label}]: {excerpt}",
+      "log_label": "compose",
       "post_as": "Post as",
       "posted_as": "Posted as @{author}",
       "quoted": "❝ quoted @{author}",
@@ -680,6 +681,7 @@
       "topic_as": "composer, posting as @{handle}"
     },
     "dm": {
+      "log_label": "dm",
       "no_messages": "No messages with @{target} yet. Type to start one.",
       "topic": "dm",
       "topic_with": "private conversation with {mention}"
@@ -707,9 +709,11 @@
       "your_provider": "your provider"
     },
     "federated": {
+      "log_label": "federated",
       "topic": "federated timeline"
     },
     "feed": {
+      "log_label": "feed",
       "missing": "This feed no longer exists",
       "source_failed": "{source} failed: {reason}",
       "topic_posting": "{title}, posting as @{handle}"
@@ -738,10 +742,15 @@
       "sources_label": "Sources by account",
       "tags_label": "Tags of @{handle}"
     },
+    "hashtag": {
+      "log_label": "hashtag"
+    },
     "home": {
+      "log_label": "home",
       "topic": "home timeline"
     },
     "local": {
+      "log_label": "local",
       "topic": "local timeline"
     },
     "media": {
@@ -756,6 +765,7 @@
       "sensitive_cover": "[ SENSITIVE — show ]"
     },
     "notifications": {
+      "log_label": "notifications",
       "topic": "notifications"
     },
     "password_reset": {
@@ -775,6 +785,9 @@
       "nobody": "nobody gathered here",
       "recently_here": "recently here",
       "window_closed": "window closed"
+    },
+    "profile": {
+      "log_label": "profile"
     },
     "registration": {
       "agreement": "I agree to the rules and terms of this instance",
@@ -798,6 +811,7 @@
     "search": {
       "account_line": "  @{acct} — {name}  (/whois @{acct})",
       "accounts": "Accounts:",
+      "log_label": "search",
       "no_results": "No results for \"{query}\"",
       "tag_line": "  #{name}  (/join #{name})",
       "tags": "Tags:",
@@ -805,10 +819,12 @@
       "topic_query": "search: {query}"
     },
     "status": {
+      "log_label": "status",
       "topic": "{appName} — Present day. Present time."
     },
     "thread": {
       "loading": "Loading thread…",
+      "log_label": "thread",
       "nothing_to_answer": "Nothing to reply to in this window"
     }
   },
@@ -1036,6 +1052,7 @@
       "close_desktop": "Close desktop {number}",
       "desktop": "Desktop {number}{active, select, true {, active} other {}}{unread, plural, =0 {} other {, {unread} unread}}{highlight, select, true {, highlighted} other {}}",
       "desktop_title": "Desktop {number}: click to switch, middle-click to close",
+      "media_pending": "[+{count} media]",
       "media_waiting": "{count} media waiting, show",
       "no_posting_account": "No posting account, choose",
       "posting_as": "Posting as {label}, change",

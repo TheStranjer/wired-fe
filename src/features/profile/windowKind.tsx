@@ -14,6 +14,7 @@ import type { JSX } from 'react';
 
 import { useProfile } from './useProfile';
 import { accountStatuses } from '../../api/endpoints/accountRead';
+import { useT } from '../../i18n/I18nProvider';
 import { postAsWindowAccount } from '../../state/postAsWindowAccount';
 import { useAppState } from '../../state/StateContext';
 import type { WindowKindDefinition } from '../../state/windowKind';
@@ -27,12 +28,13 @@ function ProfileWindow({ windowId }: { readonly windowId: string }): JSX.Element
   const win = state.windows.windows.find((candidate) => candidate.id === windowId);
   const target = win?.ref.target ?? '';
   const whois = useProfile(windowId);
+  const logLabel = useT()('features.profile.log_label');
   const fetchPage: FetchPage = async (session, page, signal) =>
     await accountStatuses(session, target, page === undefined ? {} : { page }, signal);
   return (
     <>
       {whois === null ? undefined : <WhoisBlock {...whois} />}
-      <TimelineWindow fetchPage={fetchPage} label={win?.title ?? 'profile'} windowId={windowId} />
+      <TimelineWindow fetchPage={fetchPage} label={win?.title ?? logLabel} windowId={windowId} />
     </>
   );
 }
