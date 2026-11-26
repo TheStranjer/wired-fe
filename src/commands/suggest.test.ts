@@ -12,6 +12,7 @@ import { commandProvider } from './commandProvider';
 import { type Provider, cycleCompletion, startCompletion } from './complete';
 import { suggestionView } from './suggest';
 import type { CommandDefinition, CommandOutcome, Registry } from './types';
+import { EMPTY_KEYMAP } from '../test/commandContext';
 
 /** What the fixture commands report: nothing here runs them. */
 const OK: CommandOutcome = { ok: true };
@@ -46,6 +47,7 @@ const PROVIDER = commandProvider(
     command('host'),
     command('clear'),
   ]),
+  EMPTY_KEYMAP,
 );
 
 /** How many commands {@link MANY} has: more than the eight rows the list shows at once. */
@@ -54,6 +56,7 @@ const MANY_COUNT = 10;
 /** Ten commands, `c0` to `c9`, to overflow the list. */
 const MANY = commandProvider(
   registryWith(Array.from({ length: MANY_COUNT }, (_, index) => command(`c${String(index)}`))),
+  EMPTY_KEYMAP,
 );
 
 /** The list for {@link text} with the caret at {@link cursor}, over {@link provider}. */

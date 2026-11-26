@@ -7,6 +7,7 @@ import { describe, expect, it } from 'vitest';
 
 import { commandProvider } from './commandProvider';
 import type { CommandDefinition, CommandOutcome, Registry } from './types';
+import { EMPTY_KEYMAP } from '../test/commandContext';
 
 /** What the fixture commands report: nothing here runs them. */
 const OK: CommandOutcome = { ok: true };
@@ -30,6 +31,7 @@ function registryWith(definitions: readonly CommandDefinition[]): Registry {
 /** The provider over a command without aliases, one with one and one with two. */
 const PROVIDER = commandProvider(
   registryWith([command('clear'), command('help', ['h']), command('whois', ['wi', 'profile'])]),
+  { ...EMPTY_KEYMAP, navigation: new Map([['x', { line: '/clear', prefill: false }]]) },
 );
 
 describe('commandProvider describe', () => {
@@ -38,6 +40,7 @@ describe('commandProvider describe', () => {
       word: '/clear',
       label: '/clear',
       description: 'Summary of clear',
+      detail: '/clear\n  Summary of clear\n  Keys: x (navigation)',
     });
   });
 
@@ -46,6 +49,7 @@ describe('commandProvider describe', () => {
       word: '/help',
       label: '/help (/h)',
       description: 'Summary of help',
+      detail: '/help\n  Summary of help\n  Aliases: /h',
     });
     expect(PROVIDER.describe?.('/whois')?.label).toBe('/whois (/wi, /profile)');
   });

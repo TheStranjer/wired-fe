@@ -10,6 +10,7 @@ import { vi } from 'vitest';
 import { TEST_DATE } from './fixtures';
 import { createAccountStore } from '../accounts/accountStore';
 import { createSyncStore } from '../accounts/syncPrefs';
+import type { Keymap } from '../commands/bindingTypes';
 import type { CommandContext, Registry } from '../commands/types';
 import type { WiredConfig } from '../config/schema';
 import { initialAppState } from '../state/appState';
@@ -31,6 +32,9 @@ const EXAMPLE_PAGE = { origin: 'https://wired.example', pathname: '/' };
 /** The registry with no commands in it: tests override it when they need one. */
 const EMPTY_REGISTRY: Registry = { commands: [], byName: new Map() };
 
+/** A keymap with nothing bound (WFE-311: command rows are described against one). */
+export const EMPTY_KEYMAP: Keymap = { insert: new Map(), navigation: new Map(), problems: [] };
+
 /**
  * The key-binding stub a context carries by default (WFE-130): nothing bound,
  * chords taken as typed unless blank. Command tests that care about chord
@@ -39,7 +43,7 @@ const EMPTY_REGISTRY: Registry = { commands: [], byName: new Map() };
 const INERT_KEYS: CommandContext['keys'] = {
   parseChord: (text: string): string | null => (text === '' ? null : text),
   blocksTyping: (): boolean => false,
-  keymap: { insert: new Map(), navigation: new Map(), problems: [] },
+  keymap: EMPTY_KEYMAP,
 };
 
 /**

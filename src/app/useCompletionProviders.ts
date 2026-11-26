@@ -11,9 +11,12 @@
  * sources after `/feed`; the listed instances after `/connect` (WFE-307). The post labels of the active window (WFE-301) come
  * before all of them, so the argument of a command that takes a post prefers
  * a label, and a `[` word completes to one anywhere on the line. The languages
- * after `/lang` complete too (WFE-310). The rows are described when they are
+ * after `/lang` complete too (WFE-310). Command rows carry their detail, with
+ * the keys of the effective keymap (WFE-311). The rows are described when they are
  * shown and the hook follows the language, so a switch redraws them in it.
  */
+
+import { useMemo } from 'react';
 
 import { appRegistry } from './registry';
 import { useAvailableRegistry } from './useAvailableRegistry';
@@ -30,6 +33,7 @@ import { postTargetWords } from '../commands/postTargets';
 import { viewProvider } from '../commands/viewProvider';
 import { buildConfig } from '../config/config';
 import { useLocale } from '../i18n/I18nProvider';
+import { buildKeymap } from '../keys/keymap';
 import { capabilitiesFor } from '../state/selectors';
 import { useAppState } from '../state/StateContext';
 import {
@@ -60,6 +64,10 @@ export function useCompletionProviders(searched: HandleSearch): readonly Provide
     tagProvider(state),
     custom ? emoji : withoutReactionWords(emoji),
   ];
+  const keymap = useMemo(
+    () => buildKeymap(registry, state.settings.keyOverrides),
+    [registry, state.settings.keyOverrides],
+  );
   const labels = labelProvider(state, postTargetWords(registry));
   return appRegistry().ok
     ? [
@@ -71,7 +79,7 @@ export function useCompletionProviders(searched: HandleSearch): readonly Provide
         viewProvider(),
         connectProvider(buildConfig.instances),
         feedProvider(state),
-        commandProvider(registry),
+        commandProvider(registry, keymap),
         ...seen,
       ]
     : [labels, ...seen];

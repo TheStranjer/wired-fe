@@ -56,6 +56,7 @@ function listOf(
           label: row.label,
           description: row.description,
           image: row.image,
+          detail: row.detail,
           pick: () => {
             pick(view.pick(row.word));
           },

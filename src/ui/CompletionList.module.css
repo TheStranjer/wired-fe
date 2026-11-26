@@ -29,6 +29,14 @@
   overscroll-behavior: contain;
 }
 
+/* The highlighted row's usage, aliases and keys under the rows (WFE-311). */
+.detail {
+  padding: 0 var(--space);
+  border-top: 1px solid var(--color-border-popup);
+  color: var(--color-dim);
+  white-space: pre-line;
+}
+
 .row,
 .chosen {
   display: flex;

@@ -27,6 +27,8 @@ export type Described = {
   readonly label: string;
   readonly description: string;
   readonly image?: string;
+  /** More about it than one line, shown as a tooltip and beside the list (WFE-311); absent for none. */
+  readonly detail?: string;
 };
 
 /**
