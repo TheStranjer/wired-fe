@@ -16,7 +16,10 @@
  * marked by `[*]` in the title, never by colour alone). Borders are not text,
  * so they are exempt from the 4.5:1 rule below, but each keeps at least 3:1
  * against `--color-bg` (WCAG 1.4.11) and the two stay visibly distinct.
- * `--border-width` and `--border-width-focus` are the matching thicknesses.
+ * `--color-border-popup` is the neutral grey frame of the suggestion list
+ * (WFE-303): the same in every theme, so it is neither the accent nor the
+ * error red. `--border-width` and `--border-width-focus` are the matching
+ * thicknesses.
  *
  * Every color here is text on `--color-bg` or on `--color-bar-bg` somewhere in
  * the shell, so every one of them clears 4.5:1 against both (WCAG 2.1 AA at the
@@ -37,6 +40,7 @@
   --color-accent: #8dffaa;
   --color-border-focus: #6f3;
   --color-border-idle: #1f7a3a;
+  --color-border-popup: #808080;
   --border-width: 1px;
   --border-width-focus: 2px;
   --color-bar-bg: #161616;
@@ -61,6 +65,7 @@
   --color-accent: #e0507a;
   --color-border-focus: #e0507a;
   --color-border-idle: #a84763;
+  --color-border-popup: #808080;
   --border-width: 1px;
   --border-width-focus: 2px;
   --color-bar-bg: #2a1119;
@@ -81,6 +86,7 @@
   --color-accent: #f2d34b;
   --color-border-focus: #f2d34b;
   --color-border-idle: #8c7424;
+  --color-border-popup: #808080;
   --border-width: 1px;
   --border-width-focus: 2px;
   --color-bar-bg: #1b2a44;
