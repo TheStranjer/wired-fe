@@ -51,12 +51,24 @@ export type WiredConfig = {
    * the redirect paths wired-be sends (its `FRONTEND_BASE_URL` path).
    */
   readonly basePath?: string | undefined;
+  /**
+   * The language shown when the reader has not chosen one, ahead of the
+   * browser's (decision 19): a BCP 47 code. The build fails unless it is one
+   * of the supported languages.
+   */
+  readonly defaultLocale?: string | undefined;
 };
 
 /** A path that starts and ends with `/`, with no empty, query or fragment parts. */
 const BasePathSchema = v.pipe(
   v.string(),
   v.regex(/^\/(?:[^/?#\s\\]+\/)*$/u, 'must start and end with "/", e.g. "/fe/"'),
+);
+
+/** A BCP 47-style code: a 2-3 letter language, then `-` subtags such as `Hans` or `AT`. */
+const LocaleCodeSchema = v.pipe(
+  v.string(),
+  v.regex(/^[A-Za-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$/u, 'must be a language code such as "de"'),
 );
 
 /** Shown when a `list` has no origins and does not let the user type their own. */
@@ -99,6 +111,7 @@ export const WiredConfigSchema: v.GenericSchema<unknown, WiredConfig> = v.strict
   ),
   instances: InstancesSchema,
   basePath: v.optional(BasePathSchema),
+  defaultLocale: v.optional(LocaleCodeSchema),
 });
 
 /** Formats one valibot issue as `"<dot.path>: <message>"`, `(root)` when unpathed. */
