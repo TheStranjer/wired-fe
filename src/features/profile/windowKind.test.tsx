@@ -1,7 +1,7 @@
 /**
  * Tests for the profile window kind: the definition it self-registers, its
- * topic line the `@<acct>` the window is titled with, and no post handler at
- * all; its component shows the account's whois block (fetched over MSW, above)
+ * topic line the `@<acct>` the window is titled with, and a post handler that
+ * posts as the account without entering the timeline; its component shows the account's whois block (fetched over MSW, above)
  * over a log region named for the account and paged from that account's
  * statuses endpoint — first page in, older pages asked for at the top — and
  * an unopened window fetches nothing.
@@ -15,6 +15,7 @@ import { accountKey, type StoredAccount } from '../../accounts/accountStore';
 import { type AppState, coreReducer, initialAppState } from '../../state/appState';
 import { AppStateProvider } from '../../state/StateContext';
 import { status, TEST_DATE } from '../../test/fixtures';
+import { runKindPost } from '../../test/kindPost';
 import { server } from '../../test/server';
 import { activeWindow, windowId } from '../../windows/model';
 import type { WindowRef } from '../../windows/model';
@@ -97,12 +98,12 @@ function renderProfile(state: AppState, id: string): void {
 }
 
 describe('the profile window kind', () => {
-  it('is the definition for the profile kind, topics @<acct> and takes no posts', () => {
+  it('is the definition for the profile kind, topics @<acct> and takes posts', () => {
     const state = opened();
 
     expect(windowKind.kind).toBe('profile');
     expect(windowKind.Component).toBeTypeOf('function');
-    expect(windowKind.onPost).toBeUndefined();
+    expect(windowKind.onPost).toBeTypeOf('function');
     expect(windowKind.topic(activeWindow(state.windows), state)).toBe('@nine@pleroma.example');
   });
 
@@ -125,5 +126,28 @@ describe('the profile window kind', () => {
     renderProfile(opened(), 'profile:never:opened');
 
     expect(screen.getByRole('log', { name: 'profile' })).toBeEmptyDOMElement();
+  });
+
+  it('posts as its window’s account, not into the buffer, and confirms it', async () => {
+    const state = opened();
+    const win = activeWindow(state.windows);
+
+    const run = await runKindPost(windowKind, { state, win, origin: ORIGIN }, 'sup');
+
+    expect(run.result).toBeNull();
+    expect(run.bodies).toStrictEqual([{ status: 'sup', visibility: 'public' }]);
+    expect(run.dispatch).not.toHaveBeenCalledWith(expect.objectContaining({ type: 'statuses' }));
+    expect(run.dispatch).toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'print', text: 'posted as @lain@wired.example' }),
+    );
+  });
+
+  it('resolves the API error when the post is refused', async () => {
+    const state = opened();
+    const win = activeWindow(state.windows);
+
+    const run = await runKindPost(windowKind, { state, win, origin: ORIGIN, refused: true }, 'sup');
+
+    expect(run.result).toBe('HTTP 422: Text is too long');
   });
 });

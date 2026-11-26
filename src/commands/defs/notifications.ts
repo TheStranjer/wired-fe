@@ -4,13 +4,16 @@
  * buffers"). From there the window is reached like any other — `/win N`,
  * `Alt+N`, a click on the status line — and opening it again only activates
  * the window that already shows it, which is what the window reducer does with
- * an `open` for a view it has. Nothing posts into it (src/features/
- * notifications). Without an account there is no notification list to open, so
- * the command says what to type instead; arguments are ignored, the active
- * account is the only subject.
+ * an `open` for a view it has. Text after the command is posted as the active
+ * account, as typing it in the window would (WFE-283): the list is not a
+ * timeline, so the post is only confirmed, not added to it
+ * (src/state/postAsWindowAccount). `--in` places the window. Without an
+ * account there is no notification list to open, so the command says what to
+ * type instead.
  */
 
 import { notificationsWindowOpen } from '../../state/notificationsWindow';
+import { postAsAccount } from '../../state/postAsWindowAccount';
 import { accountWindowRun } from '../openWindowRun';
 import type { CommandDefinition } from '../types';
 
@@ -18,7 +21,7 @@ import type { CommandDefinition } from '../types';
 export const command: CommandDefinition = {
   name: 'notifications',
   aliases: ['n', 'notifs'],
-  usage: '/notifications',
+  usage: '/notifications [text] [--in <placement>]',
   summary: 'Open your notifications',
-  run: accountWindowRun(notificationsWindowOpen),
+  run: accountWindowRun(notificationsWindowOpen, { postsText: postAsAccount }),
 };

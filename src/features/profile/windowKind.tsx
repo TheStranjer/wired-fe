@@ -6,14 +6,15 @@
  * (src/views/TimelineWindow). The block's data arrives from ./useProfile; the
  * log region and the topic line name the account `@<acct>`, the way the
  * window was opened (src/state/profileWindow, src/commands/defs/whois).
- * Nothing is posted into somebody's profile: the definition carries no
- * `onPost`, the way the notifications window does.
+ * Plain text typed here posts as the window's account, not into the profile's
+ * posts (src/state/postAsWindowAccount): a `posted as @handle` line confirms it.
  */
 
 import type { JSX } from 'react';
 
 import { useProfile } from './useProfile';
 import { accountStatuses } from '../../api/endpoints/accountRead';
+import { postAsWindowAccount } from '../../state/postAsWindowAccount';
 import { useAppState } from '../../state/StateContext';
 import type { WindowKindDefinition } from '../../state/windowKind';
 import { WhoisBlock } from '../../ui/WhoisBlock';
@@ -41,4 +42,5 @@ export const windowKind: WindowKindDefinition = {
   kind: 'profile',
   topic: (window) => window.title,
   Component: ProfileWindow,
+  onPost: postAsWindowAccount,
 };
