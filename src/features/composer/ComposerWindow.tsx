@@ -78,7 +78,9 @@ export function ComposerWindow({ windowId }: { readonly windowId: string }): JSX
         {...(editing ? {} : { pollLimits: limits.pollLimits })}
         sending={sending}
       />
-      <BufferView label={win?.title ?? 'compose'} windowId={windowId} />
+      <div className={styles['messages']}>
+        <BufferView label={win?.title ?? 'compose'} windowId={windowId} />
+      </div>
     </div>
   );
 }
