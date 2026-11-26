@@ -20,6 +20,7 @@ import type { JSX } from 'react';
 import { ThreadInput } from './ThreadInput';
 import { postReply } from './threadReply';
 import { useThread } from './useThread';
+import { useT } from '../../i18n/I18nProvider';
 import { bufferFor } from '../../state/selectors';
 import { useAppState } from '../../state/StateContext';
 import type { WindowKindDefinition } from '../../state/windowKind';
@@ -34,12 +35,13 @@ function ThreadWindow({ windowId }: { readonly windowId: string }): JSX.Element 
   const win = state.windows.windows.find((candidate) => candidate.id === windowId);
   const failed = bufferFor(state, windowId).load === 'error';
   const media = useComposerMedia(windowId, win?.ref.accountKey ?? null);
+  const logLabel = useT()('features.thread.log_label');
   return (
     <DockedInput
       input={win === undefined || failed ? null : <ThreadInput win={win} />}
       onFiles={media.add}
     >
-      <BufferView windowId={windowId} label={win?.title ?? 'thread'} />
+      <BufferView windowId={windowId} label={win?.title ?? logLabel} />
     </DockedInput>
   );
 }

@@ -11,6 +11,7 @@
 import type { JSX } from 'react';
 
 import { publicTimeline } from '../../api/endpoints/timelines';
+import { useT } from '../../i18n/I18nProvider';
 import { t } from '../../i18n/translate';
 import { type WindowKindDefinition, postToWindow } from '../../state/windowKind';
 import { TimelineWindow } from '../../views/TimelineWindow';
@@ -22,7 +23,8 @@ const fetchLocalPage: FetchPage = async (session, page, signal) =>
 
 /** The local window: its buffer's lines, kept full by the local timeline. */
 function LocalWindow({ windowId }: { readonly windowId: string }): JSX.Element {
-  return <TimelineWindow fetchPage={fetchLocalPage} label="local" windowId={windowId} />;
+  const label = useT()('features.local.log_label');
+  return <TimelineWindow fetchPage={fetchLocalPage} label={label} windowId={windowId} />;
 }
 
 /** The self-registered definition src/app/windowKinds.ts collects. */

@@ -12,6 +12,7 @@
 import type { JSX } from 'react';
 
 import { listNotifications } from '../../api/endpoints/notifications';
+import { useT } from '../../i18n/I18nProvider';
 import { t } from '../../i18n/translate';
 import { postAsWindowAccount } from '../../state/postAsWindowAccount';
 import type { WindowKindDefinition } from '../../state/windowKind';
@@ -25,7 +26,8 @@ const fetchNotificationPage: FetchNotificationsPage = async (session, page, sign
 /** The notifications window: its buffer's lines, kept full by the list endpoint. */
 function NotificationsWindow({ windowId }: { readonly windowId: string }): JSX.Element {
   useNotifications(windowId, fetchNotificationPage);
-  return <BufferView label="notifications" windowId={windowId} />;
+  const label = useT()('features.notifications.log_label');
+  return <BufferView label={label} windowId={windowId} />;
 }
 
 /** The self-registered definition src/app/windowKinds.ts collects. */

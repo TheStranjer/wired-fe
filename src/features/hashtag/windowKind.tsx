@@ -14,6 +14,7 @@
 import type { JSX } from 'react';
 
 import { tagTimeline } from '../../api/endpoints/timelines';
+import { useT } from '../../i18n/I18nProvider';
 import type { Draft } from '../../state/draft';
 import { postStatus } from '../../state/postStatus';
 import { useAppState } from '../../state/StateContext';
@@ -39,12 +40,13 @@ function HashtagWindow({ windowId }: { readonly windowId: string }): JSX.Element
   const state = useAppState();
   const win = state.windows.windows.find((candidate) => candidate.id === windowId);
   const target = win?.ref.target ?? '';
+  const logLabel = useT()('features.hashtag.log_label');
   const fetchPage: FetchPage = async (session, page, signal) =>
     await tagTimeline(session, target, page, signal);
   return (
     <TimelineWindow
       fetchPage={fetchPage}
-      label={target === '' ? 'hashtag' : `#${target}`}
+      label={target === '' ? logLabel : `#${target}`}
       windowId={windowId}
     />
   );

@@ -21,6 +21,7 @@ function renderFake(): void {
         desktop:
           'XX desktop {number}{active, select, true {, on} other {}}{unread, plural, =0 {} other {, {unread} new}}{highlight, select, true {, hot} other {}}',
         desktop_title: 'XX switch {number}',
+        media_pending: 'XX pending {count}',
         media_waiting: 'XX media {count}',
         no_posting_account: 'XX nobody',
         posting_as: 'XX as {label}',
@@ -73,6 +74,7 @@ describe(StatusLine, () => {
     renderFake();
 
     expect(screen.getByRole('button', { name: 'XX media 2' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'XX media 2' })).toHaveTextContent('XX pending 2');
     expect(screen.getByRole('button', { name: 'XX as @lain@wired.example' })).toBeVisible();
     expect(screen.getByRole('img', { name: 'XX syncing' })).toBeVisible();
   });

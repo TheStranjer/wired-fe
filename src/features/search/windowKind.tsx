@@ -11,6 +11,7 @@
 import type { JSX } from 'react';
 
 import { useSearch } from './useSearch';
+import { useT } from '../../i18n/I18nProvider';
 import { t } from '../../i18n/translate';
 import { postAsWindowAccount } from '../../state/postAsWindowAccount';
 import { useAppState } from '../../state/StateContext';
@@ -28,7 +29,8 @@ function searchTopic(target: string | null): string {
 function SearchWindow({ windowId }: { readonly windowId: string }): JSX.Element {
   useSearch(windowId);
   const win = useAppState().windows.windows.find((candidate) => candidate.id === windowId);
-  return <BufferView windowId={windowId} label={win?.title ?? 'search'} />;
+  const logLabel = useT()('features.search.log_label');
+  return <BufferView windowId={windowId} label={win?.title ?? logLabel} />;
 }
 
 /** The self-registered definition src/app/windowKinds.ts collects. */

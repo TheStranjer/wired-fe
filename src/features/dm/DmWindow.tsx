@@ -11,6 +11,7 @@ import type { JSX } from 'react';
 
 import { DmInput } from './DmInput';
 import { useDirect } from './useDirect';
+import { useT } from '../../i18n/I18nProvider';
 import { useAppState } from '../../state/StateContext';
 import { BufferView } from '../../views/BufferView';
 import { DockedInput } from '../../views/DockedInput';
@@ -21,8 +22,9 @@ export function DmWindow({ windowId }: { readonly windowId: string }): JSX.Eleme
   useDirect(windowId);
   const win = useAppState().windows.windows.find((candidate) => candidate.id === windowId);
   const media = useComposerMedia(windowId, win?.ref.accountKey ?? null);
+  const logLabel = useT()('features.dm.log_label');
   if (win === undefined) {
-    return <BufferView windowId={windowId} label="dm" />;
+    return <BufferView windowId={windowId} label={logLabel} />;
   }
   return (
     <DockedInput input={<DmInput win={win} />} onFiles={media.add}>
