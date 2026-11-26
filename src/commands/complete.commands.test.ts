@@ -8,6 +8,7 @@ import { describe, expect, it } from 'vitest';
 import { commandProvider } from './commandProvider';
 import { type CompletionState, cycleCompletion, startCompletion } from './complete';
 import type { CommandDefinition, CommandOutcome, Registry } from './types';
+import { EMPTY_KEYMAP } from '../test/commandContext';
 
 /** What the fixture commands report: completion never runs them. */
 const OK: CommandOutcome = { ok: true };
@@ -47,7 +48,7 @@ const REGISTRY = registryWith([
 const ALL_WORDS = ['/about', '/clear', '/close', '/h', '/help', '/w', '/win'];
 
 /** The provider under test. */
-const COMMANDS = commandProvider(REGISTRY);
+const COMMANDS = commandProvider(REGISTRY, EMPTY_KEYMAP);
 
 /** The completion the engine finds with the command provider, or the failure tests reject. */
 function completed(

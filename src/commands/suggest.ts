@@ -17,6 +17,7 @@ type Suggestion = {
   readonly label: string;
   readonly description: string;
   readonly image?: string;
+  readonly detail?: string;
   readonly words: readonly string[];
 };
 

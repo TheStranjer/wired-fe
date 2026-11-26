@@ -5,6 +5,7 @@
  * Typing `@a` lists an account the home window showed with its display name
  * (WFE-300), and Tab completes it. The list scrolls (WFE-306): the wheel over
  * it reaches the last command without moving the scrollback behind it.
+ * The highlighted command shows its usage and keys in a strip under the rows (WFE-311).
  */
 
 import { expect, test } from '@playwright/test';
@@ -87,4 +88,16 @@ test('the list scrolls with the wheel to reach every command and the pane behind
 
   await expect(last).toBeInViewport();
   expect(await log.evaluate((element) => element.scrollTop)).toBe(0);
+});
+
+test('Tab onto /float shows its usage and keys in the strip under the list', async ({ page }) => {
+  await signIn(page);
+
+  const line = page.getByRole('combobox', { name: 'Command line' });
+  await line.fill('/flo');
+  await line.press('Tab');
+
+  const row = page.getByRole('option', { name: /^\/float/u });
+  await expect(row).toHaveAttribute('aria-selected', 'true');
+  await expect(row).toHaveAccessibleDescription(/\/float .*Keys: .*w f \(navigation\)/su);
 });

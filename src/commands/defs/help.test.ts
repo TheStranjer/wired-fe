@@ -30,13 +30,25 @@ function stubRegistry(): Registry {
   return result.value;
 }
 
-/** A context over {@link stubRegistry} whose print is a recording mock. */
-function stubContext(): {
+/** The navigation keys of the effective keymap as /help's own default binding has them: `?`. */
+const DEFAULT_KEYS: readonly (readonly [string, string])[] = [['?', '/help']];
+
+/**
+ * A context over {@link stubRegistry} whose print is a recording mock and
+ * whose navigation keymap holds {@link navigation} (chord, command line).
+ */
+function stubContext(navigation: readonly (readonly [string, string])[] = DEFAULT_KEYS): {
   readonly context: CommandContext;
   readonly print: Mock<CommandContext['print']>;
 } {
   const print: Mock<CommandContext['print']> = vi.fn();
-  return { context: fakeCommandContext({ registry: stubRegistry(), print }), print };
+  const keymap = {
+    insert: new Map(),
+    navigation: new Map(navigation.map(([chord, line]) => [chord, { line, prefill: false }])),
+    problems: [],
+  };
+  const keys = { ...fakeCommandContext().keys, keymap };
+  return { context: fakeCommandContext({ registry: stubRegistry(), print, keys }), print };
 }
 
 /** Every line the detail block of /help itself consists of, in order. */
@@ -97,6 +109,19 @@ describe('/help', () => {
 
     expect(outcome).toStrictEqual({ ok: true });
     expect(print.mock.calls).toStrictEqual([['/fake <thing>'], ['  Do a fake thing']]);
+  });
+
+  it('shows the keys of the keymap in force, so a rebind shows and the old chord goes', async () => {
+    const { context, print } = stubContext([['F1', '/help']]);
+
+    await command.run('help', context);
+
+    expect(print.mock.calls).toStrictEqual([
+      ['/help [command | topic]'],
+      ['  List commands, or show help for one'],
+      ['  Aliases: /h'],
+      ['  Keys: F1 (navigation)'],
+    ]);
   });
 
   it('uses only the first word of the argument text', async () => {
