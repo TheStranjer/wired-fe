@@ -3,7 +3,8 @@
  * its thread window in a new focused float titled `thread/<label>`, exactly as
  * `/float thread <label>` does, and the refusals are the thread command's. The
  * navigation `p` binding is checked against the real keymap in
- * src/keys/keymap.pop.test.ts.
+ * src/keys/keymap.pop.test.ts; the cases where nothing opens (WFE-291) are in
+ * ./pop.shown.test.ts.
  */
 import { describe, expect, it } from 'vitest';
 
@@ -11,45 +12,12 @@ import { command as float } from './float';
 import { command } from './pop';
 import { command as thread } from './thread';
 import type { AppState } from '../../state/appState';
-import { type AppAction, appReducer } from '../../state/reducer';
-import { fakeCommandContext } from '../../test/commandContext';
-import { status } from '../../test/fixtures';
-import { ORIGIN, homeContext } from '../../test/homeWindow';
+import { THREAD_A, popSession } from '../../test/popSession';
 import { activeDesktop } from '../../windows/desktops';
-import { windowId } from '../../windows/model';
-import type { CommandContext } from '../types';
 
-/** The thread window of post `a`, as `/thread` ids it for lain's account. */
-const THREAD_A = windowId({ kind: 'thread', accountKey: `${ORIGIN}#1`, target: 'a' });
-
-/** The commands a session runs `/pop` against. */
-const DEFINITIONS = [float, thread];
-
-/** A session over the home window showing post `a`, which the commands move through the real reducer. */
-function session(selectedId: string | null): {
-  readonly context: () => CommandContext;
-  readonly state: () => AppState;
-} {
-  const box = { current: homeContext([status('a')], selectedId).state };
-  const dispatch = (action: AppAction): void => {
-    box.current = appReducer(box.current, action);
-  };
-  return {
-    context: () =>
-      fakeCommandContext({
-        state: box.current,
-        windows: box.current.windows,
-        registry: {
-          commands: DEFINITIONS,
-          byName: new Map(DEFINITIONS.map((definition) => [definition.name, definition])),
-        },
-        dispatch,
-        dispatchWindows: (action) => {
-          dispatch({ type: 'windows', action });
-        },
-      }),
-    state: () => box.current,
-  };
+/** A session over the home window showing post `a`. */
+function session(selectedId: string | null): ReturnType<typeof popSession> {
+  return popSession([float, thread], selectedId);
 }
 
 /** The title of the window {@link id} in {@link state}. */
