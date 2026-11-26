@@ -27,7 +27,7 @@ import { buildConfig } from '../config/config';
 import { blocksTyping, parseSequence } from '../keys/chord';
 import { buildKeymap } from '../keys/keymap';
 import { printAction } from '../state/appState';
-import type { Draft } from '../state/draft';
+import { type Draft, withPendingMedia } from '../state/draft';
 import { useRefreshDeps } from '../state/RefreshContext';
 import { useAppDispatch, useAppState } from '../state/StateContext';
 import type { PostContext, WindowKindDefinition } from '../state/windowKind';
@@ -59,19 +59,6 @@ function postHandler(win: WindowState, postContext: PostContext): CommandContext
 }
 
 /**
- * {@link draft} with the ids of {@link attachments}' pending media when it
- * names none of its own (WFE-126); the same draft otherwise, so a window that
- * already picked its media keeps exactly that list.
- */
-function withPendingMedia(draft: Draft, attachments: CommandContext['attachments']): Draft {
-  const carries = draft.mediaIds !== undefined && draft.mediaIds.length > 0;
-  if (carries || attachments.pending.length === 0) {
-    return draft;
-  }
-  return { ...draft, mediaIds: attachments.pending.map((media) => media.id) };
-}
-
-/**
  * The context's post: the draft goes out carrying the pending media, and a
  * send that worked takes those ids out of the list with it — a refused post
  * keeps its media for the retry.
@@ -83,7 +70,7 @@ function posting(
 ): CommandContext['post'] {
   const send = postHandler(win, postContext);
   return async (draft: Draft) => {
-    const error = await send(withPendingMedia(draft, attachments));
+    const error = await send(withPendingMedia(draft, attachments.pending));
     if (error === null) {
       attachments.clear();
     }

@@ -5,7 +5,7 @@
  */
 import { describe, expect, it } from 'vitest';
 
-import { type Draft, draftToNewStatus, fieldsToDraft } from './draft';
+import { type Draft, draftToNewStatus, fieldsToDraft, withPendingMedia } from './draft';
 import type { NewStatus } from '../api/endpoints/statusWrite';
 import { status } from '../test/fixtures';
 
@@ -133,5 +133,32 @@ describe(fieldsToDraft, () => {
       fieldsToDraft({ ...fields, quoteOf: { status: status('7'), accountKey: 'a#1' } }),
     ).toStrictEqual({ text: 'a', visibility: 'public', quoteId: '7' });
     expect(fieldsToDraft(fields)).not.toHaveProperty('quoteId');
+  });
+});
+
+describe(withPendingMedia, () => {
+  const PENDING = [{ id: 'm1' }, { id: 'm2' }];
+
+  it('carries the pending ids when the draft names none', () => {
+    expect(withPendingMedia({ text: 'hi' }, PENDING)).toStrictEqual({
+      text: 'hi',
+      mediaIds: ['m1', 'm2'],
+    });
+    expect(withPendingMedia({ text: 'hi', mediaIds: [] }, PENDING)).toStrictEqual({
+      text: 'hi',
+      mediaIds: ['m1', 'm2'],
+    });
+  });
+
+  it('keeps the draft’s own media list', () => {
+    const own: Draft = { text: 'hi', mediaIds: ['x'] };
+
+    expect(withPendingMedia(own, PENDING)).toBe(own);
+  });
+
+  it('returns the draft as it is when nothing is pending', () => {
+    const plain: Draft = { text: 'hi' };
+
+    expect(withPendingMedia(plain, [])).toBe(plain);
   });
 });

@@ -110,3 +110,16 @@ export type ComposerMedia = {
   /** Why the upload failed; empty while it did not. */
   readonly error: string;
 };
+
+/**
+ * {@link draft} with the ids of {@link pending} media when it names none of its
+ * own (WFE-126); the same draft otherwise, so a window that already picked its
+ * media keeps exactly that list.
+ */
+export function withPendingMedia(draft: Draft, pending: readonly { readonly id: string }[]): Draft {
+  const carries = draft.mediaIds !== undefined && draft.mediaIds.length > 0;
+  if (carries || pending.length === 0) {
+    return draft;
+  }
+  return { ...draft, mediaIds: pending.map((media) => media.id) };
+}

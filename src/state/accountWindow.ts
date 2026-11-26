@@ -11,10 +11,10 @@
  * (src/ui/StatusLine.tsx).
  */
 
+import type { OpenAction } from './placement';
 import type { StoredAccount } from '../accounts/accountStore';
 import { usernameOf } from '../accounts/handle';
 import type { WindowKind, WindowRef } from '../windows/model';
-import type { WindowsAction } from '../windows/reducer';
 
 /** The view of {@link kind} that {@link account} owns, with nothing to target. */
 export function accountWindowRef(kind: WindowKind, account: StoredAccount): WindowRef {
@@ -43,7 +43,7 @@ export function accountWindowOpen(
   kind: WindowKind,
   account: StoredAccount,
   activeKey: string | null,
-): WindowsAction {
+): OpenAction {
   return {
     type: 'open',
     ref: accountWindowRef(kind, account),

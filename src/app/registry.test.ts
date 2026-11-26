@@ -83,9 +83,9 @@ describe(appRegistry, () => {
     const { byName } = built();
 
     expect(byName.get('local')?.name).toBe('local');
-    expect(byName.get('local')?.usage).toBe('/local');
+    expect(byName.get('local')?.usage).toBe('/local [text] [--in <placement>]');
     expect(byName.get('federated')?.name).toBe('federated');
-    expect(byName.get('federated')?.usage).toBe('/federated');
+    expect(byName.get('federated')?.usage).toBe('/federated [text] [--in <placement>]');
   });
 
   it('computes the registry once and hands out that one value', () => {
