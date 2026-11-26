@@ -27,6 +27,26 @@ describe(connectHint, () => {
     );
   });
 
+  it('says any other instance works too on a list build with allowCustom', () => {
+    const origins = ['https://a.example', 'https://b.example'];
+
+    expect(connectHint({ mode: 'list', origins, allowCustom: true })).toBe(
+      'Not connected. Type /connect <instance>. Available: https://a.example, https://b.example. Any other instance works too.',
+    );
+  });
+
+  it('names the origins only on a list build with allowCustom false', () => {
+    expect(connectHint({ mode: 'list', origins: ['https://a.example'], allowCustom: false })).toBe(
+      'Not connected. Type /connect <instance>. Available: https://a.example',
+    );
+  });
+
+  it('gives the open example on an empty list build with allowCustom', () => {
+    expect(connectHint({ mode: 'list', origins: [], allowCustom: true })).toBe(
+      'Not connected. Type /connect <instance>, e.g. /connect wired.example',
+    );
+  });
+
   it('gives an example origin on an open build', () => {
     expect(connectHint({ mode: 'open' })).toBe(
       'Not connected. Type /connect <instance>, e.g. /connect wired.example',

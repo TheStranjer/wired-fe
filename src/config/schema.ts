@@ -33,7 +33,12 @@ const OriginSchema = v.pipe(
 export type InstancesConfig =
   | { readonly mode: 'same-origin' }
   | { readonly mode: 'fixed'; readonly origin: string }
-  | { readonly mode: 'list'; readonly origins: readonly string[] }
+  | {
+      readonly mode: 'list';
+      readonly origins: readonly string[];
+      /** Also accept any valid typed instance; `false` when absent. An empty list needs this. */
+      readonly allowCustom?: boolean | undefined;
+    }
   | { readonly mode: 'open' };
 
 /** The validated build-time configuration. */
@@ -54,22 +59,35 @@ const BasePathSchema = v.pipe(
   v.regex(/^\/(?:[^/?#\s\\]+\/)*$/u, 'must start and end with "/", e.g. "/fe/"'),
 );
 
-const InstancesSchema = v.variant('mode', [
+/** Shown when a `list` has no origins and does not let the user type their own. */
+const EMPTY_LIST_MESSAGE = 'an empty origins list needs allowCustom: true';
+
+/** What {@link InstancesVariants} parses into, before the cross-field check. */
+type ParsedInstances = v.InferOutput<typeof InstancesVariants>;
+
+/** True unless {@link instances} is a `list` with no origins and no `allowCustom`. */
+function listHasInstances(instances: ParsedInstances): boolean {
+  return instances.mode !== 'list' || instances.origins.length > 0 || instances.allowCustom;
+}
+
+const InstancesVariants = v.variant('mode', [
   v.strictObject({ mode: v.literal('same-origin') }),
   v.strictObject({ mode: v.literal('fixed'), origin: OriginSchema }),
   v.strictObject({
     mode: v.literal('list'),
     origins: v.pipe(
       v.array(OriginSchema),
-      v.minLength(1),
       v.check(
         (origins) => new Set(origins).size === origins.length,
         'must not contain duplicate origins',
       ),
     ),
+    allowCustom: v.optional(v.boolean(), false),
   }),
   v.strictObject({ mode: v.literal('open') }),
 ]);
+
+const InstancesSchema = v.pipe(InstancesVariants, v.check(listHasInstances, EMPTY_LIST_MESSAGE));
 
 /** The schema for the build-time configuration file (decision 3). */
 export const WiredConfigSchema: v.GenericSchema<unknown, WiredConfig> = v.strictObject({

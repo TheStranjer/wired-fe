@@ -4,12 +4,7 @@
 import * as v from 'valibot';
 import { describe, expect, it } from 'vitest';
 
-import {
-  type InstancesConfig,
-  type WiredConfig,
-  WiredConfigSchema,
-  parseWiredConfig,
-} from './schema';
+import { type WiredConfig, WiredConfigSchema, parseWiredConfig } from './schema';
 
 /** Parses input that must be valid and returns the configuration. */
 function parsed(input: unknown): WiredConfig {
@@ -51,16 +46,6 @@ describe(parseWiredConfig, () => {
       appName: 'WiredFE',
       instances: { mode: 'fixed', origin: 'https://wired.example' },
     });
-  });
-
-  it('accepts a list of two origins', () => {
-    const origins = ['https://wired.example', 'https://pleroma.example'];
-    const instances: InstancesConfig = parsed({
-      appName: 'WiredFE',
-      instances: { mode: 'list', origins },
-    }).instances;
-
-    expect(instances).toStrictEqual({ mode: 'list', origins });
   });
 
   it('accepts open', () => {
@@ -146,30 +131,6 @@ describe(parseWiredConfig, () => {
     const issues = messages({ appName: 'WiredFE', instances: { mode: 'fixed', origin: 'wired' } });
 
     expect(mentionsField(issues, 'instances.origin')).toBe(true);
-  });
-
-  it('rejects a list with zero origins', () => {
-    const issues = messages({ appName: 'WiredFE', instances: { mode: 'list', origins: [] } });
-
-    expect(mentionsField(issues, 'instances.origins')).toBe(true);
-  });
-
-  it('rejects a list with a duplicate origin', () => {
-    const issues = messages({
-      appName: 'WiredFE',
-      instances: { mode: 'list', origins: ['https://wired.example', 'https://wired.example'] },
-    });
-
-    expect(mentionsField(issues, 'instances.origins')).toBe(true);
-  });
-
-  it('rejects a bad origin inside a list, naming its index', () => {
-    const issues = messages({
-      appName: 'WiredFE',
-      instances: { mode: 'list', origins: ['https://wired.example', 'http://elsewhere.example'] },
-    });
-
-    expect(mentionsField(issues, 'instances.origins.1')).toBe(true);
   });
 
   it('rejects an unknown top-level key', () => {

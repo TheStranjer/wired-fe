@@ -30,6 +30,12 @@ describe(connectSources, () => {
     ]);
   });
 
+  it('allows any secure origin in a list with allowCustom', () => {
+    expect(
+      connectSources({ mode: 'list', origins: ['https://wired.example'], allowCustom: true }),
+    ).toStrictEqual(["'self'", 'https:', 'wss:']);
+  });
+
   it('allows any secure origin in open mode', () => {
     expect(connectSources({ mode: 'open' })).toStrictEqual(["'self'", 'https:', 'wss:']);
   });

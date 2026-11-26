@@ -1,8 +1,9 @@
 /**
  * `/connect` (decision 6, decision 8): start an OAuth login. Which instance is
  * the build's to say (decision 3): a `same-origin` or `fixed` build logs into
- * its own backend and ignores the argument, a `list` build takes only one of
- * its options and an `open` build whatever the user typed — `wired.example`,
+ * its own backend and ignores the argument, a `list` build takes one of its
+ * options (or, with `allowCustom`, anything typed) and an `open` build, the
+ * same as an empty `allowCustom` list, whatever the user typed — `wired.example`,
  * `https://wired.example` or `@lain@wired.example` all mean the same instance.
  * The argument is the only subject; on an unusable one nothing is registered
  * and nothing is saved. Otherwise the session's cached profile of the instance
