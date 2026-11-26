@@ -23,6 +23,7 @@ import type { JSX } from 'react';
 import { ComposerHeader } from './ComposerHeader';
 import styles from './ComposerWindow.module.css';
 import { useAccountPick } from './useAccountPick';
+import { useComposerCompletion } from './useComposerCompletion';
 import { useComposerSend } from './useComposerSend';
 import { composerLimits } from '../../state/composerActions';
 import { mediaIdsOf } from '../../state/composerMedia';
@@ -32,6 +33,22 @@ import { ComposerForm } from '../../views/ComposerForm';
 import { MediaLines } from '../../views/MediaLines';
 import { useComposerMedia } from '../../views/useComposerMedia';
 import { usePaneDrop } from '../../views/usePaneDrop';
+
+/** The rows of the files the draft carries, under its text. */
+function WindowMedia({
+  media,
+}: {
+  readonly media: ReturnType<typeof useComposerMedia>;
+}): JSX.Element {
+  return (
+    <MediaLines
+      items={media.items}
+      onDescribe={media.describe}
+      onFiles={media.add}
+      onRemove={media.remove}
+    />
+  );
+}
 
 /** The composer window: picker, form and confirmations of window {@link windowId}. */
 export function ComposerWindow({ windowId }: { readonly windowId: string }): JSX.Element {
@@ -45,21 +62,14 @@ export function ComposerWindow({ windowId }: { readonly windowId: string }): JSX
   const { dragging, ...drop } = usePaneDrop(media.add);
   const pick = useAccountPick(windowId, media.items.length > 0);
   const editing = fields.editing !== undefined;
+  const completion = useComposerCompletion(windowId, fields.text);
 
   return (
     <div className={[styles['window'], dragging ? styles['dropping'] : ''].join(' ')} {...drop}>
       <ComposerForm
         allowLocal={limits.allowLocal}
-        attachments={
-          editing ? null : (
-            <MediaLines
-              items={media.items}
-              onDescribe={media.describe}
-              onFiles={media.add}
-              onRemove={media.remove}
-            />
-          )
-        }
+        attachments={editing ? null : <WindowMedia media={media} />}
+        completion={completion}
         error={error}
         fields={{ ...fields, mediaIds: [...(fields.mediaIds ?? []), ...mediaIdsOf(media.items)] }}
         header={

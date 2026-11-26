@@ -14,6 +14,12 @@
   display: none;
 }
 
+/* Under its box, where the screen has no room above it (WFE-302). */
+.popup[data-side='below'] {
+  top: 100%;
+  bottom: auto;
+}
+
 .list {
   display: flex;
   flex-direction: column;

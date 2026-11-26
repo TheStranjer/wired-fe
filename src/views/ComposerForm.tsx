@@ -8,12 +8,14 @@
  * sendable: text, within the limit, a valid poll if one is open, nothing in
  * flight. The poll editor (./PollSection) needs the instance's poll limits;
  * attachments (WFE-205) go under the text; the compact form (WFE-207) is a DM chat line.
+ * The text completes `@handles`, `#tags`, `:emoji:` and `[labels` through the
+ * completion it is given (./PostText, WFE-302).
  */
-import { type ChangeEvent, type JSX, type KeyboardEvent, type ReactNode, useRef } from 'react';
+import type { ChangeEvent, JSX, ReactNode } from 'react';
 
 import styles from './Composer.module.css';
 import { PollSection } from './PollSection';
-import { useAutoGrow } from './useAutoGrow';
+import { type PostCompletion, PostText } from './PostText';
 import { VisibilitySelect } from './VisibilitySelect';
 import type { PollLimits } from '../api/schemas/pollLimits';
 import type { ComposerFields } from '../state/draft';
@@ -48,44 +50,9 @@ export type ComposerFormProps = {
   readonly disabled?: boolean;
   /** The hint the empty text shows. */
   readonly placeholder?: string;
+  /** What completes the text (WFE-302): the list of suggestions for the word at the caret. */
+  readonly completion?: PostCompletion;
 };
-
-/** Whether {@link event} asks to send: Ctrl+Enter, or a bare Enter in the compact form. */
-function asksToSend(event: KeyboardEvent<HTMLTextAreaElement>, compact: boolean): boolean {
-  if (event.key !== 'Enter' || event.nativeEvent.isComposing) {
-    return false;
-  }
-  return event.ctrlKey || (compact && !event.shiftKey);
-}
-
-/** The post text: a textarea where Ctrl+Enter sends, and Enter too when compact. */
-function PostText(props: ComposerFormProps & { readonly send: () => void }): JSX.Element {
-  const compact = props.compact === true;
-  const ref = useRef<HTMLTextAreaElement>(null);
-  useAutoGrow(ref, props.fields.text, compact);
-  return (
-    <textarea
-      aria-label="Post text"
-      className={compact ? styles['textCompact'] : styles['text']}
-      disabled={props.disabled}
-      onChange={(event: ChangeEvent<HTMLTextAreaElement>) => {
-        props.onChange({ text: event.target.value });
-      }}
-      onFocus={props.onFocus}
-      onKeyDown={(event: KeyboardEvent<HTMLTextAreaElement>) => {
-        if (asksToSend(event, compact)) {
-          event.preventDefault();
-          props.send();
-        }
-      }}
-      placeholder={props.placeholder}
-      ref={ref}
-      rows={compact ? 1 : undefined}
-      spellCheck={false}
-      value={props.fields.text}
-    />
-  );
-}
 
 /** The content-warning line and the audience: what the compact form leaves out. */
 function Audience(props: ComposerFormProps): JSX.Element {
@@ -163,7 +130,18 @@ export function ComposerForm(props: ComposerFormProps): JSX.Element {
   return (
     <div className={props.compact === true ? styles['compact'] : styles['composer']}>
       {props.header}
-      <PostText {...props} send={send} />
+      <PostText
+        completion={props.completion}
+        compact={props.compact === true}
+        disabled={props.disabled}
+        onFocus={props.onFocus}
+        onText={(typed) => {
+          props.onChange({ text: typed });
+        }}
+        placeholder={props.placeholder}
+        send={send}
+        text={props.fields.text}
+      />
       {props.attachments}
       <Poll {...props} />
       <OptionsRow {...props} sendable={sendable} send={send} />
