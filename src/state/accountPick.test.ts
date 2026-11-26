@@ -23,6 +23,14 @@ describe('the account picker state', () => {
     expect(state.accountPick).toStrictEqual(PICK);
   });
 
+  it('opens on a post question that holds the draft', () => {
+    const pick: AccountPick = { purpose: 'post', windowId: 'status', draft: { text: 'hello' } };
+
+    const state = appReducer(initialAppState(), { type: 'openAccountPick', pick });
+
+    expect(state.accountPick).toStrictEqual(pick);
+  });
+
   it('closes, and closing a closed picker is the same state', () => {
     const open = appReducer(initialAppState(), { type: 'openAccountPick', pick: PICK });
 

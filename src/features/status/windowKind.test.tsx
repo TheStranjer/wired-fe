@@ -1,6 +1,6 @@
 /**
  * Tests for the status window kind: the definition it self-registers, the topic
- * line it shows in its pane title, that posting is not possible in it, and that
+ * line it shows in its pane title, that it posts through the account-less handler, and that
  * its component renders the status buffer's lines through the shared scrollback.
  */
 import { render, screen } from '@testing-library/react';
@@ -8,6 +8,7 @@ import { describe, expect, it } from 'vitest';
 
 import { windowKind } from './windowKind';
 import { type AppState, initialAppState } from '../../state/appState';
+import { postAccountless } from '../../state/postAccountless';
 import { appReducer } from '../../state/reducer';
 import { AppStateProvider } from '../../state/StateContext';
 import { STATUS_WINDOW_ID, activeWindow } from '../../windows/model';
@@ -44,9 +45,9 @@ function renderStatus(state: AppState) {
 }
 
 describe('the status window kind', () => {
-  it('is the definition for the status kind, with no way to post', () => {
+  it('is the definition for the status kind, posting through the account-less handler', () => {
     expect(windowKind.kind).toBe('status');
-    expect(windowKind.onPost).toBeUndefined();
+    expect(windowKind.onPost).toBe(postAccountless);
   });
 
   it('topics the app name and the moment, not the window', () => {

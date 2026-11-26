@@ -1,7 +1,8 @@
 /**
  * Tests for posting from the people window kind (WFE-283): the draft is posted
  * as the watched window's account without entering any buffer, the API error
- * comes back as the result, and a window with no account of its own refuses.
+ * comes back as the result, and a window with no account of its own asks which
+ * account to post as (WFE-284).
  */
 import { describe, expect, it } from 'vitest';
 
@@ -68,13 +69,23 @@ describe('posting from the people window kind', () => {
     expect(run.result).toBe('HTTP 422: Text is too long');
   });
 
-  it('refuses when the watched window has no account of its own', async () => {
+  it('asks which account when the watched window has no account of its own', async () => {
     const { state, win } = peopleSession();
     const accountless = { ...win, ref: { ...win.ref, accountKey: null } };
+    const two = coreReducer(state, {
+      type: 'accounts',
+      accounts: [ACCOUNT, { ...ACCOUNT, key: accountKey(ORIGIN, '2'), accountId: '2' }],
+      activeKey: ACCOUNT.key,
+    });
 
-    const run = await runKindPost(windowKind, { state, win: accountless, origin: ORIGIN }, 'sup');
+    const run = await runKindPost(
+      windowKind,
+      { state: two, win: accountless, origin: ORIGIN },
+      'sup',
+    );
 
-    expect(run.result).toBe("You can't post in this window. Try /home");
+    expect(run.result).toBeNull();
     expect(run.bodies).toStrictEqual([]);
+    expect(run.dispatch).toHaveBeenCalledWith(expect.objectContaining({ type: 'openAccountPick' }));
   });
 });

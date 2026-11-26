@@ -85,7 +85,7 @@ describe(postAsWindowAccount, () => {
 
     const run = await runKindPost(KIND, { state: SIGNED, win, origin: ORIGIN }, 'sup');
 
-    expect(run.result).toBe("You can't post in this window. Try /home");
+    expect(run.result).toBe("You can't post in this window");
     expect(run.bodies).toStrictEqual([]);
     expect(run.dispatch).not.toHaveBeenCalled();
   });

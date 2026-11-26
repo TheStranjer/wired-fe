@@ -1,8 +1,8 @@
 /**
  * Quoting from a feed pane (WFE-262): in the custom `~stream` feed, a post
  * card's `⋯` → Quote opens a composer pane bound to the post instead of filling
- * the command line (a feed takes no plain-text posts, so that line would be
- * refused with "You can't post in this window"); typing and sending creates the
+ * the command line (a plain line would post as the feed's account, not quote);
+ * typing and sending creates the
  * status with a `quote_id` and no error anywhere.
  */
 

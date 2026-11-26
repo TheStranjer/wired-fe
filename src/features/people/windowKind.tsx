@@ -9,7 +9,8 @@
  * asks for (src/state/profileWindow). When the watched window closes the
  * window says so, dimly. Plain text typed here posts as the watched window's
  * account (src/state/postAsWindowAccount); a window with no account of its
- * own, such as a feed, refuses.
+ * own, such as a feed, posts through the posting account or the picker
+ * (src/state/postAccountless, WFE-284).
  */
 
 import type { JSX } from 'react';
@@ -17,7 +18,7 @@ import type { JSX } from 'react';
 import { PEOPLE_TITLES, listedPeople } from './peopleList';
 import styles from './PeopleWindow.module.css';
 import { clickOpen } from '../../state/placementFromClick';
-import { postAsWindowAccount } from '../../state/postAsWindowAccount';
+import { postAsWindowOrChoice } from '../../state/postAccountless';
 import { profileWindowOpen } from '../../state/profileWindow';
 import { accountByKey, bufferFor, windowAccountKey } from '../../state/selectors';
 import { useAppDispatch, useAppState } from '../../state/StateContext';
@@ -68,5 +69,5 @@ export const windowKind: WindowKindDefinition = {
   kind: 'people',
   topic: (window) => window.title,
   Component: PeopleWindow,
-  onPost: postAsWindowAccount,
+  onPost: postAsWindowOrChoice,
 };

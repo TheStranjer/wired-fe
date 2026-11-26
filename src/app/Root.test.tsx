@@ -159,13 +159,13 @@ describe(Root, () => {
     expect(error).toBeInTheDocument();
   });
 
-  it('refuses plain text typed into the status window', async () => {
+  it('refuses plain text typed into the status window when nobody is signed in', async () => {
     renderRoot([]);
 
     submit('hello there');
 
     const refusal = await within(screen.getByRole('log', { name: 'status' })).findByText(
-      "You can't post in this window. Try /home",
+      'Not logged in. Type /connect',
     );
 
     expect(refusal).toBeInTheDocument();

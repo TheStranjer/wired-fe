@@ -178,7 +178,7 @@ describe(textHandler, () => {
   });
 
   it('prints the window’s refusal as an error', async () => {
-    const refusal = "You can't post in this window. Try /home";
+    const refusal = "You can't post in this window";
     const context = fakeCommandContext({
       post: vi.fn<CommandContext['post']>().mockResolvedValue(refusal),
     });

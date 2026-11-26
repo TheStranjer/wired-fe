@@ -1,7 +1,7 @@
 /**
  * Tests for the feed window kind: the definition it self-registers — kind,
- * component, the feed's name as the topic line, and no `onPost`, since a feed
- * belongs to no account — and that its component fills its own scrollback
+ * component, the feed's name as the topic line, and the account-less `onPost`
+ * (src/state/postAccountless) — and that its component fills its own scrollback
  * from the sources of the feed its ref names, drawn in a log region.
  */
 import { render, screen } from '@testing-library/react';
@@ -9,6 +9,7 @@ import { HttpResponse, http } from 'msw';
 import { describe, expect, it } from 'vitest';
 
 import { windowKind } from './windowKind';
+import { postAccountless } from '../../state/postAccountless';
 import { AppStateProvider } from '../../state/StateContext';
 import { A_ACCOUNT, A_ORIGIN, feedState, feedWindowId } from '../../test/feedWindow';
 import { status } from '../../test/fixtures';
@@ -20,7 +21,7 @@ const FEEDS = [
 ] as const;
 
 describe('the feed window kind', () => {
-  it('is the definition for the feed kind, topped by its title, and takes no posts', () => {
+  it('is the definition for the feed kind, topped by its title, and posts through the account-less handler', () => {
     const win: WindowState = {
       id: feedWindowId('f1'),
       ref: { kind: 'feed', accountKey: null, target: 'f1' },
@@ -32,7 +33,7 @@ describe('the feed window kind', () => {
 
     expect(windowKind.kind).toBe('feed');
     expect(windowKind.Component).toBeTypeOf('function');
-    expect(windowKind.onPost).toBeUndefined();
+    expect(windowKind.onPost).toBe(postAccountless);
     expect(windowKind.topic(win, feedState(FEEDS))).toBe('~main');
   });
 
