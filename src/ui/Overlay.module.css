@@ -1,12 +1,13 @@
 /* The modal box: a full-screen backdrop with the dialog framed in the
-   middle of it. */
+   middle of it. The backdrop dims the page rather than hiding it; it still
+   covers the viewport, so clicks never reach the shell. */
 
 .backdrop {
   position: fixed;
   inset: 0;
   display: grid;
   place-items: center;
-  background: var(--color-bg);
+  background: var(--color-scrim);
 }
 
 .box {
