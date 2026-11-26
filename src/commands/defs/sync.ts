@@ -15,6 +15,7 @@ import { movedUp, withPrimary, withoutKey } from '../../accounts/syncList';
 import type { SyncPrefs } from '../../accounts/syncPrefs';
 import { wordsOf } from '../../lib/words';
 import { pickSyncAccount } from '../../state/syncAccount';
+import { notSignedInAs } from '../notSignedInAs';
 import { OK, fail, syncRun } from '../outcome';
 import { accountLabel, syncReport } from '../syncReport';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
@@ -66,9 +67,10 @@ function change(query: string | undefined, context: CommandContext, edit: Edit):
   if (query === undefined) {
     return USAGE_ERROR;
   }
-  const account = findAccount(context.stores.accounts.list(), query);
+  const accounts = context.stores.accounts.list();
+  const account = findAccount(accounts, query);
   if (account === null) {
-    return fail(`No account ${query}`);
+    return notSignedInAs(query, accounts);
   }
   const prefs = context.stores.sync.read();
   const next = edit(prefs.syncAccounts, account.key);

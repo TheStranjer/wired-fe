@@ -19,6 +19,7 @@ import { findAccount } from '../../accounts/findAccount';
 import { describeApiError } from '../../api/errors';
 import { revokeToken } from '../../api/oauth';
 import { wordsOf } from '../../lib/words';
+import { notSignedInAs } from '../notSignedInAs';
 import { NOT_LOGGED_IN, OK, fail } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
@@ -33,8 +34,8 @@ const NO_ACCOUNTS: CommandOutcome = NOT_LOGGED_IN;
 const USAGE_ERROR = fail(`Usage: ${USAGE}`);
 
 /** The refusal naming the query nothing matched. */
-function noAccount(query: string | undefined): CommandOutcome {
-  return query === undefined ? NO_ACCOUNTS : fail(`No account ${query}`);
+function noAccount(query: string | undefined, context: CommandContext): CommandOutcome {
+  return query === undefined ? NO_ACCOUNTS : notSignedInAs(query, context.stores.accounts.list());
 }
 
 /** One listing line: marker, 1-based number, then the `@`-prefixed handle. */
@@ -77,7 +78,7 @@ function switchTo(query: string | undefined, context: CommandContext): CommandOu
   }
   const found = findAccount(context.stores.accounts.list(), query);
   if (found === null) {
-    return noAccount(query);
+    return noAccount(query, context);
   }
   return activate(context, found);
 }
@@ -139,7 +140,7 @@ function closeWindowsOf(context: CommandContext, key: string): void {
 async function logout(query: string | undefined, context: CommandContext): Promise<CommandOutcome> {
   const account = logoutTarget(context, query);
   if (account === null) {
-    return noAccount(query);
+    return noAccount(query, context);
   }
   await revokeQuietly(account, context);
   context.stores.accounts.remove(account.key);

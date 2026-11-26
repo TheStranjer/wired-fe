@@ -14,6 +14,7 @@ import type { StoredAccount } from '../../accounts/accountStore';
 import { findAccount } from '../../accounts/findAccount';
 import { createStatus } from '../../api/endpoints/statusWrite';
 import { describeApiError } from '../../api/errors';
+import { notSignedInAs } from '../notSignedInAs';
 import { OK, fail } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 import { splitFirstWord } from '../words';
@@ -63,9 +64,10 @@ async function handle(args: string, context: CommandContext): Promise<CommandOut
     return USAGE_ERROR;
   }
   const [word, text] = parts;
-  const account = findAccount(context.stores.accounts.list(), word);
+  const accounts = context.stores.accounts.list();
+  const account = findAccount(accounts, word);
   if (account === null) {
-    return fail(`No account ${word}`);
+    return notSignedInAs(word, accounts);
   }
   return await postAs(context, account, text);
 }

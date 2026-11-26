@@ -6,7 +6,15 @@
 import { describe, expect, it } from 'vitest';
 
 import { command } from './sync';
-import { K_BOB, K_EVE, K_LAIN, desk, listed, refused } from '../../test/syncDesk';
+import {
+  K_BOB,
+  K_EVE,
+  K_LAIN,
+  NOT_SIGNED_IN_AS_NOBODY,
+  desk,
+  listed,
+  refused,
+} from '../../test/syncDesk';
 
 describe('/sync fallback add', () => {
   it('adds an account after the others', async () => {
@@ -38,7 +46,7 @@ describe('/sync fallback add', () => {
 
     await expect(
       command.run('fallback add @nobody@nowhere.example', context),
-    ).resolves.toStrictEqual(refused('No account @nobody@nowhere.example'));
+    ).resolves.toStrictEqual(refused(NOT_SIGNED_IN_AS_NOBODY));
   });
 });
 

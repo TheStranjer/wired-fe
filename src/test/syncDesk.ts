@@ -94,3 +94,7 @@ export function printed(context: CommandContext): readonly string[] {
 export function refused(message: string): { ok: false; message: string } {
   return { ok: false, message };
 }
+
+/** What a command says to `@nobody@nowhere.example` when {@link desk}'s three accounts are signed in. */
+export const NOT_SIGNED_IN_AS_NOBODY =
+  "You aren't signed in as @nobody@nowhere.example. Signed in: @lain@lain.example, @bob@bob.example, @eve@eve.example. Type /connect to add an account.";

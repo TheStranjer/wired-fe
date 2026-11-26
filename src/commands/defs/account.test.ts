@@ -84,7 +84,10 @@ describe('/account', () => {
 
     const outcome = await command.run('switch nobody', context);
 
-    expect(outcome).toStrictEqual({ ok: false, message: 'No account nobody' });
+    expect(outcome).toStrictEqual({
+      ok: false,
+      message: `You aren't signed in as nobody. Signed in: @${LAIN}, @${BOB}. Type /connect to add an account.`,
+    });
     expect(context.stores.accounts.activeKey()).toBe(keyOf(1));
     expect(context.dispatch).not.toHaveBeenCalled();
   });

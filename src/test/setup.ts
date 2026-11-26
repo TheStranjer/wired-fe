@@ -8,6 +8,7 @@ import { cleanup } from '@testing-library/react';
 import { afterAll, afterEach, beforeAll, beforeEach, vi } from 'vitest';
 
 import { FakeSocket } from './fakeSocket';
+import { resetFakeLocale } from './i18n';
 import { server } from './server';
 
 beforeEach(() => {
@@ -23,6 +24,7 @@ beforeAll(() => {
 
 afterEach(() => {
   cleanup();
+  resetFakeLocale();
   server.resetHandlers();
 });
 
