@@ -12,13 +12,16 @@ import type { JSX } from 'react';
 
 import { openActor, withoutActor } from './notificationActor';
 import styles from './NotificationCard.module.css';
+import { GLYPHS, VERBS } from './notificationCardWords';
 import { excerpt, join } from './notificationExcerpt';
 import { notificationText } from './notificationText';
 import { PostLine } from './PostLine';
 import { viewerFor } from './postLineProps';
 import { viaFor } from './via';
 import { fullHandle } from '../accounts/handle';
-import type { Notification, NotificationKind } from '../api/schemas/notification';
+import type { Notification } from '../api/schemas/notification';
+import { useLocale } from '../i18n/I18nProvider';
+import { t } from '../i18n/translate';
 import type { ClickModifiers } from '../lib/clickModifiers';
 import type { NotificationLineData } from '../state/buffer';
 import { labelForStatus } from '../state/bufferSelection';
@@ -37,40 +40,6 @@ export type NotificationCardProps = {
   readonly line: NotificationLineData;
 };
 
-/** The glyph each kind leads its line with; a reaction shows its own emoji instead. */
-const GLYPHS: Record<NotificationKind, string> = {
-  mention: '@',
-  quote: '@',
-  favourite: '★',
-  reblog: '⟳',
-  reaction: '☺',
-  poll: '☰',
-  update: '✎',
-  status: '●',
-  follow: '*',
-  follow_request: '*',
-  move: '*',
-  quoted_update: '✎',
-  sign_up: '*',
-  report: '*',
-  chat_mention: '*',
-  severed_relationships: '*',
-  moderation_warning: '*',
-  annual_report: '*',
-  other: '*',
-};
-
-/** What the kinds that act on a post say after the actor. */
-const VERBS: Partial<Record<NotificationKind, string>> = {
-  mention: 'mentioned you',
-  quote: 'quoted you',
-  favourite: 'favourited your post',
-  reblog: 'boosted your post',
-  reaction: 'reacted to your post',
-  update: 'edited a post',
-  status: 'posted',
-};
-
 /** The words after the glyph, and whether the actor's handle leads them. */
 type Entry = { readonly glyph: string; readonly text: string; readonly actor: boolean };
 
@@ -79,14 +48,14 @@ function entryOf(notification: Notification, origin: string): Entry {
   const { kind, status, emoji } = notification;
   const glyph = emoji ?? GLYPHS[kind];
   if (kind === 'mention' && status !== null && status.in_reply_to_id !== null) {
-    return { glyph, text: 'replied to you', actor: true };
+    return { glyph, text: t('views.notification_card.reply'), actor: true };
   }
   const verb = VERBS[kind];
   if (verb !== undefined) {
-    return { glyph, text: verb, actor: true };
+    return { glyph, text: t(verb), actor: true };
   }
   if (kind === 'poll') {
-    return { glyph, text: 'a poll ended', actor: false };
+    return { glyph, text: t('views.notification_card.poll'), actor: false };
   }
   const sentence = notificationText(notification, null, { origin, accountId: null });
   const rest = withoutActor(sentence, `@${fullHandle(notification.account, origin)}`);
@@ -180,6 +149,7 @@ function Excerpt(props: NotificationCardProps): JSX.Element | null {
 
 /** One notification as a card: a post's own card under a header, or a compact line. */
 export function NotificationCard(props: NotificationCardProps): JSX.Element {
+  useLocale();
   const { kind, status } = props.line.notification;
   if (status !== null && (kind === 'mention' || kind === 'quote')) {
     return (

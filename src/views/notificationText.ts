@@ -10,10 +10,12 @@
  * quote gets this sentence and the quoting post under it.
  */
 
-import { excerpt, join } from './notificationExcerpt';
+import { excerpt } from './notificationExcerpt';
 import type { Viewer } from './postView';
 import { fullHandle } from '../accounts/handle';
 import type { Notification, NotificationKind } from '../api/schemas/notification';
+import type { MessageKey } from '../i18n/messages';
+import { t } from '../i18n/translate';
 
 /** `[a3]` for a labelled status; nothing at all for an unlabelled one. */
 function bracket(label: string | null): string | null {
@@ -28,43 +30,76 @@ type Sentence = {
   readonly viewer: Viewer;
 };
 
+/**
+ * The message {@link key} with the values it names, an absent one as empty
+ * text, then its spaces collapsed: a part a notification lacks (no label, no
+ * excerpt) leaves no gap in the sentence.
+ */
+function say(key: MessageKey, values: Readonly<Record<string, string | null>>): string {
+  const filled = Object.fromEntries(Object.entries(values).map(([name, v]) => [name, v ?? '']));
+  return t(key, filled).replace(/\s+/gu, ' ').trim();
+}
+
 /** The poll sentence: the viewer's own poll ended, or one they voted in. */
 function pollEnded(s: Sentence): string {
   const own = s.viewer.accountId !== null && s.n.status?.account.id === s.viewer.accountId;
-  return join([own ? 'a poll you created ended' : 'a poll you voted in ended', bracket(s.label)]);
+  return say(own ? 'views.notification.poll_own' : 'views.notification.poll_voted', {
+    label: bracket(s.label),
+  });
 }
 
 /** The report sentence: who filed it, who it is about, and the filer's comment. */
 function reported(s: Sentence): string {
   const target = s.n.report?.target ?? null;
-  const against = target === null ? null : `on @${fullHandle(target, s.viewer.origin)}`;
   const comment = s.n.report?.comment ?? '';
-  return join([s.at, 'filed a report', against, comment === '' ? null : excerpt(comment)]);
+  return say('views.notification.report', {
+    actor: s.at,
+    target: target === null ? 'none' : `@${fullHandle(target, s.viewer.origin)}`,
+    comment: comment === '' ? null : excerpt(comment),
+  });
+}
+
+/** The sentence a kind speaks about a post: the actor, the label and the post's words. */
+function aboutPost(key: MessageKey, s: Sentence, exact: boolean): string {
+  return say(key, { actor: s.at, label: bracket(s.label), excerpt: excerpt(s.n.status, exact) });
+}
+
+/** The sentence a kind speaks with the actor alone. */
+function byActor(key: MessageKey): (s: Sentence) => string {
+  return (s) => say(key, { actor: s.at });
 }
 
 /** The sentence each normalized kind speaks; `other` names the raw type. */
 const SENTENCES: Record<NotificationKind, (s: Sentence) => string> = {
-  mention: (s) => join([s.at, 'mentioned you', bracket(s.label), excerpt(s.n.status)]),
-  status: (s) => join([s.at, 'posted', bracket(s.label)]),
-  reblog: (s) => join([s.at, 'boosted', bracket(s.label), excerpt(s.n.status, true)]),
-  follow: (s) => join([s.at, 'followed you']),
-  follow_request: (s) => join([s.at, 'wants to follow you (/accept or /reject coming later)']),
-  favourite: (s) => join([s.at, 'favourited', bracket(s.label), excerpt(s.n.status, true)]),
+  mention: (s) => aboutPost('views.notification.mention', s, false),
+  status: (s) => say('views.notification.status', { actor: s.at, label: bracket(s.label) }),
+  reblog: (s) => aboutPost('views.notification.reblog', s, true),
+  follow: byActor('views.notification.follow'),
+  follow_request: byActor('views.notification.follow_request'),
+  favourite: (s) => aboutPost('views.notification.favourite', s, true),
   poll: pollEnded,
-  update: (s) => join([s.at, 'edited', bracket(s.label), excerpt(s.n.status, true)]),
+  update: (s) => aboutPost('views.notification.update', s, true),
   reaction: (s) =>
-    join([s.at, 'reacted', s.n.emoji, 'to', bracket(s.label), excerpt(s.n.status, true)]),
-  move: (s) => join([s.at, 'moved']),
-  quote: (s) => join([s.at, 'quoted', bracket(s.label), excerpt(s.n.status)]),
-  quoted_update: (s) => join([s.at, 'edited a post that quotes yours']),
-  sign_up: (s) => join([s.at, 'signed up']),
+    say('views.notification.reaction', {
+      actor: s.at,
+      emoji: s.n.emoji,
+      label: bracket(s.label),
+      excerpt: excerpt(s.n.status, true),
+    }),
+  move: byActor('views.notification.move'),
+  quote: (s) => aboutPost('views.notification.quote', s, false),
+  quoted_update: byActor('views.notification.quoted_update'),
+  sign_up: byActor('views.notification.sign_up'),
   report: reported,
   chat_mention: (s) =>
-    join([s.at, 'sent you a chat message:', excerpt(s.n.chat_message?.content ?? '')]),
-  severed_relationships: () => 'a moderation action severed some of your follows or followers',
-  moderation_warning: () => 'you received a moderation warning',
-  annual_report: () => 'your annual report is ready',
-  other: (s) => `${s.at}: ${s.n.type} notification`,
+    say('views.notification.chat_mention', {
+      actor: s.at,
+      excerpt: excerpt(s.n.chat_message?.content ?? ''),
+    }),
+  severed_relationships: () => say('views.notification.severed_relationships', {}),
+  moderation_warning: () => say('views.notification.moderation_warning', {}),
+  annual_report: () => say('views.notification.annual_report', {}),
+  other: (s) => say('views.notification.other', { actor: s.at, type: s.n.type }),
 };
 
 /**

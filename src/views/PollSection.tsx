@@ -11,6 +11,7 @@ import type { JSX } from 'react';
 import { PollEditor } from './PollEditor';
 import styles from './PollEditor.module.css';
 import type { PollLimits } from '../api/schemas/pollLimits';
+import { useT } from '../i18n/I18nProvider';
 import { type DraftPoll, newPoll } from '../state/pollEditor';
 
 /** What the poll section shows and how it reports a change. */
@@ -26,6 +27,7 @@ export type PollSectionProps = {
 
 /** The toggle, the reason it is off or in the way, and the editor when on. */
 export function PollSection(props: PollSectionProps): JSX.Element {
+  const t = useT();
   const { poll, limits, mediaCount, onChange } = props;
   const blocked = mediaCount > 0;
   return (
@@ -39,11 +41,9 @@ export function PollSection(props: PollSectionProps): JSX.Element {
         }}
         type="button"
       >
-        [ ☰ poll ]
+        {t('views.poll.toggle')}
       </button>
-      {blocked ? (
-        <p className={styles['problem']}>A post can’t carry both media and a poll</p>
-      ) : null}
+      {blocked ? <p className={styles['problem']}>{t('views.poll.media_conflict')}</p> : null}
       {poll === undefined ? null : <PollEditor limits={limits} onChange={onChange} poll={poll} />}
     </div>
   );

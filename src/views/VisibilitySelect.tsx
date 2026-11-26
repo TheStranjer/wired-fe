@@ -9,10 +9,21 @@ import type { ChangeEvent, JSX } from 'react';
 
 import styles from './Composer.module.css';
 import type { Visibility } from '../api/schemas/status';
+import { useT } from '../i18n/I18nProvider';
+import type { MessageKey } from '../i18n/messages';
 import type { ComposerFields } from '../state/draft';
 
 /** The audiences the select offers, in order; `local` last, when served. */
 const BASE_VISIBILITIES: readonly Visibility[] = ['public', 'unlisted', 'private', 'direct'];
+
+/** The displayed label of each audience; the value sent to the server stays the protocol word. */
+const LABELS: Record<Visibility, MessageKey> = {
+  public: 'views.visibility.public',
+  unlisted: 'views.visibility.unlisted',
+  private: 'views.visibility.private',
+  direct: 'views.visibility.direct',
+  local: 'views.visibility.local',
+};
 
 /** The visibility choices for one instance. */
 function choices(allowLocal: boolean): readonly Visibility[] {
@@ -29,11 +40,12 @@ type VisibilitySelectProps = {
 
 /** Who may see the post, one select; a change it cannot name changes nothing. */
 export function VisibilitySelect(props: VisibilitySelectProps): JSX.Element {
+  const t = useT();
   const locked = props.fields.editing !== undefined;
   const offered = locked ? [props.fields.visibility] : choices(props.allowLocal);
   return (
     <select
-      aria-label="Visibility"
+      aria-label={t('views.visibility.label')}
       className={styles['select']}
       disabled={locked}
       onChange={(event: ChangeEvent<HTMLSelectElement>) => {
@@ -47,7 +59,7 @@ export function VisibilitySelect(props: VisibilitySelectProps): JSX.Element {
     >
       {offered.map((name) => (
         <option key={name} value={name}>
-          {name}
+          {t(LABELS[name])}
         </option>
       ))}
     </select>

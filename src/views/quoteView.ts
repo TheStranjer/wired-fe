@@ -9,6 +9,7 @@
 
 import { fullHandle } from '../accounts/handle';
 import type { Status } from '../api/schemas/status';
+import { t } from '../i18n/translate';
 import { sanitizeRemoteHtml } from '../ui/sanitize';
 
 /** What a window answers when asked which label it gave a status id. */
@@ -57,7 +58,7 @@ function trimmed(text: string): string {
 /** What the excerpt line says: the warning where there is one, else the content. */
 export function excerptOf(quote: Status): string {
   if (quote.spoiler_text !== '') {
-    return `[CW: ${quote.spoiler_text}]`;
+    return t('views.quote.content_warning', { warning: quote.spoiler_text });
   }
   return trimmed(plainText(quote.content));
 }

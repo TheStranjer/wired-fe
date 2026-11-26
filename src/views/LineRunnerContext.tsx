@@ -9,6 +9,8 @@
 import { createContext, use } from 'react';
 import type { JSX, ReactNode } from 'react';
 
+import { t } from '../i18n/translate';
+
 /** How running lines went: success, or the message of the first refusal. */
 export type LineOutcome = { readonly ok: true } | { readonly ok: false; readonly message: string };
 
@@ -17,7 +19,7 @@ export type LineRunner = (lines: readonly string[]) => Promise<LineOutcome>;
 
 /** What a tree with no provider runs: nothing, and says so. */
 const NO_RUNNER: LineRunner = async () =>
-  await Promise.resolve({ ok: false, message: 'The command line is not available' });
+  await Promise.resolve({ ok: false, message: t('views.runner.unavailable') });
 
 const LineRunnerContext = createContext<LineRunner>(NO_RUNNER);
 

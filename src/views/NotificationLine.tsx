@@ -22,6 +22,7 @@ import { viewerFor } from './postLineProps';
 import { viaFor } from './via';
 import { fullHandle } from '../accounts/handle';
 import type { Status } from '../api/schemas/status';
+import { useLocale } from '../i18n/I18nProvider';
 import type { AppState } from '../state/appState';
 import type { NotificationLineData } from '../state/buffer';
 import { labelForStatus } from '../state/bufferSelection';
@@ -126,6 +127,7 @@ function IrcNotification(props: NotificationLineProps): JSX.Element {
 
 /** One notification: a card or an IRC line, as the window's resolved density says. */
 export function NotificationLine(props: NotificationLineProps): JSX.Element {
+  useLocale();
   const state = useAppState();
   if (displayFor(state, props.windowId).density === 'cards') {
     return <NotificationCard {...props} />;

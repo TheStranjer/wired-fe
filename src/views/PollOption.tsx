@@ -7,6 +7,7 @@
 import type { ChangeEvent, JSX } from 'react';
 
 import styles from './PollEditor.module.css';
+import { useT } from '../i18n/I18nProvider';
 
 /** What one option row shows and the two things it can do. */
 type PollOptionProps = {
@@ -25,13 +26,14 @@ type PollOptionProps = {
 
 /** One option of the poll: input, counter, remove button and problem. */
 export function PollOption(props: PollOptionProps): JSX.Element {
+  const t = useT();
   const number = String(props.index + 1);
   const over = props.text.length > props.maxCharacters;
   return (
     <li className={styles['option']}>
       <div className={styles['optionRow']}>
         <input
-          aria-label={`Option ${number}`}
+          aria-label={t('views.poll.option', { number })}
           className={styles['input']}
           onChange={(event: ChangeEvent<HTMLInputElement>) => {
             props.onChange(event.target.value);
@@ -43,7 +45,7 @@ export function PollOption(props: PollOptionProps): JSX.Element {
           {`${String(props.text.length)}/${String(props.maxCharacters)}`}
         </span>
         <button
-          aria-label={`Remove option ${number}`}
+          aria-label={t('views.poll.remove_option', { number })}
           className={styles['button']}
           disabled={!props.removable}
           onClick={props.onRemove}

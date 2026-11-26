@@ -14,6 +14,7 @@
  * for them.
  */
 
+import { t } from '../i18n/translate';
 import { isMedia } from '../lib/dropFiles';
 import { printAction } from '../state/appState';
 import { composerMediaOf, heldCount, maxMedia } from '../state/composerMedia';
@@ -49,9 +50,9 @@ export function useComposerMedia(windowId: string, accountKey: string | null): C
     let held = heldCount(items);
     for (const file of files) {
       if (!isMedia(file)) {
-        warn(`Can't attach ${file.name}: not an image, video or audio file`);
+        warn(t('views.media.not_media', { name: file.name }));
       } else if (held >= max) {
-        warn(`too many attachments: ${String(max)} per post, skipped ${file.name}`);
+        warn(t('views.media.too_many', { max, name: file.name }));
       } else {
         held += 1;
         void uploadLine({ state, dispatch, windowId, accountKey }, file, description);

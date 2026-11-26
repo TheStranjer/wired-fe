@@ -18,6 +18,7 @@ import { PollSection } from './PollSection';
 import { type PostCompletion, PostText } from './PostText';
 import { VisibilitySelect } from './VisibilitySelect';
 import type { PollLimits } from '../api/schemas/pollLimits';
+import { useT } from '../i18n/I18nProvider';
 import type { ComposerFields } from '../state/draft';
 import { pollBlocksSend } from '../state/pollEditor';
 
@@ -56,10 +57,11 @@ export type ComposerFormProps = {
 
 /** The content-warning line and the audience: what the compact form leaves out. */
 function Audience(props: ComposerFormProps): JSX.Element {
+  const t = useT();
   return (
     <>
       <input
-        aria-label="Content warning"
+        aria-label={t('views.composer.content_warning')}
         className={styles['warning']}
         onChange={(event: ChangeEvent<HTMLInputElement>) => {
           props.onChange({ spoiler: event.target.value });
@@ -80,6 +82,7 @@ function Audience(props: ComposerFormProps): JSX.Element {
 function OptionsRow(
   props: ComposerFormProps & { readonly sendable: boolean; readonly send: () => void },
 ): JSX.Element {
+  const t = useT();
   const { text } = props.fields;
   const over = text.length > props.maxCharacters;
   return (
@@ -94,7 +97,7 @@ function OptionsRow(
         onClick={props.send}
         type="button"
       >
-        [ send ]
+        {t('views.composer.send')}
       </button>
     </div>
   );

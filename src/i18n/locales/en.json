@@ -894,7 +894,115 @@
       "minutes": "{count, plural, one {# minute} other {# minutes}}"
     }
   },
-  "views": {},
+  "views": {
+    "attachments": {
+      "description": "Description for {name}",
+      "failed": "failed: {error}",
+      "ready": "ready",
+      "remove": "Remove {name}",
+      "uploading": "uploading…"
+    },
+    "composer": {
+      "content_warning": "Content warning",
+      "post_suggestions": "Post suggestions",
+      "post_text": "Post text",
+      "send": "[ send ]"
+    },
+    "confirm": {
+      "block": "Block",
+      "block_message": "They won't be able to follow or interact with your account, and their posts are hidden from you.",
+      "block_title": "Block {handle}?",
+      "delete": "Delete",
+      "delete_message": "This can't be undone.",
+      "delete_message_excerpt": "This can't be undone. \"{excerpt}\"",
+      "delete_title": "Delete post [{label}]?",
+      "mute": "Mute",
+      "mute_message": "Their posts are hidden from you for as long as you choose.",
+      "mute_title": "Mute {handle}?"
+    },
+    "excerpt": {
+      "attachments": "({count, plural, one {# attachment} other {# attachments}})",
+      "no_text": "(no text)"
+    },
+    "media": {
+      "attach": "Attach media",
+      "attach_button": "[ 📎 attach ]",
+      "attach_short": "[📎]",
+      "attachments": "Attachments",
+      "files": "Media files",
+      "not_media": "Can't attach {name}: not an image, video or audio file",
+      "too_many": "too many attachments: {max} per post, skipped {name}"
+    },
+    "notification": {
+      "annual_report": "your annual report is ready",
+      "chat_mention": "{actor} sent you a chat message: {excerpt}",
+      "favourite": "{actor} favourited {label} {excerpt}",
+      "follow": "{actor} followed you",
+      "follow_request": "{actor} wants to follow you (/accept or /reject coming later)",
+      "mention": "{actor} mentioned you {label} {excerpt}",
+      "moderation_warning": "you received a moderation warning",
+      "move": "{actor} moved",
+      "other": "{actor}: {type} notification",
+      "poll_own": "a poll you created ended {label}",
+      "poll_voted": "a poll you voted in ended {label}",
+      "quote": "{actor} quoted {label} {excerpt}",
+      "quoted_update": "{actor} edited a post that quotes yours",
+      "reaction": "{actor} reacted {emoji} to {label} {excerpt}",
+      "reblog": "{actor} boosted {label} {excerpt}",
+      "report": "{actor} filed a report{target, select, none {} other { on {target}}} {comment}",
+      "severed_relationships": "a moderation action severed some of your follows or followers",
+      "sign_up": "{actor} signed up",
+      "status": "{actor} posted {label}",
+      "update": "{actor} edited {label} {excerpt}"
+    },
+    "notification_card": {
+      "favourite": "favourited your post",
+      "mention": "mentioned you",
+      "poll": "a poll ended",
+      "quote": "quoted you",
+      "reaction": "reacted to your post",
+      "reblog": "boosted your post",
+      "reply": "replied to you",
+      "status": "posted",
+      "update": "edited a post"
+    },
+    "paging": {
+      "no_account": "No account for this window"
+    },
+    "poll": {
+      "add_option": "[+ option]",
+      "duration": "Duration",
+      "hide_totals": "Hide totals",
+      "media_conflict": "A post can’t carry both media and a poll",
+      "multiple_choice": "Multiple choice",
+      "option": "Option {number}",
+      "remove_option": "Remove option {number}",
+      "toggle": "[ ☰ poll ]"
+    },
+    "post": {
+      "a_thread": "a thread",
+      "content_warning": "CW: {warning}"
+    },
+    "quote": {
+      "content_warning": "[CW: {warning}]"
+    },
+    "runner": {
+      "unavailable": "The command line is not available"
+    },
+    "stream": {
+      "live": "Streaming live for @{handle}",
+      "restored": "Streaming restored for @{handle}",
+      "unavailable": "Streaming unavailable for @{handle}; polling every minute"
+    },
+    "visibility": {
+      "direct": "direct",
+      "label": "Visibility",
+      "local": "local",
+      "private": "private",
+      "public": "public",
+      "unlisted": "unlisted"
+    }
+  },
   "windows": {
     "desktop_empty": "Desktop {count} is empty: {last, select, yes {put something on it} other {use it}} before making another",
     "no_desktop": "No desktop {number}; desktops run 1–{count}"

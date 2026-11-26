@@ -15,6 +15,7 @@ import { type ApiError, describeApiError } from '../api/errors';
 import type { Page, PageRequest } from '../api/page';
 import type { PageCursor } from '../api/pagination';
 import type { ApiSession } from '../api/session';
+import { t } from '../i18n/translate';
 import type { Result } from '../lib/result';
 import { printAction } from '../state/appState';
 import type { BufferLoad } from '../state/buffer';
@@ -42,9 +43,6 @@ export type PageLoader<T> = {
   /** How many items one page asks for. */
   readonly pageSize: number;
 };
-
-/** The line printed at a window that has no account to fetch with. */
-const NO_ACCOUNT = 'No account for this window';
 
 /** What the newest render would fetch with, kept live for the effects. */
 type Live<T> = {
@@ -118,7 +116,7 @@ function useNoAccountNotice(windowId: string, accountKey: string | null): void {
       return;
     }
     printedRef.current = true;
-    dispatch(printAction(windowId, 'error', NO_ACCOUNT));
+    dispatch(printAction(windowId, 'error', t('views.paging.no_account')));
   }, [accountKey, windowId, dispatch]);
 }
 

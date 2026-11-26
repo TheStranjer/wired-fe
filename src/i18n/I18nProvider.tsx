@@ -37,8 +37,11 @@ export function useLocale(): string {
   return use(LocaleContext);
 }
 
+/** What `t()` is: a message key and its values in, the text in the language in use out. */
+export type Translate = (key: MessageKey, values?: MessageValues) => string;
+
 /** `t()` for components: a new function whenever the language changes. */
-export function useT(): (key: MessageKey, values?: MessageValues) => string {
+export function useT(): Translate {
   const locale = useLocale();
   return useCallback(
     (key: MessageKey, values?: MessageValues) => translate(locale, key, values),

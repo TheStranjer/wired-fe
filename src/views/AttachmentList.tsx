@@ -9,6 +9,7 @@
 import type { ChangeEvent, JSX } from 'react';
 
 import styles from './AttachmentList.module.css';
+import { type Translate, useT } from '../i18n/I18nProvider';
 import type { ComposerMedia } from '../state/draft';
 
 /** What the list shows and the callbacks it drives. */
@@ -21,14 +22,14 @@ export type AttachmentListProps = {
 };
 
 /** What a line says of its upload. */
-function stateText(item: ComposerMedia): string {
+function stateText(item: ComposerMedia, t: Translate): string {
   switch (item.status) {
     case 'uploading':
-      return 'uploading…';
+      return t('views.attachments.uploading');
     case 'ready':
-      return 'ready';
+      return t('views.attachments.ready');
     case 'failed':
-      return `failed: ${item.error}`;
+      return t('views.attachments.failed', { error: item.error });
   }
 }
 
@@ -39,6 +40,7 @@ function AttachmentLine(
   },
 ): JSX.Element {
   const { item, onDescribe, onRemove } = props;
+  const t = useT();
   return (
     <li className={styles['line']}>
       {item.previewUrl === null ? (
@@ -55,7 +57,7 @@ function AttachmentLine(
       )}
       <span className={styles['name']}>{item.name}</span>
       <input
-        aria-label={`Description for ${item.name}`}
+        aria-label={t('views.attachments.description', { name: item.name })}
         className={styles['description']}
         onChange={(event: ChangeEvent<HTMLInputElement>) => {
           onDescribe(item.key, event.target.value);
@@ -64,10 +66,10 @@ function AttachmentLine(
         value={item.description}
       />
       <span aria-live="polite" className={item.status === 'failed' ? styles['failed'] : undefined}>
-        {stateText(item)}
+        {stateText(item, t)}
       </span>
       <button
-        aria-label={`Remove ${item.name}`}
+        aria-label={t('views.attachments.remove', { name: item.name })}
         className={styles['remove']}
         onClick={() => {
           onRemove(item.key);
