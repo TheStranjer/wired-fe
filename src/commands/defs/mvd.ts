@@ -6,30 +6,27 @@
  * this command only finds the pane and hands the actions over.
  */
 
+import { t } from '../../i18n/translate';
 import { wordsOf } from '../../lib/words';
 import { activeDesktop } from '../../windows/desktops';
 import { desktopNumber } from '../desktopNumber';
 import { OK, fail, syncRun } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
-/** The command's one form. */
-const USAGE = '/mvd <number> [follow]';
-
 /** The argument text matched the form in no way. */
-const USAGE_ERROR = fail(`Usage: ${USAGE}`);
-
-/** The refusal: an empty desktop has nothing to move. */
-const NOTHING_FOCUSED = fail('No pane to move');
+function usageError(): CommandOutcome {
+  return fail(t('commands.defs.mvd.usage_error'));
+}
 
 /** Move the focused pane to desktop {@link n}, then show it there when {@link follow}. */
 function move(context: CommandContext, n: number, follow: boolean): CommandOutcome {
   const { layout } = context.state;
   const { focusedPaneId } = activeDesktop(layout);
   if (focusedPaneId === null) {
-    return NOTHING_FOCUSED;
+    return fail(t('commands.defs.mvd.no_pane'));
   }
   if (n === layout.active + 1) {
-    return fail(`Already on desktop ${String(n)}`);
+    return fail(t('commands.defs.mvd.already_on', { number: n }));
   }
   context.dispatch({
     type: 'layout',
@@ -44,12 +41,12 @@ function move(context: CommandContext, n: number, follow: boolean): CommandOutco
 /** Read the argument words and move. */
 function handle(args: string, context: CommandContext): CommandOutcome {
   const [word, second, extra] = wordsOf(args);
-  const n = desktopNumber(word, USAGE_ERROR);
+  const n = desktopNumber(word, usageError());
   if (typeof n !== 'number') {
     return n;
   }
   if (extra !== undefined || (second !== undefined && second !== 'follow')) {
-    return USAGE_ERROR;
+    return usageError();
   }
   return move(context, n, second === 'follow');
 }
@@ -57,7 +54,11 @@ function handle(args: string, context: CommandContext): CommandOutcome {
 /** The `/mvd` definition. */
 export const command: CommandDefinition = {
   name: 'mvd',
-  usage: USAGE,
-  summary: 'Move the focused pane to another desktop',
+  get usage(): string {
+    return t('commands.defs.mvd.usage');
+  },
+  get summary(): string {
+    return t('commands.defs.mvd.summary');
+  },
   run: syncRun(handle),
 };

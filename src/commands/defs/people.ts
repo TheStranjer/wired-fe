@@ -10,6 +10,7 @@
  * split (decision 13).
  */
 
+import { t } from '../../i18n/translate';
 import { peopleWindowId, peopleWindowOpen } from '../../state/peopleWindow';
 import { type Placement, chosenPlacement } from '../../state/placement';
 import { activeDesktop } from '../../windows/desktops';
@@ -25,9 +26,6 @@ import type { CommandContext, CommandDefinition, CommandOutcome } from '../types
  * the people pane is the `b` side, so `a` — the watched window — ends at 0.8.
  */
 const SHRINK = -0.3;
-
-/** The refusal: a people window is not itself something to list. */
-const NOTHING_TO_LIST = fail('A people window has no people of its own');
 
 /** Show the people window of {@link watched} in a split to its right, focus staying put. */
 function show(context: CommandContext, watched: WindowState): void {
@@ -62,7 +60,7 @@ function handle(args: string, context: CommandContext): CommandOutcome {
     return fail(placed.error);
   }
   if (watched.ref.kind === 'people') {
-    return NOTHING_TO_LIST;
+    return fail(t('commands.defs.people.nothing_to_list'));
   }
   const paneId = paneShowing(activeDesktop(context.state.layout), peopleWindowId(watched));
   const chosen = chosenPlacement(context.state.settings, 'people', placed.value.placement);
@@ -80,6 +78,8 @@ function handle(args: string, context: CommandContext): CommandOutcome {
 export const command: CommandDefinition = {
   name: 'people',
   usage: '/people',
-  summary: 'Show or hide who is in this window',
+  get summary(): string {
+    return t('commands.defs.people.summary');
+  },
   run: syncRun(handle),
 };

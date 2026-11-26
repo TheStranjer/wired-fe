@@ -9,14 +9,12 @@
  * arguments are ignored, the active window is the only target.
  */
 
+import { t } from '../../i18n/translate';
 import { bufferFor } from '../../state/selectors';
 import { activeWindow } from '../../windows/model';
 import type { CommandBinding } from '../bindingTypes';
 import { OK, contextRun } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
-
-/** What a window at the end of its history answers with. */
-const NO_OLDER = 'No older posts';
 
 /** The navigation-mode key (AGENTS.md "Two hotkey modes"): read further back. */
 const BINDINGS: readonly CommandBinding[] = [{ mode: 'navigation', chord: 'm', args: '' }];
@@ -25,7 +23,7 @@ const BINDINGS: readonly CommandBinding[] = [{ mode: 'navigation', chord: 'm', a
 function handle(context: CommandContext): CommandOutcome {
   const windowId = activeWindow(context.windows).id;
   if (bufferFor(context.state, windowId).exhausted) {
-    context.print(NO_OLDER);
+    context.print(t('commands.defs.more.no_older'));
     return OK;
   }
   context.dispatch({ type: 'requestOlder', windowId });
@@ -37,7 +35,9 @@ export const command: CommandDefinition = {
   name: 'more',
   aliases: ['older'],
   usage: '/more',
-  summary: 'Load the next page of older posts',
+  get summary(): string {
+    return t('commands.defs.more.summary');
+  },
   run: contextRun(handle),
   bindings: BINDINGS,
 };

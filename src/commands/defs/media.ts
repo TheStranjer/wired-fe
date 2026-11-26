@@ -10,6 +10,7 @@
  * index twice activates the window that already shows it (src/state/mediaWindow).
  */
 
+import { t } from '../../i18n/translate';
 import { mediaOpen } from '../../state/mediaWindow';
 import { placedRun } from '../openWindowRun';
 import { OK, fail, syncRun } from '../outcome';
@@ -17,16 +18,8 @@ import { printedLabel, targetLabel } from '../statusLabel';
 import { type StatusTarget, resolveStatusTarget } from '../targets';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
-/** The command's grammar: /help shows it, a bad index echoes it. */
-const USAGE = '/media [label] [n]';
-
 /** An attachment number: digits with no leading zero. */
 const INDEX = /^[1-9]\d*$/u;
-
-/** How many attachments, in words. */
-function attachments(count: number): string {
-  return count === 1 ? '1 attachment' : `${String(count)} attachments`;
-}
 
 /** The attachment number {@link text} asks for; the first when it says nothing. */
 function wanted(text: string): number | null {
@@ -42,10 +35,10 @@ function openAttachment(context: CommandContext, target: StatusTarget, n: number
   const total = status.media_attachments.length;
   const named = targetLabel(context, status);
   if (total === 0) {
-    return fail(`Post ${named} has no attachments`);
+    return fail(t('commands.defs.media.no_attachments', { label: named }));
   }
   if (n > total) {
-    return fail(`Post ${named} has ${attachments(total)}`);
+    return fail(t('commands.defs.media.few_attachments', { label: named, count: total }));
   }
   const label = printedLabel(context, status);
   context.dispatchWindows(
@@ -67,14 +60,20 @@ function handle(args: string, context: CommandContext): CommandOutcome {
     return fail(target.error);
   }
   const n = wanted(target.value.rest.trim());
-  return n === null ? fail(`Usage: ${USAGE}`) : openAttachment(context, target.value, n);
+  return n === null
+    ? fail(t('commands.defs.media.usage_error'))
+    : openAttachment(context, target.value, n);
 }
 
 /** The `/media` definition. */
 export const command: CommandDefinition = {
   name: 'media',
-  usage: USAGE,
-  summary: "Show a post's attachment full size in a window",
+  get usage(): string {
+    return t('commands.defs.media.usage');
+  },
+  get summary(): string {
+    return t('commands.defs.media.summary');
+  },
   run: placedRun(syncRun(handle)),
   bindings: [{ mode: 'navigation', chord: 'v', args: '{label}' }],
 };

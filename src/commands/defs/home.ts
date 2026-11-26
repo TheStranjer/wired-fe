@@ -10,6 +10,7 @@
  * the way typing it there would (WFE-279); `--in` places the window.
  */
 
+import { t } from '../../i18n/translate';
 import { homeWindowOpen } from '../../state/homeWindow';
 import { postStatus } from '../../state/postStatus';
 import { accountWindowRun } from '../openWindowRun';
@@ -18,7 +19,11 @@ import type { CommandDefinition } from '../types';
 /** The `/home` definition. */
 export const command: CommandDefinition = {
   name: 'home',
-  usage: '/home [text] [--in <placement>]',
-  summary: 'Open your home timeline',
+  get usage(): string {
+    return t('commands.defs.home.usage');
+  },
+  get summary(): string {
+    return t('commands.defs.home.summary');
+  },
   run: accountWindowRun(homeWindowOpen, { postsText: postStatus }),
 };

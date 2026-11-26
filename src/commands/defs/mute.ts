@@ -11,14 +11,19 @@
  * the same line with that duration word on the end.
  */
 
+import { t } from '../../i18n/translate';
 import { accountToggleRun } from '../accountToggle';
 import type { CommandDefinition } from '../types';
 
 /** The `/mute` definition. */
 export const command: CommandDefinition = {
   name: 'mute',
-  usage: '/mute [target] [duration]',
-  summary: 'Mute an account',
+  get usage(): string {
+    return t('commands.defs.mute.usage');
+  },
+  get summary(): string {
+    return t('commands.defs.mute.summary');
+  },
   run: accountToggleRun('mute', 'muted'),
   bindings: [{ mode: 'navigation', chord: 'Shift+m', args: '{label}', prefill: true }],
 };
