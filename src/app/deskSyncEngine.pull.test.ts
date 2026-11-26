@@ -14,7 +14,7 @@ import { readStamp, writeStamp } from './deskStamp';
 import { PUSH_DELAY_MS, createEngine } from './deskSyncEngine';
 import { readSettings, writeSettings } from '../features/sync/settingsAccess';
 import { ok } from '../lib/result';
-import { INVALID_REMOTE_TEXT } from '../state/syncError';
+import { invalidRemoteText } from '../state/syncError';
 import { BOB, LAIN } from '../test/deskFixtures';
 import { printed, served, syncHarness } from '../test/syncHarness';
 import type { SyncWorldOptions } from '../test/syncHarness';
@@ -128,7 +128,7 @@ describe('desk sync pull', () => {
     engine.request('pull');
     await vi.advanceTimersByTimeAsync(PUSH_DELAY_MS * 2);
 
-    expect(printed(harness)).toStrictEqual([INVALID_REMOTE_TEXT]);
+    expect(printed(harness)).toStrictEqual([invalidRemoteText()]);
     expect(harness.state().sync.failed).toBe(false);
     expect(write).not.toHaveBeenCalled();
   });

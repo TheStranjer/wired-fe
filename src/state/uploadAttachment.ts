@@ -14,7 +14,7 @@ import { sessionFor } from './selectors';
 import { uploadAndWait } from '../api/endpoints/media';
 import { describeApiError } from '../api/errors';
 import type { MediaAttachment } from '../api/schemas/mediaAttachment';
-import { NOT_LOGGED_IN_MESSAGE } from '../lib/refusal';
+import { t } from '../i18n/translate';
 import { type Result, err, ok } from '../lib/result';
 
 export type { MediaAttachment };
@@ -34,7 +34,7 @@ export async function uploadAttachment(params: {
 }): Promise<Result<MediaAttachment, string>> {
   const session = sessionFor(params.state, params.accountKey);
   if (session === null) {
-    return err(NOT_LOGGED_IN_MESSAGE);
+    return err(t('state.not_logged_in'));
   }
   const outcome = await uploadAndWait(session, params.file, {
     filename: params.file.name,

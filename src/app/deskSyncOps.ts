@@ -20,7 +20,7 @@ import {
   deskBody,
   fromSyncSnapshot,
 } from '../state/deskSync';
-import { INVALID_REMOTE_TEXT } from '../state/syncError';
+import { invalidRemoteText } from '../state/syncError';
 
 /** Puts the server's {@link snapshot} in place of the desk and the settings, and remembers what was put. */
 function apply(deps: SyncDeps, snapshot: SyncSnapshot): void {
@@ -38,7 +38,7 @@ function settle(deps: SyncDeps, decision: SyncDecision): void {
   } else if (decision.kind === 'push') {
     deps.arm();
   } else if (decision.kind === 'invalid') {
-    warnOnce(deps, 'invalid', INVALID_REMOTE_TEXT);
+    warnOnce(deps, 'invalid', invalidRemoteText());
   }
 }
 

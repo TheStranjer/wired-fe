@@ -13,7 +13,7 @@ import type { Draft } from './draft';
 import { postAsAccount, postAsWindowAccount } from './postAsWindowAccount';
 import { postingAccount } from './postingAccount';
 import type { WindowKindDefinition } from './windowKind';
-import { NOT_LOGGED_IN_MESSAGE } from '../lib/refusal';
+import { t } from '../i18n/translate';
 
 /** Whether {@link draft} carries uploaded media. */
 function hasMedia(draft: Draft): boolean {
@@ -32,7 +32,7 @@ export const postAccountless: NonNullable<WindowKindDefinition['onPost']> = asyn
 ) => {
   const { state, dispatch } = context;
   if (state.accounts.length === 0) {
-    return NOT_LOGGED_IN_MESSAGE;
+    return t('state.not_logged_in');
   }
   if (hasMedia(draft)) {
     const accountKey = state.activeAccountKey;

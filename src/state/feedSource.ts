@@ -7,6 +7,7 @@
 
 import { type FeedSourceRef, isFeedSource } from './feeds';
 import type { StoredAccount } from '../accounts/accountStore';
+import { t } from '../i18n/translate';
 import { type Result, err, ok } from '../lib/result';
 
 /** The part of a signed-in account the command grammar needs. */
@@ -18,11 +19,13 @@ function accountsNamed(
   accounts: readonly SourceAccount[],
 ): Result<readonly string[], string> {
   if (who === '*') {
-    return accounts.length === 0 ? err('No account is signed in') : ok(accounts.map((a) => a.key));
+    return accounts.length === 0
+      ? err(t('state.no_account_signed_in'))
+      : ok(accounts.map((a) => a.key));
   }
   const handle = who.replace(/^@/u, '').toLowerCase();
   const found = accounts.find((account) => account.handle.toLowerCase() === handle);
-  return found === undefined ? err(`No signed-in account @${handle}`) : ok([found.key]);
+  return found === undefined ? err(t('state.no_signed_in_account', { handle })) : ok([found.key]);
 }
 
 /**
@@ -36,7 +39,7 @@ export function parseSource(
   const colon = text.indexOf(':');
   const source = text.slice(colon + 1);
   if (colon < 1 || !isFeedSource(source)) {
-    return err(`Not a source: "${text}" (try @me@host:home, *:mentions or @me@host:tag:rust)`);
+    return err(t('state.not_a_source', { text }));
   }
   const keys = accountsNamed(text.slice(0, colon), accounts);
   if (!keys.ok) {

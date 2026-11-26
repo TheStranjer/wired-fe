@@ -8,6 +8,8 @@
  * {@link MAX_SYNCED_OVERRIDES}; when that is not enough it refuses. Pure.
  */
 import type { SyncSnapshot } from './deskSync';
+import type { MessageKey } from '../i18n/messages';
+import { t } from '../i18n/translate';
 import { shownPanes } from '../windows/desktopPanes';
 
 /** What one device class may take of the server's 1 MiB store, leaving room for the other class and other apps. */
@@ -29,9 +31,9 @@ export function snapshotBytes(snapshot: SyncSnapshot): number {
   return new TextEncoder().encode(JSON.stringify(snapshot)).length;
 }
 
-/** "1 thing" or "3 things". */
-function counted(n: number, one: string, many: string): string {
-  return `${String(n)} ${n === 1 ? one : many}`;
+/** The phrase of the plural message {@link key} for {@link n} things: "1 hidden window", "3 empty desktops". */
+function counted(n: number, key: MessageKey): string {
+  return t(key, { count: n });
 }
 
 /** Leaves out the windows that no pane or float shows. */
@@ -45,7 +47,7 @@ const hiddenWindows: Stage = (snapshot) => {
     ? null
     : {
         snapshot: { ...snapshot, windows },
-        what: counted(gone, 'hidden window', 'hidden windows'),
+        what: counted(gone, 'state.dropped_hidden_windows'),
       };
 };
 
@@ -66,7 +68,7 @@ const emptyDesktops: Stage = (snapshot) => {
         active: keeps.slice(0, active).filter(Boolean).length,
       },
     },
-    what: counted(gone, 'empty desktop', 'empty desktops'),
+    what: counted(gone, 'state.dropped_empty_desktops'),
   };
 };
 
@@ -79,7 +81,7 @@ const extraOverrides: Stage = (snapshot) => {
   const keyOverrides = snapshot.settings.keyOverrides.slice(0, MAX_SYNCED_OVERRIDES);
   return {
     snapshot: { ...snapshot, settings: { ...snapshot.settings, keyOverrides } },
-    what: counted(gone, 'key override', 'key overrides'),
+    what: counted(gone, 'state.dropped_key_overrides'),
   };
 };
 
@@ -88,7 +90,7 @@ const STAGES: readonly Stage[] = [hiddenWindows, emptyDesktops, extraOverrides];
 
 /** The reason sync pauses when even the trimmed desk is over {@link budget} bytes. */
 function pausedReason(budget: number): string {
-  return `Sync paused: the desk is too big to sync (over ${String(Math.round(budget / 1024))} KiB even without hidden windows, empty desktops and extra key overrides); it is kept here`;
+  return t('state.sync_paused', { size: String(Math.round(budget / 1024)) });
 }
 
 /**

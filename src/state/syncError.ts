@@ -6,26 +6,28 @@
  */
 import type { SettingsStoreError } from '../api/endpoints/settingsStore';
 import { describeApiError } from '../api/errors';
+import { t } from '../i18n/translate';
 
 /** The warning for a server copy that does not read as a desk. */
-export const INVALID_REMOTE_TEXT =
-  'Sync: the desk saved on the server is not readable and was ignored; this one is kept';
+export function invalidRemoteText(): string {
+  return t('state.sync_invalid_remote');
+}
 
 /** The warning for a desk that went to the server without {@link dropped} (the phrases of `fitSnapshot`); this device keeps everything. */
 export function describeTrimmed(dropped: readonly string[]): string {
-  return `Sync: the desk is large, so the copy on the server leaves out ${dropped.join(', ')}; this device keeps them`;
+  return t('state.sync_trimmed', { dropped: dropped.join(', ') });
 }
 
 /** The one line that says why {@link error} stopped the sync. */
 export function describeSyncError(error: SettingsStoreError): string {
   if (error.kind === 'tooLarge') {
-    return 'Sync: the server says the desk is too large to store';
+    return t('state.sync_too_large');
   }
   if (error.kind === 'forbidden') {
-    return 'Sync: this login may not use the settings store. Log in again to grant access';
+    return t('state.sync_forbidden');
   }
   if (error.kind === 'unsupported') {
-    return 'Sync: the server has no settings store; syncing stopped';
+    return t('state.sync_unsupported');
   }
-  return `Sync failed. ${describeApiError(error)}`;
+  return t('state.sync_failed', { reason: describeApiError(error) });
 }

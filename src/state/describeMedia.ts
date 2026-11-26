@@ -14,7 +14,7 @@ import { accountByKey } from './selectors';
 import type { PostContext } from './windowKind';
 import { updateMedia } from '../api/endpoints/media';
 import { describeApiError } from '../api/errors';
-import { NOT_LOGGED_IN_MESSAGE } from '../lib/refusal';
+import { t } from '../i18n/translate';
 
 /** A ready attachment line, with the id the instance gave it. */
 type Described = ComposerMedia & { readonly mediaId: string };
@@ -52,7 +52,7 @@ export async function describeMedia(
     return null;
   }
   if (account === null) {
-    return NOT_LOGGED_IN_MESSAGE;
+    return t('state.not_logged_in');
   }
   const refresh = context.refresh ?? { refresher: null, dispatch, getState: () => state };
   for (const item of wanted) {

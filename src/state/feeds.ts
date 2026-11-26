@@ -8,6 +8,7 @@
  * `@me@host:home` into references is in src/state/feedSource.
  */
 
+import { t } from '../i18n/translate';
 import { type Result, err, ok } from '../lib/result';
 
 /** One kind of stream a feed can read: a timeline, an inbox or a hashtag. */
@@ -84,7 +85,7 @@ export function feedById(feeds: Feeds, id: string): FeedSpec | undefined {
 export function nameProblem(name: string): string | null {
   const length = name.trim().length;
   return length < 1 || length > MAX_FEED_NAME
-    ? `A feed name is 1-${String(MAX_FEED_NAME)} characters`
+    ? t('state.feed_name_length', { max: String(MAX_FEED_NAME) })
     : null;
 }
 
@@ -97,7 +98,7 @@ function checkedName(feeds: Feeds, name: string, id: string): Result<string, str
   const trimmed = name.trim();
   const clash = feedByName(feeds, trimmed);
   if (clash !== undefined && clash.id !== id) {
-    return err(`A feed named "${clash.name}" already exists`);
+    return err(t('state.feed_name_taken', { name: clash.name }));
   }
   return ok(trimmed);
 }
@@ -116,7 +117,7 @@ function mapFeed(feeds: Feeds, id: string, change: (feed: FeedSpec) => FeedSpec)
 /** {@link feeds} plus {@link spec} (name trimmed, sources deduped); an error for a bad or taken name or id. */
 export function addFeed(feeds: Feeds, spec: FeedSpec): Result<Feeds, string> {
   if (feedById(feeds, spec.id) !== undefined) {
-    return err(`A feed with id ${spec.id} already exists`);
+    return err(t('state.feed_id_taken', { id: spec.id }));
   }
   const name = checkedName(feeds, spec.name, spec.id);
   if (!name.ok) {
@@ -133,7 +134,7 @@ export function removeFeed(feeds: Feeds, id: string): Feeds {
 /** {@link feeds} with the feed {@link id} renamed; an error for an unknown feed or a bad or taken name. */
 export function renameFeed(feeds: Feeds, id: string, name: string): Result<Feeds, string> {
   if (feedById(feeds, id) === undefined) {
-    return err(`No feed with id ${id}`);
+    return err(t('state.no_feed_with_id', { id }));
   }
   const checked = checkedName(feeds, name, id);
   if (!checked.ok) {
