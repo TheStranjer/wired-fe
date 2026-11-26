@@ -75,6 +75,24 @@ test('Enter with an undescribed picture opens the review, and its Enter sends th
   expect(descriptions).toStrictEqual(['{"description":"a wall at night"}']);
 });
 
+test('Enter on a blank line posts the pending picture after the review', async ({ page }) => {
+  await signIn(page);
+  const descriptions = await routeMedia(page);
+  await attachPicture(page);
+
+  await page.getByRole('textbox', { name: 'Command line' }).press('Enter');
+  const dialog = page.getByRole('dialog', { name: 'Describe media' });
+  const field = dialog.getByRole('textbox', { name: 'Description for pixel.png' });
+
+  await expect(dialog).toBeVisible();
+  await field.fill('a wall at night');
+  await field.press('Enter');
+
+  await expect(dialog).toHaveCount(0);
+  await expect(page.getByRole('list', { name: 'Pending media' })).toHaveCount(0);
+  expect(descriptions).toStrictEqual(['{"description":"a wall at night"}']);
+});
+
 test('a picture described in the tray first is sent with no dialog', async ({ page }) => {
   await signIn(page);
   await routeMedia(page);

@@ -79,6 +79,26 @@ describe(InputLine, () => {
     expect(onSubmit).not.toHaveBeenCalled();
   });
 
+  it('submits a blank line on Enter when allowEmpty is set', () => {
+    const onSubmit = vi.fn<(value: string) => void>();
+    render(<InputLine prompt=">" value="" onChange={NOOP} onSubmit={onSubmit} allowEmpty />);
+
+    fireEvent.keyDown(screen.getByRole('textbox', { name: 'Command line' }), { key: 'Enter' });
+
+    expect(onSubmit).toHaveBeenCalledWith('');
+  });
+
+  it('does not submit a blank line when allowEmpty is false', () => {
+    const onSubmit = vi.fn<(value: string) => void>();
+    render(
+      <InputLine prompt=">" value="" onChange={NOOP} onSubmit={onSubmit} allowEmpty={false} />,
+    );
+
+    fireEvent.keyDown(screen.getByRole('textbox', { name: 'Command line' }), { key: 'Enter' });
+
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
+
   it('does not submit on other keys', () => {
     const onSubmit = vi.fn<(value: string) => void>();
     const input = renderInputLine('hello wired', NOOP, onSubmit);

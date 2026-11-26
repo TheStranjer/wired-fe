@@ -15,8 +15,10 @@ export type InputLineProps = {
   readonly value: string;
   /** Called with the full text whenever it changes. */
   readonly onChange: (value: string) => void;
-  /** Called with the text when Enter is pressed on a non-blank line. */
+  /** Called with the text when Enter is pressed on a non-blank line, or on any line when {@link allowEmpty}. */
   readonly onSubmit: (value: string) => void;
+  /** Lets Enter submit a blank line, e.g. when media wait to be posted (WFE-293). */
+  readonly allowEmpty?: boolean;
   /** Called when the input gains focus (AGENTS.md "Two hotkey modes": focusing leaves navigation). */
   readonly onFocus?: () => void;
   /** Called on every keydown before the line's own Enter handling; a handler
@@ -30,7 +32,8 @@ export type InputLineProps = {
 
 /** A single-line composer styled after an IRC input. */
 export function InputLine(props: InputLineProps): JSX.Element {
-  const { prompt, value, onChange, onSubmit, onFocus, onKeyDown, inputRef, lead } = props;
+  const { prompt, value, onChange, onSubmit, onFocus, onKeyDown, inputRef, lead, allowEmpty } =
+    props;
 
   function handleChange(event: ChangeEvent<HTMLInputElement>): void {
     onChange(event.target.value);
@@ -38,7 +41,8 @@ export function InputLine(props: InputLineProps): JSX.Element {
 
   function handleKeyDown(event: KeyboardEvent<HTMLInputElement>): void {
     onKeyDown?.(event);
-    if (event.key === 'Enter' && !event.defaultPrevented && value.trim() !== '') {
+    const submittable = allowEmpty === true || value.trim() !== '';
+    if (event.key === 'Enter' && !event.defaultPrevented && submittable) {
       event.preventDefault();
       onSubmit(value);
     }

@@ -2,7 +2,8 @@
  * The command dispatcher (decision 6): the one function the command line
  * calls on Enter and the keymap calls with a bound command line. parseInput
  * classifies the input, plain text goes to the app's text handler and a
- * command runs through the registry. Every failure is printed into the
+ * command runs through the registry. A blank line posts only when media are
+ * pending (WFE-293): media alone is content. Every failure is printed into the
  * active window as an error; nothing escapes as an exception.
  */
 
@@ -65,6 +66,9 @@ export async function dispatchInput(
   const parsed = parseInput(input);
   switch (parsed.kind) {
     case 'empty':
+      if (context.attachments.pending.length > 0) {
+        await sendText('', context, onText);
+      }
       return;
     case 'invalid':
       context.print(parsed.reason, 'error');

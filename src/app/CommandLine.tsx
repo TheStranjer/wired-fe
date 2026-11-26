@@ -79,9 +79,9 @@ export function CommandLine(props: CommandLineProps): JSX.Element {
     setValue,
   });
   /** Do what one submitted line asks — command or post — then clear the line (./useLineWriter). */
-  async function runLine(line: string): Promise<void> {
+  function runLine(line: string): void {
     history.remember(line);
-    await writer.settle(async () => {
+    void writer.settle(async () => {
       await dispatchInput(line, context, textHandler(context));
     });
   }
@@ -100,9 +100,8 @@ export function CommandLine(props: CommandLineProps): JSX.Element {
       prompt=">"
       value={value}
       onChange={setValue}
-      onSubmit={(line: string) => {
-        void runLine(line);
-      }}
+      allowEmpty={props.attachments.pending.length > 0}
+      onSubmit={runLine}
       onKeyDown={handleKeyDown}
       inputRef={inputRef}
       onFocus={handleInputFocus}
