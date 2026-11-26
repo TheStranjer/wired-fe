@@ -8,7 +8,7 @@ import { type Mock, describe, expect, it, vi } from 'vitest';
 import { dispatchInput, type TextHandler } from './dispatch';
 import { buildRegistry } from './registry';
 import type { CommandContext, CommandDefinition, CommandOutcome, Registry } from './types';
-import { fakeCommandContext } from '../test/commandContext';
+import { fakeAttachments, fakeCommandContext } from '../test/commandContext';
 
 /** A text handler no command test should ever reach. */
 const NEVER_TEXT: TextHandler = vi.fn<TextHandler>();
@@ -59,6 +59,18 @@ describe(dispatchInput, () => {
 
     expect(print).not.toHaveBeenCalled();
     expect(onText).not.toHaveBeenCalled();
+  });
+
+  it('hands empty text to the text handler when media are pending', async () => {
+    const attachments = fakeAttachments({ pending: ['12'] });
+    const print: PrintMock = vi.fn();
+    const context = fakeCommandContext({ registry: built([]), print, attachments });
+    const onText = vi.fn<TextHandler>();
+
+    await dispatchInput('   ', context, onText);
+
+    expect(onText).toHaveBeenCalledExactlyOnceWith('');
+    expect(print).not.toHaveBeenCalled();
   });
 
   it('hands plain text to the text handler', async () => {
