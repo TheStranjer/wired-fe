@@ -51,4 +51,13 @@ describe(Shell, () => {
 
     expect(order).toStrictEqual(['status-line-slot', 'tray-slot', 'input-slot']);
   });
+
+  it('renders the start slot in the footer before the status line', () => {
+    render(<Shell {...SLOTS} start={<span>start-slot</span>} />);
+
+    const footer = screen.getByRole('contentinfo');
+    const order = [...footer.querySelectorAll('span')].map((slot) => slot.textContent);
+
+    expect(order).toStrictEqual(['start-slot', 'status-line-slot', 'input-slot']);
+  });
 });

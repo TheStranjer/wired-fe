@@ -6,11 +6,12 @@
  * chosen from a menu (`/vsplit <view>`, `/split <view>`; the rows that need an
  * argument ask for it in a small dialog, then run the finished line, WFE-269,
  * and no row fills the command line); `◐▾` sets how its
- * posts are drawn; `✕` closes it. A tree pane also has `⧉▾`, which pops it
- * (`This pane`) or a view out into a float (`/float [view]`); a float has `⊞`
- * (`/dock`) instead, and no split buttons (WFE-230). In all three menus
+ * posts are drawn; `✕` closes it. A tree pane also has `⧉`, a plain button
+ * that tears the pane off into a float (`/float`, WFE-299); a float has `⊞`
+ * (`/dock`) instead, and no split buttons (WFE-230). In both split menus
  * `Existing window…` swaps the rows for a list of the other open windows and
- * runs `/vsplit win N` (or `/split`, `/float`) for the one chosen (WFE-270).
+ * runs `/vsplit win N` (or `/split`) for the one chosen (WFE-270). Opening a
+ * view as a float is the start menu's job (./StartMenu).
  */
 import { useCallback } from 'react';
 import type { JSX } from 'react';
@@ -61,6 +62,24 @@ function DockButton(props: { readonly paneId: string; readonly win: WindowState 
   );
 }
 
+/** The `⧉` button of a tree pane: tears it off into a float. */
+function FloatButton(props: { readonly paneId: string; readonly win: WindowState }): JSX.Element {
+  const { paneId, win } = props;
+  const runOnPane = useRunOnPane(paneId);
+  return (
+    <button
+      type="button"
+      className={styles['button']}
+      aria-label={`Float ${win.title}`}
+      onClick={() => {
+        runOnPane({ line: '/float', prefill: false });
+      }}
+    >
+      ⧉
+    </button>
+  );
+}
+
 /** The `✎` button of a feed window: its feed's editor takes the pane (WFE-242). */
 function EditFeedButton(props: {
   readonly paneId: string;
@@ -106,7 +125,10 @@ export function PaneActions(props: {
       {floating ? (
         <DockButton paneId={paneId} win={win} />
       ) : (
-        <TreeButtons paneId={paneId} win={win} />
+        <>
+          <TreeButtons paneId={paneId} win={win} />
+          <FloatButton paneId={paneId} win={win} />
+        </>
       )}
       <button
         type="button"

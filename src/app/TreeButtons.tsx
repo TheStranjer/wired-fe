@@ -1,14 +1,15 @@
 /**
- * The split and pop-out buttons of a tree pane (WFE-229, WFE-269, WFE-270):
- * `◫▾`, `⊟▾` and `⧉▾`, each a menu of views that runs `/vsplit <view>`,
- * `/split <view>` or `/float <view>` on its pane. The rows that need an
- * argument ask for it in a dialog, and `Existing window…` opens a second
- * level listing the other open windows (see ./SplitMenu).
+ * The split buttons of a tree pane (WFE-229, WFE-269, WFE-270): `◫▾` and `⊟▾`,
+ * each a menu of views that runs `/vsplit <view>` or `/split <view>` on its
+ * pane. The rows that need an argument ask for it in a dialog, and
+ * `Existing window…` opens a second level listing the other open windows (see
+ * ./SplitMenu). Floating a pane is the plain `⧉` button beside them
+ * (./PaneActions); opening a view as a float is the start menu (./StartMenu).
  */
 import { useMemo } from 'react';
 import type { JSX } from 'react';
 
-import { paneMenuEntries, popOutEntries } from './paneMenu';
+import { paneMenuEntries } from './paneMenu';
 import { SplitMenu } from './SplitMenu';
 import type { SplitButton } from './SplitMenu';
 import { useAvailableRegistry } from './useAvailableRegistry';
@@ -22,10 +23,7 @@ const SPLIT_BUTTONS: readonly SplitButton[] = [
   { glyph: '⊟▾', label: 'Split stacked', command: 'split' },
 ];
 
-/** The pop-out button, which takes `This pane` as well as the views. */
-const POP_OUT: SplitButton = { glyph: '⧉▾', label: 'Pop out', command: 'float' };
-
-/** The split and pop-out buttons of the tree pane `paneId`, which shows the window `win`. */
+/** The split buttons of the tree pane `paneId`, which shows the window `win`. */
 export function TreeButtons(props: {
   readonly paneId: string;
   readonly win: WindowState;
@@ -38,7 +36,6 @@ export function TreeButtons(props: {
     () => paneMenuEntries(registry, settings.feeds),
     [registry, settings.feeds],
   );
-  const popOut = useMemo(() => popOutEntries(entries), [entries]);
   return (
     <>
       {SPLIT_BUTTONS.map((button) => (
@@ -50,12 +47,6 @@ export function TreeButtons(props: {
           ownWindowId={ownWindowId}
         />
       ))}
-      <SplitMenu
-        button={POP_OUT}
-        entries={popOut}
-        runOnPane={runOnPane}
-        ownWindowId={ownWindowId}
-      />
     </>
   );
 }

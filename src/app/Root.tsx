@@ -27,6 +27,7 @@ import { KINDS } from './loadedKinds';
 import { MediaReviewHost } from './MediaReviewHost';
 import { appRegistry } from './registry';
 import { Shell } from './Shell';
+import { StartMenu } from './StartMenu';
 import { StatusBar } from './StatusBar';
 import { appStores } from './stores';
 import { useAttachments } from './useAttachments';
@@ -115,6 +116,7 @@ export function Root(): JSX.Element {
             header={<AppHeader />}
             scrollback={<DesktopView />}
             scrollbackLabel={`Desktop ${String(state.layout.active + 1)}`}
+            start={<StartMenu />}
             statusLine={<StatusBar attachments={attachments} pendingKeys={pendingKeys.prefix} />}
             tray={<CommandTray attachments={attachments} />}
             input={

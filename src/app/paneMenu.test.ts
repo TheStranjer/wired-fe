@@ -4,7 +4,7 @@
  */
 import { describe, expect, it } from 'vitest';
 
-import { askedLine, entryLine, paneMenuEntries, popOutEntries } from './paneMenu';
+import { askedLine, entryLine, paneMenuEntries } from './paneMenu';
 import type { PaneMenuEntry } from './paneMenu';
 import { OK } from '../commands/outcome';
 import { buildRegistry } from '../commands/registry';
@@ -125,12 +125,6 @@ describe('the Attach media… row', () => {
   it('is left out when the registry has no /attach', () => {
     expect(paneMenuEntries(ALL, FEEDS).map((item) => item.id)).not.toContain('attach');
   });
-
-  it('stays in the pop-out menu', () => {
-    expect(popOutEntries(paneMenuEntries(withAttach, [])).map((item) => item.id)).toContain(
-      'attach',
-    );
-  });
 });
 
 describe('the Existing window… row', () => {
@@ -207,16 +201,5 @@ describe(askedLine, () => {
     { id: 'home', command: 'vsplit', answer: 'x', line: '/vsplit home x' },
   ] as const)('$id from $command answered $answer is $line', ({ id, command, answer, line }) => {
     expect(askedLine(entry(entries, id), command, answer)).toBe(line);
-  });
-});
-
-describe(popOutEntries, () => {
-  it('puts This pane, which runs /float, where Same window was', () => {
-    const popped = popOutEntries(paneMenuEntries(ALL, []));
-
-    expect(popped.map((item) => item.id)).not.toContain('same');
-    expect(popped[0]?.label).toBe('This pane');
-    expect(popped[0] === undefined ? '' : entryLine(popped[0], 'float')).toBe('/float');
-    expect(popped.map((item) => item.id)).toContain('home');
   });
 });

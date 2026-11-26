@@ -1,7 +1,8 @@
 /**
  * The views a pane's split buttons offer (WFE-229, decisions 12 and 13): one
  * list, built from the commands the backend can run and the reader's saved
- * feeds, shared by `◫▾` (`/vsplit`) and `⊟▾` (`/split`). Pure. A row whose
+ * feeds, shared by `◫▾` (`/vsplit`), `⊟▾` (`/split`), the empty desktop
+ * (`/vsplit`, WFE-298) and the start menu (`/float`, WFE-299). Pure. A row whose
  * command is missing is left out, so no menu offers what a line would refuse.
  * A row either runs at once, asks for its argument in a small dialog (the
  * `…` rows that need typed text, WFE-269), or opens a picker of the open
@@ -160,23 +161,8 @@ export function paneMenuEntries(registry: Registry, feeds: Feeds): readonly Pane
   ];
 }
 
-/** The commands whose menus share the view list: the two splits and the pop-out. */
+/** The commands that share the view list: the two splits (the pane menus), `vsplit` (the empty desktop) and `float` (the start menu). */
 export type ViewCommand = 'vsplit' | 'split' | 'float';
-
-/** The pop-out menu's first row: float the pane itself (`/float`). */
-const THIS_PANE: PaneMenuEntry = {
-  id: 'this',
-  label: 'This pane',
-  text: '',
-  literal: false,
-  pick: null,
-  ask: null,
-};
-
-/** The rows of the pop-out menu: `This pane`, then {@link entries} less `Same window`, which `This pane` replaces. */
-export function popOutEntries(entries: readonly PaneMenuEntry[]): readonly PaneMenuEntry[] {
-  return [THIS_PANE, ...entries.filter((entry) => entry.id !== 'same')];
-}
 
 /** The command line {@link entry} runs or fills when chosen from the `/`{@link command} button. */
 export function entryLine(entry: PaneMenuEntry, command: ViewCommand): string {

@@ -18,6 +18,8 @@ export type ShellProps = {
   readonly scrollbackLabel?: string | undefined;
   /** The status line, directly above the command line. */
   readonly statusLine: ReactNode;
+  /** The start menu, at the left end of the status line (WFE-299); absent shows nothing. */
+  readonly start?: ReactNode;
   /** The tray of pending media, between the status line and the command line (WFE-287); absent shows nothing. */
   readonly tray?: ReactNode;
   /** The command line, at the very bottom. */
@@ -26,7 +28,7 @@ export type ShellProps = {
 
 /** The viewport-filling grid of the four shell regions. */
 export function Shell(props: ShellProps): JSX.Element {
-  const { header, scrollback, scrollbackLabel, statusLine, tray, input } = props;
+  const { header, scrollback, scrollbackLabel, start, statusLine, tray, input } = props;
 
   return (
     <div className={styles['shell']}>
@@ -35,7 +37,10 @@ export function Shell(props: ShellProps): JSX.Element {
         {scrollback}
       </main>
       <footer className={styles['footer']}>
-        <div className={styles['statusLine']}>{statusLine}</div>
+        <div className={styles['statusRow']}>
+          {start}
+          <div className={styles['statusLine']}>{statusLine}</div>
+        </div>
         {tray}
         <div className={styles['inputLine']}>{input}</div>
       </footer>

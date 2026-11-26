@@ -73,6 +73,8 @@ export type AppState = {
   readonly alerts: readonly Alert[];
   /** The account picker's open question, or null. */
   readonly accountPick: AccountPick | null;
+  /** Whether the start menu is open. */
+  readonly startMenu: boolean;
 };
 
 /** One thing that can happen to the application as a whole. */
@@ -94,11 +96,7 @@ export type CoreAction =
 /** The print action, named so its fields can be passed around as one. */
 export type PrintAction = Extract<CoreAction, { readonly type: 'print' }>;
 
-/**
- * The action that prints one client line into a window's scrollback — the
- * active window for a null id — stamped with the real clock, at the given
- * level. (The startup path stamps itself: its clock is injected.)
- */
+/** The action that prints one client line into a window's scrollback (the active one for a null id), stamped with the real clock. */
 export function printAction(windowId: string | null, level: LineLevel, text: string): PrintAction {
   return { type: 'print', windowId, date: new Date(), level, text };
 }
@@ -122,6 +120,7 @@ export function initialAppState(settings: Settings = DEFAULT_SETTINGS): AppState
     seq: 0,
     alerts: [],
     accountPick: null,
+    startMenu: false,
   };
 }
 
@@ -161,7 +160,7 @@ function applyWindows(state: AppState, action: WindowsAction): AppState {
   return { ...state, windows, layout, buffers };
 }
 
-/** A layout action: the desktops moved along and the active window following focus; the same state when nothing changed. */
+/** A layout action: the desktops moved along, the active window following focus. */
 function applyLayout(state: AppState, action: LayoutAction): AppState {
   const { windows, layout } = applyLayoutAction(state, action);
   return windows === state.windows && layout === state.layout

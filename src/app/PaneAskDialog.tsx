@@ -40,7 +40,7 @@ function suggestionsFor(
 /** What the dialog is told about its row. */
 type PaneAskDialogProps = {
   readonly ask: PaneAsk;
-  /** The menu's verb, e.g. `Pop out`, which labels the field. */
+  /** The menu's verb, e.g. `Split stacked`, which labels the field. */
   readonly verb: string;
   readonly onSubmit: (answer: string) => void;
   readonly onCancel: () => void;

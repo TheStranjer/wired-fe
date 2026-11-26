@@ -81,7 +81,7 @@ describe('the Attach media… row', () => {
     );
   });
 
-  it.each(['Split side by side', 'Split stacked', 'Pop out'])(
+  it.each(['Split side by side', 'Split stacked'])(
     'in the %s menu runs /attach, opens the file dialog and opens no pane',
     async (name) => {
       const before = screen.getByLabelText('tree').textContent;
