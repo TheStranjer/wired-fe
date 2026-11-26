@@ -9,6 +9,7 @@
 import type { ChangeEvent, JSX, KeyboardEvent, ReactNode, Ref, SyntheticEvent } from 'react';
 
 import styles from './InputLine.module.css';
+import { useT } from '../i18n/I18nProvider';
 
 /** What the command line shows and the callbacks it drives. */
 export type InputLineProps = {
@@ -58,15 +59,14 @@ export function InputLine(props: InputLineProps): JSX.Element {
   const { prompt, value, onChange, onSubmit, onFocus, onKeyDown, inputRef, lead, allowEmpty } =
     props;
   const { onCaret, listId, expanded, activeId, popup } = props;
+  const t = useT();
   function handleChange(event: ChangeEvent<HTMLInputElement>): void {
     onChange(event.target.value);
     onCaret?.(event.target);
   }
-
   function reportCaret(event: SyntheticEvent<HTMLInputElement>): void {
     onCaret?.(event.currentTarget);
   }
-
   function handleKeyDown(event: KeyboardEvent<HTMLInputElement>): void {
     onKeyDown?.(event);
     if (submits(event, value, allowEmpty)) {
@@ -87,7 +87,7 @@ export function InputLine(props: InputLineProps): JSX.Element {
         aria-autocomplete="list"
         aria-controls={listId}
         aria-expanded={expanded}
-        aria-label="Command line"
+        aria-label={t('ui.input_line.label')}
         autoComplete="off"
         className={styles['input']}
         onChange={handleChange}

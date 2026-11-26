@@ -9,12 +9,14 @@
 import type { JSX } from 'react';
 
 import styles from './DropHighlight.module.css';
+import { useT } from '../i18n/I18nProvider';
 
 /** The full-viewport `-- drop to attach --` frame shown during a file drag. */
 export function DropHighlight(): JSX.Element {
+  const t = useT();
   return (
     <div aria-hidden="true" className={styles['overlay']}>
-      -- drop to attach --
+      {t('ui.drop_highlight.text')}
     </div>
   );
 }

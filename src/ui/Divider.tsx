@@ -10,6 +10,7 @@ import { useRef } from 'react';
 import type { HTMLAttributes, JSX, KeyboardEvent, PointerEvent, RefObject } from 'react';
 
 import styles from './Divider.module.css';
+import { useT } from '../i18n/I18nProvider';
 import { DEFAULT_RATIO, keyedRatio, ownsDividerKey, ratioFromPointer } from '../lib/dividerRatio';
 import type { RatioBounds } from '../lib/dividerRatio';
 
@@ -43,10 +44,11 @@ function measure(
 function useDivider(props: DividerProps): HTMLAttributes<HTMLDivElement> {
   const { orientation, ratio, bounds, containerRef, onRatioChange } = props;
   const draggingRef = useRef(false);
+  const t = useT();
   return {
     role: 'separator',
     tabIndex: 0,
-    'aria-label': 'Resize panes',
+    'aria-label': t('ui.divider.resize'),
     'aria-orientation': orientation,
     'aria-valuenow': Math.round(ratio * 100),
     'aria-valuemin': Math.round(bounds.min * 100),

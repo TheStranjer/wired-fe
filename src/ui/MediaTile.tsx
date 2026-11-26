@@ -14,9 +14,7 @@ import { mediaClick, type OpenMedia } from './mediaClick';
 import styles from './MediaGrid.module.css';
 import type { MediaItem } from './MediaList';
 import { usePrefersReducedMotion } from './usePrefersReducedMotion';
-
-/** The alt text of an image whose author wrote none. */
-const NO_DESCRIPTION = 'Image without description';
+import { useT } from '../i18n/I18nProvider';
 
 /** The attachment's description, or null when it has none worth showing. */
 export function describedBy(item: MediaItem): string | null {
@@ -25,7 +23,8 @@ export function describedBy(item: MediaItem): string | null {
 
 /** What shows where an attachment has no http(s) address to load. */
 function Unavailable(): JSX.Element {
-  return <span className={styles['unavailable']}>[no usable link]</span>;
+  const t = useT();
+  return <span className={styles['unavailable']}>{t('ui.media_tile.no_usable_link')}</span>;
 }
 
 /** What a file needs besides the attachment: its place and how a click opens it. */
@@ -38,13 +37,14 @@ type FileProps = {
 /** An image: the preview, lazy and referrer-free, linking to the full file. */
 function ImageFile(props: FileProps): JSX.Element {
   const { item, index, onOpenMedia } = props;
+  const t = useT();
   const src = item.previewUrl ?? item.url;
   if (src === null) {
     return <Unavailable />;
   }
   const image = (
     <img
-      alt={describedBy(item) ?? NO_DESCRIPTION}
+      alt={describedBy(item) ?? t('ui.media_tile.no_description')}
       className={styles['image']}
       loading="lazy"
       referrerPolicy="no-referrer"
@@ -139,18 +139,19 @@ export type MediaTileProps = {
 /** One attachment with its ALT badge, when it has a description. */
 export function MediaTile(props: MediaTileProps): JSX.Element {
   const { item, index, altOpen, onToggleAlt, overlay, onOpenMedia } = props;
+  const t = useT();
   return (
     <div className={styles['tile']}>
       <MediaFile index={index} item={item} onOpenMedia={onOpenMedia} />
       {describedBy(item) === null ? undefined : (
         <button
           aria-expanded={altOpen}
-          aria-label={`ALT: description of attachment ${String(index + 1)}`}
+          aria-label={t('ui.media_tile.alt_label', { number: index + 1 })}
           className={styles['alt']}
           onClick={onToggleAlt}
           type="button"
         >
-          ALT
+          {t('ui.media_tile.alt')}
         </button>
       )}
       {overlay}

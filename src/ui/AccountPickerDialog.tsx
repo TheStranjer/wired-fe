@@ -14,6 +14,7 @@ import styles from './AccountPickerDialog.module.css';
 import { Overlay } from './Overlay';
 import { type RadioOption, RadioFieldset } from './RadioFieldset';
 import { useChosenFocus, useDigitSelect } from './useDigitSelect';
+import { useT } from '../i18n/I18nProvider';
 
 /** What the dialog shows and reports. */
 export type AccountPickerDialogProps = {
@@ -45,13 +46,14 @@ function numbered(accounts: AccountPickerDialogProps['accounts']): readonly Radi
 
 /** `Cancel`, which never submits, then `OK`, which does. */
 function PickerButtons(props: { readonly onCancel: () => void }): JSX.Element {
+  const t = useT();
   return (
     <div className={styles['buttons']}>
       <button className={styles['button']} onClick={props.onCancel} type="button">
-        Cancel
+        {t('ui.account_picker_dialog.cancel')}
       </button>
       <button className={styles['button']} type="submit">
-        OK
+        {t('ui.account_picker_dialog.ok')}
       </button>
     </div>
   );
@@ -65,6 +67,7 @@ export function AccountPickerDialog(props: AccountPickerDialogProps): JSX.Elemen
   const formRef = useRef<HTMLFormElement | null>(null);
   const keys = useMemo(() => accounts.map((account) => account.key), [accounts]);
   const descriptionId = useId();
+  const t = useT();
   useDigitSelect(formRef, keys, setKey);
   useChosenFocus(formRef);
 
@@ -83,14 +86,14 @@ export function AccountPickerDialog(props: AccountPickerDialogProps): JSX.Elemen
           {description}
         </p>
         <RadioFieldset
-          legend="Accounts"
+          legend={t('ui.account_picker_dialog.accounts')}
           name="account"
           onChange={setKey}
           options={numbered(accounts)}
           value={key}
         />
         <RadioFieldset
-          legend="Remember"
+          legend={t('ui.account_picker_dialog.remember')}
           name="scope"
           onChange={setScope}
           options={scopes}

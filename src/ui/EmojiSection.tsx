@@ -9,6 +9,7 @@ import type { JSX } from 'react';
 
 import styles from './EmojiPicker.module.css';
 import type { Cell, Section } from './emojiPickerModel';
+import { useT } from '../i18n/I18nProvider';
 
 /** What the sections report, and which cell is the grid's tab stop. */
 type GridProps = {
@@ -70,12 +71,15 @@ function EmojiSection(props: GridProps & { readonly section: Section }): JSX.Ele
 /** The scrolling list of sections, or a note when the search found none. */
 export function EmojiSections(props: EmojiSectionsProps): JSX.Element {
   const { sections, ...grid } = props;
+  const t = useT();
   return (
     <div className={styles['scroll']}>
       {sections.map((section) => (
         <EmojiSection key={section.id} {...grid} section={section} />
       ))}
-      {sections.length === 0 ? <p className={styles['note']}>no matches</p> : null}
+      {sections.length === 0 ? (
+        <p className={styles['note']}>{t('ui.emoji_section.no_matches')}</p>
+      ) : null}
     </div>
   );
 }
