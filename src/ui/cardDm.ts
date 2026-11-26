@@ -5,6 +5,7 @@
  * {@link PostCard}.
  */
 import type { DmStrip } from './CardHead';
+import { t } from '../i18n/translate';
 
 /** One account a direct message names, as the strip shows it. */
 export type DmRecipient = {
@@ -29,12 +30,14 @@ type DmInput = {
   readonly chat: ChatMark | null;
 };
 
-/** What the viewer is called on a card. */
-const YOU = 'you';
+/** What the viewer is called on a card, in the language in use. */
+function you(): string {
+  return t('ui.card_dm.you');
+}
 
 /** The name a DM shows for one account: `you` for the viewer, else the handle. */
 function nameOf(account: { readonly handle: string; readonly self: boolean }): string {
-  return account.self ? YOU : account.handle;
+  return account.self ? you() : account.handle;
 }
 
 /**
@@ -51,7 +54,7 @@ export function dmStrip(input: DmInput): DmStrip | null {
 
 /** The display name a card shows: `you` for the viewer's own bubble. */
 export function bubbleName(chat: ChatMark | null, name: string): string {
-  return chat?.own === true ? YOU : name;
+  return chat?.own === true ? you() : name;
 }
 
 /** The CSS module keys a card takes, in order, for its audience, placement and selection. */

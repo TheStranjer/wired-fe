@@ -8,6 +8,7 @@ import type { JSX } from 'react';
 
 import styles from './BoostLine.module.css';
 import { Nick } from './Nick';
+import { useT } from '../i18n/I18nProvider';
 
 /** Props of {@link BoostLine}: who boosted the post below it. */
 export type BoostLineProps = {
@@ -21,11 +22,12 @@ export type BoostLineProps = {
 /** Who boosted the post, in their own dim line above it. */
 export function BoostLine(props: BoostLineProps): JSX.Element {
   const { handle, fullHandle } = props.boostedBy;
+  const t = useT();
   return (
     <div className={styles['boost']}>
       <span aria-hidden="true">{'⟳ '}</span>
       <Nick handle={handle} fullHandle={fullHandle} self={false} />
-      {' boosted'}
+      {` ${t('ui.boost_line.boosted')}`}
     </div>
   );
 }

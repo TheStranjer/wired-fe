@@ -11,6 +11,7 @@ import type { JSX, ReactNode } from 'react';
 
 import styles from './ConfirmDialog.module.css';
 import { Overlay } from './Overlay';
+import { useT } from '../i18n/I18nProvider';
 
 /** What the dialog asks and what its answers do. */
 export type ConfirmDialogProps = {
@@ -34,7 +35,9 @@ export type ConfirmDialogProps = {
 
 /** A modal confirmation with focus on its cancel button. */
 export function ConfirmDialog(props: ConfirmDialogProps): JSX.Element {
-  const { title, message, confirmLabel, cancelLabel = 'Cancel', danger = false } = props;
+  const t = useT();
+  const { title, message, confirmLabel, danger = false } = props;
+  const cancelLabel = props.cancelLabel ?? t('ui.confirm_dialog.cancel');
   return (
     <Overlay label={title} onClose={props.onCancel}>
       <h2 className={styles['title']}>{title}</h2>

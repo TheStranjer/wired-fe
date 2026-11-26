@@ -18,32 +18,19 @@ import type { JSX, ReactNode } from 'react';
 
 import { mediaClick, type OpenMedia } from './mediaClick';
 import styles from './MediaList.module.css';
+import { type MediaKind, placeholder } from './mediaPlaceholder';
+import { useT } from '../i18n/I18nProvider';
 
 /** One attachment as the list draws it: the ui twin of api's MediaAttachment,
  * which this layer may not import (AGENTS.md "Layout"). */
 export type MediaItem = {
   readonly id: string;
-  readonly type: 'image' | 'gifv' | 'video' | 'audio' | 'unknown';
+  readonly type: MediaKind;
   /** The file's http(s) URL; null when the server sent anything else. */
   readonly url: string | null;
   readonly previewUrl: string | null;
   readonly description: string | null;
 };
-
-/** The word each kind earns inside its placeholder. */
-const KIND_LABEL: Record<MediaItem['type'], string> = {
-  image: 'IMG',
-  gifv: 'GIF',
-  video: 'VID',
-  audio: 'AUD',
-  unknown: 'FILE',
-};
-
-/** The placeholder of one attachment: `[IMG 1/2: a wall]`. */
-function placeholder(item: MediaItem, index: number, total: number): string {
-  const description = item.description ?? 'no description';
-  return `[${KIND_LABEL[item.type]} ${String(index + 1)}/${String(total)}: ${description}]`;
-}
 
 /** The link to one file: native to the browser, or a plain click opens the
  * attachment {@link index} in the media window when there is a handler. */
@@ -77,8 +64,9 @@ function ExpandedMedia(props: {
 }): JSX.Element {
   const { item, index, onOpenMedia } = props;
   const { url } = item;
+  const t = useT();
   if (url === null) {
-    return <span className={styles['unavailable']}>[no usable link]</span>;
+    return <span className={styles['unavailable']}>{t('ui.media_list.no_usable_link')}</span>;
   }
   switch (item.type) {
     case 'image':
@@ -127,6 +115,7 @@ type MediaLineProps = {
 /** One placeholder line: the `[IMG …]` button and, once open, the file. */
 function MediaLine(props: MediaLineProps): JSX.Element {
   const { item, index, onOpenMedia, text, sensitive, expanded, onToggle } = props;
+  const t = useT();
   return (
     <div className={styles['line']}>
       <button
@@ -135,7 +124,9 @@ function MediaLine(props: MediaLineProps): JSX.Element {
         onClick={onToggle}
         type="button"
       >
-        {sensitive ? <span className={styles['sensitive']}>[SENSITIVE]</span> : undefined}
+        {sensitive ? (
+          <span className={styles['sensitive']}>{t('ui.media_list.sensitive')}</span>
+        ) : undefined}
         {sensitive ? ` ${text}` : text}
       </button>
       {expanded ? <ExpandedMedia index={index} item={item} onOpenMedia={onOpenMedia} /> : undefined}
@@ -155,6 +146,7 @@ export function MediaList(props: {
   readonly onOpenMedia?: OpenMedia | undefined;
 }): JSX.Element | null {
   const { items, sensitive, autoExpand, onOpenMedia } = props;
+  const t = useT();
   const [open, setOpen] = useState<ReadonlySet<string>>(() =>
     autoExpand && !sensitive ? new Set(items.map((item) => item.id)) : new Set<string>(),
   );
@@ -189,7 +181,7 @@ export function MediaList(props: {
             toggle(item.id);
           }}
           sensitive={sensitive}
-          text={placeholder(item, index, items.length)}
+          text={placeholder(item, { index, total: items.length }, t)}
         />
       ))}
     </>

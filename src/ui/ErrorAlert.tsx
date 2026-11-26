@@ -14,6 +14,7 @@ import type { JSX, KeyboardEvent } from 'react';
 
 import styles from './ErrorAlert.module.css';
 import { Overlay } from './Overlay';
+import { useT } from '../i18n/I18nProvider';
 
 /** What the alert says and what OK does. */
 export type ErrorAlertProps = {
@@ -34,12 +35,20 @@ function pressesButton(event: KeyboardEvent<HTMLButtonElement>): boolean {
 export function ErrorAlert(props: ErrorAlertProps): JSX.Element {
   const messageId = useId();
   const { onDismiss } = props;
+  const t = useT();
   return (
-    <Overlay describedBy={messageId} label="Error" onClose={onDismiss} role="alertdialog">
+    <Overlay
+      describedBy={messageId}
+      label={t('ui.error_alert.label')}
+      onClose={onDismiss}
+      role="alertdialog"
+    >
       <p className={styles['message']}>
         <span id={messageId}>{props.text}</span>
         {props.count > 1 ? (
-          <span className={styles['count']}> (×{String(props.count)})</span>
+          <span className={styles['count']}>
+            {` ${t('ui.error_alert.count', { count: props.count })}`}
+          </span>
         ) : null}
       </p>
       <button
@@ -60,7 +69,7 @@ export function ErrorAlert(props: ErrorAlertProps): JSX.Element {
         }}
         type="button"
       >
-        OK
+        {t('ui.error_alert.ok')}
       </button>
     </Overlay>
   );

@@ -10,6 +10,7 @@ import { useId, useState } from 'react';
 import type { JSX } from 'react';
 
 import styles from './InstanceChoices.module.css';
+import { useT } from '../i18n/I18nProvider';
 import { type InstanceChoices as Choices, instanceWord } from '../lib/origin';
 
 /** What the picker shows and reports. */
@@ -46,9 +47,10 @@ export function InstanceChoices(props: InstanceChoicesProps): JSX.Element {
   const groupId = useId();
   const [typed, setTyped] = useState('');
   const { onChange } = props;
+  const t = useT();
   return (
     <fieldset className={styles['group']}>
-      <legend className={styles['legend']}>Instance</legend>
+      <legend className={styles['legend']}>{t('ui.instance_choices.legend')}</legend>
       {props.origins.map((origin) => (
         <Choice
           checked={props.value === origin}
@@ -63,7 +65,7 @@ export function InstanceChoices(props: InstanceChoicesProps): JSX.Element {
       ))}
       {props.allowCustom ? (
         <label className={styles['label']}>
-          <span>Other instance</span>
+          <span>{t('ui.instance_choices.other')}</span>
           <input
             autoComplete="url"
             className={styles['input']}

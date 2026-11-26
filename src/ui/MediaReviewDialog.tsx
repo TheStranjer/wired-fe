@@ -13,8 +13,10 @@
 import { useId, useLayoutEffect, useRef, useState } from 'react';
 import type { JSX, KeyboardEvent } from 'react';
 
+import { ReviewButtons } from './MediaReviewButtons';
 import styles from './MediaReviewDialog.module.css';
 import { Overlay } from './Overlay';
+import { useT } from '../i18n/I18nProvider';
 
 /** The description of each line by its key. */
 type Descriptions = ReadonlyMap<string, string>;
@@ -58,6 +60,7 @@ function ReviewRow(props: {
   readonly onEnter: () => void;
 }): JSX.Element {
   const { item, value, onChange, onEnter } = props;
+  const t = useT();
   const missing = value.trim() === '';
   const onKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>): void => {
     if (event.key === 'Enter' && !event.shiftKey) {
@@ -81,10 +84,12 @@ function ReviewRow(props: {
       )}
       <div className={styles['fields']}>
         <span className={styles['name']}>{item.name}</span>
-        {missing ? <span className={styles['missing']}>no description</span> : null}
+        {missing ? (
+          <span className={styles['missing']}>{t('ui.media_review_dialog.missing')}</span>
+        ) : null}
         <textarea
           aria-invalid={missing}
-          aria-label={`Description for ${item.name}`}
+          aria-label={t('ui.media_review_dialog.description_for', { name: item.name })}
           className={styles['description']}
           onChange={(event) => {
             onChange(event.target.value);
@@ -101,39 +106,54 @@ function ReviewRow(props: {
 /** One row of the dialog: the line and the description typed for it so far. */
 type Row = { readonly item: ReviewItem; readonly value: string };
 
-/** `Cancel`, which never submits, then `Submit`, which does. */
-function ReviewButtons(props: { readonly onCancel: () => void }): JSX.Element {
-  return (
-    <div className={styles['buttons']}>
-      <button className={styles['button']} onClick={props.onCancel} type="button">
-        Cancel
-      </button>
-      <button className={styles['button']} type="submit">
-        Submit
-      </button>
-    </div>
+/**
+ * The rows of {@link items} with what is typed in each, how to change a row,
+ * and `submit` and `cancel`, which hand every description typed so far to
+ * {@link MediaReviewDialogProps.onSubmit} and `onCancel`.
+ */
+function useRows(
+  items: readonly ReviewItem[],
+  handlers: Pick<MediaReviewDialogProps, 'onSubmit' | 'onCancel'>,
+): {
+  readonly rows: readonly Row[];
+  readonly setValue: (key: string, value: string) => void;
+  readonly submit: () => void;
+  readonly cancel: () => void;
+} {
+  const [rows, setRows] = useState<readonly Row[]>(() =>
+    items.map((item) => ({ item, value: item.description })),
   );
+  const typed = (): Descriptions => new Map(rows.map((row) => [row.item.key, row.value]));
+  return {
+    rows,
+    setValue: (key, value) => {
+      setRows((current) => current.map((one) => (one.item.key === key ? { ...one, value } : one)));
+    },
+    submit: () => {
+      handlers.onSubmit(typed());
+    },
+    cancel: () => {
+      handlers.onCancel(typed());
+    },
+  };
 }
 
 /** The dialog that reviews the alt text of {@link MediaReviewDialogProps.items}. */
 export function MediaReviewDialog(props: MediaReviewDialogProps): JSX.Element {
-  const { items, onSubmit, onCancel } = props;
-  const [rows, setRows] = useState<readonly Row[]>(() =>
-    items.map((item) => ({ item, value: item.description })),
-  );
+  const { items } = props;
+  const { rows, setValue, submit, cancel } = useRows(items, props);
   const listRef = useRef<HTMLUListElement | null>(null);
   const descriptionId = useId();
+  const t = useT();
   useFirstMissingFocus(listRef);
   const missing = items.filter((item) => item.description.trim() === '').length;
-  const typed = (): Descriptions => new Map(rows.map((row) => [row.item.key, row.value]));
-  const submit = (): void => {
-    onSubmit(typed());
-  };
-  const cancel = (): void => {
-    onCancel(typed());
-  };
   return (
-    <Overlay describedBy={descriptionId} label="Describe media" onClose={cancel} size="wide">
+    <Overlay
+      describedBy={descriptionId}
+      label={t('ui.media_review_dialog.title')}
+      onClose={cancel}
+      size="wide"
+    >
       <form
         className={styles['form']}
         onSubmit={(event) => {
@@ -141,19 +161,21 @@ export function MediaReviewDialog(props: MediaReviewDialogProps): JSX.Element {
           submit();
         }}
       >
-        <h2 className={styles['title']}>Describe media</h2>
+        <h2 className={styles['title']}>{t('ui.media_review_dialog.title')}</h2>
         <p className={styles['summary']} id={descriptionId}>
-          {`${String(missing)} of ${String(items.length)} attachments have no description`}
+          {t('ui.media_review_dialog.summary', { missing, total: items.length })}
         </p>
-        <ul aria-label="Attachments" className={styles['list']} ref={listRef}>
+        <ul
+          aria-label={t('ui.media_review_dialog.attachments')}
+          className={styles['list']}
+          ref={listRef}
+        >
           {rows.map((row) => (
             <ReviewRow
               item={row.item}
               key={row.item.key}
               onChange={(value) => {
-                setRows((current) =>
-                  current.map((one) => (one.item.key === row.item.key ? { ...one, value } : one)),
-                );
+                setValue(row.item.key, value);
               }}
               onEnter={submit}
               value={row.value}

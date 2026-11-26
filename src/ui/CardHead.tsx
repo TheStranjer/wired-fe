@@ -10,6 +10,7 @@ import type { JSX } from 'react';
 import styles from './CardHead.module.css';
 import { Timestamp } from './Timestamp';
 import { type Via, ViaMark } from './ViaMark';
+import { useT } from '../i18n/I18nProvider';
 import type { ClockFormat } from '../lib/time';
 
 /** Who a direct message is between: the sender and the others it names. */
@@ -30,20 +31,23 @@ export type CardHeadProps = {
   readonly via: Via | null;
 };
 
-/** The strip's words: `✉ DM  alice → you, bob`, or just the sender when nobody else is named. */
-function stripText(dm: DmStrip): string {
-  const people = dm.to.length === 0 ? dm.from : `${dm.from} → ${dm.to.join(', ')}`;
-  return `✉ DM  ${people}`;
-}
-
-/** The label, the DM strip and the account marker when there are any, and the clock. */
+/**
+ * The label, the DM strip and the account marker when there are any, and the
+ * clock. The strip reads `✉ DM  alice → you, bob`, or just the sender when
+ * nobody else is named.
+ */
 export function CardHead(props: CardHeadProps): JSX.Element {
   const { label, date, clockFormat, selected, dm, via } = props;
+  const t = useT();
   const labelClass = [styles['label'], selected ? styles['labelSelected'] : ''].join(' ');
   return (
     <div className={styles['head']}>
       <span className={labelClass}>{`[${label}]`}</span>
-      {dm === null ? undefined : <span className={styles['dm']}>{stripText(dm)}</span>}
+      {dm === null ? undefined : (
+        <span className={styles['dm']}>
+          {t('ui.card_head.dm_strip', { from: dm.from, count: dm.to.length, to: dm.to.join(', ') })}
+        </span>
+      )}
       {via === null ? undefined : <ViaMark via={via} form="card" />}
       <Timestamp date={date} format={clockFormat} />
     </div>

@@ -20,6 +20,7 @@ import type { OpenMedia } from './mediaClick';
 import styles from './MediaGrid.module.css';
 import type { MediaItem } from './MediaList';
 import { MediaTile, describedBy } from './MediaTile';
+import { useT } from '../i18n/I18nProvider';
 
 /** How many tiles show before the rest hide behind `+N`. */
 const VISIBLE = 4;
@@ -43,15 +44,15 @@ function Descriptions(props: {
   readonly items: readonly MediaItem[];
   readonly open: ReadonlySet<string>;
 }): JSX.Element | null {
+  const t = useT();
   const lines = props.items.flatMap((item, index) => {
     const text = describedBy(item);
     return text === null || !props.open.has(item.id)
       ? []
       : [
-          <p
-            key={item.id}
-            className={styles['description']}
-          >{`[ALT ${String(index + 1)}] ${text}`}</p>,
+          <p key={item.id} className={styles['description']}>
+            {t('ui.media_grid.alt_line', { number: index + 1, text })}
+          </p>,
         ];
   });
   return lines.length === 0 ? null : <div className={styles['descriptions']}>{lines}</div>;
@@ -59,18 +60,20 @@ function Descriptions(props: {
 
 /** The solid block that stands in for hidden media. */
 function Cover(props: { readonly onShow: () => void }): JSX.Element {
+  const t = useT();
   return (
     <button className={styles['cover']} onClick={props.onShow} type="button">
-      [ SENSITIVE — show ]
+      {t('ui.media_grid.sensitive_show')}
     </button>
   );
 }
 
 /** The `+N` button over the last visible tile. */
 function More(props: { readonly count: number; readonly onShow: () => void }): JSX.Element {
+  const t = useT();
   return (
     <button
-      aria-label={`Show ${String(props.count)} more attachments`}
+      aria-label={t('ui.media_grid.more', { count: props.count })}
       className={styles['more']}
       onClick={props.onShow}
       type="button"

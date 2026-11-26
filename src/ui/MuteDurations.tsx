@@ -9,20 +9,24 @@
 import type { JSX, KeyboardEvent } from 'react';
 
 import styles from './MuteDurations.module.css';
+import { useT } from '../i18n/I18nProvider';
+import type { Translate } from '../i18n/messages';
 
 /** One choice: the word `/mute` takes (empty for forever) and what the reader sees. */
 type Choice = { readonly word: string; readonly label: string };
 
-/** Every duration the dialog offers, in the order it shows them. */
-const CHOICES: readonly Choice[] = [
-  { word: '', label: 'Forever' },
-  { word: '30m', label: '30 minutes' },
-  { word: '1h', label: '1 hour' },
-  { word: '6h', label: '6 hours' },
-  { word: '1d', label: '1 day' },
-  { word: '3d', label: '3 days' },
-  { word: '7d', label: '7 days' },
-];
+/** Every duration the dialog offers, in the order it shows them, worded in the language in use. */
+function choicesOf(t: Translate): readonly Choice[] {
+  return [
+    { word: '', label: t('ui.mute_durations.forever') },
+    { word: '30m', label: t('ui.mute_durations.minutes', { count: 30 }) },
+    { word: '1h', label: t('ui.mute_durations.hours', { count: 1 }) },
+    { word: '6h', label: t('ui.mute_durations.hours', { count: 6 }) },
+    { word: '1d', label: t('ui.mute_durations.days', { count: 1 }) },
+    { word: '3d', label: t('ui.mute_durations.days', { count: 3 }) },
+    { word: '7d', label: t('ui.mute_durations.days', { count: 7 }) },
+  ];
+}
 
 /** The step an arrow key takes through the group, or 0 for any other key. */
 function stepOf(key: string): number {
@@ -43,14 +47,16 @@ export type MuteDurationsProps = {
 /** The radio group of mute durations. */
 export function MuteDurations(props: MuteDurationsProps): JSX.Element {
   const { value, onChange } = props;
+  const t = useT();
+  const choices = choicesOf(t);
   const choose = (event: KeyboardEvent<HTMLInputElement>, index: number): void => {
     const step = stepOf(event.key);
     if (step === 0) {
       return;
     }
     event.preventDefault();
-    const target = (index + step + CHOICES.length) % CHOICES.length;
-    for (const { word } of CHOICES.slice(target, target + 1)) {
+    const target = (index + step + choices.length) % choices.length;
+    for (const { word } of choices.slice(target, target + 1)) {
       const radios = event.currentTarget.ownerDocument.querySelectorAll<HTMLInputElement>(
         `[role="radiogroup"] input[value="${word}"]`,
       );
@@ -61,8 +67,8 @@ export function MuteDurations(props: MuteDurationsProps): JSX.Element {
     }
   };
   return (
-    <div aria-label="Mute for" className={styles['group']} role="radiogroup">
-      {CHOICES.map((choice, index) => (
+    <div aria-label={t('ui.mute_durations.group')} className={styles['group']} role="radiogroup">
+      {choices.map((choice, index) => (
         <label className={styles['choice']} key={choice.word}>
           <input
             checked={choice.word === value}
