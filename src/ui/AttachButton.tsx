@@ -6,12 +6,14 @@
 import type { JSX } from 'react';
 
 import styles from './AttachButton.module.css';
+import { useT } from '../i18n/I18nProvider';
 
 /** The paperclip button; {@link props.onAttach} runs when it is clicked. */
 export function AttachButton(props: { readonly onAttach: () => void }): JSX.Element {
+  const t = useT();
   return (
     <button
-      aria-label="Attach media"
+      aria-label={t('ui.attach_button.label')}
       className={styles['attach']}
       onClick={props.onAttach}
       type="button"

@@ -191,7 +191,104 @@
   },
   "keys": {},
   "state": {},
-  "ui": {},
+  "ui": {
+    "account_picker_dialog": {
+      "accounts": "Accounts",
+      "cancel": "Cancel",
+      "ok": "OK",
+      "remember": "Remember"
+    },
+    "attach_button": {
+      "label": "Attach media"
+    },
+    "avatar": {
+      "alt": "Avatar of {handle}"
+    },
+    "boost_line": {
+      "boosted": "boosted"
+    },
+    "card_dm": {
+      "you": "you"
+    },
+    "card_head": {
+      "dm_strip": "✉ DM  {from}{count, plural, =0 {} other { → {to}}}"
+    },
+    "confirm_dialog": {
+      "cancel": "Cancel"
+    },
+    "divider": {
+      "resize": "Resize panes"
+    },
+    "drop_highlight": {
+      "text": "-- drop to attach --"
+    },
+    "emoji_picker": {
+      "dialog": "React to [{label}]",
+      "search_label": "Search emoji",
+      "search_placeholder": "search emoji…"
+    },
+    "emoji_picker_model": {
+      "custom": "custom",
+      "custom_category": "custom: {category}",
+      "emoji": "emoji",
+      "emoji_group": "emoji: {group}",
+      "loading": "loading…",
+      "on_this_post": "on this post"
+    },
+    "emoji_section": {
+      "no_matches": "no matches"
+    },
+    "error_alert": {
+      "count": "(×{count})",
+      "label": "Error",
+      "ok": "OK"
+    },
+    "input_line": {
+      "label": "Command line"
+    },
+    "instance_choices": {
+      "legend": "Instance",
+      "other": "Other instance"
+    },
+    "media_grid": {
+      "alt_line": "[ALT {number}] {text}",
+      "more": "Show {count} more attachments",
+      "sensitive_show": "[ SENSITIVE — show ]"
+    },
+    "media_list": {
+      "kind_audio": "AUD",
+      "kind_file": "FILE",
+      "kind_gif": "GIF",
+      "kind_image": "IMG",
+      "kind_video": "VID",
+      "no_description": "no description",
+      "no_usable_link": "[no usable link]",
+      "placeholder": "[{kind} {number}/{total}: {description}]",
+      "sensitive": "[SENSITIVE]"
+    },
+    "media_review_dialog": {
+      "attachments": "Attachments",
+      "cancel": "Cancel",
+      "description_for": "Description for {name}",
+      "missing": "no description",
+      "submit": "Submit",
+      "summary": "{missing} of {total} attachments have no description",
+      "title": "Describe media"
+    },
+    "media_tile": {
+      "alt": "ALT",
+      "alt_label": "ALT: description of attachment {number}",
+      "no_description": "Image without description",
+      "no_usable_link": "[no usable link]"
+    },
+    "mute_durations": {
+      "days": "{count, plural, one {# day} other {# days}}",
+      "forever": "Forever",
+      "group": "Mute for",
+      "hours": "{count, plural, one {# hour} other {# hours}}",
+      "minutes": "{count, plural, one {# minute} other {# minutes}}"
+    }
+  },
   "views": {},
   "windows": {}
 }

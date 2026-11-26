@@ -9,6 +9,8 @@
 import { isHttps } from './emojify';
 import { shortcodeOf } from './ReactionChip';
 import type { PostReaction } from './ReactionChip';
+import type { Translate } from '../i18n/messages';
+import { t } from '../i18n/translate';
 import { filterEmojis, groupEmojis, matchesTerms, searchTerms } from '../lib/unicodeEmoji';
 import type { UnicodeEmoji } from '../lib/unicodeEmoji';
 
@@ -95,14 +97,21 @@ function reactionWords(cell: Cell, unicode: PickerData['unicode']): readonly str
 }
 
 /** The custom emoji under {@link terms}, by category in order of appearance, none last. */
-function customDrafts(custom: readonly PickerCustomEmoji[], terms: readonly string[]): Draft[] {
+function customDrafts(
+  custom: readonly PickerCustomEmoji[],
+  terms: readonly string[],
+  translate: Translate,
+): Draft[] {
   const shown = custom.filter((one) => matchesTerms(terms, [one.shortcode, one.category ?? '']));
   const categories = [
     ...new Set(shown.flatMap((one) => (one.category === null ? [] : [one.category]))),
   ];
   return [...categories, null].map((category) => ({
     id: `custom:${category ?? ''}`,
-    title: category === null ? 'custom' : `custom: ${category}`,
+    title:
+      category === null
+        ? translate('ui.emoji_picker_model.custom')
+        : translate('ui.emoji_picker_model.custom_category', { category }),
     cells: shown
       .filter((one) => one.category === category)
       .map((one) => plainCell(`custom:${one.shortcode}`, `:${one.shortcode}:`, one.url)),
@@ -111,13 +120,18 @@ function customDrafts(custom: readonly PickerCustomEmoji[], terms: readonly stri
 }
 
 /** The Unicode emoji under {@link query} by group, or the loading note while they are not here. */
-function unicodeDrafts(unicode: PickerData['unicode'], query: string): Draft[] {
+function unicodeDrafts(
+  unicode: PickerData['unicode'],
+  query: string,
+  translate: Translate,
+): Draft[] {
   if (unicode === null) {
-    return [{ id: 'emoji', title: 'emoji', cells: [], note: 'loading…' }];
+    const title = translate('ui.emoji_picker_model.emoji');
+    return [{ id: 'emoji', title, cells: [], note: translate('ui.emoji_picker_model.loading') }];
   }
   return groupEmojis(filterEmojis(unicode, query)).map((group) => ({
     id: `emoji:${group.key}`,
-    title: `emoji: ${group.title}`,
+    title: translate('ui.emoji_picker_model.emoji_group', { group: group.title }),
     cells: group.emojis.map((one) => emojiCell(one)),
     note: null,
   }));
@@ -126,19 +140,21 @@ function unicodeDrafts(unicode: PickerData['unicode'], query: string): Draft[] {
 /**
  * The picker's sections for {@link query}: the post's reactions, the custom
  * emoji, then the Unicode ones; a section with nothing to show is left out.
+ * The titles come from {@link translate}, the language in use by default.
  */
 export function pickerSections(
   source: PickerData & { readonly reactions: readonly PostReaction[] },
   query: string,
+  translate: Translate = t,
 ): readonly Section[] {
   const terms = searchTerms(query);
   const own = source.reactions
     .map(reactionCell)
     .filter((cell) => matchesTerms(terms, reactionWords(cell, source.unicode)));
   const drafts: Draft[] = [
-    { id: 'post', title: 'on this post', cells: own, note: null },
-    ...customDrafts(source.custom, terms),
-    ...unicodeDrafts(source.unicode, query),
+    { id: 'post', title: translate('ui.emoji_picker_model.on_this_post'), cells: own, note: null },
+    ...customDrafts(source.custom, terms, translate),
+    ...unicodeDrafts(source.unicode, query, translate),
   ];
   const sections: Section[] = [];
   let start = 0;

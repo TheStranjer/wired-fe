@@ -10,6 +10,7 @@ import type { JSX } from 'react';
 
 import styles from './Avatar.module.css';
 import { usePrefersReducedMotion } from './usePrefersReducedMotion';
+import { useT } from '../i18n/I18nProvider';
 
 /** The bundled default avatar every backend's missing-picture URL resolves to. */
 const DEFAULT_AVATAR = 'images/avi.png';
@@ -32,6 +33,7 @@ export type AvatarProps = {
 export function Avatar(props: AvatarProps): JSX.Element {
   const { src, staticSrc, handle, size, animate } = props;
   const reduced = usePrefersReducedMotion();
+  const t = useT();
   const wanted = animate && !reduced ? src : staticSrc;
   const [failed, setFailed] = useState<string | null>(null);
   const shown = wanted === '' || failed === wanted ? DEFAULT_AVATAR : wanted;
@@ -39,7 +41,7 @@ export function Avatar(props: AvatarProps): JSX.Element {
     <img
       className={[styles['avatar'], styles[size]].join(' ')}
       src={shown}
-      alt={`Avatar of ${handle}`}
+      alt={t('ui.avatar.alt', { handle })}
       loading="lazy"
       decoding="async"
       referrerPolicy="no-referrer"
