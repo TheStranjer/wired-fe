@@ -11,7 +11,7 @@ import { useState } from 'react';
 import type { JSX } from 'react';
 import { createPortal } from 'react-dom';
 
-import type { PaneAsk } from './paneMenu';
+import type { PaneAsk } from './paneAsk';
 import type { AppState } from '../state/appState';
 import { useAppState } from '../state/StateContext';
 import { PromptDialog } from '../ui/PromptDialog';

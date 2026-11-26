@@ -10,9 +10,10 @@
 import { useState } from 'react';
 import type { JSX } from 'react';
 
+import type { PaneAsk } from './paneAsk';
 import { PaneAskDialog } from './PaneAskDialog';
 import { askedLine, entryLine } from './paneMenu';
-import type { PaneAsk, PaneMenuEntry, ViewCommand } from './paneMenu';
+import type { PaneMenuEntry, ViewCommand } from './paneMenu';
 import { pickedWindowLine, windowPickerItems } from './windowPicker';
 import type { AppState } from '../state/appState';
 import { useAppState } from '../state/StateContext';

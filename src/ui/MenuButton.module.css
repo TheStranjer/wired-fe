@@ -46,6 +46,10 @@
   cursor: pointer;
 }
 
+.item.apart {
+  border-top: 1px solid var(--color-border);
+}
+
 .item:disabled {
   color: var(--color-dim);
   cursor: default;
