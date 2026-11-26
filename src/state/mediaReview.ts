@@ -9,10 +9,17 @@
  * them, or null when they cancelled and nothing may go out.
  */
 
-import type { ComposerMedia } from './draft';
+import type { ComposerMedia, Draft } from './draft';
 
-/** What a send says when the reader cancelled the review. */
-export const SEND_CANCELLED = 'Cancelled: nothing was sent';
+/**
+ * What the gate before a send that may carry media answers: the draft to send,
+ * the reader's own cancel of the review (a silent stop, not an error), or why
+ * the send was refused.
+ */
+export type Carried =
+  | { readonly kind: 'carried'; readonly draft: Draft }
+  | { readonly kind: 'cancelled' }
+  | { readonly kind: 'refused'; readonly error: string };
 
 /**
  * Asks the reader to review {@link items} — the ready media of the box

@@ -8,7 +8,7 @@
  * and the same words.
  */
 
-import type { CommandContext, CommandDefinition, CommandOutcome } from './types';
+import type { CommandContext, CommandDefinition, CommandOutcome, PostAnswer } from './types';
 import { NOT_LOGGED_IN_MESSAGE } from '../lib/refusal';
 
 /** A failure saying {@link message}. */
@@ -18,6 +18,14 @@ export function fail(message: string): CommandOutcome {
 
 /** The success every command that has nothing to add answers with. */
 export const OK: CommandOutcome = { ok: true };
+
+/** The {@link PostAnswer} of a post the reader cancelled at the alt-text review (WFE-294). */
+export const POST_CANCELLED: PostAnswer = { cancelled: true };
+
+/** The outcome of a command whose whole job was the post that answered {@link answer}: only a refusal fails. */
+export function postOutcome(answer: PostAnswer): CommandOutcome {
+  return typeof answer === 'string' ? fail(answer) : OK;
+}
 
 /** The refusal every command answers with when nobody is signed in. */
 export const NOT_LOGGED_IN: CommandOutcome = { ok: false, message: NOT_LOGGED_IN_MESSAGE };

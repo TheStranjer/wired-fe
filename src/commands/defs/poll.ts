@@ -19,7 +19,7 @@ import type { PollLimits } from '../../api/schemas/pollLimits';
 import { formatDuration } from '../../lib/duration';
 import { type Result, err, ok } from '../../lib/result';
 import { capabilitiesFor } from '../../state/selectors';
-import { OK, fail } from '../outcome';
+import { fail, postOutcome } from '../outcome';
 import { tokenize } from '../tokenize';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
@@ -151,12 +151,11 @@ async function handle(args: string, context: CommandContext): Promise<CommandOut
     return fail(problem);
   }
   const { question, options, expiresIn, multiple } = plan.value;
-  const error = await context.post({ text: question, poll: { options, expiresIn, multiple } });
-  if (error !== null) {
-    return fail(error);
+  const answer = await context.post({ text: question, poll: { options, expiresIn, multiple } });
+  if (answer === null) {
+    context.print('poll posted');
   }
-  context.print('poll posted');
-  return OK;
+  return postOutcome(answer);
 }
 
 /** The `/poll` definition. */

@@ -19,7 +19,8 @@ export type TextPoster = typeof postStatus;
 /**
  * Posts {@link text} through the `poster` of {@link target} as the account and
  * window it names, carrying the pending media when there are any (after the
- * reader reviewed their alt text, WFE-290: cancelling that posts nothing); those
+ * reader reviewed their alt text, WFE-290: cancelling that posts nothing and says
+ * nothing, WFE-294); those
  * are cleared only once the post is up, so a refused one keeps them for the
  * retry. A refusal is the command's failure.
  */
@@ -34,10 +35,13 @@ export async function postIntoWindow(
 ): Promise<CommandOutcome> {
   const { poster, ...where } = target;
   const carried = await context.carryMedia({ text });
-  if (!carried.ok) {
+  if (carried.kind === 'cancelled') {
+    return OK;
+  }
+  if (carried.kind === 'refused') {
     return fail(carried.error);
   }
-  const error = await poster(context, { ...where, draft: carried.value });
+  const error = await poster(context, { ...where, draft: carried.draft });
   if (error !== null) {
     return fail(error);
   }

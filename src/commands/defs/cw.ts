@@ -8,7 +8,7 @@
  * and an error string from it comes back as the command's failure.
  */
 
-import { OK, fail } from '../outcome';
+import { fail, postOutcome } from '../outcome';
 import { tokenize } from '../tokenize';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
@@ -79,8 +79,7 @@ async function handle(args: string, context: CommandContext): Promise<CommandOut
   if (warning === '' || text === '') {
     return fail(USAGE);
   }
-  const error = await context.post({ text, spoilerText: warning });
-  return error === null ? OK : fail(error);
+  return postOutcome(await context.post({ text, spoilerText: warning }));
 }
 
 /** The `/cw` definition. */

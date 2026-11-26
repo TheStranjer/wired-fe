@@ -2,7 +2,7 @@
  * Tests for the command line's media gate (WFE-290): a draft with no pending
  * media goes through untouched, pending media that are all described carry
  * their ids without asking, one without a description is put to the reader's
- * review first, a cancelled review refuses with the cancelled message and puts
+ * review first, a cancelled review answers cancelled (no error) and puts
  * the typed line back, and a refused description refuses without touching the
  * line.
  */
@@ -15,7 +15,7 @@ import { NOT_LOGGED_IN_MESSAGE } from '../lib/refusal';
 import { initialAppState } from '../state/appState';
 import { COMMAND_LINE_MEDIA } from '../state/composerMedia';
 import type { ComposerMedia } from '../state/draft';
-import { type ReviewMedia, SEND_CANCELLED } from '../state/mediaReview';
+import type { ReviewMedia } from '../state/mediaReview';
 import { AppStateProvider } from '../state/StateContext';
 import { MediaReviewProvider } from '../views/MediaReviewContext';
 
@@ -58,8 +58,8 @@ describe(useMediaCarry, () => {
     const { carry, setInput } = gate('a cat', review);
 
     await expect(carry({ text: 'hi' })).resolves.toStrictEqual({
-      ok: true,
-      value: { text: 'hi', mediaIds: ['7'] },
+      kind: 'carried',
+      draft: { text: 'hi', mediaIds: ['7'] },
     });
 
     expect(review).not.toHaveBeenCalled();
@@ -71,8 +71,8 @@ describe(useMediaCarry, () => {
     const { carry } = gate('', review);
 
     await expect(carry({ text: 'hi', mediaIds: ['own'] })).resolves.toStrictEqual({
-      ok: true,
-      value: { text: 'hi', mediaIds: ['own'] },
+      kind: 'carried',
+      draft: { text: 'hi', mediaIds: ['own'] },
     });
 
     expect(review).not.toHaveBeenCalled();
@@ -83,19 +83,18 @@ describe(useMediaCarry, () => {
     const { carry } = gate('', review);
 
     await expect(carry({ text: 'hi' })).resolves.toStrictEqual({
-      ok: true,
-      value: { text: 'hi', mediaIds: ['7'] },
+      kind: 'carried',
+      draft: { text: 'hi', mediaIds: ['7'] },
     });
 
     expect(review).toHaveBeenCalledWith(COMMAND_LINE_MEDIA, [held('')]);
   });
 
-  it('refuses when the review is cancelled, and puts the typed line back', async () => {
+  it('answers cancelled when the review is cancelled, and puts the typed line back', async () => {
     const { carry, setInput } = gate('', vi.fn<ReviewMedia>().mockResolvedValue(null));
 
     await expect(carry({ text: 'hi' })).resolves.toStrictEqual({
-      ok: false,
-      error: SEND_CANCELLED,
+      kind: 'cancelled',
     });
 
     expect(setInput).toHaveBeenCalledWith('look at this');
@@ -106,7 +105,7 @@ describe(useMediaCarry, () => {
     const { carry, setInput } = gate('', review);
 
     await expect(carry({ text: 'hi' })).resolves.toStrictEqual({
-      ok: false,
+      kind: 'refused',
       error: NOT_LOGGED_IN_MESSAGE,
     });
 

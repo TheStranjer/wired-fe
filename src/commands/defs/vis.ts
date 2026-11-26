@@ -20,7 +20,7 @@ import type { Visibility } from '../../api/schemas/status';
 import type { Capabilities } from '../../capabilities/capabilities';
 import { requireFeature } from '../../capabilities/requireFeature';
 import { availableVisibilities } from '../../capabilities/visibilities';
-import { OK, fail } from '../outcome';
+import { OK, fail, postOutcome } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 import { splitFirstWord } from '../words';
 
@@ -87,8 +87,7 @@ async function handle(args: string, context: CommandContext): Promise<CommandOut
   }
   const { visibility } = audience;
   if (text !== '') {
-    const error = await context.post({ text, visibility });
-    return error === null ? OK : fail(error);
+    return postOutcome(await context.post({ text, visibility }));
   }
   context.dispatch({ type: 'settings', settings: { defaultVisibility: visibility } });
   report(context, visibility);

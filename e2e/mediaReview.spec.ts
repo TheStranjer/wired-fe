@@ -4,7 +4,8 @@
  * the command line open the `Describe media` dialog instead of posting, with
  * the picture's textarea focused; typing the alt text and pressing Enter sends
  * it before the post, the line appears and the tray empties. With the alt text
- * typed in the tray first there is no dialog at all. Everything is found by
+ * typed in the tray first there is no dialog at all, and Cancel raises no alert
+ * (WFE-294). Everything is found by
  * role and accessible name.
  */
 
@@ -104,4 +105,23 @@ test('a picture described in the tray first is sent with no dialog', async ({ pa
   await expect(logRegion(page, 'home').locator('article').last()).toContainText('hello');
   await expect(page.getByRole('dialog', { name: 'Describe media' })).toHaveCount(0);
   await expect(page.getByRole('list', { name: 'Pending media' })).toHaveCount(0);
+});
+
+test('Cancel in the review raises no alert, and keeps the picture and the line (WFE-294)', async ({
+  page,
+}) => {
+  await signIn(page);
+  const descriptions = await routeMedia(page);
+  await attachPicture(page);
+
+  await submit(page, 'hello');
+  const dialog = page.getByRole('dialog', { name: 'Describe media' });
+  await expect(dialog).toBeVisible();
+  await dialog.getByRole('button', { name: 'Cancel' }).click();
+
+  await expect(dialog).toHaveCount(0);
+  await expect(page.getByRole('alertdialog')).toHaveCount(0);
+  await expect(page.getByRole('list', { name: 'Pending media' })).toBeVisible();
+  await expect(page.getByRole('textbox', { name: 'Command line' })).toHaveValue('hello');
+  expect(descriptions).toStrictEqual([]);
 });
