@@ -9,7 +9,8 @@
 import type { ChangeEvent, JSX } from 'react';
 
 import styles from './AttachmentList.module.css';
-import { type Translate, useT } from '../i18n/I18nProvider';
+import { useT } from '../i18n/I18nProvider';
+import type { Translate } from '../i18n/messages';
 import type { ComposerMedia } from '../state/draft';
 
 /** What the list shows and the callbacks it drives. */
