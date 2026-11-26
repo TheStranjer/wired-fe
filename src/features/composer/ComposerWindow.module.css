@@ -1,12 +1,20 @@
-/* The composer window: the form on top, its client messages filling the rest.
-   While a file is dragged over it the frame is drawn, so the target is clear. */
+/* The composer window: the form filling the pane, its client messages in a
+   short strip under it that is no taller than three lines and nothing when
+   empty. While a file is dragged over it the frame is drawn, so the target is
+   clear. */
 
 .window {
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) auto;
   height: 100%;
   padding: var(--space);
-  gap: var(--space);
+}
+
+.messages {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  max-height: calc(var(--line-height) * 3em);
 }
 
 .dropping {
