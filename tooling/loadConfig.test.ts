@@ -83,4 +83,26 @@ describe(loadConfig, () => {
       ),
     ).toThrow(/instances: an empty origins list needs allowCustom: true/);
   });
+
+  it('keeps a supported defaultLocale', () => {
+    const config = loadConfig(
+      '/srv/app/wired.config.json',
+      reader(
+        '{ "appName": "WIRED", "instances": { "mode": "same-origin" }, "defaultLocale": "de" }',
+      ),
+    );
+
+    expect(config.defaultLocale).toBe('de');
+  });
+
+  it('fails on a well-formed but unsupported defaultLocale', () => {
+    expect(() =>
+      loadConfig(
+        '/srv/app/wired.config.json',
+        reader(
+          '{ "appName": "WIRED", "instances": { "mode": "same-origin" }, "defaultLocale": "fr" }',
+        ),
+      ),
+    ).toThrow(/defaultLocale: "fr" is not supported; use one of en, es, ru, ja, zh-Hans, de/);
+  });
 });
