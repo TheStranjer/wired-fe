@@ -7,12 +7,15 @@
 
 import { fail } from './outcome';
 import type { CommandOutcome } from './types';
+import { t } from '../i18n/translate';
 
 /** The highest desktop number the command line creates. */
 const MAX_DESKTOP = 1000;
 
 /** The refusal for a number past {@link MAX_DESKTOP}. */
-const TOO_HIGH = fail(`Desktops go up to ${String(MAX_DESKTOP)}`);
+function tooHigh(): CommandOutcome {
+  return fail(t('commands.desktops_up_to', { max: String(MAX_DESKTOP) }));
+}
 
 /** Whether {@link text} spells a whole number from 1 (any size). */
 export function isDesktopNumber(text: string | undefined): text is string {
@@ -31,5 +34,5 @@ export function desktopNumber(
     return unusable;
   }
   const number = Number(text);
-  return number > MAX_DESKTOP ? TOO_HIGH : number;
+  return number > MAX_DESKTOP ? tooHigh() : number;
 }

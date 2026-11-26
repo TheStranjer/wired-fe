@@ -8,6 +8,7 @@
  * labels against the app state, is ./splitRun's.
  */
 
+import { t } from '../i18n/translate';
 import { type Result, err, ok } from '../lib/result';
 import { wordsOf } from '../lib/words';
 
@@ -56,16 +57,16 @@ const NUMBER = /^[1-9]\d*$/u;
 function windowSpec(rest: string): Result<ViewSpec, string> {
   return NUMBER.test(rest)
     ? ok({ type: 'window', number: Number(rest) })
-    : err('win takes a window number');
+    : err(t('commands.view_win_number'));
 }
 
 /** Reads a spec of {@link view} whose command word was {@link word}; {@link rest} is what follows it. */
 function openSpec(word: string, view: View, rest: string): Result<ViewSpec, string> {
   if (view.arity === 'none' && rest !== '') {
-    return err(`${word} takes no argument`);
+    return err(t('commands.view_no_argument', { word }));
   }
   if (view.arity === 'required' && rest === '') {
-    return err(`${word} needs an argument`);
+    return err(t('commands.view_needs_argument', { word }));
   }
   const args = view.subcommand === undefined ? rest : `${view.subcommand} ${rest}`;
   return ok({ type: 'open', command: view.command, args });
@@ -83,5 +84,7 @@ export function parseViewSpec(text: string): Result<ViewSpec, string> {
     return windowSpec(rest);
   }
   const view = VIEWS.get(word);
-  return view === undefined ? err(`Unknown view: ${first}`) : openSpec(word, view, rest);
+  return view === undefined
+    ? err(t('commands.view_unknown', { view: first }))
+    : openSpec(word, view, rest);
 }

@@ -21,6 +21,7 @@ import type { Status } from '../api/schemas/status';
 import type { FeatureFlag } from '../capabilities/capabilities';
 import { forgetProfile } from '../capabilities/profileCache';
 import { requireFeature } from '../capabilities/requireFeature';
+import { t } from '../i18n/translate';
 import { type Result, err, ok } from '../lib/result';
 
 /** Which of the two commands is running: attach the emoji, or detach it. */
@@ -51,7 +52,7 @@ type Reaction = {
 function parseEmoji(rest: string, kind: ReactionKind): Result<Emoji, string> {
   const word = rest.trim();
   if (word === '' || /\s/u.test(word)) {
-    return err(`Usage: /${kind} [label] <emoji>`);
+    return err(t('commands.usage', { usage: `/${kind} [label] <emoji>` }));
   }
   const custom = SHORTCODE.test(word);
   return ok({ typed: word, send: custom ? word.slice(1, -1) : word, custom });
@@ -105,9 +106,10 @@ async function apply(reaction: Reaction, context: CommandContext): Promise<Comma
     return fail(describeApiError(answered.error));
   }
   context.dispatch({ type: 'statusUpdated', status: answered.value });
-  const verb = reaction.kind === 'react' ? 'reacted' : 'unreacted';
   const label = `[${printedLabel(context, reaction.target.status)}]`;
-  context.print(`${reaction.emoji.typed} ${verb} to ${label}`);
+  context.print(
+    t('commands.reaction_done', { emoji: reaction.emoji.typed, kind: reaction.kind, label }),
+  );
   return OK;
 }
 

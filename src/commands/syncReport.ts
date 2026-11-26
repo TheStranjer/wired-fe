@@ -9,6 +9,7 @@
 import type { SyncPrefs } from '../accounts/syncPrefs';
 import { activeLocale } from '../i18n/activeLocale';
 import { formatClock } from '../i18n/format';
+import { t } from '../i18n/translate';
 import type { AppState } from '../state/appState';
 import { type SyncWorld, pickSyncAccount, skipReason } from '../state/syncAccount';
 
@@ -20,16 +21,21 @@ export function accountLabel(world: SyncWorld, key: string): string {
 
 /** The line for the listed account {@link key} at {@link index}, with why it is skipped if it is. */
 function listedLine(world: SyncWorld, key: string, index: number): string {
-  const role = index === 0 ? 'Primary:' : `Fallback ${String(index)}:`;
   const reason = skipReason(key, world);
-  const note = reason === null ? '' : ` (skipped: ${reason})`;
-  return `${role} ${accountLabel(world, key)}${note}`;
+  return t(index === 0 ? 'commands.sync_primary' : 'commands.sync_fallback', {
+    index: String(index),
+    account: accountLabel(world, key),
+    skipped: reason === null ? 'no' : 'yes',
+    reason: reason ?? '',
+  });
 }
 
 /** The "In use" line: the account that holds the desk, or none. */
 function inUseLine(prefs: SyncPrefs, world: SyncWorld): string {
   const key = pickSyncAccount(prefs, world);
-  return `In use: ${key === null ? 'none' : accountLabel(world, key)}`;
+  return key === null
+    ? t('commands.sync_in_use_none')
+    : t('commands.sync_in_use', { account: accountLabel(world, key) });
 }
 
 /** What `/sync` reads: the accounts and what is known of them, the sync's own status and the clock format. */
@@ -41,19 +47,18 @@ function historyLines(world: SyncReportWorld): readonly string[] {
   const clock = (moment: number): string =>
     formatClock(activeLocale(), new Date(moment), world.settings.clockFormat);
   return [
-    ...(lastPull === null ? [] : [`Last pull: ${clock(lastPull)}`]),
-    ...(lastPush === null ? [] : [`Last push: ${clock(lastPush)}`]),
-    ...(lastError === null ? [] : [`Last error: ${lastError}`]),
+    ...(lastPull === null ? [] : [t('commands.sync_last_pull', { time: clock(lastPull) })]),
+    ...(lastPush === null ? [] : [t('commands.sync_last_push', { time: clock(lastPush) })]),
+    ...(lastError === null ? [] : [t('commands.sync_last_error', { error: lastError })]),
   ];
 }
 
 /** The lines `/sync` prints for {@link prefs} over {@link world}. */
 export function syncReport(prefs: SyncPrefs, world: SyncReportWorld): readonly string[] {
   if (!prefs.syncEnabled) {
-    return ['Sync: off. Type /sync on to switch it back on'];
+    return [t('commands.sync_off')];
   }
   const listed = prefs.syncAccounts.map((key, index) => listedLine(world, key, index));
-  const chosen =
-    listed.length === 0 ? ['Primary: none chosen (the first usable account is used)'] : listed;
-  return ['Sync: on', ...chosen, inUseLine(prefs, world), ...historyLines(world)];
+  const chosen = listed.length === 0 ? [t('commands.sync_primary_none')] : listed;
+  return [t('commands.sync_on'), ...chosen, inUseLine(prefs, world), ...historyLines(world)];
 }

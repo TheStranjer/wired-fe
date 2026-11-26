@@ -10,12 +10,10 @@ import { OK, fail } from './outcome';
 import { viewToShow } from './splitRun';
 import { resolveStatusTarget } from './targets';
 import type { CommandContext, CommandOutcome } from './types';
+import { t } from '../i18n/translate';
 import { shownPanes } from '../windows/desktopPanes';
 import { activeDesktop } from '../windows/desktops';
 import { activeWindow } from '../windows/model';
-
-/** The info line printed when the post named is already in the thread being read. */
-const IN_THREAD = 'Already in this thread';
 
 /** The usage a view spec that does not parse echoes; the spec here is always well formed. */
 const USAGE = '/pop [label]';
@@ -38,7 +36,7 @@ export async function popInPlace(
     if (!target.ok) {
       return fail(target.error);
     }
-    context.print(IN_THREAD);
+    context.print(t('commands.already_in_thread'));
     return OK;
   }
   const shown = await viewToShow(`thread ${args.trim()}`, context, USAGE);

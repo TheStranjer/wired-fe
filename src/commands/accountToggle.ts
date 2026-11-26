@@ -20,6 +20,7 @@ import type { CommandDefinition } from './types';
 import { type AccountAction, accountAction } from '../api/endpoints/accountActions';
 import { describeApiError } from '../api/errors';
 import type { Relationship } from '../api/schemas/relationship';
+import { t } from '../i18n/translate';
 import { type Result, err, ok } from '../lib/result';
 import { accountByKey } from '../state/selectors';
 
@@ -46,7 +47,7 @@ export function parseMuteDuration(args: string): Result<MuteDuration | null, str
   const word = gap === -1 ? trimmed : trimmed.slice(0, gap);
   const parts = DURATION_WORD.exec(word);
   if (parts === null) {
-    return err(`Bad duration: ${word}`);
+    return err(t('commands.bad_duration', { word }));
   }
   const unit = parts[2] as keyof typeof UNIT_SECONDS;
   return ok([Number(parts[1]) * UNIT_SECONDS[unit], word]);
@@ -54,7 +55,7 @@ export function parseMuteDuration(args: string): Result<MuteDuration | null, str
 
 /** The word a toggle prints: a follow the target must first accept says so. */
 function doneWord(action: AccountAction, word: string, rel: Relationship): string {
-  return action === 'follow' && rel.requested ? 'follow requested' : word;
+  return action === 'follow' && rel.requested ? t('commands.follow_requested') : word;
 }
 
 /**
@@ -72,7 +73,7 @@ export function accountToggleRun(action: AccountAction, word: string): CommandDe
     }
     const { account, rest, accountKey, session } = target.value;
     if (accountByKey(context.state, accountKey)?.accountId === account.id) {
-      return fail("That's you");
+      return fail(t('commands.that_is_you'));
     }
     const duration: Result<MuteDuration | null, string> =
       action === 'mute' ? parseMuteDuration(rest) : ok(null);
@@ -88,8 +89,12 @@ export function accountToggleRun(action: AccountAction, word: string): CommandDe
     if (!answered.ok) {
       return fail(describeApiError(answered.error));
     }
-    const line = `${doneWord(action, word, answered.value)} @${account.acct}`;
-    context.print(duration.value === null ? line : `${line} for ${duration.value[1]}`);
+    const done = { word: doneWord(action, word, answered.value), acct: account.acct };
+    context.print(
+      duration.value === null
+        ? t('commands.toggle_done', done)
+        : t('commands.toggle_done_for', { ...done, duration: duration.value[1] }),
+    );
     return { ok: true };
   };
 }

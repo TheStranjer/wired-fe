@@ -10,6 +10,7 @@
 import { bareName, feedUsage, findFeed, reservedName, saveFeeds } from './feedArgs';
 import { OK, fail } from './outcome';
 import type { CommandContext, CommandOutcome } from './types';
+import { t } from '../i18n/translate';
 import { type Result, err } from '../lib/result';
 import { editsFeed, feedEditorOpen, feedEditorTitle } from '../state/feedEditorWindow';
 import {
@@ -32,7 +33,8 @@ function sourceText(ref: FeedSourceRef, context: CommandContext): string {
 /** One feed as one client message: its title, id and sources. */
 function feedLine(feed: FeedSpec, context: CommandContext): string {
   const sources = feed.sources.map((ref) => sourceText(ref, context)).join(' ');
-  return `${feedWindowTitle(feed)} (${feed.id}): ${sources === '' ? 'no sources' : sources}`;
+  const values = { title: feedWindowTitle(feed), id: feed.id, sources };
+  return t(sources === '' ? 'commands.feed_line_empty' : 'commands.feed_line', values);
 }
 
 /** Dispatch what {@link action} makes of each window that shows or edits the feed {@link feedId}. */
@@ -65,7 +67,7 @@ export function feedEdit(words: readonly string[], context: CommandContext): Com
 export function feedList(_words: readonly string[], context: CommandContext): CommandOutcome {
   const { feeds } = context.state.settings;
   if (feeds.length === 0) {
-    context.print('No feeds. Make one with /feed new <name> <source>…');
+    context.print(t('commands.feed_none', { name: '<name>', source: '<source>' }));
   }
   for (const feed of feeds) {
     context.print(feedLine(feed, context));
@@ -121,7 +123,7 @@ export function feedRename(words: readonly string[], context: CommandContext): C
     id: win.id,
     title: win.ref.kind === 'feedEditor' ? feedEditorTitle(spec) : feedWindowTitle(spec),
   }));
-  context.print(`Renamed ~${feed.value.name} to ~${name}`);
+  context.print(t('commands.feed_renamed', { old: feed.value.name, name }));
   return OK;
 }
 
@@ -137,6 +139,6 @@ export function feedDelete(words: readonly string[], context: CommandContext): C
   }
   saveFeeds(context, removeFeed(context.state.settings.feeds, feed.value.id));
   forFeedWindows(context, feed.value.id, (win) => ({ type: 'close', id: win.id }));
-  context.print(`Deleted ~${feed.value.name}`);
+  context.print(t('commands.feed_deleted', { name: feed.value.name }));
   return OK;
 }
