@@ -15,6 +15,7 @@ import { getAccount, lookupAccount } from '../../api/endpoints/accountRead';
 import { type ApiError, describeApiError } from '../../api/errors';
 import type { Account } from '../../api/schemas/account';
 import type { ApiSession } from '../../api/session';
+import { t } from '../../i18n/translate';
 import type { Result } from '../../lib/result';
 import type { Route } from '../../lib/route';
 import { printAction } from '../../state/appState';
@@ -59,10 +60,11 @@ function openProfile(target: RouteTarget, found: Result<Account, ApiError>): voi
 async function openInteraction(target: RouteTarget, value: string): Promise<void> {
   const found = await findInteraction(target.session, value);
   if (found === undefined) {
-    target.dispatch(printAction(null, 'info', `Could not find ${value}`));
+    target.dispatch(printAction(null, 'info', t('features.route.not_found', { value })));
   } else if ('acct' in found) {
     openAccount(target, found);
-    target.dispatch(printAction(null, 'info', `Type /follow to follow @${found.acct}`));
+    const hint = t('features.route.follow_hint', { acct: found.acct });
+    target.dispatch(printAction(null, 'info', hint));
   } else {
     await openRoute({ kind: 'notice', value: found.id }, target);
   }

@@ -9,11 +9,15 @@ import type { JSX } from 'react';
 
 import styles from './ReplyingTo.module.css';
 import type { Status } from '../../api/schemas/status';
+import { useT } from '../../i18n/I18nProvider';
 import { excerptOf } from '../../views/quoteView';
 
 /** The dim "Quoting @author: excerpt" line of {@link status}. */
 export function QuotingPost({ status }: { readonly status: Status }): JSX.Element {
+  const t = useT();
   return (
-    <p className={styles['replying']}>{`Quoting @${status.account.acct}: ${excerptOf(status)}`}</p>
+    <p className={styles['replying']}>
+      {t('features.composer.quoting', { author: status.account.acct, excerpt: excerptOf(status) })}
+    </p>
   );
 }

@@ -9,6 +9,7 @@ import type { ChangeEvent, JSX } from 'react';
 
 import styles from './PostAs.module.css';
 import type { StoredAccount } from '../../accounts/accountStore';
+import { useT } from '../../i18n/I18nProvider';
 
 /** What the picker shows and the one thing it does. */
 type PostAsProps = {
@@ -21,9 +22,10 @@ type PostAsProps = {
 
 /** The select over the signed-in accounts, named "Post as". */
 export function PostAs(props: PostAsProps): JSX.Element {
+  const t = useT();
   return (
     <label className={styles['from']}>
-      <span>Post as</span>
+      <span>{t('features.composer.post_as')}</span>
       <select
         className={styles['select']}
         onChange={(event: ChangeEvent<HTMLSelectElement>) => {

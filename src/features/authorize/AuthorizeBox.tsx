@@ -14,6 +14,7 @@ import { CodeView } from './CodeView';
 import { describeScope } from './scopeWords';
 import { type AuthorizeSetup, type Phase, useAuthorize } from './useAuthorize';
 import type { AuthorizeInfo } from '../../api/endpoints/authorize';
+import { useT } from '../../i18n/I18nProvider';
 import { webUrl } from '../../lib/webUrl';
 
 /** What the box shows and the one callback it drives. */
@@ -45,12 +46,17 @@ function TextButton(props: {
 /** Who is asking and for what. */
 function Summary(props: { readonly info: AuthorizeInfo; readonly handle: string }): JSX.Element {
   const { info } = props;
+  const t = useT();
   const website = info.app.website === null ? null : webUrl(info.app.website);
   return (
     <>
-      <h2 className={styles['title']}>Authorize {info.app.name}?</h2>
-      {website === null ? null : <p className={styles['line']}>Website: {website}</p>}
-      <p className={styles['line']}>As @{props.handle}, this app will be able to:</p>
+      <h2 className={styles['title']}>{t('features.authorize.title', { name: info.app.name })}</h2>
+      {website === null ? null : (
+        <p className={styles['line']}>{t('features.authorize.website', { website })}</p>
+      )}
+      <p className={styles['line']}>
+        {t('features.authorize.as_handle', { handle: props.handle })}
+      </p>
       <ul className={styles['scopes']}>
         {info.scopes.map((scope) => (
           <li key={scope}>{describeScope(scope)}</li>
@@ -68,20 +74,21 @@ function Ask(props: {
   readonly decide: (approve: boolean) => Promise<void>;
 }): JSX.Element {
   const { decide } = props;
+  const t = useT();
   return (
     <>
       <Summary handle={props.handle} info={props.info} />
       <div className={styles['actions']}>
         <TextButton
           disabled={props.sending}
-          label="[ authorize ]"
+          label={t('features.authorize.authorize_button')}
           onClick={() => {
             void decide(true);
           }}
         />
         <TextButton
           disabled={props.sending}
-          label="[ deny ]"
+          label={t('features.authorize.deny_button')}
           onClick={() => {
             void decide(false);
           }}
@@ -98,13 +105,14 @@ function Closing(props: {
   readonly label?: string;
   readonly onClose: () => void;
 }): JSX.Element {
+  const t = useT();
   return (
     <>
       <p className={props.role === 'alert' ? styles['error'] : styles['line']} role={props.role}>
         {props.text}
       </p>
       <TextButton
-        label={props.label ?? '[ close ]'}
+        label={props.label ?? t('features.authorize.close_button')}
         onClick={() => {
           props.onClose();
         }}
@@ -121,10 +129,16 @@ function Body(props: {
   readonly onClose: () => void;
 }): JSX.Element {
   const { phase, onClose } = props;
+  const t = useT();
   switch (phase.kind) {
     case 'loading':
       return (
-        <Closing label="[ cancel ]" onClose={onClose} role="status" text="Loading the request…" />
+        <Closing
+          label={t('features.authorize.cancel_button')}
+          onClose={onClose}
+          role="status"
+          text={t('features.authorize.loading')}
+        />
       );
     case 'ask':
       return (

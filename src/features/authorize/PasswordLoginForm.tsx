@@ -13,6 +13,7 @@ import styles from './AuthorizeBox.module.css';
 import { type LoginValues, useLoginForm } from './useLoginForm';
 import { preselectedOrigin } from '../../accounts/origin';
 import type { PasswordOutcome } from '../../accounts/passwordLogin';
+import { useT } from '../../i18n/I18nProvider';
 import type { InstanceChoices as Choices } from '../../lib/origin';
 import { InstanceChoices } from '../../ui/InstanceChoices';
 
@@ -60,10 +61,11 @@ function InstanceField(props: {
   readonly onChange: (value: string) => void;
 }): JSX.Element {
   const { choices } = props;
+  const t = useT();
   return choices === null || choices === undefined ? (
     <Input
       autoComplete="url"
-      label="Instance"
+      label={t('features.authorize.instance')}
       onChange={props.onChange}
       type="text"
       value={props.value}
@@ -84,10 +86,11 @@ function Failure(props: { readonly message: string | null }): JSX.Element | null
 
 /** The send button, off while a send is in flight, and the cancel button. */
 function Actions(props: { readonly sending: boolean; readonly onClose: () => void }): JSX.Element {
+  const t = useT();
   return (
     <div className={styles['actions']}>
       <button className={styles['button']} disabled={props.sending} type="submit">
-        [ log in ]
+        {t('features.authorize.log_in_button')}
       </button>
       <button
         className={styles['button']}
@@ -96,7 +99,7 @@ function Actions(props: { readonly sending: boolean; readonly onClose: () => voi
         }}
         type="button"
       >
-        [ cancel ]
+        {t('features.authorize.cancel_button')}
       </button>
     </div>
   );
@@ -105,32 +108,33 @@ function Actions(props: { readonly sending: boolean; readonly onClose: () => voi
 /** The login box: its fields, the failure of the last send, and the send and cancel buttons. */
 export function PasswordLoginForm(props: PasswordLoginFormProps): JSX.Element {
   const { choices } = props;
+  const t = useT();
   const { values, sending, failure, set, submit } = useLoginForm(
     props.onSubmit,
     preselectedOrigin(choices),
   );
   return (
     <form
-      aria-label="Log in"
+      aria-label={t('features.authorize.form_label')}
       className={styles['form']}
       onSubmit={(event) => {
         void submit(event);
       }}
     >
-      <p className={styles['line']}>Log in to authorize the app.</p>
+      <p className={styles['line']}>{t('features.authorize.log_in_intro')}</p>
       {props.askInstance ? (
         <InstanceField choices={choices} onChange={set('instance')} value={values.instance} />
       ) : null}
       <Input
         autoComplete="username"
-        label="Username"
+        label={t('features.authorize.username')}
         onChange={set('username')}
         type="text"
         value={values.username}
       />
       <Input
         autoComplete="current-password"
-        label="Password"
+        label={t('features.authorize.password')}
         onChange={set('password')}
         type="password"
         value={values.password}

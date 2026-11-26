@@ -13,6 +13,7 @@ import styles from './External.module.css';
 import { Focused, Message, TextButton } from './Parts';
 import { type Phase, useConsent } from './useConsent';
 import type { ConsentInfo } from '../../api/endpoints/external';
+import { useT } from '../../i18n/I18nProvider';
 import { webUrl } from '../../lib/webUrl';
 
 /** What the box needs: the instance, the login's tokens, and how to leave. */
@@ -33,12 +34,15 @@ function Ask(props: {
   readonly decide: (approve: boolean) => Promise<void>;
 }): JSX.Element {
   const { info, decide } = props;
+  const t = useT();
   const website = info.app.website === null ? null : webUrl(info.app.website);
   return (
     <div className={styles['box']}>
-      <h2 className={styles['title']}>Authorize {info.app.name}?</h2>
-      {website === null ? null : <p className={styles['line']}>Website: {website}</p>}
-      <p className={styles['line']}>This app asks for:</p>
+      <h2 className={styles['title']}>{t('features.external.title', { name: info.app.name })}</h2>
+      {website === null ? null : (
+        <p className={styles['line']}>{t('features.external.website', { website })}</p>
+      )}
+      <p className={styles['line']}>{t('features.external.asks_for')}</p>
       <ul className={styles['scopes']}>
         {info.scopes.map((scope) => (
           <li key={scope}>{scope}</li>
@@ -47,14 +51,14 @@ function Ask(props: {
       <div className={styles['actions']}>
         <TextButton
           disabled={props.sending}
-          label="[ authorize ]"
+          label={t('features.external.authorize_button')}
           onClick={() => {
             void decide(true);
           }}
         />
         <TextButton
           disabled={props.sending}
-          label="[ deny ]"
+          label={t('features.external.deny_button')}
           onClick={() => {
             void decide(false);
           }}
@@ -71,10 +75,16 @@ function Body(props: {
   readonly onClose: () => void;
 }): JSX.Element {
   const { phase, onClose } = props;
+  const t = useT();
   switch (phase.kind) {
     case 'loading':
       return (
-        <Message label="[ cancel ]" onClose={onClose} role="status" text="Loading the request…" />
+        <Message
+          label={t('features.external.cancel_button')}
+          onClose={onClose}
+          role="status"
+          text={t('features.external.loading')}
+        />
       );
     case 'ask':
       return <Ask decide={props.decide} info={phase.info} sending={phase.sending} />;

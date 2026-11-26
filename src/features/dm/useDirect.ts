@@ -23,6 +23,7 @@ import type { PageRequest } from '../../api/page';
 import type { PageCursor } from '../../api/pagination';
 import type { Conversation } from '../../api/schemas/conversation';
 import type { Status } from '../../api/schemas/status';
+import { t } from '../../i18n/translate';
 import { type Result, ok } from '../../lib/result';
 import { loadAction, statusesAction } from '../../state/pageActions';
 import type { WithToken } from '../../state/refreshSession';
@@ -45,7 +46,7 @@ export type DirectJob = {
 
 /** Say nothing has been said with the window's target yet, and close the load. */
 function printNothing(job: DirectJob): void {
-  printToJob(job, 'info', `No messages with @${job.target} yet. Type to start one.`);
+  printToJob(job, 'info', t('features.dm.no_messages', { target: job.target }));
   job.dispatch(loadAction(job.windowId, 'loaded', { exhausted: true }));
 }
 

@@ -10,13 +10,15 @@ import type { JSX } from 'react';
 
 import styles from './ReplyingTo.module.css';
 import type { Status } from '../../api/schemas/status';
+import { useT } from '../../i18n/I18nProvider';
 import { excerptOf } from '../../views/quoteView';
 
 /** The dim "Replying to @author: excerpt" line of {@link status}. */
 export function ReplyingTo({ status }: { readonly status: Status }): JSX.Element {
+  const t = useT();
   return (
     <p className={styles['replying']}>
-      {`Replying to @${status.account.acct}: ${excerptOf(status)}`}
+      {t('features.composer.replying', { author: status.account.acct, excerpt: excerptOf(status) })}
     </p>
   );
 }

@@ -24,6 +24,7 @@
 import { useState } from 'react';
 
 import type { Status } from '../../api/schemas/status';
+import { t } from '../../i18n/translate';
 import { type Result, err } from '../../lib/result';
 import { type AppState, printAction } from '../../state/appState';
 import { composerFields } from '../../state/composerActions';
@@ -102,12 +103,14 @@ async function create(send: Sending): Promise<Result<Status, string> | null> {
 function closingNote(origin: SentWindow, created: Status): string | null {
   const { fields, state } = origin;
   if (fields.inReplyTo !== undefined) {
-    return `↳ replied to @${created.account.acct}`;
+    return t('features.composer.replied', { author: created.account.acct });
   }
   if (fields.editing !== undefined) {
     return editedNote(state, fields.editing.status);
   }
-  return fields.quoteOf === undefined ? null : `❝ quoted @${fields.quoteOf.status.account.acct}`;
+  return fields.quoteOf === undefined
+    ? null
+    : t('features.composer.quoted', { author: fields.quoteOf.status.account.acct });
 }
 
 /**
@@ -129,7 +132,13 @@ function sent(dispatch: Dispatch, origin: SentWindow, created: Status): void {
     patch: { text: '', spoiler: '', poll: undefined, mediaIds: undefined },
   });
   dispatch({ type: 'composerMediaClear', windowId });
-  dispatch(printAction(windowId, 'info', `Posted as @${created.account.acct}`));
+  dispatch(
+    printAction(
+      windowId,
+      'info',
+      t('features.composer.posted_as', { author: created.account.acct }),
+    ),
+  );
 }
 
 /** The sending state of window {@link windowId}'s composer, and its trigger. */

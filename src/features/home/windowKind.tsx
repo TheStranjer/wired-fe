@@ -11,6 +11,7 @@
 import type { JSX } from 'react';
 
 import { homeTimeline } from '../../api/endpoints/timelines';
+import { t } from '../../i18n/translate';
 import { type WindowKindDefinition, postToWindow } from '../../state/windowKind';
 import { TimelineWindow } from '../../views/TimelineWindow';
 
@@ -22,7 +23,7 @@ function HomeWindow({ windowId }: { readonly windowId: string }): JSX.Element {
 /** The self-registered definition src/app/windowKinds.ts collects. */
 export const windowKind: WindowKindDefinition = {
   kind: 'home',
-  topic: () => 'home timeline',
+  topic: () => t('features.home.topic'),
   Component: HomeWindow,
   onPost: postToWindow,
 };

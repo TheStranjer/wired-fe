@@ -13,6 +13,7 @@
 import type { JSX } from 'react';
 
 import { useFeed } from './useFeed';
+import { t } from '../../i18n/translate';
 import { postAccountless } from '../../state/postAccountless';
 import { postingAccount } from '../../state/postingAccount';
 import type { WindowKindDefinition } from '../../state/windowKind';
@@ -31,7 +32,10 @@ export const windowKind: WindowKindDefinition = {
     const posting = postingAccount(state, window);
     return posting === null
       ? window.title
-      : `${window.title}, posting as @${posting.account.handle}`;
+      : t('features.feed.topic_posting', {
+          title: window.title,
+          handle: posting.account.handle,
+        });
   },
   Component: FeedWindow,
   onPost: postAccountless,

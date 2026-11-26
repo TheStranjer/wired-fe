@@ -9,6 +9,7 @@
  */
 
 import type { Status } from '../../api/schemas/status';
+import { t } from '../../i18n/translate';
 import type { AppState } from '../../state/appState';
 import type { ComposerFields, Draft } from '../../state/draft';
 import { postStatus } from '../../state/postStatus';
@@ -16,9 +17,6 @@ import { replyDraft } from '../../state/replyDraft';
 import { accountByKey, bufferFor } from '../../state/selectors';
 import type { PostContext } from '../../state/windowKind';
 import type { WindowState } from '../../windows/model';
-
-/** What the thread window says when it has no target post to answer. */
-const NOTHING_TO_ANSWER = 'Nothing to reply to in this window';
 
 /** The window's target status, as its scrollback shows it; null when absent. */
 function targetStatus(state: AppState, win: WindowState): Status | null {
@@ -74,7 +72,7 @@ export async function postReply(
 ): Promise<string | null> {
   const target = targetStatus(context.state, win);
   if (target === null) {
-    return NOTHING_TO_ANSWER;
+    return t('features.thread.nothing_to_answer');
   }
   return await postStatus(context, {
     accountKey: win.ref.accountKey,

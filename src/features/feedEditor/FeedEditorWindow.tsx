@@ -8,6 +8,7 @@ import type { JSX } from 'react';
 
 import { FeedEditor } from './FeedEditor';
 import styles from './FeedEditor.module.css';
+import { useT } from '../../i18n/I18nProvider';
 import { NEW_FEED_TARGET } from '../../state/feedEditorWindow';
 import { feedById } from '../../state/feeds';
 import { useAppState } from '../../state/StateContext';
@@ -15,11 +16,12 @@ import { useAppState } from '../../state/StateContext';
 /** The editor of the feed window {@link props.windowId} targets, or a notice that the feed is gone. */
 export function FeedEditorWindow(props: { readonly windowId: string }): JSX.Element {
   const { windows, settings } = useAppState();
+  const t = useT();
   const target =
     windows.windows.find((win) => win.id === props.windowId)?.ref.target ?? NEW_FEED_TARGET;
   const feed = target === NEW_FEED_TARGET ? null : feedById(settings.feeds, target);
   if (feed === undefined) {
-    return <p className={styles['notice']}>This feed no longer exists</p>;
+    return <p className={styles['notice']}>{t('features.feed_editor.gone')}</p>;
   }
   return <FeedEditor windowId={props.windowId} feed={feed} />;
 }

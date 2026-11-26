@@ -12,6 +12,7 @@
 import type { JSX } from 'react';
 
 import { listNotifications } from '../../api/endpoints/notifications';
+import { t } from '../../i18n/translate';
 import { postAsWindowAccount } from '../../state/postAsWindowAccount';
 import type { WindowKindDefinition } from '../../state/windowKind';
 import { BufferView } from '../../views/BufferView';
@@ -30,7 +31,7 @@ function NotificationsWindow({ windowId }: { readonly windowId: string }): JSX.E
 /** The self-registered definition src/app/windowKinds.ts collects. */
 export const windowKind: WindowKindDefinition = {
   kind: 'notifications',
-  topic: () => 'notifications',
+  topic: () => t('features.notifications.topic'),
   Component: NotificationsWindow,
   onPost: postAsWindowAccount,
 };

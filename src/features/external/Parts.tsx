@@ -6,6 +6,7 @@ import { useLayoutEffect, useRef } from 'react';
 import type { JSX, ReactNode } from 'react';
 
 import styles from './External.module.css';
+import { useT } from '../../i18n/I18nProvider';
 
 /**
  * Hands focus to the first field or button of {@link props}.children each time
@@ -56,12 +57,16 @@ export function Message(props: {
   readonly label?: string;
   readonly onClose: () => void;
 }): JSX.Element {
+  const t = useT();
   return (
     <div className={styles['box']}>
       <p className={props.role === 'alert' ? styles['error'] : styles['line']} role={props.role}>
         {props.text}
       </p>
-      <TextButton label={props.label ?? '[ close ]'} onClick={props.onClose} />
+      <TextButton
+        label={props.label ?? t('features.external.close_button')}
+        onClick={props.onClose}
+      />
     </div>
   );
 }

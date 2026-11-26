@@ -11,6 +11,7 @@ import type { JSX } from 'react';
 import { MediaViewer } from './MediaViewer';
 import styles from './MediaViewer.module.css';
 import { useMediaStatus } from './useMediaStatus';
+import { useT } from '../../i18n/I18nProvider';
 import { type MediaTarget, parseMediaTarget } from '../../state/mediaWindow';
 import { accountByKey } from '../../state/selectors';
 import { useAppState } from '../../state/StateContext';
@@ -22,9 +23,10 @@ function Loaded(props: { readonly win: WindowState; readonly target: MediaTarget
   const state = useAppState();
   const owner = accountByKey(state, win.ref.accountKey);
   const load = useMediaStatus(target.statusId, owner?.key ?? null);
+  const t = useT();
   switch (load.kind) {
     case 'loading':
-      return <p className={styles['notice']}>loading…</p>;
+      return <p className={styles['notice']}>{t('features.media.loading')}</p>;
     case 'failed':
       return <p className={styles['error']}>{load.text}</p>;
     case 'ready':
@@ -35,10 +37,11 @@ function Loaded(props: { readonly win: WindowState; readonly target: MediaTarget
 /** The media window {@link props.windowId}, or a notice that it has nothing to show. */
 export function MediaWindow(props: { readonly windowId: string }): JSX.Element {
   const { windows } = useAppState().windows;
+  const t = useT();
   const win = windows.find((candidate) => candidate.id === props.windowId);
   const target = parseMediaTarget(win?.ref.target ?? null);
   if (win === undefined || target === null) {
-    return <p className={styles['notice']}>Nothing to show</p>;
+    return <p className={styles['notice']}>{t('features.media.nothing')}</p>;
   }
   return <Loaded target={target} win={win} />;
 }

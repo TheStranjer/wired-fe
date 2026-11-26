@@ -20,6 +20,7 @@ import { type JSX, useState } from 'react';
 import { replyDefaults } from './threadReply';
 import { useThreadCompletion } from './useThreadCompletion';
 import { useThreadSend } from './useThreadSend';
+import { useT } from '../../i18n/I18nProvider';
 import { composerLimits } from '../../state/composerActions';
 import type { ComposerFields } from '../../state/draft';
 import { useAppDispatch, useAppState } from '../../state/StateContext';
@@ -41,6 +42,7 @@ export function ThreadInput({ win }: { readonly win: WindowState }): JSX.Element
   const [typed, setTyped] = useState<ComposerFields | null>(null);
   const fields = typed ?? defaults ?? WAITING;
   const completion = useThreadCompletion(win, fields, setTyped);
+  const t = useT();
 
   return (
     <ComposerForm
@@ -76,7 +78,7 @@ export function ThreadInput({ win }: { readonly win: WindowState }): JSX.Element
           }
         });
       }}
-      placeholder={defaults === null ? 'Loading thread…' : ''}
+      placeholder={defaults === null ? t('features.thread.loading') : ''}
       sending={sending}
     />
   );

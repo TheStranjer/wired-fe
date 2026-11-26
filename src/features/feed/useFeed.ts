@@ -13,6 +13,7 @@
 import { useCallback, useEffect, useRef } from 'react';
 
 import { type ChooseSources, blockingRefs, runFeed } from './feedLoad';
+import { t } from '../../i18n/translate';
 import { printAction } from '../../state/appState';
 import { EMPTY_FEED, type FeedData } from '../../state/feedItem';
 import { feedById } from '../../state/feeds';
@@ -20,9 +21,6 @@ import { loadAction } from '../../state/pageActions';
 import { useRefreshDeps } from '../../state/RefreshContext';
 import { bufferFor } from '../../state/selectors';
 import { useAppDispatch, useAppState } from '../../state/StateContext';
-
-/** What a window says when the feed it showed is gone. */
-const MISSING = 'This feed no longer exists';
 
 /** Start a load of the sources a chooser picks; the page in flight is kept across renders. */
 function useRunner(windowId: string): (choose: ChooseSources) => void {
@@ -65,7 +63,7 @@ export function useFeed(windowId: string): void {
       return;
     }
     if (spec === undefined) {
-      dispatch(printAction(windowId, 'error', MISSING));
+      dispatch(printAction(windowId, 'error', t('features.feed.missing')));
       dispatch(loadAction(windowId, 'loaded', { exhausted: true }));
       return;
     }

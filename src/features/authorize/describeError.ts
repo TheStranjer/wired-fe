@@ -6,19 +6,15 @@
  */
 
 import { type ApiError, describeApiError } from '../../api/errors';
-
-/** Shown for a 403 `unauthorized_client`. */
-const NOT_TRUSTED =
-  'This instance has not marked WiredFE as a trusted app, so it cannot authorize other apps. ' +
-  'Ask the instance administrator to mark WiredFE as trusted.';
+import { t } from '../../i18n/translate';
 
 /** The sentence to show for {@link error}. */
 export function describeAuthorizeError(error: ApiError): string {
   if (error.kind === 'http' && error.status === 403 && error.message === 'unauthorized_client') {
-    return NOT_TRUSTED;
+    return t('features.authorize.not_trusted');
   }
   if (error.kind === 'http' && error.status === 400) {
-    return `The instance refused this authorization request: ${error.message}`;
+    return t('features.authorize.refused', { message: error.message });
   }
-  return `Could not authorize: ${describeApiError(error)}`;
+  return t('features.authorize.failed', { reason: describeApiError(error) });
 }

@@ -9,6 +9,7 @@
  */
 
 import { ComposerWindow } from './ComposerWindow';
+import { t } from '../../i18n/translate';
 import { accountByKey } from '../../state/selectors';
 import type { WindowKindDefinition } from '../../state/windowKind';
 
@@ -17,7 +18,9 @@ export const windowKind: WindowKindDefinition = {
   kind: 'composer',
   topic: (window, state) => {
     const handle = accountByKey(state, window.ref.accountKey)?.handle;
-    return handle === undefined ? 'composer' : `composer, posting as @${handle}`;
+    return handle === undefined
+      ? t('features.composer.topic')
+      : t('features.composer.topic_as', { handle });
   },
   Component: ComposerWindow,
   onPost: async (draft, win, context) => {

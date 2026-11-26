@@ -12,6 +12,7 @@ import { blockedReason } from './blockedReason';
 import { type EditorDraft, hasSource } from './editorDraft';
 import styles from './FeedEditor.module.css';
 import type { StoredAccount } from '../../accounts/accountStore';
+import { useT } from '../../i18n/I18nProvider';
 import { type FeedSource, type FeedSourceRef, PLAIN_SOURCES } from '../../state/feeds';
 
 /** What the table shows and the one thing it does. */
@@ -24,9 +25,19 @@ type SourceTableProps = {
 };
 
 /** The accessible name of the checkbox of {@link source} as {@link account}, with the reason it is disabled. */
-function cellName(source: FeedSource, account: StoredAccount, reason: string | null): string {
-  const name = `${source} of @${account.handle}`;
-  return reason === null ? name : `${name} (${reason})`;
+function cellName(
+  t: ReturnType<typeof useT>,
+  cell: {
+    readonly source: FeedSource;
+    readonly account: StoredAccount;
+    readonly reason: string | null;
+  },
+): string {
+  const { source, account, reason } = cell;
+  const values = { source, handle: account.handle };
+  return reason === null
+    ? t('features.feed_editor.cell_name', values)
+    : t('features.feed_editor.cell_name_blocked', { ...values, reason });
 }
 
 /** One checkbox: {@link source} read as {@link account}. */
@@ -37,6 +48,7 @@ function SourceCell(
   },
 ): JSX.Element {
   const { account, source, draft, expired } = props;
+  const t = useT();
   const ref: FeedSourceRef = { accountKey: account.key, source };
   const checked = hasSource(draft, ref);
   const reason = blockedReason(account.key, expired);
@@ -44,7 +56,7 @@ function SourceCell(
     <td className={styles['cell']}>
       <input
         type="checkbox"
-        aria-label={cellName(source, account, reason)}
+        aria-label={cellName(t, { source, account, reason })}
         checked={checked}
         disabled={reason !== null && !checked}
         onChange={() => {
@@ -57,11 +69,12 @@ function SourceCell(
 
 /** The table of every signed-in account by every plain source. */
 export function SourceTable(props: SourceTableProps): JSX.Element {
+  const t = useT();
   return (
-    <table className={styles['table']} aria-label="Sources by account">
+    <table className={styles['table']} aria-label={t('features.feed_editor.sources_label')}>
       <thead>
         <tr>
-          <th scope="col">account</th>
+          <th scope="col">{t('features.feed_editor.column_account')}</th>
           {PLAIN_SOURCES.map((source) => (
             <th key={source} scope="col">
               {source}

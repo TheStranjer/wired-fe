@@ -14,6 +14,7 @@ import { describeExternalError } from './outcome';
 import { Focused, Input, Message, TextButton } from './Parts';
 import { type RegisterForm, type RegisterSetup, useRegisterForm } from './useRegisterForm';
 import { type RegistrationDetails, getRegistrationDetails } from '../../api/endpoints/external';
+import { useT } from '../../i18n/I18nProvider';
 
 /** What the box needs: the instance, the login's state, and how to leave. */
 export type RegisterBoxProps = {
@@ -32,10 +33,12 @@ type Phase =
   | { readonly kind: 'error'; readonly message: string };
 
 /** The line that says whose details these are. */
-function intro(details: RegistrationDetails): string {
-  const via = details.provider === '' ? 'your provider' : details.provider;
-  const who = details.name === '' ? '' : ` as ${details.name}`;
-  return `Signed in with ${via}${who}. Choose how you appear here.`;
+function intro(details: RegistrationDetails, t: ReturnType<typeof useT>): string {
+  return t('features.external.intro', {
+    provider: details.provider === '' ? t('features.external.your_provider') : details.provider,
+    named: details.name === '' ? 'no' : 'yes',
+    name: details.name,
+  });
 }
 
 /** The fields, the instance's last refusal and the send and cancel buttons. */
@@ -45,32 +48,33 @@ function Fields(props: {
   readonly onClose: () => void;
 }): JSX.Element {
   const { values, sending, outcome, set, submit } = props.form;
+  const t = useT();
   return (
     <form
-      aria-label="Register"
+      aria-label={t('features.external.form_label')}
       className={styles['form']}
       onSubmit={(event) => {
         void submit(event);
       }}
     >
-      <p className={styles['line']}>{intro(props.details)}</p>
+      <p className={styles['line']}>{intro(props.details, t)}</p>
       <Input
         autoComplete="username"
-        label="Nickname"
+        label={t('features.external.nickname')}
         onChange={set('nickname')}
         type="text"
         value={values.nickname}
       />
       <Input
         autoComplete="email"
-        label="Email"
+        label={t('features.external.email')}
         onChange={set('email')}
         type="email"
         value={values.email}
       />
       <Input
         autoComplete="new-password"
-        label="Password (optional)"
+        label={t('features.external.password_optional')}
         onChange={set('password')}
         type="password"
         value={values.password}
@@ -81,8 +85,8 @@ function Fields(props: {
         </p>
       )}
       <div className={styles['actions']}>
-        <TextButton disabled={sending} label="[ register ]" submit />
-        <TextButton label="[ cancel ]" onClick={props.onClose} />
+        <TextButton disabled={sending} label={t('features.external.register_button')} submit />
+        <TextButton label={t('features.external.cancel_button')} onClick={props.onClose} />
       </div>
     </form>
   );
@@ -114,10 +118,16 @@ function Body(props: {
   readonly onClose: () => void;
 }): JSX.Element {
   const { phase, onClose } = props;
+  const t = useT();
   switch (phase.kind) {
     case 'loading':
       return (
-        <Message label="[ cancel ]" onClose={onClose} role="status" text="Loading your details…" />
+        <Message
+          label={t('features.external.cancel_button')}
+          onClose={onClose}
+          role="status"
+          text={t('features.external.loading_details')}
+        />
       );
     case 'error':
       return <Message onClose={onClose} role="alert" text={phase.message} />;

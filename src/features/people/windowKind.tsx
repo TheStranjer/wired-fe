@@ -17,6 +17,7 @@ import type { JSX } from 'react';
 
 import { PEOPLE_TITLES, listedPeople } from './peopleList';
 import styles from './PeopleWindow.module.css';
+import { useT } from '../../i18n/I18nProvider';
 import { clickOpen } from '../../state/placementFromClick';
 import { postAsWindowOrChoice } from '../../state/postAccountless';
 import { profileWindowOpen } from '../../state/profileWindow';
@@ -26,25 +27,20 @@ import type { WindowKindDefinition } from '../../state/windowKind';
 import { NickList } from '../../ui/NickList';
 import type { WindowState } from '../../windows/model';
 
-/** What the window says when the window it watches is gone. */
-const WINDOW_CLOSED = 'window closed';
-
-/** What the window says for a watched kind that gathers nobody. */
-const NOBODY_GATHERED = 'nobody gathered here';
-
 /** The list of the people in {@link watched}'s buffer. */
 function People({ watched }: { readonly watched: WindowState }): JSX.Element {
   const state = useAppState();
   const dispatch = useAppDispatch();
+  const t = useT();
   const title = PEOPLE_TITLES[watched.ref.kind];
   if (title === null) {
-    return <p className={styles['notice']}>{NOBODY_GATHERED}</p>;
+    return <p className={styles['notice']}>{t('features.people.nobody')}</p>;
   }
   const key = windowAccountKey(state, watched.id);
   const accounts = listedPeople(bufferFor(state, watched.id), accountByKey(state, key));
   return (
     <NickList
-      title={title}
+      title={t(title)}
       accounts={accounts}
       onSelect={(account, click) => {
         dispatch(clickOpen(state.settings, profileWindowOpen(account, key), click));
@@ -56,10 +52,11 @@ function People({ watched }: { readonly watched: WindowState }): JSX.Element {
 /** The people window: the list of the window its target names, or a notice. */
 function PeopleWindow({ windowId }: { readonly windowId: string }): JSX.Element {
   const { windows } = useAppState().windows;
+  const t = useT();
   const target = windows.find((candidate) => candidate.id === windowId)?.ref.target;
   const watched = windows.find((candidate) => candidate.id === target);
   if (watched === undefined) {
-    return <p className={styles['notice']}>{WINDOW_CLOSED}</p>;
+    return <p className={styles['notice']}>{t('features.people.window_closed')}</p>;
   }
   return <People watched={watched} />;
 }

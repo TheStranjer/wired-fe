@@ -13,6 +13,7 @@ import { type SourcePage, fetchSourcePage } from './fetchSource';
 import type { StoredAccount } from '../../accounts/accountStore';
 import { describeApiError } from '../../api/errors';
 import type { PageRequest } from '../../api/page';
+import { t } from '../../i18n/translate';
 import { printAction } from '../../state/appState';
 import type { FeedData } from '../../state/feedItem';
 import { blockingSources, sourceKey } from '../../state/feedMerge';
@@ -86,7 +87,10 @@ function arrivals(outcomes: readonly Outcome[]): FeedData {
 function reportFailures(job: FeedJob, outcomes: readonly Outcome[]): void {
   for (const { ref, result } of outcomes) {
     if (!result.ok) {
-      const text = `${sourceName(job.accounts, ref)} failed: ${describeApiError(result.error)}`;
+      const text = t('features.feed.source_failed', {
+        source: sourceName(job.accounts, ref),
+        reason: describeApiError(result.error),
+      });
       job.dispatch(printAction(job.windowId, 'error', text));
     }
   }

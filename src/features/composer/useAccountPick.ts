@@ -8,6 +8,7 @@
  * in the window.
  */
 
+import { t } from '../../i18n/translate';
 import { printAction } from '../../state/appState';
 import { composerFields, composerLimits } from '../../state/composerActions';
 import { fitPoll } from '../../state/pollEditor';
@@ -37,9 +38,7 @@ export function useAccountPick(windowId: string, hasMedia: boolean): (key: strin
     }
     if (hasMedia) {
       dispatch({ type: 'composerMediaClear', windowId });
-      dispatch(
-        printAction(windowId, 'warn', 'attachments removed: they belong to the old account'),
-      );
+      dispatch(printAction(windowId, 'warn', t('features.composer.attachments_removed')));
     }
   };
 }

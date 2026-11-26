@@ -7,7 +7,9 @@
  * the checkbox.
  */
 
+import { t } from '../../i18n/translate';
+
 /** The reason the account {@link accountKey} cannot be read, or null when it can. */
 export function blockedReason(accountKey: string, expired: ReadonlySet<string>): string | null {
-  return expired.has(accountKey) ? 'sign-in expired' : null;
+  return expired.has(accountKey) ? t('features.feed_editor.sign_in_expired') : null;
 }

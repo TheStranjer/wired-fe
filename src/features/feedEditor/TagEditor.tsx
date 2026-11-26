@@ -11,6 +11,7 @@ import type { JSX, KeyboardEvent } from 'react';
 import { type EditorDraft, tagsOf, toggleSource, withTag } from './editorDraft';
 import styles from './FeedEditor.module.css';
 import type { StoredAccount } from '../../accounts/accountStore';
+import { useT } from '../../i18n/I18nProvider';
 
 /** What the tag editor of one account shows and does. */
 type TagEditorProps = {
@@ -23,15 +24,19 @@ type TagEditorProps = {
 /** The chips of the hashtags the draft reads as the account, each with its `[x]`. */
 function TagChips(props: TagEditorProps): JSX.Element {
   const { account, draft } = props;
+  const t = useT();
   return (
-    <ul className={styles['chips']} aria-label={`Tags of @${account.handle}`}>
+    <ul
+      className={styles['chips']}
+      aria-label={t('features.feed_editor.tags_label', { handle: account.handle })}
+    >
       {tagsOf(draft, account.key).map((tag) => (
         <li key={tag}>
           {`#${tag} `}
           <button
             type="button"
             className={styles['button']}
-            aria-label={`Remove tag ${tag} of @${account.handle}`}
+            aria-label={t('features.feed_editor.remove_tag', { tag, handle: account.handle })}
             onClick={() => {
               props.onChange(
                 toggleSource(draft, { accountKey: account.key, source: `tag:${tag}` }),
@@ -80,14 +85,15 @@ function useTagInput(props: TagEditorProps): TagInput {
 export function TagEditor(props: TagEditorProps): JSX.Element {
   const { handle } = props.account;
   const input = useTagInput(props);
+  const t = useT();
   return (
     <div className={styles['tagRow']}>
       <label className={styles['field']}>
         <span>{`@${handle}`}</span>
         <input
           className={styles['input']}
-          aria-label={`add tag for @${handle}`}
-          placeholder="add tag"
+          aria-label={t('features.feed_editor.add_label', { handle })}
+          placeholder={t('features.feed_editor.add_placeholder')}
           value={input.text}
           onChange={(event) => {
             input.setText(event.target.value);
@@ -98,10 +104,10 @@ export function TagEditor(props: TagEditorProps): JSX.Element {
       <button
         type="button"
         className={styles['button']}
-        aria-label={`Add tag for @${handle}`}
+        aria-label={t('features.feed_editor.add_button_label', { handle })}
         onClick={input.add}
       >
-        [ add ]
+        {t('features.feed_editor.add_button')}
       </button>
       <TagChips account={props.account} draft={props.draft} onChange={props.onChange} />
       {input.error === null ? null : (
