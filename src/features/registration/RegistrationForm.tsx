@@ -18,6 +18,8 @@ import { EMPTY_VALUES, type RegistrationActions, useRegistration } from './useRe
 import { preselectedOrigin } from '../../accounts/origin';
 import type { RegistrationOutcome } from '../../accounts/registerAccount';
 import type { FieldErrors } from '../../api/errors';
+import { useT } from '../../i18n/I18nProvider';
+import type { MessageKey } from '../../i18n/messages';
 import type { InstanceChoices as Choices } from '../../lib/origin';
 import { InstanceChoices } from '../../ui/InstanceChoices';
 
@@ -32,30 +34,41 @@ export type RegistrationFormProps = RegistrationActions & {
 /** One field of the form: which value it edits and how it reads. */
 type Spec = {
   readonly name: keyof RegistrationValues;
-  readonly label: string;
+  /** The message that is the field's label. */
+  readonly label: MessageKey;
   readonly type: 'text' | 'email' | 'password' | 'checkbox';
   readonly autoComplete: string;
 };
 
 /** The fields in order; the instance one only when the build asks for it. */
 const SPECS: readonly Spec[] = [
-  { name: 'instance', label: 'Instance', type: 'text', autoComplete: 'url' },
-  { name: 'username', label: 'Username', type: 'text', autoComplete: 'username' },
-  { name: 'email', label: 'Email', type: 'email', autoComplete: 'email' },
-  { name: 'password', label: 'Password', type: 'password', autoComplete: 'new-password' },
-  { name: 'reason', label: 'Reason (optional)', type: 'text', autoComplete: 'off' },
+  { name: 'instance', label: 'features.registration.instance', type: 'text', autoComplete: 'url' },
+  {
+    name: 'username',
+    label: 'features.registration.username',
+    type: 'text',
+    autoComplete: 'username',
+  },
+  { name: 'email', label: 'features.registration.email', type: 'email', autoComplete: 'email' },
+  {
+    name: 'password',
+    label: 'features.registration.password',
+    type: 'password',
+    autoComplete: 'new-password',
+  },
+  { name: 'reason', label: 'features.registration.reason', type: 'text', autoComplete: 'off' },
   {
     name: 'agreement',
-    label: 'I agree to the rules and terms of this instance',
+    label: 'features.registration.agreement',
     type: 'checkbox',
     autoComplete: 'off',
   },
 ];
 
-/** What an account that still needs a step before it works says, by outcome. */
-const WAITING: Readonly<Record<'confirmation' | 'approval', string>> = {
-  confirmation: 'Account created. Check your email to confirm your address, then log in.',
-  approval: 'Account created. It is awaiting approval by a moderator.',
+/** The message an account that still needs a step before it works says, by outcome. */
+const WAITING: Readonly<Record<'confirmation' | 'approval', MessageKey>> = {
+  confirmation: 'features.registration.waiting_confirmation',
+  approval: 'features.registration.waiting_approval',
 };
 
 /** The complaints about fields the form has none of (an invalid invite token, say), as `name: message`. */
@@ -89,10 +102,11 @@ function Waiting(props: {
   readonly kind: 'confirmation' | 'approval';
   readonly onClose: () => void;
 }): JSX.Element {
+  const t = useT();
   return (
     <div className={styles['form']}>
       <p className={styles['notice']} role="status">
-        {WAITING[props.kind]}
+        {t(WAITING[props.kind])}
       </p>
       <button
         className={styles['button']}
@@ -101,7 +115,7 @@ function Waiting(props: {
         }}
         type="button"
       >
-        [ close ]
+        {t('features.registration.close_button')}
       </button>
     </div>
   );
@@ -122,9 +136,20 @@ function waitingKind(outcome: RegistrationOutcome | null): 'confirmation' | 'app
   return outcome?.kind === 'confirmation' || outcome?.kind === 'approval' ? outcome.kind : null;
 }
 
+/** The send button, off while a send is in flight or the agreement is not ticked. */
+function SendButton(props: { readonly disabled: boolean }): JSX.Element {
+  const t = useT();
+  return (
+    <button className={styles['button']} disabled={props.disabled} type="submit">
+      {t('features.registration.register_button')}
+    </button>
+  );
+}
+
 /** The sign-up box: its fields, the failure of the last send, and the send button. */
 export function RegistrationForm(props: RegistrationFormProps): JSX.Element {
   const { choices } = props;
+  const t = useT();
   const { values, sending, outcome, set, submit } = useRegistration(
     props,
     preselectedOrigin(choices),
@@ -138,7 +163,7 @@ export function RegistrationForm(props: RegistrationFormProps): JSX.Element {
   }
   return (
     <form
-      aria-label="Register"
+      aria-label={t('features.registration.form_label')}
       className={styles['form']}
       onSubmit={(event) => {
         void submit(event);
@@ -158,7 +183,7 @@ export function RegistrationForm(props: RegistrationFormProps): JSX.Element {
           autoComplete={spec.autoComplete}
           errors={fields[spec.name] ?? []}
           key={spec.name}
-          label={spec.label}
+          label={t(spec.label)}
           onChange={(value) => {
             set(spec.name, value);
           }}
@@ -167,9 +192,7 @@ export function RegistrationForm(props: RegistrationFormProps): JSX.Element {
         />
       ))}
       <Failure outcome={outcome} />
-      <button className={styles['button']} disabled={sending || !values.agreement} type="submit">
-        [ register ]
-      </button>
+      <SendButton disabled={sending || !values.agreement} />
     </form>
   );
 }

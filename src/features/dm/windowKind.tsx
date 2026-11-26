@@ -12,6 +12,7 @@
 
 import { mentionOf, postDirect } from './directDraft';
 import { DmWindow } from './DmWindow';
+import { t } from '../../i18n/translate';
 import type { WindowKindDefinition } from '../../state/windowKind';
 
 /** The self-registered definition src/app/windowKinds.ts collects. */
@@ -19,7 +20,7 @@ export const windowKind: WindowKindDefinition = {
   kind: 'dm',
   topic: (window) => {
     const mention = mentionOf(window.ref.target);
-    return mention === '' ? 'dm' : `private conversation with ${mention}`;
+    return mention === '' ? t('features.dm.topic') : t('features.dm.topic_with', { mention });
   },
   Component: DmWindow,
   onPost: postDirect,

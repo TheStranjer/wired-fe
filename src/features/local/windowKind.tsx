@@ -11,6 +11,7 @@
 import type { JSX } from 'react';
 
 import { publicTimeline } from '../../api/endpoints/timelines';
+import { t } from '../../i18n/translate';
 import { type WindowKindDefinition, postToWindow } from '../../state/windowKind';
 import { TimelineWindow } from '../../views/TimelineWindow';
 import type { FetchPage } from '../../views/useTimeline';
@@ -27,7 +28,7 @@ function LocalWindow({ windowId }: { readonly windowId: string }): JSX.Element {
 /** The self-registered definition src/app/windowKinds.ts collects. */
 export const windowKind: WindowKindDefinition = {
   kind: 'local',
-  topic: () => 'local timeline',
+  topic: () => t('features.local.topic'),
   Component: LocalWindow,
   onPost: postToWindow,
 };

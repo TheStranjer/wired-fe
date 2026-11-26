@@ -6,6 +6,7 @@
  * name. What the draft means is spelled out as `/feed` lines in ./saveLines.
  */
 
+import { t } from '../../i18n/translate';
 import { type Result, err, ok } from '../../lib/result';
 import {
   type FeedSourceRef,
@@ -57,7 +58,7 @@ export function withTag(
 ): Result<EditorDraft, string> {
   const source = `${TAG_PREFIX}${text.trim().replace(/^#/u, '')}`;
   if (!isFeedSource(source)) {
-    return err(`Not a tag: "${text.trim()}"`);
+    return err(t('features.feed_editor.not_a_tag', { text: text.trim() }));
   }
   const ref = { accountKey, source };
   return ok(hasSource(draft, ref) ? draft : toggleSource(draft, ref));
@@ -65,5 +66,7 @@ export function withTag(
 
 /** Why the draft's name cannot name a feed, or null when it can; the model has the last word. */
 export function draftProblem(draft: EditorDraft): string | null {
-  return /\s/u.test(draft.name.trim()) ? 'A feed name has no spaces' : nameProblem(draft.name);
+  return /\s/u.test(draft.name.trim())
+    ? t('features.feed_editor.name_has_spaces')
+    : nameProblem(draft.name);
 }

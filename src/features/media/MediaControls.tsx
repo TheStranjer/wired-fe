@@ -9,6 +9,7 @@
 import type { JSX } from 'react';
 
 import styles from './MediaViewer.module.css';
+import { useT } from '../../i18n/I18nProvider';
 import { usePostActions } from '../../views/PostActionsContext';
 
 /** Props of {@link MediaSteps}. */
@@ -22,13 +23,14 @@ type StepsProps = {
 /** The previous and next buttons; nothing for a post with one attachment. */
 export function MediaSteps(props: StepsProps): JSX.Element | null {
   const { n, total, onStep } = props;
+  const t = useT();
   if (total < 2) {
     return null;
   }
   return (
     <>
       <button
-        aria-label="Previous attachment"
+        aria-label={t('features.media.previous')}
         className={styles['button']}
         disabled={n <= 1}
         onClick={() => {
@@ -39,7 +41,7 @@ export function MediaSteps(props: StepsProps): JSX.Element | null {
         ‹
       </button>
       <button
-        aria-label="Next attachment"
+        aria-label={t('features.media.next')}
         className={styles['button']}
         disabled={n >= total}
         onClick={() => {
@@ -56,6 +58,7 @@ export function MediaSteps(props: StepsProps): JSX.Element | null {
 /** The button that runs `/open <url>` for the file at {@link props.url}. */
 export function OpenOriginal(props: { readonly url: string }): JSX.Element {
   const { run } = usePostActions();
+  const t = useT();
   return (
     <button
       className={styles['button']}
@@ -64,7 +67,7 @@ export function OpenOriginal(props: { readonly url: string }): JSX.Element {
       }}
       type="button"
     >
-      Open original ↗
+      {t('features.media.open_original')}
     </button>
   );
 }

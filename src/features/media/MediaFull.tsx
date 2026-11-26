@@ -9,16 +9,15 @@
 import type { JSX } from 'react';
 
 import styles from './MediaViewer.module.css';
+import { useT } from '../../i18n/I18nProvider';
 import type { MediaItem } from '../../ui/MediaList';
 import { describedBy } from '../../ui/MediaTile';
 import { usePrefersReducedMotion } from '../../ui/usePrefersReducedMotion';
 
-/** The alt text of an image whose author wrote none. */
-export const NO_DESCRIPTION = 'Image without description';
-
 /** What shows where an attachment has no http(s) address to load. */
 function Unavailable(): JSX.Element {
-  return <span className={styles['unavailable']}>[no usable link]</span>;
+  const t = useT();
+  return <span className={styles['unavailable']}>{t('features.media.no_link')}</span>;
 }
 
 /** A video or gifv: it waits for the play button, and a gifv loops muted once played. */
@@ -45,6 +44,7 @@ function Video(props: { readonly item: MediaItem; readonly url: string }): JSX.E
 export function MediaFull(props: { readonly item: MediaItem }): JSX.Element {
   const { item } = props;
   const { url } = item;
+  const t = useT();
   if (url === null) {
     return <Unavailable />;
   }
@@ -52,7 +52,7 @@ export function MediaFull(props: { readonly item: MediaItem }): JSX.Element {
     case 'image':
       return (
         <img
-          alt={describedBy(item) ?? NO_DESCRIPTION}
+          alt={describedBy(item) ?? t('features.media.no_description')}
           className={styles['media']}
           referrerPolicy="no-referrer"
           src={url}

@@ -14,6 +14,7 @@ import styles from './FeedEditor.module.css';
 import { SourceTable } from './SourceTable';
 import { TagEditor } from './TagEditor';
 import { useEditorSave } from './useEditorSave';
+import { useT } from '../../i18n/I18nProvider';
 import type { FeedSpec } from '../../state/feeds';
 import { useAppState } from '../../state/StateContext';
 
@@ -25,10 +26,11 @@ export function FeedEditor(props: {
   const { accounts, expired } = useAppState();
   const [draft, setDraft] = useState(() => draftOf(props.feed));
   const save = useEditorSave({ ...props, draft });
+  const t = useT();
   return (
     <div className={styles['editor']}>
       <label className={styles['field']}>
-        <span>Feed name</span>
+        <span>{t('features.feed_editor.feed_name')}</span>
         <input
           className={styles['input']}
           value={draft.name}

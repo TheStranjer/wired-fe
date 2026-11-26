@@ -17,6 +17,7 @@
 import { type SearchResults, search, shouldResolve } from '../../api/endpoints/search';
 import type { Account } from '../../api/schemas/account';
 import type { Tag } from '../../api/schemas/tag';
+import { t } from '../../i18n/translate';
 import { loadAction, statusesAction } from '../../state/pageActions';
 import type { WithToken } from '../../state/refreshSession';
 import type { Dispatch } from '../../state/StateContext';
@@ -42,12 +43,12 @@ function nameOf(account: Account): string {
 
 /** One account's line: its handle, its name, and the /whois that opens it. */
 function accountLine(account: Account): string {
-  return `  @${account.acct} — ${nameOf(account)}  (/whois @${account.acct})`;
+  return t('features.search.account_line', { acct: account.acct, name: nameOf(account) });
 }
 
 /** One tag's line: its name and the /join that joins it. */
 function tagLine(tag: Tag): string {
-  return `  #${tag.name}  (/join #${tag.name})`;
+  return t('features.search.tag_line', { name: tag.name });
 }
 
 /** The `Accounts:` section; silent when the search found none. */
@@ -55,7 +56,7 @@ function printAccounts(job: SearchJob, accounts: readonly Account[]): void {
   if (accounts.length === 0) {
     return;
   }
-  printToJob(job, 'info', 'Accounts:');
+  printToJob(job, 'info', t('features.search.accounts'));
   for (const account of accounts) {
     printToJob(job, 'info', accountLine(account));
   }
@@ -66,7 +67,7 @@ function printTags(job: SearchJob, tags: readonly Tag[]): void {
   if (tags.length === 0) {
     return;
   }
-  printToJob(job, 'info', 'Tags:');
+  printToJob(job, 'info', t('features.search.tags'));
   for (const tag of tags) {
     printToJob(job, 'info', tagLine(tag));
   }
@@ -86,7 +87,7 @@ function isNothing(results: SearchResults): boolean {
  */
 function report(job: SearchJob, results: SearchResults): void {
   if (isNothing(results)) {
-    printToJob(job, 'info', `No results for "${job.query}"`);
+    printToJob(job, 'info', t('features.search.no_results', { query: job.query }));
   } else {
     printAccounts(job, results.accounts);
     printTags(job, results.hashtags);

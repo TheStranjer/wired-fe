@@ -7,16 +7,13 @@
 
 import { redirectTarget } from './redirectTarget';
 import type { AuthorizeDecision } from '../../api/endpoints/authorize';
+import { t } from '../../i18n/translate';
 
 /** What the box shows after a decision. */
 export type Settled =
   | { readonly kind: 'code'; readonly code: string }
   | { readonly kind: 'finished'; readonly message: string }
   | { readonly kind: 'error'; readonly message: string };
-
-/** Shown when the answer's redirect address is not one the browser may be sent to. */
-const REFUSED =
-  'The instance answered with a redirect address that is not safe to follow. Nothing was sent.';
 
 /**
  * Act on {@link decision}: navigate through {@link navigate} for an http(s)
@@ -29,11 +26,11 @@ export function settle(decision: AuthorizeDecision, navigate: (url: string) => v
   }
   const target = redirectTarget(decision.uri);
   if (target === null) {
-    return { kind: 'error', message: REFUSED };
+    return { kind: 'error', message: t('features.authorize.unsafe_redirect') };
   }
   if (target.kind === 'oob') {
-    return { kind: 'finished', message: 'Done. You can close this box.' };
+    return { kind: 'finished', message: t('features.authorize.done') };
   }
   navigate(target.url);
-  return { kind: 'finished', message: 'Returning to the app…' };
+  return { kind: 'finished', message: t('features.authorize.returning') };
 }

@@ -10,6 +10,7 @@
 
 import type { AccountStore, StoredAccount } from '../../accounts/accountStore';
 import { type ApiError, type InstanceProfile, describeApiError } from '../../capabilities/detect';
+import { t } from '../../i18n/translate';
 import type { Result } from '../../lib/result';
 import { printAction } from '../../state/appState';
 import type { Dispatch } from '../../state/StateContext';
@@ -27,14 +28,17 @@ export async function adoptAccount(account: StoredAccount, env: AdoptEnv): Promi
   const { dispatch } = env;
   dispatch({ type: 'accounts', accounts: env.accounts.list(), activeKey: account.key });
   dispatch({ type: 'signedIn', account, date: new Date() });
-  dispatch(
-    printAction(STATUS_WINDOW_ID, 'info', `Logged in to ${account.origin} as @${account.handle}`),
-  );
+  const loggedIn = t('features.registration.logged_in', {
+    origin: account.origin,
+    handle: account.handle,
+  });
+  dispatch(printAction(STATUS_WINDOW_ID, 'info', loggedIn));
   const detected = await env.detect(account.origin);
   if (detected.ok) {
     dispatch({ type: 'profile', profile: detected.value });
     return;
   }
   const reason = describeApiError(detected.error);
-  dispatch(printAction(STATUS_WINDOW_ID, 'error', `Could not reach ${account.origin}: ${reason}`));
+  const unreachable = t('features.registration.unreachable', { origin: account.origin, reason });
+  dispatch(printAction(STATUS_WINDOW_ID, 'error', unreachable));
 }

@@ -7,6 +7,7 @@
 
 import type { StoredAccount } from '../../accounts/accountStore';
 import { fullHandle } from '../../accounts/handle';
+import type { MessageKey } from '../../i18n/messages';
 import type { Buffer } from '../../state/buffer';
 import type { ListedAccount } from '../../ui/NickList';
 import { participants } from '../../views/participants';
@@ -19,18 +20,18 @@ type Author = ReturnType<typeof participants>[number];
 /** How many nicks the window lists at most. */
 const PEOPLE_LIMIT = 50;
 
-/** The list's heading for a watched window kind; null leaves the list empty. */
-export const PEOPLE_TITLES: Record<WindowKind, string | null> = {
+/** The message that is the list's heading for a watched window kind; null leaves the list empty. */
+export const PEOPLE_TITLES: Record<WindowKind, MessageKey | null> = {
   status: null,
-  home: 'recently here',
-  local: 'recently here',
-  federated: 'recently here',
-  hashtag: 'recently here',
-  profile: 'recently here',
+  home: 'features.people.recently_here',
+  local: 'features.people.recently_here',
+  federated: 'features.people.recently_here',
+  hashtag: 'features.people.recently_here',
+  profile: 'features.people.recently_here',
   notifications: null,
   search: null,
-  thread: 'in thread',
-  dm: 'in conversation',
+  thread: 'features.people.in_thread',
+  dm: 'features.people.in_conversation',
   composer: null,
   feed: null,
   feedEditor: null,

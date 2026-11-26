@@ -10,9 +10,10 @@ import { useState } from 'react';
 import type { JSX } from 'react';
 
 import { MediaSteps, OpenOriginal } from './MediaControls';
-import { MediaFull, NO_DESCRIPTION } from './MediaFull';
+import { MediaFull } from './MediaFull';
 import styles from './MediaViewer.module.css';
 import type { Status } from '../../api/schemas/status';
+import { useT } from '../../i18n/I18nProvider';
 import { mediaStep } from '../../state/mediaWindow';
 import { useAppDispatch } from '../../state/StateContext';
 import { describedBy } from '../../ui/MediaTile';
@@ -29,9 +30,10 @@ type ViewerProps = {
 
 /** The solid block that stands in for hidden media. */
 function Cover(props: { readonly onShow: () => void }): JSX.Element {
+  const t = useT();
   return (
     <button className={styles['cover']} onClick={props.onShow} type="button">
-      [ SENSITIVE — show ]
+      {t('features.media.sensitive_cover')}
     </button>
   );
 }
@@ -40,11 +42,12 @@ function Cover(props: { readonly onShow: () => void }): JSX.Element {
 export function MediaViewer(props: ViewerProps): JSX.Element {
   const { win, status, n } = props;
   const dispatch = useAppDispatch();
+  const t = useT();
   const [shown, setShown] = useState(!status.sensitive);
   const items = status.media_attachments.map(mediaItem);
   const item = items[n - 1];
   if (item === undefined) {
-    return <p className={styles['notice']}>{`This post has no attachment ${String(n)}`}</p>;
+    return <p className={styles['notice']}>{t('features.media.no_attachment', { n })}</p>;
   }
   if (!shown) {
     return (
@@ -60,7 +63,9 @@ export function MediaViewer(props: ViewerProps): JSX.Element {
       <div className={styles['stage']}>
         <MediaFull item={item} />
       </div>
-      <p className={styles['description']}>{describedBy(item) ?? NO_DESCRIPTION}</p>
+      <p className={styles['description']}>
+        {describedBy(item) ?? t('features.media.no_description')}
+      </p>
       <div className={styles['bar']}>
         <MediaSteps
           n={n}

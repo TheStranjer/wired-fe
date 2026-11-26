@@ -11,6 +11,7 @@
 import type { JSX } from 'react';
 
 import { useSearch } from './useSearch';
+import { t } from '../../i18n/translate';
 import { postAsWindowAccount } from '../../state/postAsWindowAccount';
 import { useAppState } from '../../state/StateContext';
 import type { WindowKindDefinition } from '../../state/windowKind';
@@ -18,7 +19,9 @@ import { BufferView } from '../../views/BufferView';
 
 /** What the topic line says about the window's query; 'search' without one. */
 function searchTopic(target: string | null): string {
-  return target === null ? 'search' : `search: ${target}`;
+  return target === null
+    ? t('features.search.topic')
+    : t('features.search.topic_query', { query: target });
 }
 
 /** The search window: its buffer's lines, filled once by ./useSearch. */

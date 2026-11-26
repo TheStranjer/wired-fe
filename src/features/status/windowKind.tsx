@@ -8,6 +8,7 @@
 import type { JSX } from 'react';
 
 import { buildConfig } from '../../config/config';
+import { t } from '../../i18n/translate';
 import { postAccountless } from '../../state/postAccountless';
 import type { WindowKindDefinition } from '../../state/windowKind';
 import { BufferView } from '../../views/BufferView';
@@ -23,7 +24,7 @@ function StatusWindow({ windowId }: { readonly windowId: string }): JSX.Element 
 /** The self-registered definition src/app/windowKinds.ts collects. */
 export const windowKind: WindowKindDefinition = {
   kind: 'status',
-  topic: () => `${buildConfig.appName} — Present day. Present time.`,
+  topic: () => t('features.status.topic', { appName: buildConfig.appName }),
   Component: StatusWindow,
   onPost: postAccountless,
 };

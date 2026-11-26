@@ -14,6 +14,7 @@ import styles from './PasswordResetForm.module.css';
 import type { PasswordResetOutcome, PasswordResetValues } from './submitPasswordReset';
 import { usePasswordReset } from './usePasswordReset';
 import { preselectedOrigin } from '../../accounts/origin';
+import { useT } from '../../i18n/I18nProvider';
 import type { InstanceChoices as Choices } from '../../lib/origin';
 import { InstanceChoices } from '../../ui/InstanceChoices';
 
@@ -28,9 +29,6 @@ export type PasswordResetFormProps = {
   /** Close the box. */
   readonly onClose: () => void;
 };
-
-/** What a changed password says. */
-const DONE_MESSAGE = 'Password changed. You can log in with it now.';
 
 /** The failure of the last send, or nothing. */
 function Failure(props: { readonly outcome: PasswordResetOutcome | null }): JSX.Element | null {
@@ -50,13 +48,14 @@ function InstanceField(props: {
   readonly onChange: (value: string) => void;
 }): JSX.Element | null {
   const { choices } = props;
+  const t = useT();
   if (!props.asked) {
     return null;
   }
   return choices === null || choices === undefined ? (
     <PasswordField
       autoComplete="url"
-      label="Instance"
+      label={t('features.password_reset.instance')}
       onChange={props.onChange}
       type="text"
       value={props.value}
@@ -68,10 +67,11 @@ function InstanceField(props: {
 
 /** What a changed password says, and the way out. */
 function Done(props: { readonly onClose: () => void }): JSX.Element {
+  const t = useT();
   return (
     <div className={styles['form']}>
       <p className={styles['notice']} role="status">
-        {DONE_MESSAGE}
+        {t('features.password_reset.done')}
       </p>
       <button
         className={styles['button']}
@@ -80,15 +80,26 @@ function Done(props: { readonly onClose: () => void }): JSX.Element {
         }}
         type="button"
       >
-        [ close ]
+        {t('features.password_reset.close_button')}
       </button>
     </div>
+  );
+}
+
+/** The send button, off while a send is in flight. */
+function SendButton(props: { readonly sending: boolean }): JSX.Element {
+  const t = useT();
+  return (
+    <button className={styles['button']} disabled={props.sending} type="submit">
+      {t('features.password_reset.reset_button')}
+    </button>
   );
 }
 
 /** The new-password box: its fields, the failure of the last send and the send button. */
 export function PasswordResetForm(props: PasswordResetFormProps): JSX.Element {
   const { choices } = props;
+  const t = useT();
   const { values, sending, outcome, set, submit } = usePasswordReset(
     props.onSubmit,
     preselectedOrigin(choices),
@@ -98,7 +109,7 @@ export function PasswordResetForm(props: PasswordResetFormProps): JSX.Element {
   }
   return (
     <form
-      aria-label="Reset password"
+      aria-label={t('features.password_reset.form_label')}
       className={styles['form']}
       onSubmit={(event) => {
         void submit(event);
@@ -114,7 +125,7 @@ export function PasswordResetForm(props: PasswordResetFormProps): JSX.Element {
       />
       <PasswordField
         autoComplete="new-password"
-        label="New password"
+        label={t('features.password_reset.new_password')}
         onChange={(value) => {
           set('password', value);
         }}
@@ -123,7 +134,7 @@ export function PasswordResetForm(props: PasswordResetFormProps): JSX.Element {
       />
       <PasswordField
         autoComplete="new-password"
-        label="Confirm new password"
+        label={t('features.password_reset.confirm_password')}
         onChange={(value) => {
           set('confirmation', value);
         }}
@@ -131,9 +142,7 @@ export function PasswordResetForm(props: PasswordResetFormProps): JSX.Element {
         value={values.confirmation}
       />
       <Failure outcome={outcome} />
-      <button className={styles['button']} disabled={sending} type="submit">
-        [ reset password ]
-      </button>
+      <SendButton sending={sending} />
     </form>
   );
 }

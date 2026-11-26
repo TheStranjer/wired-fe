@@ -11,6 +11,7 @@ import { resolveInstanceOrigin } from '../../accounts/origin';
 import { completePasswordReset } from '../../api/endpoints/passwordReset';
 import { describeApiError } from '../../api/errors';
 import type { WiredConfig } from '../../config/schema';
+import { t } from '../../i18n/translate';
 
 /** What the visitor typed into the form. */
 export type PasswordResetValues = {
@@ -31,12 +32,6 @@ export type PasswordResetEnv = {
   readonly page: { readonly origin: string };
 };
 
-/** Shown when the two fields differ. */
-const MISMATCH_MESSAGE = 'The two passwords do not match.';
-
-/** Shown when the new password is empty. */
-const EMPTY_MESSAGE = 'Enter a new password.';
-
 /** The error {@link message} as an outcome. */
 function failed(message: string): PasswordResetOutcome {
   return { kind: 'error', message };
@@ -48,10 +43,10 @@ export async function submitPasswordReset(
   env: PasswordResetEnv,
 ): Promise<PasswordResetOutcome> {
   if (values.password === '') {
-    return failed(EMPTY_MESSAGE);
+    return failed(t('features.password_reset.empty'));
   }
   if (values.password !== values.confirmation) {
-    return failed(MISMATCH_MESSAGE);
+    return failed(t('features.password_reset.mismatch'));
   }
   const instance = resolveInstanceOrigin(env.config.instances, env.page.origin, values.instance);
   if (!instance.ok) {

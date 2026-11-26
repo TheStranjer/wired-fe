@@ -280,7 +280,189 @@
     },
     "not_signed_in_as": "You aren't signed in as {handle}. {count, plural, =0 {No account is signed in.} other {Signed in: {accounts}.}} Type /connect to add an account."
   },
-  "features": {},
+  "features": {
+    "authorize": {
+      "as_handle": "As @{handle}, this app will be able to:",
+      "authorize_button": "[ authorize ]",
+      "cancel_button": "[ cancel ]",
+      "close_button": "[ close ]",
+      "code_intro": "Authorized. Give this code to the app:",
+      "copied": "Copied to the clipboard.",
+      "copy_button": "[ copy ]",
+      "copy_failed": "Could not copy. Select the code and copy it by hand.",
+      "deny_button": "[ deny ]",
+      "done": "Done. You can close this box.",
+      "failed": "Could not authorize: {reason}",
+      "form_label": "Log in",
+      "instance": "Instance",
+      "loading": "Loading the request…",
+      "log_in_button": "[ log in ]",
+      "log_in_intro": "Log in to authorize the app.",
+      "narrow_follow": "Manage your {noun}",
+      "narrow_push": "Push notifications for your {noun}",
+      "narrow_read": "Read your {noun}",
+      "narrow_write": "Change your {noun}",
+      "not_trusted": "This instance has not marked WiredFE as a trusted app, so it cannot authorize other apps. Ask the instance administrator to mark WiredFE as trusted.",
+      "password": "Password",
+      "refused": "The instance refused this authorization request: {message}",
+      "returning": "Returning to the app…",
+      "scope_admin": "As an administrator: {words} ({scope})",
+      "scope_plain": "{words} ({scope})",
+      "scope_unknown": "Unknown permission ({scope})",
+      "title": "Authorize {name}?",
+      "unsafe_redirect": "The instance answered with a redirect address that is not safe to follow. Nothing was sent.",
+      "username": "Username",
+      "website": "Website: {website}",
+      "whole_follow": "Follow, unfollow, block and mute accounts",
+      "whole_push": "Send you push notifications",
+      "whole_read": "Read everything you can see",
+      "whole_write": "Post, edit and delete as you"
+    },
+    "composer": {
+      "attachments_removed": "attachments removed: they belong to the old account",
+      "editing": "editing [{label}]: {excerpt}",
+      "post_as": "Post as",
+      "posted_as": "Posted as @{author}",
+      "quoted": "❝ quoted @{author}",
+      "quoting": "Quoting @{author}: {excerpt}",
+      "replied": "↳ replied to @{author}",
+      "replying": "Replying to @{author}: {excerpt}",
+      "topic": "composer",
+      "topic_as": "composer, posting as @{handle}"
+    },
+    "dm": {
+      "no_messages": "No messages with @{target} yet. Type to start one.",
+      "topic": "dm",
+      "topic_with": "private conversation with {mention}"
+    },
+    "external": {
+      "asks_for": "This app asks for:",
+      "authorize_button": "[ authorize ]",
+      "cancel_button": "[ cancel ]",
+      "close_button": "[ close ]",
+      "continuing": "Continuing…",
+      "deny_button": "[ deny ]",
+      "email": "Email",
+      "form_label": "Register",
+      "intro": "Signed in with {provider}{named, select, yes { as {name}} other {}}. Choose how you appear here.",
+      "loading": "Loading the request…",
+      "loading_details": "Loading your details…",
+      "nickname": "Nickname",
+      "password_optional": "Password (optional)",
+      "register_button": "[ register ]",
+      "title": "Authorize {name}?",
+      "unsafe_redirect": "The instance answered with a redirect address that is not safe to follow. Nothing was sent.",
+      "waiting_approval": "Account created. It is awaiting approval by a moderator.",
+      "waiting_confirmation": "Account created. Check your email to confirm your address, then log in.",
+      "website": "Website: {website}",
+      "your_provider": "your provider"
+    },
+    "federated": {
+      "topic": "federated timeline"
+    },
+    "feed": {
+      "missing": "This feed no longer exists",
+      "source_failed": "{source} failed: {reason}",
+      "topic_posting": "{title}, posting as @{handle}"
+    },
+    "feed_editor": {
+      "add_button": "[ add ]",
+      "add_button_label": "Add tag for @{handle}",
+      "add_label": "add tag for @{handle}",
+      "add_placeholder": "add tag",
+      "cancel_button": "[ cancel ]",
+      "cell_name": "{source} of @{handle}",
+      "cell_name_blocked": "{source} of @{handle} ({reason})",
+      "column_account": "account",
+      "confirm_delete_label": "Confirm delete feed",
+      "delete_button": "[ delete feed ]",
+      "delete_question": "Delete this feed?",
+      "delete_yes": "[ yes, delete ]",
+      "feed_name": "Feed name",
+      "gone": "This feed no longer exists",
+      "name_has_spaces": "A feed name has no spaces",
+      "not_a_tag": "Not a tag: \"{text}\"",
+      "remove_tag": "Remove tag {tag} of @{handle}",
+      "save_button": "[ save ]",
+      "saved": "Saved",
+      "sign_in_expired": "sign-in expired",
+      "sources_label": "Sources by account",
+      "tags_label": "Tags of @{handle}"
+    },
+    "home": {
+      "topic": "home timeline"
+    },
+    "local": {
+      "topic": "local timeline"
+    },
+    "media": {
+      "loading": "loading…",
+      "next": "Next attachment",
+      "no_attachment": "This post has no attachment {n}",
+      "no_description": "Image without description",
+      "no_link": "[no usable link]",
+      "nothing": "Nothing to show",
+      "open_original": "Open original ↗",
+      "previous": "Previous attachment",
+      "sensitive_cover": "[ SENSITIVE — show ]"
+    },
+    "notifications": {
+      "topic": "notifications"
+    },
+    "password_reset": {
+      "close_button": "[ close ]",
+      "confirm_password": "Confirm new password",
+      "done": "Password changed. You can log in with it now.",
+      "empty": "Enter a new password.",
+      "form_label": "Reset password",
+      "instance": "Instance",
+      "mismatch": "The two passwords do not match.",
+      "new_password": "New password",
+      "reset_button": "[ reset password ]"
+    },
+    "people": {
+      "in_conversation": "in conversation",
+      "in_thread": "in thread",
+      "nobody": "nobody gathered here",
+      "recently_here": "recently here",
+      "window_closed": "window closed"
+    },
+    "registration": {
+      "agreement": "I agree to the rules and terms of this instance",
+      "close_button": "[ close ]",
+      "email": "Email",
+      "form_label": "Register",
+      "instance": "Instance",
+      "logged_in": "Logged in to {origin} as @{handle}",
+      "password": "Password",
+      "reason": "Reason (optional)",
+      "register_button": "[ register ]",
+      "unreachable": "Could not reach {origin}: {reason}",
+      "username": "Username",
+      "waiting_approval": "Account created. It is awaiting approval by a moderator.",
+      "waiting_confirmation": "Account created. Check your email to confirm your address, then log in."
+    },
+    "route": {
+      "follow_hint": "Type /follow to follow @{acct}",
+      "not_found": "Could not find {value}"
+    },
+    "search": {
+      "account_line": "  @{acct} — {name}  (/whois @{acct})",
+      "accounts": "Accounts:",
+      "no_results": "No results for \"{query}\"",
+      "tag_line": "  #{name}  (/join #{name})",
+      "tags": "Tags:",
+      "topic": "search",
+      "topic_query": "search: {query}"
+    },
+    "status": {
+      "topic": "{appName} — Present day. Present time."
+    },
+    "thread": {
+      "loading": "Loading thread…",
+      "nothing_to_answer": "Nothing to reply to in this window"
+    }
+  },
   "format": {
     "boost_count": "{count, plural, one {# boost} other {# boosts}}",
     "closed": "closed",
