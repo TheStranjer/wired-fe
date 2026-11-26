@@ -5,7 +5,7 @@
   display: block;
   flex: none;
   box-sizing: border-box;
-  border: var(--border-width) solid var(--color-border);
+  border: var(--border-width) solid var(--color-border-idle);
   border-radius: 0;
   object-fit: cover;
 }

@@ -1,4 +1,4 @@
-/* The dock preview: a 2px dashed --color-border outline on the half of the
+/* The dock preview: a 2px dashed --color-border-focus outline on the half of the
    pane a dragged float would take. No fill, no translucency (decision 16).
    The live region is visually hidden but read aloud. */
 
@@ -9,7 +9,7 @@
   width: var(--zone-w);
   height: var(--zone-h);
   box-sizing: border-box;
-  outline: 2px dashed var(--color-border);
+  outline: 2px dashed var(--color-border-focus);
   outline-offset: -2px;
   pointer-events: none;
 }

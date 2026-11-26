@@ -5,7 +5,7 @@
 .horizontal {
   position: relative;
   flex: none;
-  background: var(--color-border);
+  background: var(--color-border-idle);
   touch-action: none;
   user-select: none;
 }

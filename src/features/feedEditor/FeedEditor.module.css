@@ -20,7 +20,7 @@
   flex: 1;
   min-width: 0;
   padding: 0 var(--space);
-  border: var(--border-width) solid var(--color-border);
+  border: var(--border-width) solid var(--color-border-idle);
   background: var(--color-bg);
   color: var(--color-fg);
   font: inherit;
@@ -37,7 +37,7 @@
 .table th,
 .table td {
   padding: 0 var(--space);
-  border: var(--border-width) solid var(--color-border);
+  border: var(--border-width) solid var(--color-border-idle);
   text-align: left;
 }
 

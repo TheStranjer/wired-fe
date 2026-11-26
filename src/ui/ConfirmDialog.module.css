@@ -27,7 +27,7 @@
 }
 
 .button:hover {
-  border-color: var(--color-border);
+  border-color: var(--color-border-focus);
 }
 
 .button:focus-visible {
