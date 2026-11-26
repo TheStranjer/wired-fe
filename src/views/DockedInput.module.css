@@ -1,5 +1,5 @@
-/* The DM window: the messages scroll in the top row, the input box stays
-   docked in the bottom one. */
+/* The docked layout: the scrollback scrolls in the top row, the input box
+   stays docked in the bottom one. */
 
 .window {
   display: grid;

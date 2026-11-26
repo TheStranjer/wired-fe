@@ -56,6 +56,36 @@ describe('the thread window kind', () => {
     expect(places[0]).toBeGreaterThanOrEqual(0);
   });
 
+  it('docks a reply box under the loaded thread', async () => {
+    serveThread();
+    const { Component } = windowKind;
+
+    render(
+      <AppStateProvider initial={threadState()}>
+        <Component windowId={THREAD_WINDOW} />
+      </AppStateProvider>,
+    );
+
+    await screen.findByText('the fourth wall');
+
+    expect(screen.getByRole('textbox', { name: 'Post text' })).toBeEnabled();
+  });
+
+  it('docks no box under a thread that failed to load', async () => {
+    serveThread({ status: true });
+    const { Component } = windowKind;
+
+    render(
+      <AppStateProvider initial={threadState()}>
+        <Component windowId={THREAD_WINDOW} />
+      </AppStateProvider>,
+    );
+
+    await screen.findByText('HTTP 404: Record not found');
+
+    expect(screen.queryByRole('textbox', { name: 'Post text' })).not.toBeInTheDocument();
+  });
+
   it('names an unopened window’s log region plainly and fetches nothing', () => {
     // No handlers are registered: any request would fail this test.
     const { Component } = windowKind;

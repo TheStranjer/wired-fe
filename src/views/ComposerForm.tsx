@@ -44,6 +44,10 @@ export type ComposerFormProps = {
   readonly onFocus?: () => void;
   /** Controls to show under the text, such as the pane's attachments. */
   readonly attachments?: ReactNode;
+  /** The text cannot be typed in (WFE-286), e.g. while what it answers loads. */
+  readonly disabled?: boolean;
+  /** The hint the empty text shows. */
+  readonly placeholder?: string;
 };
 
 /** Whether {@link event} asks to send: Ctrl+Enter, or a bare Enter in the compact form. */
@@ -63,6 +67,7 @@ function PostText(props: ComposerFormProps & { readonly send: () => void }): JSX
     <textarea
       aria-label="Post text"
       className={compact ? styles['textCompact'] : styles['text']}
+      disabled={props.disabled}
       onChange={(event: ChangeEvent<HTMLTextAreaElement>) => {
         props.onChange({ text: event.target.value });
       }}
@@ -73,6 +78,7 @@ function PostText(props: ComposerFormProps & { readonly send: () => void }): JSX
           props.send();
         }
       }}
+      placeholder={props.placeholder}
       ref={ref}
       rows={compact ? 1 : undefined}
       spellCheck={false}
