@@ -54,13 +54,13 @@ function StartPopup(props: { readonly id: string; readonly close: () => void }):
   const { settings } = useAppState();
   const { run } = usePostActions();
   const popupRef = useRef<HTMLDivElement | null>(null);
-  const languageRow = useT()('app.language_row');
+  const t = useT();
   const entries = useMemo(
     () => [
-      ...startMenuEntries(paneMenuEntries(registry, settings.feeds)),
-      languageEntry(languageRow),
+      ...startMenuEntries(paneMenuEntries(registry, settings.feeds, t)),
+      languageEntry(t('app.language_row')),
     ],
-    [registry, settings.feeds, languageRow],
+    [registry, settings.feeds, t],
   );
   useEffect(() => {
     popupRef.current?.querySelector('button')?.focus();
@@ -71,7 +71,7 @@ function StartPopup(props: { readonly id: string; readonly close: () => void }):
   };
   return (
     <div className={styles['popup']} id={props.id} ref={popupRef}>
-      <ViewList command="float" entries={entries} label="Open a view as a float" run={choose} />
+      <ViewList command="float" entries={entries} label={t('app.open_view_float')} run={choose} />
     </div>
   );
 }
@@ -98,6 +98,7 @@ function LanguagePopup(props: { readonly id: string; readonly close: () => void 
 /** The start menu: its button, and its list of views (or of languages) while it is open. */
 export function StartMenu(): JSX.Element {
   const { startMenu, languageMenu } = useAppState();
+  const t = useT();
   const close = useClose();
   const dispatch = useAppDispatch();
   const rootRef = useRef<HTMLDivElement | null>(null);
@@ -110,7 +111,7 @@ export function StartMenu(): JSX.Element {
       <button
         aria-controls={open ? menuId : undefined}
         aria-expanded={open}
-        aria-label="[≡ wired] start menu"
+        aria-label={t('app.start_menu_label')}
         className={styles['button']}
         onClick={() => {
           if (open) {

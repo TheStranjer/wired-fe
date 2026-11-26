@@ -13,6 +13,7 @@ import { useEffect, useState } from 'react';
 import type { JSX } from 'react';
 
 import { AuthorizeFlow } from './AuthorizeFlow';
+import { useT } from '../i18n/I18nProvider';
 import { parseAuthorizeRoute } from '../lib/authorizeRoute';
 import { Overlay } from '../ui/Overlay';
 
@@ -32,6 +33,7 @@ function openFromHash(open: (request: AuthorizeRequest) => void): void {
 /** The authorization box over the shell while a request is open, or null while it is not. */
 export function useAuthorizeOverlay(ready: boolean): JSX.Element | null {
   const [request, setRequest] = useState<AuthorizeRequest | null>(null);
+  const t = useT();
 
   useEffect(() => {
     if (!ready) {
@@ -54,7 +56,7 @@ export function useAuthorizeOverlay(ready: boolean): JSX.Element | null {
     setRequest(null);
   };
   return (
-    <Overlay label="Authorize app" onClose={close}>
+    <Overlay label={t('app.authorize_app')} onClose={close}>
       <AuthorizeFlow onClose={close} query={request} />
     </Overlay>
   );

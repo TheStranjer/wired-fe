@@ -13,6 +13,7 @@ import { fail } from './deskSyncFail';
 import { type SyncDeps, report, say, target, warnOnce } from './deskSyncKit';
 import { send } from './deskSyncSend';
 import { readSettings } from '../features/sync/settingsAccess';
+import { t } from '../i18n/translate';
 import {
   type SyncDecision,
   type SyncSnapshot,
@@ -89,11 +90,11 @@ export async function syncNow(deps: SyncDeps): Promise<void> {
     return;
   }
   if (kind === 'apply') {
-    say(deps, 'info', 'Sync: took the newer desk from the server');
+    say(deps, 'info', t('app.sync_took_newer'));
     return;
   }
   deps.cancel();
   if (await pushOnce(deps)) {
-    say(deps, 'info', 'Sync: up to date');
+    say(deps, 'info', t('app.sync_up_to_date'));
   }
 }

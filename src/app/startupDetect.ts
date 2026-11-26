@@ -16,6 +16,7 @@ import {
   describeApiError,
 } from '../capabilities/detect';
 import { cachedDetect } from '../capabilities/profileCache';
+import { t } from '../i18n/translate';
 import type { Result } from '../lib/result';
 import type { LineLevel } from '../state/buffer';
 import type { Dispatch } from '../state/StateContext';
@@ -37,7 +38,11 @@ function print(deps: DetectDeps, text: string, level: LineLevel): void {
 
 /** The line naming what the instance at {@link profile}'s origin turned out to be. */
 function connectedLine(profile: InstanceProfile): string {
-  return `Connected to ${profile.title} (${profile.capabilities.backend}) at ${profile.origin}`;
+  return t('app.connected_to', {
+    title: profile.title,
+    backend: profile.capabilities.backend,
+    origin: profile.origin,
+  });
 }
 
 /** Reports one detection: dispatches the profile and prints, or prints why not. */
@@ -51,7 +56,8 @@ function reportDetection(
     print(deps, connectedLine(outcome.value), 'info');
     return;
   }
-  print(deps, `Could not reach ${origin}: ${describeApiError(outcome.error)}`, 'error');
+  const reason = describeApiError(outcome.error);
+  print(deps, t('app.could_not_reach', { origin, reason }), 'error');
 }
 
 /** Detects every origin concurrently (decision 5) and reports them in order. */

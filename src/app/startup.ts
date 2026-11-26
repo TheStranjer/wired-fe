@@ -22,6 +22,7 @@ import type { StoredAccount } from '../accounts/accountStore';
 import { completeLogin } from '../accounts/completeLogin';
 import type { Detect } from '../capabilities/detect';
 import type { WiredConfig } from '../config/schema';
+import { t } from '../i18n/translate';
 import type { LineLevel } from '../state/buffer';
 import { DEFAULT_SETTINGS, type Settings, SettingsSchema } from '../state/settings';
 import type { Dispatch } from '../state/StateContext';
@@ -78,7 +79,7 @@ function greet(deps: StartupDeps): void {
     });
   }
   printStatus(deps, `WIRED // ${deps.config.appName}`, 'info');
-  printStatus(deps, 'Present day. Present time.', 'info');
+  printStatus(deps, t('app.tagline'), 'info');
 }
 
 /** The stored settings, or the defaults, restored before anything prints; the ones restored. */
@@ -100,14 +101,14 @@ function announceAccounts(
   activeKey: string | null,
 ): void {
   for (const account of accounts) {
-    const mark = account.key === activeKey ? ' (active)' : '';
-    printStatus(deps, `Logged in as @${account.handle}${mark}`, 'info');
+    const key = account.key === activeKey ? 'app.logged_in_as_active' : 'app.logged_in_as';
+    printStatus(deps, t(key, { handle: account.handle }), 'info');
   }
 }
 
 /** The line that reports a login completed from the address bar (decision 8). */
 function loggedInLine(account: StoredAccount): string {
-  return `Logged in to ${account.origin} as @${account.handle}`;
+  return t('app.logged_in_to', { origin: account.origin, handle: account.handle });
 }
 
 /**

@@ -8,6 +8,7 @@ import { useCallback } from 'react';
 import type { JSX } from 'react';
 
 import styles from './DockHint.module.css';
+import { useT } from '../i18n/I18nProvider';
 import type { DropTarget } from '../windows/dropZone';
 
 /** The outline over the half of a pane a float would take. */
@@ -31,11 +32,12 @@ export function DockHint(props: {
   readonly title: string;
 }): JSX.Element {
   const { target, title } = props;
+  const t = useT();
   return (
     <>
       {target === null ? null : <Outline zone={target.zone} />}
       <div aria-live="polite" className={styles['announce']}>
-        {target === null ? '' : `Dock ${target.edge} of #${title}`}
+        {target === null ? '' : t('app.dock_announce', { edge: target.edge, title })}
       </div>
     </>
   );

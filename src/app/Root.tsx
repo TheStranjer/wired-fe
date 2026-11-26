@@ -44,6 +44,7 @@ import { useSettingsPersistence } from './useSettingsPersistence';
 import { useShellModals } from './useShellModals';
 import { useStartup } from './useStartup';
 import { useTheme } from './useTheme';
+import { useT } from '../i18n/I18nProvider';
 import { usePendingKeys } from '../keys/useGlobalKeys';
 import type { Result } from '../lib/result';
 import { type AppState, printAction } from '../state/appState';
@@ -103,6 +104,7 @@ export function Root(): JSX.Element {
   useBackgroundWork(state, ready);
   const postActions = usePostActionsApi();
   const lineRunner = useLineRunnerApi();
+  const t = useT();
 
   useLoadFailures();
 
@@ -113,7 +115,7 @@ export function Root(): JSX.Element {
           <Shell
             header={<AppHeader />}
             scrollback={<DesktopView />}
-            scrollbackLabel={`Desktop ${String(state.layout.active + 1)}`}
+            scrollbackLabel={t('app.desktop_label', { number: state.layout.active + 1 })}
             start={<StartMenu />}
             statusLine={<StatusBar attachments={attachments} pendingKeys={pendingKeys.prefix} />}
             tray={<CommandTray attachments={attachments} />}
