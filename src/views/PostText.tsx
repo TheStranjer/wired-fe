@@ -18,6 +18,7 @@ import {
 import styles from './Composer.module.css';
 import { useAutoGrow } from './useAutoGrow';
 import { usePopupSide } from './usePopupSide';
+import { useT } from '../i18n/I18nProvider';
 import { CompletionList, type CompletionRow, rowId } from '../ui/CompletionList';
 
 /**
@@ -94,12 +95,13 @@ function handlers(props: PostTextProps): Attributes {
 
 /** The suggestion list of {@link completion}. */
 function Suggestions(props: { readonly completion: PostCompletion }): JSX.Element {
+  const t = useT();
   const { completion } = props;
   return (
     <CompletionList
       active={completion.active}
       id={completion.listId}
-      label="Post suggestions"
+      label={t('views.composer.post_suggestions')}
       rows={completion.rows}
     />
   );
@@ -107,6 +109,7 @@ function Suggestions(props: { readonly completion: PostCompletion }): JSX.Elemen
 
 /** The post text: a textarea over its suggestion list. */
 export function PostText(props: PostTextProps): JSX.Element {
+  const t = useT();
   const { compact, completion } = props;
   const ownRef = useRef<HTMLTextAreaElement>(null);
   const fieldRef = useRef<HTMLDivElement>(null);
@@ -116,7 +119,7 @@ export function PostText(props: PostTextProps): JSX.Element {
   return (
     <div className={compact ? styles['fieldCompact'] : styles['field']} ref={fieldRef}>
       <textarea
-        aria-label="Post text"
+        aria-label={t('views.composer.post_text')}
         className={compact ? styles['textCompact'] : styles['text']}
         disabled={props.disabled}
         onFocus={props.onFocus}

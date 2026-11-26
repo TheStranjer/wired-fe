@@ -7,6 +7,7 @@
  */
 import type { PostView } from './postView';
 import { plainText } from './quoteView';
+import { t } from '../i18n/translate';
 
 /** What a confirmation dialog shows, and which question it asks. */
 export type PostConfirmText = {
@@ -28,28 +29,30 @@ function excerptOf(contentHtml: string): string {
 function deleteText(label: string, contentHtml: string): PostConfirmText {
   const excerpt = excerptOf(contentHtml);
   return {
-    title: `Delete post [${label}]?`,
-    message: excerpt === '' ? "This can't be undone." : `This can't be undone. "${excerpt}"`,
-    confirmLabel: 'Delete',
+    title: t('views.confirm.delete_title', { label }),
+    message:
+      excerpt === ''
+        ? t('views.confirm.delete_message')
+        : t('views.confirm.delete_message_excerpt', { excerpt }),
+    confirmLabel: t('views.confirm.delete'),
   };
 }
 
 /** The block question for the author of the post. */
 function blockText(handle: string): PostConfirmText {
   return {
-    title: `Block ${handle}?`,
-    message:
-      "They won't be able to follow or interact with your account, and their posts are hidden from you.",
-    confirmLabel: 'Block',
+    title: t('views.confirm.block_title', { handle }),
+    message: t('views.confirm.block_message'),
+    confirmLabel: t('views.confirm.block'),
   };
 }
 
 /** The mute question for the author of the post; the duration choice sits under it. */
 function muteText(handle: string): PostConfirmText {
   return {
-    title: `Mute ${handle}?`,
-    message: 'Their posts are hidden from you for as long as you choose.',
-    confirmLabel: 'Mute',
+    title: t('views.confirm.mute_title', { handle }),
+    message: t('views.confirm.mute_message'),
+    confirmLabel: t('views.confirm.mute'),
   };
 }
 

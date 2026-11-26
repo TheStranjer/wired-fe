@@ -19,6 +19,7 @@ import { quoteView, type Handles, type LabelOf, type QuoteView } from './quoteVi
 import { fullHandle } from '../accounts/handle';
 import type { Account } from '../api/schemas/account';
 import type { Status, Visibility } from '../api/schemas/status';
+import { t } from '../i18n/translate';
 import type { EmojiRef } from '../ui/emojify';
 import type { MediaItem } from '../ui/MediaList';
 import type { PollViewData } from '../ui/PollView';
@@ -135,7 +136,7 @@ function replyTo(status: Status): string | null {
     return null;
   }
   const parent = status.mentions.find((mention) => mention.id === status.in_reply_to_account_id);
-  return parent === undefined ? 'a thread' : `@${parent.acct}`;
+  return parent === undefined ? t('views.post.a_thread') : `@${parent.acct}`;
 }
 
 /** The tallies the row shows, under the names the row uses. */

@@ -32,6 +32,7 @@ import {
 import { postView } from './postView';
 import { usePostConfirm } from './usePostConfirm';
 import { usePostPicker } from './usePostPicker';
+import { useLocale } from '../i18n/I18nProvider';
 import { labelForStatus } from '../state/bufferSelection';
 import { bufferFor, displayFor, windowAccountKey } from '../state/selectors';
 import { useAppDispatch, useAppState } from '../state/StateContext';
@@ -83,12 +84,12 @@ function openMediaOf(actions: PostActions, label: string): ((index: number) => v
 
 /** One post: the card or the row its status maps onto, as the window's account sees it. */
 export function PostLine(props: PostLineTarget): JSX.Element {
+  useLocale();
   const { windowId, status } = props;
   const state = useAppState();
-  const dispatch = useAppDispatch();
   const buffer = bufferFor(state, windowId);
   const view = postView(status, viewerFor(state, windowId), (id) => labelForStatus(buffer, id));
-  const shared = sharedPostProps({ state, go: dispatch }, props, view);
+  const shared = sharedPostProps({ state, go: useAppDispatch() }, props, view);
   const actions = usePostActions();
   const rowRef = useRowRef(shared.selected);
   const picker = usePostPicker(windowAccountKey(state, windowId), shared.label, actions.run);

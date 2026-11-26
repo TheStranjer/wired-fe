@@ -9,6 +9,7 @@
 
 import { plainText } from './quoteView';
 import type { Status } from '../api/schemas/status';
+import { t } from '../i18n/translate';
 import type { Buffer } from '../state/buffer';
 import { shownQuote } from '../state/bufferPosts';
 import { labelForStatus, statusOfLine } from '../state/bufferSelection';
@@ -57,7 +58,9 @@ function clipped(text: string): string {
 
 /** What a post says: its content warning in place of the body, else the body as plain text. */
 function saying(status: Status): string {
-  return status.spoiler_text === '' ? plainText(status.content) : `CW: ${status.spoiler_text}`;
+  return status.spoiler_text === ''
+    ? plainText(status.content)
+    : t('views.post.content_warning', { warning: status.spoiler_text });
 }
 
 /** `<@author> words` for {@link status}, with `⟲` in front for a boost, whose author is the original's. */

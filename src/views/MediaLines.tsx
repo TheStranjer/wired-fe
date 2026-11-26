@@ -10,6 +10,7 @@ import type { ChangeEvent, JSX } from 'react';
 
 import { AttachmentList } from './AttachmentList';
 import styles from './MediaLines.module.css';
+import { useT } from '../i18n/I18nProvider';
 import type { ComposerMedia } from '../state/draft';
 
 /** What the lines show and the callbacks they drive. */
@@ -27,22 +28,23 @@ export type MediaLinesProps = {
 function AttachButton(
   props: Pick<MediaLinesProps, 'onFiles'> & { readonly compact: boolean },
 ): JSX.Element {
+  const t = useT();
   const inputRef = useRef<HTMLInputElement>(null);
   return (
     <>
       <button
-        aria-label="Attach media"
+        aria-label={t('views.media.attach')}
         className={styles['attach']}
         onClick={() => {
           inputRef.current?.click();
         }}
         type="button"
       >
-        {props.compact ? '[📎]' : '[ 📎 attach ]'}
+        {props.compact ? t('views.media.attach_short') : t('views.media.attach_button')}
       </button>
       <input
         accept="image/*,video/*,audio/*"
-        aria-label="Media files"
+        aria-label={t('views.media.files')}
         hidden
         multiple
         onChange={(event: ChangeEvent<HTMLInputElement>) => {
@@ -60,13 +62,14 @@ function AttachButton(
 
 /** The attach button and the list of attachments below the textarea. */
 export function MediaLines(props: MediaLinesProps): JSX.Element {
+  const t = useT();
   const { items, onFiles, onDescribe, onRemove } = props;
   const compact = props.compact === true;
   const list =
     items.length === 0 ? null : (
       <AttachmentList
         items={items}
-        label="Attachments"
+        label={t('views.media.attachments')}
         onDescribe={onDescribe}
         onRemove={onRemove}
       />

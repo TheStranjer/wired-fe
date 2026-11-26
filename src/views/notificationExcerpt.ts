@@ -8,6 +8,7 @@
 
 import { plainText } from './quoteView';
 import type { Status } from '../api/schemas/status';
+import { t } from '../i18n/translate';
 
 /** The most characters of a status's words an excerpt shows; `…` marks a cut. */
 const EXCERPT_LIMIT = 60;
@@ -26,9 +27,9 @@ function quoted(text: string): string {
 function wordless(status: Status | null): string {
   const files = status?.media_attachments.length ?? 0;
   if (files === 0) {
-    return '(no text)';
+    return t('views.excerpt.no_text');
   }
-  return `(${String(files)} attachment${files === 1 ? '' : 's'})`;
+  return t('views.excerpt.attachments', { count: files });
 }
 
 /**

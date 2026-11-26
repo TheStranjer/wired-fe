@@ -12,6 +12,7 @@ import type { Joined } from './streamTopics';
 import type { StoredAccount } from '../accounts/accountStore';
 import type { ApiSession } from '../api/session';
 import type { ConnectStream, StreamConnection, StreamSubscription } from '../api/streamClient';
+import { t } from '../i18n/translate';
 import { printAction } from '../state/appState';
 import type { LineLevel } from '../state/buffer';
 import type { RefreshDeps } from '../state/refreshSession';
@@ -90,10 +91,10 @@ export class StreamEntry implements Joined {
     if (this.phase === 'live') {
       return;
     }
-    const text = this.phase === 'down' ? 'restored' : 'live';
+    const key = this.phase === 'down' ? 'views.stream.restored' : 'views.stream.live';
     this.phase = 'live';
     this.endPolling();
-    this.say('info', `Streaming ${text} for @${this.account.handle}`);
+    this.say('info', t(key, { handle: this.account.handle }));
   }
 
   /** The stream went down: say so once, and start polling. */
@@ -102,7 +103,7 @@ export class StreamEntry implements Joined {
       return;
     }
     this.phase = 'down';
-    this.say('warn', `Streaming unavailable for @${this.account.handle}; polling every minute`);
+    this.say('warn', t('views.stream.unavailable', { handle: this.account.handle }));
     const { env } = this;
     this.stopPolling = startPollFallback(env.refresh, this.account.key, env.deps.schedule);
   }

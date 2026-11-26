@@ -10,6 +10,7 @@ import type { ChangeEvent, JSX } from 'react';
 import styles from './PollEditor.module.css';
 import { PollOption } from './PollOption';
 import type { PollLimits } from '../api/schemas/pollLimits';
+import { useT } from '../i18n/I18nProvider';
 import {
   type DraftPoll,
   MIN_POLL_OPTIONS,
@@ -29,10 +30,11 @@ export type PollEditorProps = {
 
 /** The run, "multiple choice" and "hide totals" controls. */
 function PollSettings({ poll, limits, onChange }: PollEditorProps): JSX.Element {
+  const t = useT();
   return (
     <div className={styles['settings']}>
       <label className={styles['setting']}>
-        <span>Duration</span>
+        <span>{t('views.poll.duration')}</span>
         <select
           className={styles['select']}
           onChange={(event: ChangeEvent<HTMLSelectElement>) => {
@@ -55,7 +57,7 @@ function PollSettings({ poll, limits, onChange }: PollEditorProps): JSX.Element 
           }}
           type="checkbox"
         />
-        <span>Multiple choice</span>
+        <span>{t('views.poll.multiple_choice')}</span>
       </label>
       <label className={styles['setting']}>
         <input
@@ -65,7 +67,7 @@ function PollSettings({ poll, limits, onChange }: PollEditorProps): JSX.Element 
           }}
           type="checkbox"
         />
-        <span>Hide totals</span>
+        <span>{t('views.poll.hide_totals')}</span>
       </label>
     </div>
   );
@@ -73,6 +75,7 @@ function PollSettings({ poll, limits, onChange }: PollEditorProps): JSX.Element 
 
 /** The poll's options, the add button and the settings. */
 export function PollEditor(props: PollEditorProps): JSX.Element {
+  const t = useT();
   const { poll, limits, onChange } = props;
   return (
     <div className={styles['editor']}>
@@ -102,7 +105,7 @@ export function PollEditor(props: PollEditorProps): JSX.Element {
         }}
         type="button"
       >
-        [+ option]
+        {t('views.poll.add_option')}
       </button>
       <PollSettings {...props} />
     </div>
