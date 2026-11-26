@@ -7,6 +7,7 @@
 import { resolve } from 'node:path';
 
 import { type WiredConfig, parseWiredConfig } from '../src/config/schema.ts';
+import { SUPPORTED_LOCALES } from '../src/i18n/supportedLocales.ts';
 
 /**
  * Path of the config file to use: WIRED_CONFIG env var if set, else
@@ -43,6 +44,16 @@ export function loadConfig(path: string, read: (path: string) => string): WiredC
   const result = parseWiredConfig(json);
   if (!result.ok) {
     throw new Error(`${path}: invalid config\n${result.error.join('\n')}`);
+  }
+  const { defaultLocale } = result.value;
+  if (
+    defaultLocale !== undefined &&
+    !SUPPORTED_LOCALES.some(({ code }) => code === defaultLocale)
+  ) {
+    const codes = SUPPORTED_LOCALES.map(({ code }) => code).join(', ');
+    throw new Error(
+      `${path}: invalid config\ndefaultLocale: "${defaultLocale}" is not supported; use one of ${codes}`,
+    );
   }
   return result.value;
 }

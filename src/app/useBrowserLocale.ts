@@ -1,18 +1,21 @@
 /**
  * Start in the reader's language (decision 19): once, on mount, pick the
- * supported language the browser's own language list names and switch to it.
- * The instance default and the reader's own setting join the choice in later
- * tickets.
+ * supported language the build's default language (`defaultLocale`) or else
+ * the browser's own language list names and switch to it. The reader's own
+ * setting joins the choice in a later ticket.
  */
 
 import { useEffect } from 'react';
 
+import { buildConfig } from '../config/config';
 import { setLocale } from '../i18n/activeLocale';
 import { resolveLocale } from '../i18n/resolveLocale';
 
-/** Switch to the language `navigator.languages` asks for, when it is supported. */
+/** Switch to the build's default language, else the one `navigator.languages` asks for. */
 export function useBrowserLocale(): void {
   useEffect(() => {
-    void setLocale(resolveLocale({ browser: navigator.languages }));
+    void setLocale(
+      resolveLocale({ instance: buildConfig.defaultLocale, browser: navigator.languages }),
+    );
   }, []);
 }
