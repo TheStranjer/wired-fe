@@ -9,6 +9,7 @@ import { describe, expect, it } from 'vitest';
 
 import { type AppState, initialAppState } from './appState';
 import {
+  COMMAND_LINE_MEDIA,
   composerMediaOf,
   composerMediaReducer,
   draftWithMedia,
@@ -137,6 +138,21 @@ describe(composerMediaReducer, () => {
         windowId: 'no-such-window',
       }),
     ).toBe(state);
+  });
+
+  it('holds the command line’s own lines under the reserved key, with no window', () => {
+    const windowId = COMMAND_LINE_MEDIA;
+    const added = run(initialAppState(), [
+      { type: 'composerMediaAdd', windowId, item: uploadingMedia('a', 'a.png') },
+      { type: 'composerMediaAdd', windowId, item: uploadingMedia('b', 'b.png') },
+      { type: 'composerMediaPatch', windowId, key: 'a', patch: { description: 'alt' } },
+      { type: 'composerMediaRemove', windowId, key: 'b' },
+    ]);
+
+    expect(composerMediaOf(added, windowId).map((item) => item.description)).toStrictEqual(['alt']);
+    expect(
+      composerMediaOf(appReducer(added, { type: 'composerMediaClear', windowId }), windowId),
+    ).toStrictEqual([]);
   });
 
   it('forgets the lines of a closed composer', () => {

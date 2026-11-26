@@ -28,6 +28,24 @@ describe(InputLine, () => {
     expect(screen.getByRole('textbox', { name: 'Command line' })).toHaveValue('');
   });
 
+  it('shows its lead before the prompt', () => {
+    render(
+      <InputLine
+        prompt="lain>"
+        value=""
+        onChange={NOOP}
+        onSubmit={NOOP}
+        lead={<button type="button">lead</button>}
+      />,
+    );
+
+    const lead = screen.getByRole('button', { name: 'lead' });
+
+    expect(lead.compareDocumentPosition(screen.getByText('lain>'))).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
+  });
+
   it('hides the prompt from the accessibility tree', () => {
     renderInputLine('', NOOP, NOOP);
 

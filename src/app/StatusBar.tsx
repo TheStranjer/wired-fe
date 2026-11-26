@@ -11,6 +11,7 @@
 import type { JSX } from 'react';
 
 import { statusEntries } from './statusEntries';
+import type { Attachments } from './useAttachments';
 import { useClock } from './useClock';
 import type { AppState } from '../state/appState';
 import { accountByKey } from '../state/selectors';
@@ -33,7 +34,8 @@ function syncMarker(sync: AppState['sync']): 'pending' | 'error' | null {
 
 /** The status line: clock, active account, desktops, hidden windows with activity, pending media, pending keys, sync marker and hotkey mode. */
 export function StatusBar(props: {
-  readonly pendingMedia: number;
+  /** The pending media: how many are ready, and the way `[+N media]` shows the tray's first description. */
+  readonly attachments: Pick<Attachments, 'pending' | 'showMedia'>;
   readonly pendingKeys: string | null;
 }): JSX.Element {
   const state = useAppState();
@@ -47,8 +49,9 @@ export function StatusBar(props: {
       desktops={entries.desktops}
       windows={entries.windows}
       mode={state.mode}
-      pendingMedia={props.pendingMedia}
+      pendingMedia={props.attachments.pending.length}
       pendingKeys={props.pendingKeys}
+      onShowMedia={props.attachments.showMedia}
       sync={syncMarker(state.sync)}
       onSelectDesktop={(n: number) => {
         dispatch({ type: 'layout', action: { type: 'goToDesktop', n } });

@@ -15,7 +15,7 @@ import {
   composerReducer,
   withLiveComposers,
 } from './composerActions';
-import { uploadingMedia } from './composerMedia';
+import { COMMAND_LINE_MEDIA, uploadingMedia } from './composerMedia';
 import { composerWindowOpen } from './composerWindow';
 import type { ComposerFields } from './draft';
 import { newPoll } from './pollEditor';
@@ -209,6 +209,19 @@ describe(withLiveComposers, () => {
     expect(closed.composers.size).toBe(0);
     expect(again).toBe(windowId);
     expect(composerFields(reopened, again).text).toBe('');
+  });
+
+  it('keeps the command line’s media when a composer closes', () => {
+    const [state, windowId] = withComposer(session(false));
+    const held = appReducer(state, {
+      type: 'composerMediaAdd',
+      windowId: COMMAND_LINE_MEDIA,
+      item: uploadingMedia('k1', 'pixel.png'),
+    });
+
+    const closed = appReducer(held, { type: 'windows', action: { type: 'close', id: windowId } });
+
+    expect(closed.composerMedia.get(COMMAND_LINE_MEDIA)).toHaveLength(1);
   });
 
   it('is the same state while every draft’s window is open', () => {

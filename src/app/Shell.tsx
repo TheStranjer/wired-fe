@@ -8,7 +8,7 @@ import type { JSX, ReactNode } from 'react';
 
 import styles from './Shell.module.css';
 
-/** The four regions of the screen, each filled by a higher layer. */
+/** The regions of the screen, each filled by a higher layer. */
 export type ShellProps = {
   /** Global header chrome, one line across the top full width. */
   readonly header: ReactNode;
@@ -18,13 +18,15 @@ export type ShellProps = {
   readonly scrollbackLabel?: string | undefined;
   /** The status line, directly above the command line. */
   readonly statusLine: ReactNode;
+  /** The tray of pending media, between the status line and the command line (WFE-287); absent shows nothing. */
+  readonly tray?: ReactNode;
   /** The command line, at the very bottom. */
   readonly input: ReactNode;
 };
 
 /** The viewport-filling grid of the four shell regions. */
 export function Shell(props: ShellProps): JSX.Element {
-  const { header, scrollback, scrollbackLabel, statusLine, input } = props;
+  const { header, scrollback, scrollbackLabel, statusLine, tray, input } = props;
 
   return (
     <div className={styles['shell']}>
@@ -34,6 +36,7 @@ export function Shell(props: ShellProps): JSX.Element {
       </main>
       <footer className={styles['footer']}>
         <div className={styles['statusLine']}>{statusLine}</div>
+        {tray}
         <div className={styles['inputLine']}>{input}</div>
       </footer>
     </div>

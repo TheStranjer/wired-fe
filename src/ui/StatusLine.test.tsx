@@ -34,6 +34,7 @@ const BASE_PROPS: StatusLineProps = {
   onSelectDesktop: NOOP,
   onCloseDesktop: NOOP,
   onSelectWindow: NOOP,
+  onShowMedia: NOOP,
 };
 
 const FULL_LINE = '[23:07] [@lain@wired.example] [1] [2*:12]× [3:1] │ 3:home(3) 7:dm/bob* [INS]';
@@ -131,6 +132,15 @@ describe(StatusLine, () => {
     expect(line.textContent).toBe(
       '[23:07] [@lain@wired.example] [1] [2*:12]× [3:1] │ 3:home(3) 7:dm/bob* [+2 media] [INS]',
     );
+  });
+
+  it('makes the pending media group a button that asks to show them', () => {
+    const onShowMedia = vi.fn();
+    renderStatusLine({ pendingMedia: 2, onShowMedia });
+
+    fireEvent.click(screen.getByRole('button', { name: '2 media waiting, show' }));
+
+    expect(onShowMedia).toHaveBeenCalledTimes(1);
   });
 
   it('shows a pending key prefix next to the mode', () => {

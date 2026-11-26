@@ -23,22 +23,6 @@ import type { WindowKind, WindowRef } from '../windows/model';
 /** The media list no test in this file cares about. */
 const NO_MEDIA = fakeAttachments();
 
-/** One pending attachment's shape, without reaching into api (AGENTS.md "Layout"). */
-type Pending = CommandContext['attachments']['pending'][number];
-
-/** One finished attachment, only its id matters here. */
-function attachment(id: string): Pending {
-  return {
-    id,
-    type: 'image',
-    url: `https://wired.example/m/${id}`,
-    preview_url: null,
-    remote_url: null,
-    description: null,
-    blurhash: null,
-  };
-}
-
 /** A window of the kind whose post handler records what it was asked for. */
 const HOME: WindowRef = { kind: 'home', accountKey: null, target: null };
 
@@ -131,7 +115,7 @@ describe('useCommandContext through a window kind that posts', () => {
   });
 
   it('gives the kind the pending media ids when the draft names none', async () => {
-    const attachments = fakeAttachments({ pending: [attachment('12'), attachment('13')] });
+    const attachments = fakeAttachments({ pending: ['12', '13'] });
     const context = contextShowing(HOME, attachments);
 
     await expect(context.post({ text: 'look' })).resolves.toBeNull();
@@ -140,7 +124,7 @@ describe('useCommandContext through a window kind that posts', () => {
   });
 
   it('keeps the media ids a draft carries by itself', async () => {
-    const attachments = fakeAttachments({ pending: [attachment('12')] });
+    const attachments = fakeAttachments({ pending: ['12'] });
     const context = contextShowing(HOME, attachments);
 
     await expect(context.post({ text: 'look', mediaIds: ['own'] })).resolves.toBeNull();
@@ -149,7 +133,7 @@ describe('useCommandContext through a window kind that posts', () => {
   });
 
   it('clears the pending list once a post is up', async () => {
-    const attachments = fakeAttachments({ pending: [attachment('12')] });
+    const attachments = fakeAttachments({ pending: ['12'] });
     const context = contextShowing(HOME, attachments);
 
     await context.post({ text: 'look' });
@@ -158,7 +142,7 @@ describe('useCommandContext through a window kind that posts', () => {
   });
 
   it('keeps the pending list when the window refuses the post', async () => {
-    const attachments = fakeAttachments({ pending: [attachment('12')] });
+    const attachments = fakeAttachments({ pending: ['12'] });
     const context = contextShowing(THREAD, attachments);
 
     await expect(context.post({ text: 'look' })).resolves.toBe(REFUSAL);

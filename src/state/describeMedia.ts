@@ -19,10 +19,16 @@ import { NOT_LOGGED_IN_MESSAGE } from '../lib/refusal';
 /** A ready attachment line, with the id the instance gave it. */
 type Described = ComposerMedia & { readonly mediaId: string };
 
-/** The attachments of {@link media} that wait for a description: ready ones the reader described. */
+/**
+ * The attachments of {@link media} that wait for a description: ready ones the
+ * reader described, other than with the text they already went up with.
+ */
 function described(media: readonly ComposerMedia[]): readonly Described[] {
   return media.flatMap((item) =>
-    item.status === 'ready' && item.mediaId !== null && item.description.trim() !== ''
+    item.status === 'ready' &&
+    item.mediaId !== null &&
+    item.description.trim() !== '' &&
+    item.description.trim() !== item.sent?.trim()
       ? [{ ...item, mediaId: item.mediaId }]
       : [],
   );

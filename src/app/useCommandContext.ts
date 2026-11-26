@@ -5,7 +5,7 @@
  * configuration from the build (decision 3), `page` and `navigate` from
  * `window.location`, the command line's text back through the `setInput` the
  * caller passes in and its current text as `line`, the
- * pending media (WFE-126) through the `attachments` Root's useAttachments
+ * pending media (WFE-126, WFE-287) through the `attachments` Root's useAttachments
  * hands down, the registry narrowed to what the active account's backend can
  * do (WFE-172), and the key-binding helpers (WFE-130) from src/keys: the
  * effective keymap — the registry's defaults under the reader's overrides —
@@ -17,6 +17,7 @@
 
 import { useMemo } from 'react';
 
+import { withPendingMedia } from './pendingMedia';
 import { DEVICE_CLASS } from './readDeviceClass';
 import { appStores } from './stores';
 import { requestSync } from './syncRequests';
@@ -59,21 +60,9 @@ function postHandler(win: WindowState, postContext: PostContext): CommandContext
 }
 
 /**
- * {@link draft} with the ids of {@link attachments}' pending media when it
- * names none of its own (WFE-126); the same draft otherwise, so a window that
- * already picked its media keeps exactly that list.
- */
-function withPendingMedia(draft: Draft, attachments: CommandContext['attachments']): Draft {
-  const carries = draft.mediaIds !== undefined && draft.mediaIds.length > 0;
-  if (carries || attachments.pending.length === 0) {
-    return draft;
-  }
-  return { ...draft, mediaIds: attachments.pending.map((media) => media.id) };
-}
-
-/**
- * The context's post: the draft goes out carrying the pending media, and a
- * send that worked takes those ids out of the list with it — a refused post
+ * The context's post: the draft goes out carrying the pending media, after the
+ * alt text typed in the tray (WFE-287), and a send that worked takes those ids
+ * out of the list with it — a refused post, or alt text the instance refused,
  * keeps its media for the retry.
  */
 function posting(
@@ -83,7 +72,11 @@ function posting(
 ): CommandContext['post'] {
   const send = postHandler(win, postContext);
   return async (draft: Draft) => {
-    const error = await send(withPendingMedia(draft, attachments));
+    const carried = await withPendingMedia(draft, attachments.pending, postContext);
+    if (!carried.ok) {
+      return carried.error;
+    }
+    const error = await send(carried.value);
     if (error === null) {
       attachments.clear();
     }

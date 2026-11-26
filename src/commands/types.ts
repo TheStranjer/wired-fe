@@ -13,7 +13,6 @@
 import type { CommandBinding, Keymap } from './bindingTypes';
 import type { AccountStore } from '../accounts/accountStore';
 import type { SyncStore } from '../accounts/syncPrefs';
-import type { MediaAttachment } from '../api/schemas/mediaAttachment';
 import type { Capabilities, FeatureFlag } from '../capabilities/capabilities';
 import type { WiredConfig } from '../config/schema';
 import type { DeviceClass } from '../lib/deviceClass';
@@ -75,13 +74,13 @@ export type CommandContext = {
   /**
    * The media waiting for the next post (WFE-126): {@link pick} opens the
    * app's file dialog asking for alt text to give whatever is chosen,
-   * {@link clear} drops everything pending, and {@link pending} is what a
+   * {@link clear} drops everything pending, and {@link pending} is the ids of the ready ones, what a
    * post without its own media ids carries.
    */
   readonly attachments: {
     readonly pick: (description: string) => void;
     readonly clear: () => void;
-    readonly pending: readonly MediaAttachment[];
+    readonly pending: readonly string[];
   };
   /** The keys layer's helpers (WFE-130): chord parsing, the insert-mode guard, the effective keymap. */
   readonly keys: {

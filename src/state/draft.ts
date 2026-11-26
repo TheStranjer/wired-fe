@@ -107,6 +107,8 @@ export type ComposerMedia = {
   readonly previewUrl: string | null;
   /** The alt text the reader typed; empty means none. */
   readonly description: string;
+  /** The alt text the file went up with, which the instance already holds; absent when none was sent along. */
+  readonly sent?: string;
   /** Why the upload failed; empty while it did not. */
   readonly error: string;
 };

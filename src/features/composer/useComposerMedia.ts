@@ -15,18 +15,11 @@
  */
 
 import { isMedia } from '../../lib/dropFiles';
-import { type AppState, printAction } from '../../state/appState';
-import {
-  composerMediaOf,
-  failedPatch,
-  heldCount,
-  maxMedia,
-  readyPatch,
-  uploadingMedia,
-} from '../../state/composerMedia';
+import { printAction } from '../../state/appState';
+import { composerMediaOf, heldCount, maxMedia } from '../../state/composerMedia';
 import type { ComposerMedia } from '../../state/draft';
-import { type Dispatch, useAppDispatch, useAppState } from '../../state/StateContext';
-import { uploadAttachment } from '../../state/uploadAttachment';
+import { useAppDispatch, useAppState } from '../../state/StateContext';
+import { uploadLine } from '../../state/uploadLine';
 
 /** What the pane gets of its media: the lines, and the ways to change them. */
 export type ComposerMediaApi = {
@@ -40,25 +33,6 @@ export type ComposerMediaApi = {
   /** Set the alt text of line {@link key}. */
   readonly describe: (key: string, description: string) => void;
 };
-
-/** What an upload needs of its window: the session, where it dispatches, whose composer, which account. */
-type UploadEnv = {
-  readonly state: AppState;
-  readonly dispatch: Dispatch;
-  readonly windowId: string;
-  readonly accountKey: string | null;
-};
-
-/** Put {@link file} up as a line of the window's media, described as {@link description}, and settle the line with the answer. */
-async function upload(env: UploadEnv, file: File, description: string): Promise<void> {
-  const { state, dispatch, windowId, accountKey } = env;
-  const key = crypto.randomUUID();
-  const item = { ...uploadingMedia(key, file.name), description };
-  dispatch({ type: 'composerMediaAdd', windowId, item });
-  const outcome = await uploadAttachment({ state, accountKey, file, description });
-  const patch = outcome.ok ? readyPatch(outcome.value) : failedPatch(outcome.error);
-  dispatch({ type: 'composerMediaPatch', windowId, key, patch });
-}
 
 /** The media of window {@link windowId}'s composer, posting as {@link accountKey}. */
 export function useComposerMedia(windowId: string, accountKey: string | null): ComposerMediaApi {
@@ -80,7 +54,7 @@ export function useComposerMedia(windowId: string, accountKey: string | null): C
         warn(`too many attachments: ${String(max)} per post, skipped ${file.name}`);
       } else {
         held += 1;
-        void upload({ state, dispatch, windowId, accountKey }, file, description);
+        void uploadLine({ state, dispatch, windowId, accountKey }, file, description);
       }
     }
   }

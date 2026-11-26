@@ -1,0 +1,65 @@
+/* The attachment lines of the composer and the tray: one line per file — a
+   fixed-size thumbnail, the name, the alt-text input, the upload state and the
+   remove mark — so the layout never shifts while a thumbnail loads. */
+
+.list {
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
+  margin: 0;
+  padding: 0;
+  gap: var(--space);
+  list-style: none;
+}
+
+.line {
+  display: flex;
+  align-items: center;
+  gap: var(--space);
+}
+
+.thumb {
+  display: block;
+  flex: none;
+  box-sizing: border-box;
+  width: calc(2 * var(--line-height) * 1em);
+  height: calc(2 * var(--line-height) * 1em);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: 0;
+  object-fit: cover;
+}
+
+.name {
+  overflow: hidden;
+  max-width: 12em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.description {
+  flex: 1;
+  min-width: 0;
+  padding: 0 var(--space);
+  border: 1px solid var(--color-dim);
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font: inherit;
+}
+
+.remove {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--color-accent);
+  font: inherit;
+  cursor: pointer;
+}
+
+.failed {
+  color: var(--color-error);
+}
+
+.remove:focus-visible,
+.description:focus-visible {
+  outline: 1px solid var(--color-accent);
+}

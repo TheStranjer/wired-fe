@@ -6,7 +6,8 @@
  * completes the word under the caret through ./useCompletion with the
  * providers the composition root passes in. The ref lets the hotkeys move the
  * caret, and focusing the line while navigation is shown switches back to
- * insert. The context carries the line's own text, so a bare `/compose` can
+ * insert. The `[📎]` button at its left edge opens the file dialog `/attach`
+ * opens (WFE-287). The context carries the line's own text, so a bare `/compose` can
  * move a half-typed post into a composer window (WFE-245).
  */
 
@@ -25,6 +26,7 @@ import { dispatchInput } from '../commands/dispatch';
 import type { CommandContext } from '../commands/types';
 import type { PendingKeys } from '../keys/useGlobalKeys';
 import { useAppDispatch, useAppState } from '../state/StateContext';
+import { AttachButton } from '../ui/AttachButton';
 import { InputLine } from '../ui/InputLine';
 import type { LineRunner } from '../views/LineRunnerContext';
 
@@ -40,6 +42,17 @@ export type CommandLineProps = {
   /** Hands the app the runner of command lines that windows with a GUI use (WFE-242). */
   readonly registerLineRunner: (runner: LineRunner) => void;
 };
+
+/** The `[📎]` button: opens the file dialog `/attach` opens, asking for no alt text. */
+function PickButton(props: { readonly attachments: CommandLineProps['attachments'] }): JSX.Element {
+  return (
+    <AttachButton
+      onAttach={() => {
+        props.attachments.pick('');
+      }}
+    />
+  );
+}
 
 /** The command line and its hotkey, history and completion wiring. */
 export function CommandLine(props: CommandLineProps): JSX.Element {
@@ -87,6 +100,7 @@ export function CommandLine(props: CommandLineProps): JSX.Element {
       onKeyDown={handleKeyDown}
       inputRef={inputRef}
       onFocus={handleInputFocus}
+      lead={<PickButton attachments={props.attachments} />}
     />
   );
 }
