@@ -6,13 +6,18 @@
  * `Shift+b` on a bookmarked post and this help entry reach it.
  */
 
+import { t } from '../../i18n/translate';
 import { toggleRun } from '../statusToggle';
 import type { CommandDefinition } from '../types';
 
 /** The `/unbookmark` definition. */
 export const command: CommandDefinition = {
   name: 'unbookmark',
-  usage: '/unbookmark [label]',
-  summary: 'Remove your bookmark of a post',
+  get usage(): string {
+    return t('commands.defs.unbookmark.usage');
+  },
+  get summary(): string {
+    return t('commands.defs.unbookmark.summary');
+  },
   run: toggleRun('unbookmark'),
 };

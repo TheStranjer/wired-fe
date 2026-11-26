@@ -11,6 +11,7 @@
  */
 
 import { findAccount } from '../../accounts/findAccount';
+import { t } from '../../i18n/translate';
 import { wordsOf } from '../../lib/words';
 import type { FeedSpec } from '../../state/feeds';
 import { postingLine, postingPatch, postingSetLine } from '../../state/postingDefault';
@@ -21,7 +22,9 @@ import { tmuxBindings } from '../tmuxBindings';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** The command's grammar: /help shows it, a bad argument echoes it. */
-const USAGE = '/postas [--global] [<handle|n>|--clear]';
+function usage(): string {
+  return t('commands.defs.postas.usage');
+}
 
 /** What the arguments ask for. */
 type Request = {
@@ -55,7 +58,7 @@ function feedTarget(context: CommandContext, global: boolean): FeedSpec | null {
 /** Say who the active window posts as and why, or that nothing decides it. */
 function describe(context: CommandContext): CommandOutcome {
   const line = postingLine(context.state, activeWindow(context.windows));
-  context.print(line ?? 'No posting account set: /postas <handle|n>');
+  context.print(line ?? t('commands.defs.postas.no_default'));
   return OK;
 }
 
@@ -78,7 +81,11 @@ function save(context: CommandContext, feed: FeedSpec | null, key: string | null
 /** Forget the default of {@link feed}, or the global one when null. */
 function clearDefault(context: CommandContext, feed: FeedSpec | null): CommandOutcome {
   save(context, feed, null);
-  context.print(feed === null ? 'Global posting account cleared' : `~${feed.name} default cleared`);
+  context.print(
+    feed === null
+      ? t('commands.defs.postas.global_cleared')
+      : t('commands.defs.postas.feed_cleared', { feed: feed.name }),
+  );
   return OK;
 }
 
@@ -100,8 +107,7 @@ function setDefault(
   const line = postingSetLine(feed?.name ?? null, account.handle);
   const own =
     feed === null && !setting.global && activeWindow(context.windows).ref.accountKey !== null;
-  const note = own ? '; this window has its own account, so it is the global default' : '';
-  context.print(`${line}${note}`);
+  context.print(own ? t('commands.defs.postas.global_own', { line }) : line);
   return OK;
 }
 
@@ -109,7 +115,7 @@ function setDefault(
 function handle(args: string, context: CommandContext): CommandOutcome {
   const request = parseRequest(wordsOf(args));
   if (request === null) {
-    return fail(`Usage: ${USAGE}`);
+    return fail(t('commands.defs.postas.usage_error', { usage: usage() }));
   }
   const feed = feedTarget(context, request.global);
   if (request.clear) {
@@ -125,8 +131,12 @@ function handle(args: string, context: CommandContext): CommandOutcome {
 /** The `/postas` definition. */
 export const command: CommandDefinition = {
   name: 'postas',
-  usage: USAGE,
-  summary: 'Show or set which account feeds post as',
+  get usage(): string {
+    return usage();
+  },
+  get summary(): string {
+    return t('commands.defs.postas.summary');
+  },
   run: syncRun(handle),
   bindings: [...tmuxBindings('Shift+a', ''), { mode: 'navigation', chord: 'Shift+a', args: '' }],
 };

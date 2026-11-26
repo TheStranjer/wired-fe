@@ -24,6 +24,7 @@
 import { createStatus } from '../../api/endpoints/statusWrite';
 import { describeApiError } from '../../api/errors';
 import { requireFeature } from '../../capabilities/requireFeature';
+import { t } from '../../i18n/translate';
 import { composerWindowFor } from '../../state/composerWindow';
 import { draftToNewStatus } from '../../state/draft';
 import type { Placement } from '../../state/placement';
@@ -34,9 +35,6 @@ import { addToActiveWindow, wantsComposer } from '../ownStream';
 import { targetLabel } from '../statusLabel';
 import { type StatusTarget, resolveStatusTarget } from '../targets';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
-
-/** How to call the command; echoed by /help. */
-const USAGE = '/quote [label] [text]';
 
 /** Open a composer window bound to {@link target}'s post, placed as {@link override} and the settings say. */
 function openComposer(
@@ -69,7 +67,7 @@ async function post(
     return fail(describeApiError(created.error));
   }
   addToActiveWindow(context, created.value);
-  context.print(`❝ quoted ${targetLabel(context, target.status)}`);
+  context.print(t('commands.defs.quote.quoted', { label: targetLabel(context, target.status) }));
   return OK;
 }
 
@@ -96,8 +94,12 @@ async function handle(args: string, context: CommandContext): Promise<CommandOut
 /** The `/quote` definition. */
 export const command: CommandDefinition = {
   name: 'quote',
-  usage: USAGE,
-  summary: 'Quote a post; with no text, open a composer (q prefills, Shift+c composes)',
+  get usage(): string {
+    return t('commands.defs.quote.usage');
+  },
+  get summary(): string {
+    return t('commands.defs.quote.summary');
+  },
   requires: 'quotePosting',
   run: handle,
   bindings: [

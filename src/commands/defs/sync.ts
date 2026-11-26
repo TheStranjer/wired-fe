@@ -13,6 +13,7 @@
 import { findAccount } from '../../accounts/findAccount';
 import { movedUp, withPrimary, withoutKey } from '../../accounts/syncList';
 import type { SyncPrefs } from '../../accounts/syncPrefs';
+import { t } from '../../i18n/translate';
 import { wordsOf } from '../../lib/words';
 import { pickSyncAccount } from '../../state/syncAccount';
 import { notSignedInAs } from '../notSignedInAs';
@@ -21,11 +22,14 @@ import { accountLabel, syncReport } from '../syncReport';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** Every form of the command: /help shows it, a bad argument echoes it. */
-const USAGE =
-  '/sync | /sync primary <handle> | /sync fallback add|rm|up <handle> | /sync off | /sync on | /sync now';
+function usage(): string {
+  return t('commands.defs.sync.usage');
+}
 
 /** The argument text matched none of the command's forms. */
-const USAGE_ERROR = fail(`Usage: ${USAGE}`);
+function usageError(): CommandOutcome {
+  return fail(t('commands.defs.sync.usage_error', { usage: usage() }));
+}
 
 /** What {@link change} does to the list: the next list, or the refusal to give. */
 type Edit = (list: readonly string[], key: string) => readonly string[] | string;
@@ -51,11 +55,8 @@ function save(context: CommandContext, prefs: SyncPrefs, text: string): CommandO
 function switchTo(enabled: boolean, context: CommandContext): CommandOutcome {
   const { syncAccounts } = context.stores.sync.read();
   const kept = enabled ? syncAccounts : [];
-  return save(
-    context,
-    { syncAccounts: kept, syncEnabled: enabled },
-    `Sync: ${enabled ? 'on' : 'off'}`,
-  );
+  const text = t(enabled ? 'commands.defs.sync.switched_on' : 'commands.defs.sync.switched_off');
+  return save(context, { syncAccounts: kept, syncEnabled: enabled }, text);
 }
 
 /**
@@ -65,7 +66,7 @@ function switchTo(enabled: boolean, context: CommandContext): CommandOutcome {
  */
 function change(query: string | undefined, context: CommandContext, edit: Edit): CommandOutcome {
   if (query === undefined) {
-    return USAGE_ERROR;
+    return usageError();
   }
   const accounts = context.stores.accounts.list();
   const account = findAccount(accounts, query);
@@ -77,28 +78,29 @@ function change(query: string | undefined, context: CommandContext, edit: Edit):
   if (typeof next === 'string') {
     return fail(next);
   }
-  const text = `Sync accounts: ${next.map((key) => accountLabel(context.state, key)).join(', ')}`;
+  const accountList = next.map((key) => accountLabel(context.state, key)).join(', ');
+  const text = t('commands.defs.sync.accounts', { accounts: accountList });
   return save(context, { syncAccounts: next, syncEnabled: true }, text);
 }
 
 /** `fallback add`: appended after the others, once. */
 const ADD: Edit = (list, key) => {
   if (list.length === 0) {
-    return 'No primary yet. Type /sync primary <handle> first';
+    return t('commands.defs.sync.no_primary');
   }
-  return list.includes(key) ? 'Already in the sync list' : [...list, key];
+  return list.includes(key) ? t('commands.defs.sync.already_listed') : [...list, key];
 };
 
 /** `fallback rm`: dropped from the list. */
 const REMOVE: Edit = (list, key) =>
-  list.includes(key) ? withoutKey(list, key) : 'Not in the sync list';
+  list.includes(key) ? withoutKey(list, key) : t('commands.defs.sync.not_listed');
 
 /** `fallback up`: one place earlier; the second in line swaps with the primary. */
 const UP: Edit = (list, key) => {
   if (!list.includes(key)) {
-    return 'Not in the sync list';
+    return t('commands.defs.sync.not_listed');
   }
-  return list[0] === key ? 'Already the primary' : movedUp(list, key);
+  return list[0] === key ? t('commands.defs.sync.already_primary') : movedUp(list, key);
 };
 
 /** The `fallback` forms by their second word. */
@@ -113,7 +115,7 @@ function fallback(words: readonly string[], context: CommandContext): CommandOut
   const [verb, query, extra] = words;
   const edit = verb === undefined ? undefined : FALLBACK_EDITS.get(verb);
   if (edit === undefined || extra !== undefined) {
-    return USAGE_ERROR;
+    return usageError();
   }
   return change(query, context, edit);
 }
@@ -121,9 +123,9 @@ function fallback(words: readonly string[], context: CommandContext): CommandOut
 /** `now`: pull from the primary, then push; refused when no account can hold the desk. */
 function syncNow(context: CommandContext): CommandOutcome {
   if (pickSyncAccount(context.stores.sync.read(), context.state) === null) {
-    return fail('No account can hold the synced desk. Type /sync to see why');
+    return fail(t('commands.defs.sync.no_holder'));
   }
-  context.print('Syncing…');
+  context.print(t('commands.defs.sync.syncing'));
   context.requestSync('now');
   return OK;
 }
@@ -148,13 +150,17 @@ function handle(args: string, context: CommandContext): CommandOutcome {
     return fallback(rest, context);
   }
   const bare = rest.length === 0 ? BARE_FORMS.get(word) : undefined;
-  return bare === undefined ? USAGE_ERROR : bare(context);
+  return bare === undefined ? usageError() : bare(context);
 }
 
 /** The `/sync` definition. */
 export const command: CommandDefinition = {
   name: 'sync',
-  usage: USAGE,
-  summary: 'Choose which account holds your synced desk',
+  get usage(): string {
+    return usage();
+  },
+  get summary(): string {
+    return t('commands.defs.sync.summary');
+  },
   run: syncRun(handle),
 };

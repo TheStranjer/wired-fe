@@ -13,6 +13,7 @@
  * what the command says back.
  */
 
+import { t } from '../../i18n/translate';
 import { placedRun } from '../openWindowRun';
 import { fail, syncRun } from '../outcome';
 import { resolveStatusTarget } from '../targets';
@@ -28,8 +29,12 @@ function handle(args: string, context: CommandContext): CommandOutcome {
 /** The `/thread` definition. */
 export const command: CommandDefinition = {
   name: 'thread',
-  usage: '/thread [label]',
-  summary: "Open a post's thread window",
+  get usage(): string {
+    return t('commands.defs.thread.usage');
+  },
+  get summary(): string {
+    return t('commands.defs.thread.summary');
+  },
   run: placedRun(syncRun(handle)),
   bindings: [{ mode: 'navigation', chord: 't', args: '' }],
 };

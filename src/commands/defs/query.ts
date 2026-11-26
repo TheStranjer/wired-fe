@@ -13,13 +13,16 @@
  * command says what to type instead.
  */
 
+import { t } from '../../i18n/translate';
 import { activeAccount } from '../../state/selectors';
 import { placedRun } from '../openWindowRun';
 import { NOT_LOGGED_IN, OK, fail, syncRun } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** The command's grammar: /help shows it, a bare argument echoes it. */
-const USAGE = '/query <@handle>';
+function usage(): string {
+  return t('commands.defs.query.usage');
+}
 
 /** A normalized handle: `user`, or `user@host`; letters, digits, `.`, `_`, `-`, `~`. */
 const HANDLE = /^[\w.~-]+(?:@[\w.~-]+)?$/u;
@@ -39,7 +42,7 @@ function normalizeHandle(args: string): string | null {
 function handle(args: string, context: CommandContext): CommandOutcome {
   const target = normalizeHandle(args);
   if (target === null) {
-    return fail(`Usage: ${USAGE}`);
+    return fail(t('commands.defs.query.usage_error', { usage: usage() }));
   }
   const account = activeAccount(context.state);
   if (account === null) {
@@ -57,7 +60,11 @@ function handle(args: string, context: CommandContext): CommandOutcome {
 export const command: CommandDefinition = {
   name: 'query',
   aliases: ['q'],
-  usage: USAGE,
-  summary: 'Open a private conversation window',
+  get usage(): string {
+    return usage();
+  },
+  get summary(): string {
+    return t('commands.defs.query.summary');
+  },
   run: placedRun(syncRun(handle)),
 };

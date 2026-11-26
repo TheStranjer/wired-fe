@@ -276,6 +276,182 @@
       "pop": {
         "summary": "Pop a post's thread out into a floating window, or focus it where it is shown; inside that thread, do nothing (hotkey p, or double-click)",
         "usage": "/pop [label]"
+      },
+      "postas": {
+        "feed_cleared": "~{feed} default cleared",
+        "global_cleared": "Global posting account cleared",
+        "global_own": "{line}; this window has its own account, so it is the global default",
+        "no_default": "No posting account set: /postas '<handle|n>'",
+        "summary": "Show or set which account feeds post as",
+        "usage": "/postas [--global] ['<handle|n>'|--clear]",
+        "usage_error": "Usage: {usage}"
+      },
+      "query": {
+        "summary": "Open a private conversation window",
+        "usage": "/query '<@handle>'",
+        "usage_error": "Usage: {usage}"
+      },
+      "quote": {
+        "quoted": "❝ quoted {label}",
+        "summary": "Quote a post; with no text, open a composer (q prefills, Shift+c composes)",
+        "usage": "/quote [label] [text]"
+      },
+      "raise": {
+        "no_pane": "There is no pane to raise on this desktop",
+        "summary": "Bring the focused float to the top"
+      },
+      "react": {
+        "summary": "React to a post with an emoji",
+        "usage": "/react [label] '<emoji>'"
+      },
+      "reply": {
+        "replied": "↳ replied to {label}",
+        "summary": "Reply in one line; with no text, open a composer (r prefills, Shift+r composes)",
+        "usage": "/reply [label] [text]"
+      },
+      "resize": {
+        "nothing_to_resize": "Nothing to resize",
+        "summary": "Resize the focused pane by percentage points, or set its share",
+        "usage": "/resize width|height +N|-N|N",
+        "usage_error": "Usage: {usage}"
+      },
+      "search": {
+        "summary": "Search accounts, posts and tags",
+        "usage": "/search '<query>'",
+        "usage_error": "Usage: {usage}"
+      },
+      "select": {
+        "no_post": "No post {label} here",
+        "summary": "Move or set the selected post",
+        "usage": "/select next | prev | first | last | none | '<label>'",
+        "usage_error": "Usage: {usage}"
+      },
+      "set": {
+        "listed": "  {key} = {value}  — {description}",
+        "no_setting": "No setting {key}. Try /set",
+        "summary": "Show or change your settings",
+        "takes": "{key} takes {words}",
+        "usage": "/set [key [value]]",
+        "usage_error": "Usage: {usage}"
+      },
+      "split": {
+        "summary": "Split the focused pane stacked",
+        "usage": "/split {views}"
+      },
+      "start": {
+        "summary": "Open the start menu, to open a view as a float"
+      },
+      "swap": {
+        "summary": "Swap the focused pane’s window with its neighbour",
+        "usage": "/swap '<left|right|up|down>'",
+        "usage_error": "Usage: {usage}"
+      },
+      "sync": {
+        "accounts": "Sync accounts: {accounts}",
+        "already_listed": "Already in the sync list",
+        "already_primary": "Already the primary",
+        "no_holder": "No account can hold the synced desk. Type /sync to see why",
+        "no_primary": "No primary yet. Type /sync primary '<handle>' first",
+        "not_listed": "Not in the sync list",
+        "summary": "Choose which account holds your synced desk",
+        "switched_off": "Sync: off",
+        "switched_on": "Sync: on",
+        "syncing": "Syncing…",
+        "usage": "/sync | /sync primary '<handle>' | /sync fallback add|rm|up '<handle>' | /sync off | /sync on | /sync now",
+        "usage_error": "Usage: {usage}"
+      },
+      "tag": {
+        "not_a_hashtag": "Not a hashtag: {input}",
+        "summary": "Open a hashtag timeline",
+        "usage": "/tag '<name>'"
+      },
+      "theme": {
+        "current": "  {name} (current)",
+        "list_header": "Themes:",
+        "no_theme": "No theme {name}. Try /theme",
+        "summary": "List or choose the color theme",
+        "usage": "/theme [name]",
+        "usage_error": "Usage: {usage}"
+      },
+      "thread": {
+        "summary": "Open a post's thread window",
+        "usage": "/thread [label]"
+      },
+      "unbind": {
+        "not_a_key": "Not a key: {chord}",
+        "summary": "Unbind a key",
+        "unbound": "{mode} {chord} unbound",
+        "usage": "/unbind '<insert|navigation>' '<chord>'",
+        "usage_error": "Usage: {usage}"
+      },
+      "unblock": {
+        "summary": "Take a block back",
+        "usage": "/unblock [target]"
+      },
+      "unbookmark": {
+        "summary": "Remove your bookmark of a post",
+        "usage": "/unbookmark [label]"
+      },
+      "unboost": {
+        "summary": "Take your boost of a post back",
+        "usage": "/unboost [label]"
+      },
+      "unfav": {
+        "summary": "Take your favourite of a post back",
+        "usage": "/unfav [label]"
+      },
+      "unfollow": {
+        "summary": "Take a follow back",
+        "usage": "/unfollow [target]"
+      },
+      "unmute": {
+        "summary": "Take a mute back",
+        "usage": "/unmute [target]"
+      },
+      "unpin": {
+        "summary": "Unpin one of your own posts",
+        "usage": "/unpin [label]"
+      },
+      "unreact": {
+        "summary": "Remove your emoji reaction from a post",
+        "usage": "/unreact [label] '<emoji>'"
+      },
+      "unsplit": {
+        "no_pane": "There is no pane to close on this desktop",
+        "summary": "Close the focused pane; its window stays open (unlike /close)"
+      },
+      "vis": {
+        "report": "New posts are {visibility} by default",
+        "summary": "Show or set the default audience, or post one line with an audience",
+        "usage": "/vis [public|unlisted|private|direct|local] [text]",
+        "usage_error": "Usage: {usage}",
+        "usage_for": "/vis [{audiences}] [text]"
+      },
+      "vote": {
+        "already_voted": "You already voted",
+        "closed": "That poll is closed",
+        "no_poll": "No poll on {label}",
+        "options_range": "Options are 1–{last}",
+        "pick_one": "Pick one option (1–{last})",
+        "summary": "Vote on the poll of a post",
+        "usage": "/vote [label] '<n>' [n…]",
+        "voted": "voted {choices} on {label}"
+      },
+      "vsplit": {
+        "summary": "Split the focused pane side by side",
+        "usage": "/vsplit {views}"
+      },
+      "whois": {
+        "summary": "Open an account's profile window",
+        "usage": "/whois [label | @user@host]"
+      },
+      "win": {
+        "cannot_move": "Can't move this window there",
+        "no_window": "No window {number}",
+        "summary": "Switch, cycle, reorder or list windows (desktops: /desktop)",
+        "unread": " ({count, plural, one {{count} unread} other {{count} unread}})",
+        "usage": "/win '<number>' | /win next | /win prev | /win move '<number>' | /win list",
+        "usage_error": "Usage: {usage}"
       }
     },
     "not_signed_in_as": "You aren't signed in as {handle}. {count, plural, =0 {No account is signed in.} other {Signed in: {accounts}.}} Type /connect to add an account."
