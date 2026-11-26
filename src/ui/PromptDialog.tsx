@@ -16,6 +16,7 @@ import styles from './PromptDialog.module.css';
 import { PromptField } from './PromptField';
 import { SuggestionList } from './SuggestionList';
 import { usePromptState } from './usePromptState';
+import { useT } from '../i18n/I18nProvider';
 
 /** What the dialog shows and reports. */
 export type PromptDialogProps = {
@@ -38,6 +39,7 @@ export type PromptDialogProps = {
 /** The dialog asking for one line of text. */
 export function PromptDialog(props: PromptDialogProps): JSX.Element {
   const { title, field, placeholder, onSubmit, onCancel } = props;
+  const t = useT();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const prompt = usePromptState(inputRef, props.suggestions ?? [], {
     onChange: props.onChange,
@@ -60,7 +62,7 @@ export function PromptDialog(props: PromptDialogProps): JSX.Element {
         <SuggestionList
           active={prompt.active}
           id={listId}
-          label={`${title} suggestions`}
+          label={t('ui.prompt_dialog.suggestions', { title })}
           onPick={prompt.accept}
           words={prompt.words}
         />
@@ -73,10 +75,10 @@ export function PromptDialog(props: PromptDialogProps): JSX.Element {
             }}
             type="button"
           >
-            OK
+            {t('ui.prompt_dialog.ok')}
           </button>
           <button className={styles['button']} onClick={onCancel} type="button">
-            Cancel
+            {t('ui.prompt_dialog.cancel')}
           </button>
         </div>
       </div>

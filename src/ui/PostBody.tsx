@@ -10,6 +10,7 @@ import type { JSX } from 'react';
 import type { EmojiRef } from './emojify';
 import styles from './PostBody.module.css';
 import { RemoteHtml } from './RemoteHtml';
+import { useT } from '../i18n/I18nProvider';
 
 /** Props of {@link PostBody}: the body and the one move the row offers it. */
 export type PostBodyProps = {
@@ -33,6 +34,7 @@ export type PostBodyProps = {
  */
 export function PostBody(props: PostBodyProps): JSX.Element {
   const { contentHtml, emojis, hasQuoteCard, spoilerText, revealed, onToggleReveal } = props;
+  const t = useT();
 
   const body = (
     <RemoteHtml dropQuoteFallback={hasQuoteCard} emojis={emojis} html={contentHtml} inline />
@@ -48,7 +50,7 @@ export function PostBody(props: PostBodyProps): JSX.Element {
         onClick={onToggleReveal}
         type="button"
       >
-        {`[CW: ${spoilerText}]`}
+        {t('ui.post_body.content_warning', { text: spoilerText })}
       </button>
       {revealed ? <> {body}</> : undefined}
     </>

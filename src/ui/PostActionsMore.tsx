@@ -13,25 +13,27 @@ import type { JSX } from 'react';
 
 import { MenuButton } from './MenuButton';
 import type { PostActionLine, PostActionLines } from './postActionTypes';
+import { useT } from '../i18n/I18nProvider';
+import type { MessageKey } from '../i18n/messages';
 
 /** Whose posts a row applies to. */
 type Scope = 'any' | 'own' | 'others';
 
-/** One possible row: the command it runs, its words and the posts it is for. */
-type Entry = { readonly id: string; readonly label: string; readonly scope: Scope };
+/** One possible row: the command it runs, the key of its words and the posts it is for. */
+type Entry = { readonly id: string; readonly text: MessageKey; readonly scope: Scope };
 
 /** Every row the menu can have, in the order it shows them. */
 const ENTRIES: readonly Entry[] = [
-  { id: 'quote', label: 'Quote', scope: 'any' },
-  { id: 'copy', label: 'Copy link', scope: 'any' },
-  { id: 'open', label: 'Open in browser', scope: 'any' },
-  { id: 'thread', label: 'Open thread', scope: 'any' },
-  { id: 'pin', label: 'Pin', scope: 'own' },
-  { id: 'unpin', label: 'Unpin', scope: 'own' },
-  { id: 'edit', label: 'Edit', scope: 'own' },
-  { id: 'delete', label: 'Delete', scope: 'own' },
-  { id: 'mute', label: 'Mute author', scope: 'others' },
-  { id: 'block', label: 'Block author', scope: 'others' },
+  { id: 'quote', text: 'ui.post_actions_more.quote', scope: 'any' },
+  { id: 'copy', text: 'ui.post_actions_more.copy', scope: 'any' },
+  { id: 'open', text: 'ui.post_actions_more.open', scope: 'any' },
+  { id: 'thread', text: 'ui.post_actions_more.thread', scope: 'any' },
+  { id: 'pin', text: 'ui.post_actions_more.pin', scope: 'own' },
+  { id: 'unpin', text: 'ui.post_actions_more.unpin', scope: 'own' },
+  { id: 'edit', text: 'ui.post_actions_more.edit', scope: 'own' },
+  { id: 'delete', text: 'ui.post_actions_more.delete', scope: 'own' },
+  { id: 'mute', text: 'ui.post_actions_more.mute', scope: 'others' },
+  { id: 'block', text: 'ui.post_actions_more.block', scope: 'others' },
 ];
 
 /** A row with the line choosing it runs. */
@@ -61,6 +63,7 @@ function rowsFor(lines: PostActionLines, own: boolean): readonly Row[] {
 /** The more-menu, or nothing when no command is left for it. */
 export function PostActionsMore(props: PostActionsMoreProps): JSX.Element | null {
   const { label, own, lines, onAction } = props;
+  const t = useT();
   const rows = rowsFor(lines, own);
   if (rows.length === 0) {
     return null;
@@ -68,8 +71,8 @@ export function PostActionsMore(props: PostActionsMoreProps): JSX.Element | null
   return (
     <MenuButton
       glyph="⋯"
-      items={rows.map((row) => ({ id: row.id, label: row.label }))}
-      label={`More actions for post ${label}`}
+      items={rows.map((row) => ({ id: row.id, label: t(row.text) }))}
+      label={t('ui.post_actions_more.menu', { label })}
       onSelect={(id) => {
         for (const row of rows.filter((candidate) => candidate.id === id)) {
           onAction(row.line);

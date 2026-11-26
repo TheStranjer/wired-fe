@@ -27,6 +27,7 @@ import type { PostCardProps } from './postCardTypes';
 import { PostMeta } from './PostMeta';
 import { QuoteBlock } from './QuoteBlock';
 import { postArticleProps } from './rowClick';
+import { useT } from '../i18n/I18nProvider';
 
 export type { PostCardProps } from './postCardTypes';
 
@@ -123,6 +124,7 @@ function CardAvatar(
 /** One post as a card; clicking it selects it, clicking the nick opens the author. */
 export function PostCard(props: PostCardProps): JSX.Element {
   const { author, selected, chat, ref } = props;
+  const t = useT();
   return (
     <article
       {...postArticleProps({
@@ -133,6 +135,7 @@ export function PostCard(props: PostCardProps): JSX.Element {
         onSelect: props.onSelect,
         onPop: props.onPop,
         onContentLink: props.onContentLink,
+        t,
       })}
       className={cardClassKeys(props, selected)
         .map((key) => styles[key])

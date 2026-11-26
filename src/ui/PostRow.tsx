@@ -26,6 +26,7 @@ import { PostRowHead } from './PostRowHead';
 import { QuoteBlock, type QuoteBlockProps } from './QuoteBlock';
 import { postArticleProps } from './rowClick';
 import type { Via } from './ViaMark';
+import { useT } from '../i18n/I18nProvider';
 import type { ClickModifiers } from '../lib/clickModifiers';
 import type { ClockFormat } from '../lib/time';
 
@@ -160,6 +161,7 @@ export function PostRow(props: PostRowProps): JSX.Element {
   const { boostedBy, poll, media, sensitive, autoExpand, onOpenMedia, selected, ref, ...line } =
     props;
   const { onSelect, onPop, onContentLink } = line;
+  const t = useT();
 
   return (
     <article
@@ -170,6 +172,7 @@ export function PostRow(props: PostRowProps): JSX.Element {
         onSelect,
         onPop,
         onContentLink,
+        t,
       })}
       className={[styles['row'], selected ? styles['selected'] : undefined].join(' ')}
       ref={ref}

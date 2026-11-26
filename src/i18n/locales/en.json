@@ -524,7 +524,84 @@
     "sync_trimmed": "Sync: the desk is large, so the copy on the server leaves out {dropped}; this device keeps them",
     "sync_unsupported": "Sync: the server has no settings store; syncing stopped"
   },
-  "ui": {},
+  "ui": {
+    "poll_view": {
+      "own_vote": "you voted for this"
+    },
+    "post_actions": {
+      "bookmark": "Bookmark post {label}",
+      "boost": "Boost post {label}",
+      "favourite": "Favourite post {label}",
+      "group": "Actions for post {label}"
+    },
+    "post_actions_more": {
+      "block": "Block author",
+      "copy": "Copy link",
+      "delete": "Delete",
+      "edit": "Edit",
+      "menu": "More actions for post {label}",
+      "mute": "Mute author",
+      "open": "Open in browser",
+      "pin": "Pin",
+      "quote": "Quote",
+      "thread": "Open thread",
+      "unpin": "Unpin"
+    },
+    "post_article": {
+      "direct": "Direct message {label} from {handle}",
+      "post": "Post {label} by {handle}"
+    },
+    "post_body": {
+      "content_warning": "[CW: {text}]"
+    },
+    "post_card_parts": {
+      "reply_to": "↳ re {label}"
+    },
+    "post_meta": {
+      "audience_direct": "direct",
+      "audience_local": "local only",
+      "audience_private": "followers only",
+      "audience_unlisted": "unlisted",
+      "edited": "(edited)",
+      "you_bookmarked": "you bookmarked this",
+      "you_boosted": "you boosted this",
+      "you_favourited": "you favourited this",
+      "you_reacted": "you reacted with {name}"
+    },
+    "post_row_head": {
+      "reply_to": "↳ re {label}:"
+    },
+    "prompt_dialog": {
+      "cancel": "Cancel",
+      "ok": "OK",
+      "suggestions": "{title} suggestions"
+    },
+    "react_button": {
+      "label": "React to post {label}"
+    },
+    "status_line": {
+      "close_desktop": "Close desktop {number}",
+      "desktop": "Desktop {number}{active, select, true {, active} other {}}{unread, plural, =0 {} other {, {unread} unread}}{highlight, select, true {, highlighted} other {}}",
+      "desktop_title": "Desktop {number}: click to switch, middle-click to close",
+      "media_waiting": "{count} media waiting, show",
+      "no_posting_account": "No posting account, choose",
+      "posting_as": "Posting as {label}, change",
+      "sync_failed": "Sync failed",
+      "sync_pending": "Sync pending",
+      "window": "Window {number}: {title}{unread, plural, =0 {} other {, {unread} unread}}{highlight, select, true {, highlighted} other {}}"
+    },
+    "via_mark": {
+      "label": "via {accounts}"
+    },
+    "whois_block": {
+      "blocked": "blocked",
+      "followed_by": "they follow you",
+      "following": "you follow them",
+      "muted": "muted",
+      "verified": "verified",
+      "verified_title": "verified link"
+    }
+  },
   "views": {},
   "windows": {}
 }

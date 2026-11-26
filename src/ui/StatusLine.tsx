@@ -11,6 +11,8 @@ import type { JSX } from 'react';
 import styles from './StatusLine.module.css';
 import { Desktops, HiddenWindows, PostingAs } from './StatusLineEntries';
 import type { StatusLineDesktop, StatusLinePostingAs, StatusLineWindow } from './statusLineTypes';
+import { useT } from '../i18n/I18nProvider';
+import type { MessageKey } from '../i18n/messages';
 
 /** Props of {@link StatusLine}. */
 export type StatusLineProps = {
@@ -60,13 +62,14 @@ function PendingMedia(props: {
   readonly count: number;
   readonly onShow: () => void;
 }): JSX.Element | null {
+  const t = useT();
   if (props.count <= 0) {
     return null;
   }
   return (
     <>
       <button
-        aria-label={`${String(props.count)} media waiting, show`}
+        aria-label={t('ui.status_line.media_waiting', { count: props.count })}
         className={styles['media']}
         onClick={props.onShow}
         type="button"
@@ -91,22 +94,25 @@ function PendingKeys(props: { readonly keys: string | null }): JSX.Element | nul
 }
 
 /** What the sync marker shows and says, by state (decision 17). */
-const SYNC_MARKERS: Record<'pending' | 'error', { readonly text: string; readonly name: string }> =
-  {
-    pending: { text: '⇅', name: 'Sync pending' },
-    error: { text: '⇅!', name: 'Sync failed' },
-  };
+const SYNC_MARKERS: Record<
+  'pending' | 'error',
+  { readonly text: string; readonly name: MessageKey }
+> = {
+  pending: { text: '⇅', name: 'ui.status_line.sync_pending' },
+  error: { text: '⇅!', name: 'ui.status_line.sync_failed' },
+};
 
 /** The sync marker before the mode: `⇅` while a push waits, `⇅!` after an error, nothing otherwise. */
 function SyncGroup(props: { readonly marker: StatusLineProps['sync'] }): JSX.Element | null {
   const marker = props.marker ?? null;
+  const t = useT();
   if (marker === null) {
     return null;
   }
   const { text, name } = SYNC_MARKERS[marker];
   return (
     <>
-      <span role="img" aria-label={name}>
+      <span role="img" aria-label={t(name)}>
         {text}
       </span>{' '}
     </>

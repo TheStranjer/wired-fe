@@ -7,6 +7,7 @@ import type { MouseEvent } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
 import { postArticleProps } from './rowClick';
+import { t } from '../i18n/translate';
 
 /** A mouse event whose target is a text node, which is no element. */
 function textEvent(): MouseEvent<HTMLElement> {
@@ -28,6 +29,7 @@ function build(): {
     onSelect,
     onPop,
     onContentLink: () => false,
+    t,
   });
   return { props, onSelect, onPop };
 }

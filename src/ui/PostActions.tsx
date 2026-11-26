@@ -21,6 +21,7 @@ import { PostActionsMore } from './PostActionsMore';
 import type { PostActionLine, PostActionLines, ReactPicker } from './postActionTypes';
 import type { PostMetaProps } from './PostMeta';
 import { ReactButton } from './ReactButton';
+import { useT } from '../i18n/I18nProvider';
 
 /** Props of {@link PostActions}. */
 export type PostActionsProps = Pick<PostMetaProps, 'counts' | 'mine' | 'reactions'> & {
@@ -39,8 +40,9 @@ export type PostActionsProps = Pick<PostMetaProps, 'counts' | 'mine' | 'reaction
 /** The action bar of one post card. */
 export function PostActions(props: PostActionsProps): JSX.Element {
   const { label, counts, mine, own, lines, onAction } = props;
+  const t = useT();
   return (
-    <div aria-label={`Actions for post ${label}`} className={styles['bar']} role="group">
+    <div aria-label={t('ui.post_actions.group', { label })} className={styles['bar']} role="group">
       <ReplyButton count={counts.replies} label={label} lines={lines} onAction={onAction} />
       <BoostButton
         count={counts.boosts}
@@ -67,7 +69,7 @@ export function PostActions(props: PostActionsProps): JSX.Element {
         commands={['bookmark', 'unbookmark']}
         glyph="🔖"
         lines={lines}
-        name={`Bookmark post ${label}`}
+        name={t('ui.post_actions.bookmark', { label })}
         on={mine.bookmarked}
         onAction={onAction}
       />
