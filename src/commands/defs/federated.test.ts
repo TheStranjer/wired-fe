@@ -2,7 +2,7 @@
  * Tests for /federated: with an account signed in it asks the window list for
  * that account's federated timeline window, titled plain, and reports success —
  * the window the action opens is the active one; without an account the command
- * refuses and asks for nothing; arguments change neither, and /fed is the same
+ * refuses and asks for nothing; the text it posts is tested in ../openWindowRun.post.test.ts, and /fed is the same
  * command.
  */
 import { describe, expect, it, vi, type Mock } from 'vitest';
@@ -99,21 +99,8 @@ describe('/federated', () => {
     expect(dispatchWindows).not.toHaveBeenCalled();
   });
 
-  it('ignores its arguments and opens the active account’s federated window all the same', async () => {
-    const { context, dispatchWindows } = stubContext(true);
-
-    const outcome = await command.run('spare words', context);
-
-    expect(outcome).toStrictEqual({ ok: true });
-    expect(onlyAsk(dispatchWindows)).toStrictEqual({
-      type: 'open',
-      ref: FEDERATED,
-      title: 'federated',
-    });
-  });
-
-  it('answers to /fed as well, and its usage is one word', () => {
+  it('answers to /fed as well, and its usage takes text and placement', () => {
     expect(command.aliases).toStrictEqual(['fed']);
-    expect(command.usage).toBe('/federated');
+    expect(command.usage).toBe('/federated [text] [--in <placement>]');
   });
 });

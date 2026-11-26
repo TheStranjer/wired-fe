@@ -9,10 +9,10 @@
  */
 
 import { accountWindowOpen } from './accountWindow';
+import type { OpenAction } from './placement';
 import type { StoredAccount } from '../accounts/accountStore';
-import type { WindowsAction } from '../windows/reducer';
 
 /** The window-list transition that opens {@link account}'s home window. */
-export function homeWindowOpen(account: StoredAccount, activeKey: string | null): WindowsAction {
+export function homeWindowOpen(account: StoredAccount, activeKey: string | null): OpenAction {
   return accountWindowOpen('home', account, activeKey);
 }

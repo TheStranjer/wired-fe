@@ -2,7 +2,7 @@
  * Tests for /home: with an account signed in it asks the window list for that
  * account's home window, titled plain, and reports success — the window the
  * action opens is the active one; without an account the command refuses and
- * asks for nothing; arguments change neither.
+ * asks for nothing; the text it posts is tested in ../openWindowRun.post.test.ts.
  */
 import { describe, expect, it, vi, type Mock } from 'vitest';
 
@@ -94,17 +94,8 @@ describe('/home', () => {
     expect(dispatchWindows).not.toHaveBeenCalled();
   });
 
-  it('ignores its arguments and opens the active account’s home all the same', async () => {
-    const { context, dispatchWindows } = stubContext(true);
-
-    const outcome = await command.run('spare words', context);
-
-    expect(outcome).toStrictEqual({ ok: true });
-    expect(onlyAsk(dispatchWindows)).toStrictEqual({ type: 'open', ref: HOME, title: 'home' });
-  });
-
-  it('has no aliases and one word of usage', () => {
+  it('has no aliases and a usage that takes text and placement', () => {
     expect(command.aliases).toBeUndefined();
-    expect(command.usage).toBe('/home');
+    expect(command.usage).toBe('/home [text] [--in <placement>]');
   });
 });

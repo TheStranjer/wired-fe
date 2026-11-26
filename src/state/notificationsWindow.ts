@@ -8,8 +8,8 @@
  */
 
 import { accountWindowRef, accountWindowTitle } from './accountWindow';
+import type { OpenAction } from './placement';
 import type { StoredAccount } from '../accounts/accountStore';
-import type { WindowsAction } from '../windows/reducer';
 
 /** The label every account's notifications window is titled from. */
 const NOTIFS_LABEL = 'notifs';
@@ -22,7 +22,7 @@ const NOTIFS_LABEL = 'notifs';
 export function notificationsWindowOpen(
   account: StoredAccount,
   activeKey: string | null,
-): WindowsAction {
+): OpenAction {
   return {
     type: 'open',
     ref: accountWindowRef('notifications', account),
