@@ -8,17 +8,21 @@
  */
 
 import type { InstancesConfig } from '../config/schema';
+import { t } from '../i18n/translate';
 
 /** The hint for a build where the user types any instance. */
-const OPEN_HINT = 'Not connected. Type /connect <instance>, e.g. /connect wired.example';
+function openHint(): string {
+  return t('app.connect_hint_open');
+}
 
 /** The hint for a `list` build: the options, plus a note when others work too. */
 function listHint(origins: readonly string[], allowCustom: boolean): string {
   if (origins.length === 0) {
-    return OPEN_HINT;
+    return openHint();
   }
-  const available = `Not connected. Type /connect <instance>. Available: ${origins.join(', ')}`;
-  return allowCustom ? `${available}. Any other instance works too.` : available;
+  return t(allowCustom ? 'app.connect_hint_list_custom' : 'app.connect_hint_list', {
+    origins: origins.join(', '),
+  });
 }
 
 /** What a build with no accounts says about `/connect`, by instance mode. */
@@ -26,10 +30,10 @@ export function connectHint(instances: InstancesConfig): string {
   switch (instances.mode) {
     case 'same-origin':
     case 'fixed':
-      return 'Not connected. Type /connect to log in.';
+      return t('app.connect_hint_log_in');
     case 'list':
       return listHint(instances.origins, instances.allowCustom === true);
     case 'open':
-      return OPEN_HINT;
+      return openHint();
   }
 }

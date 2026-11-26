@@ -9,8 +9,8 @@
 import type { JSX } from 'react';
 
 import styles from './CommandTray.module.css';
-import { PENDING_MEDIA_LABEL } from './trayFocus';
 import type { Attachments } from './useAttachments';
+import { useT } from '../i18n/I18nProvider';
 import { AttachmentList } from '../views/AttachmentList';
 
 /** The pending media the tray shows. */
@@ -21,6 +21,7 @@ export type CommandTrayProps = {
 /** The pending media as rows above the command line; nothing while none wait. */
 export function CommandTray(props: CommandTrayProps): JSX.Element | null {
   const { attachments } = props;
+  const t = useT();
   if (attachments.items.length === 0) {
     return null;
   }
@@ -28,7 +29,7 @@ export function CommandTray(props: CommandTrayProps): JSX.Element | null {
     <div className={styles['tray']}>
       <AttachmentList
         items={attachments.items}
-        label={PENDING_MEDIA_LABEL}
+        label={t('app.pending_media')}
         onDescribe={attachments.describe}
         onRemove={attachments.remove}
       />

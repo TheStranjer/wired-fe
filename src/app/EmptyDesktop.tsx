@@ -13,6 +13,7 @@ import { launcherEntries } from './launcherEntries';
 import { paneMenuEntries } from './paneMenu';
 import { useAvailableRegistry } from './useAvailableRegistry';
 import { ViewList } from './ViewList';
+import { useT } from '../i18n/I18nProvider';
 import { useAppState } from '../state/StateContext';
 import { usePostActions } from '../views/PostActionsContext';
 
@@ -21,15 +22,16 @@ export function EmptyDesktop(): JSX.Element {
   const registry = useAvailableRegistry();
   const { settings } = useAppState();
   const { run } = usePostActions();
+  const t = useT();
   const entries = useMemo(
-    () => launcherEntries(paneMenuEntries(registry, settings.feeds)),
-    [registry, settings.feeds],
+    () => launcherEntries(paneMenuEntries(registry, settings.feeds, t)),
+    [registry, settings.feeds, t],
   );
   return (
     <div className={styles['empty']}>
-      <div className={styles['hint']}>empty desktop — /vsplit, /split or Ctrl+B %</div>
+      <div className={styles['hint']}>{t('app.empty_desktop_hint')}</div>
       <div className={styles['views']}>
-        <ViewList command="vsplit" entries={entries} label="Open a view" run={run} />
+        <ViewList command="vsplit" entries={entries} label={t('app.open_view')} run={run} />
       </div>
     </div>
   );

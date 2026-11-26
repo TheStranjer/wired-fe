@@ -7,21 +7,25 @@ import { useState } from 'react';
 import type { JSX } from 'react';
 
 import { WINDOW_KINDS } from './loadedKinds';
+import { useT } from '../i18n/I18nProvider';
 import type { ClockFormat } from '../lib/time';
 import type { AppState } from '../state/appState';
 import { Scrollback } from '../ui/Scrollback';
 import { SystemLine } from '../ui/SystemLine';
 import type { WindowState } from '../windows/model';
 
-/** What the scrollback says when the window's kind has no component. */
-const NO_VIEW = 'No view for this window';
-
-/** The stand-in scrollback for a window whose kind never loaded. */
+/** The stand-in scrollback for a window whose kind never loaded: it says `No view for this window`. */
 function NoView(props: { readonly title: string; readonly clockFormat: ClockFormat }): JSX.Element {
   const [date] = useState(() => new Date());
+  const t = useT();
   return (
     <Scrollback label={props.title}>
-      <SystemLine clockFormat={props.clockFormat} date={date} level="error" text={NO_VIEW} />
+      <SystemLine
+        clockFormat={props.clockFormat}
+        date={date}
+        level="error"
+        text={t('app.no_view')}
+      />
     </Scrollback>
   );
 }

@@ -4,12 +4,18 @@
  */
 import { describe, expect, it } from 'vitest';
 
-import { askedLine, entryLine, paneMenuEntries } from './paneMenu';
+import { askedLine, entryLine, paneMenuEntries as build } from './paneMenu';
 import type { PaneMenuEntry } from './paneMenu';
 import { OK } from '../commands/outcome';
 import { buildRegistry } from '../commands/registry';
 import type { Registry } from '../commands/types';
+import { t } from '../i18n/translate';
 import type { Feeds } from '../state/feeds';
+
+/** The menu's rows in English, the language in use. */
+function paneMenuEntries(registry: Registry, feeds: Feeds): readonly PaneMenuEntry[] {
+  return build(registry, feeds, t);
+}
 
 /** A registry holding commands called {@link names}, each of which does nothing. */
 function registryOf(...names: readonly string[]): Registry {

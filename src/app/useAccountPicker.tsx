@@ -23,6 +23,7 @@ import {
 } from './pickerChoices';
 import { postPicker } from './postPicker';
 import type { LineRestorer } from './useLineRestoreApi';
+import { useT } from '../i18n/I18nProvider';
 import type { AccountPick } from '../state/accountPick';
 import { printAction } from '../state/appState';
 import type { FeedSpec } from '../state/feeds';
@@ -62,7 +63,7 @@ function defaultPicker(
   return (
     <AccountPickerDialog
       accounts={accountChoices(state)}
-      description={postingLine(state, win) ?? 'No posting account set'}
+      description={postingLine(state, win) ?? context.t('app.post_no_account')}
       onCancel={() => {
         dispatch({ type: 'closeAccountPick' });
       }}
@@ -70,9 +71,9 @@ function defaultPicker(
         answer(context, pick, { feed, key, scope });
       }}
       scope={feed === null ? GLOBAL_SCOPE : FEED_SCOPE}
-      scopes={rememberScopes(feed)}
+      scopes={rememberScopes(feed, context.t)}
       selected={selected}
-      title="Post as"
+      title={context.t('app.post_as')}
     />
   );
 }
@@ -95,9 +96,10 @@ export function useAccountPicker(
   const state = useAppState();
   const dispatch = useAppDispatch();
   const refresh = useRefreshDeps();
+  const t = useT();
   const { accountPick } = state;
   if (accountPick === null || otherModalOpen) {
     return null;
   }
-  return boxFor({ state, dispatch, refresh, restore }, accountPick);
+  return boxFor({ state, dispatch, refresh, restore, t }, accountPick);
 }

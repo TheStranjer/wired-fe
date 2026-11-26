@@ -14,19 +14,28 @@ import { SplitMenu } from './SplitMenu';
 import type { SplitButton } from './SplitMenu';
 import { useAvailableRegistry } from './useAvailableRegistry';
 import { useRunOnPane } from './useRunOnPane';
+import { useT } from '../i18n/I18nProvider';
+import type { Translate } from '../i18n/messages';
 import { useAppState } from '../state/StateContext';
 import type { WindowState } from '../windows/model';
 
-/** The split buttons, side by side first. */
-const SPLIT_BUTTONS: readonly SplitButton[] = [
-  {
-    glyph: '◫▾',
-    label: 'Split side by side',
-    action: 'Split side by side with a view',
-    command: 'vsplit',
-  },
-  { glyph: '⊟▾', label: 'Split stacked', action: 'Split stacked with a view', command: 'split' },
-];
+/** The split buttons, side by side first, worded by {@link t}. */
+function splitButtons(t: Translate): readonly SplitButton[] {
+  return [
+    {
+      glyph: '◫▾',
+      label: t('app.split_side_by_side'),
+      action: t('app.split_side_by_side_tip'),
+      command: 'vsplit',
+    },
+    {
+      glyph: '⊟▾',
+      label: t('app.split_stacked'),
+      action: t('app.split_stacked_tip'),
+      command: 'split',
+    },
+  ];
+}
 
 /** The split buttons of the tree pane `paneId`, which shows the window `win`. */
 export function TreeButtons(props: {
@@ -35,15 +44,16 @@ export function TreeButtons(props: {
 }): JSX.Element {
   const registry = useAvailableRegistry();
   const { settings } = useAppState();
+  const t = useT();
   const runOnPane = useRunOnPane(props.paneId);
   const ownWindowId = props.win.id;
   const entries = useMemo(
-    () => paneMenuEntries(registry, settings.feeds),
-    [registry, settings.feeds],
+    () => paneMenuEntries(registry, settings.feeds, t),
+    [registry, settings.feeds, t],
   );
   return (
     <>
-      {SPLIT_BUTTONS.map((button) => (
+      {splitButtons(t).map((button) => (
         <SplitMenu
           key={button.command}
           button={button}
