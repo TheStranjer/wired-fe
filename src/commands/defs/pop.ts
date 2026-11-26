@@ -14,15 +14,19 @@
  */
 
 import { command as float } from './float';
+import { t } from '../../i18n/translate';
 import { popInPlace } from '../popThread';
 import type { CommandDefinition } from '../types';
 
 /** The `/pop` definition. */
 export const command: CommandDefinition = {
   name: 'pop',
-  usage: '/pop [label]',
-  summary:
-    "Pop a post's thread out into a floating window, or focus it where it is shown; inside that thread, do nothing (hotkey p, or double-click)",
+  get usage(): string {
+    return t('commands.defs.pop.usage');
+  },
+  get summary(): string {
+    return t('commands.defs.pop.summary');
+  },
   run: async (args, context) =>
     (await popInPlace(args, context)) ?? (await float.run(`thread ${args.trim()}`, context)),
   bindings: [{ mode: 'navigation', chord: 'p', args: '' }],

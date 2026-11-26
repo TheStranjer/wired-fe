@@ -186,6 +186,24 @@
         "summary": "Follow an account",
         "usage": "/follow [target]"
       },
+      "forgot": {
+        "letter": "If that account exists, a reset letter is on its way.",
+        "summary": "Mail a password-reset letter",
+        "usage": "/forgot '<email|nick>' [instance]",
+        "usage_error": "Usage: /forgot '<email|nick>'"
+      },
+      "help": {
+        "footer": "Type /help '<command>' for details.",
+        "header": "Commands:",
+        "no_such_command": "No such command: /{subject}",
+        "summary": "List commands, or show help for one",
+        "topics": "Topics: {topics}. Type /help '<topic>'.",
+        "usage": "/help [command | topic]"
+      },
+      "home": {
+        "summary": "Open your home timeline",
+        "usage": "/home [text] [--in '<placement>']"
+      },
       "lang": {
         "auto_hint": "Follow the instance default, then the browser",
         "available": "Available languages:",
@@ -195,6 +213,69 @@
         "summary": "Show or choose the interface language",
         "unknown": "No language {input}. Choose auto or one of: {choices}",
         "usage": "/lang [code|name|auto]"
+      },
+      "local": {
+        "summary": "Open the local timeline",
+        "usage": "/local [text] [--in '<placement>']"
+      },
+      "media": {
+        "few_attachments": "Post {label} has {count, plural, one {# attachment} other {# attachments}}",
+        "no_attachments": "Post {label} has no attachments",
+        "summary": "Show a post's attachment full size in a window",
+        "usage": "/media [label] [n]",
+        "usage_error": "Usage: /media [label] [n]"
+      },
+      "more": {
+        "no_older": "No older posts",
+        "summary": "Load the next page of older posts"
+      },
+      "mute": {
+        "summary": "Mute an account",
+        "usage": "/mute [target] [duration]"
+      },
+      "mvd": {
+        "already_on": "Already on desktop {number}",
+        "no_pane": "No pane to move",
+        "summary": "Move the focused pane to another desktop",
+        "usage": "/mvd '<number>' [follow]",
+        "usage_error": "Usage: /mvd '<number>' [follow]"
+      },
+      "notifications": {
+        "summary": "Open your notifications",
+        "usage": "/notifications [text] [--in '<placement>']"
+      },
+      "only": {
+        "no_panes": "There are no panes on this desktop",
+        "summary": "Close every other pane and float; their windows stay open (unlike /close)"
+      },
+      "open": {
+        "not_http": "Only http(s) links can be opened",
+        "summary": "Open a post or URL in a new browser tab",
+        "usage": "/open [label | url]"
+      },
+      "people": {
+        "nothing_to_list": "A people window has no people of its own",
+        "summary": "Show or hide who is in this window"
+      },
+      "pin": {
+        "summary": "Pin one of your own posts, or unpin it",
+        "usage": "/pin [label]"
+      },
+      "poll": {
+        "hours_wants": "--hours wants a positive number of hours",
+        "not_connected": "Not connected. Type /connect",
+        "option_count": "A poll needs {min}–{max} options",
+        "option_too_long": "Option \"{option}\" is longer than {max, plural, one {# character} other {# characters}}",
+        "posted": "poll posted",
+        "run_span": "Poll must run between {min} and {max}",
+        "summary": "Post a poll to the active window",
+        "unknown_flag": "Unknown flag: {flag}",
+        "usage": "/poll \"'<question>'\" \"'<option>'\" \"'<option>'\" [...] [--multiple] [--hours N]",
+        "usage_error": "Usage: /poll \"'<question>'\" \"'<option>'\" \"'<option>'\" [...] [--multiple] [--hours N]"
+      },
+      "pop": {
+        "summary": "Pop a post's thread out into a floating window, or focus it where it is shown; inside that thread, do nothing (hotkey p, or double-click)",
+        "usage": "/pop [label]"
       }
     },
     "not_signed_in_as": "You aren't signed in as {handle}. {count, plural, =0 {No account is signed in.} other {Signed in: {accounts}.}} Type /connect to add an account."

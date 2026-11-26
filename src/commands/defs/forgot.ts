@@ -12,16 +12,11 @@
 
 import { type OriginChoice, resolveInstanceOrigin } from '../../accounts/origin';
 import { type ResetTarget, requestPasswordReset } from '../../api/endpoints/passwordReset';
+import { t } from '../../i18n/translate';
 import { ok } from '../../lib/result';
 import { activeAccount } from '../../state/selectors';
 import { OK, fail } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
-
-/** What the command prints, whatever the instance answered. */
-const LETTER_MESSAGE = 'If that account exists, a reset letter is on its way.';
-
-/** Shown when no account was named. */
-const USAGE = 'Usage: /forgot <email|nick>';
 
 /** An e-mail address: one `@` with something on each side, no spaces. */
 const EMAIL = /^[^@\s]+@[^@\s]+$/u;
@@ -49,14 +44,14 @@ async function handle(args: string, context: CommandContext): Promise<CommandOut
   const [typed = '', instanceArg = ''] = args.trim().split(/\s+/u);
   const target = targetOf(typed);
   if ('nickname' in target && target.nickname === '') {
-    return fail(USAGE);
+    return fail(t('commands.defs.forgot.usage_error'));
   }
   const instance = instanceFor(instanceArg, context);
   if (!instance.ok) {
     return fail(instance.error);
   }
   await requestPasswordReset(instance.value, target);
-  context.print(LETTER_MESSAGE);
+  context.print(t('commands.defs.forgot.letter'));
   return OK;
 }
 
@@ -64,8 +59,12 @@ async function handle(args: string, context: CommandContext): Promise<CommandOut
 export const command: CommandDefinition = {
   name: 'forgot',
   aliases: ['resetpw'],
-  usage: '/forgot <email|nick> [instance]',
-  summary: 'Mail a password-reset letter',
+  get usage(): string {
+    return t('commands.defs.forgot.usage');
+  },
+  get summary(): string {
+    return t('commands.defs.forgot.summary');
+  },
   requires: 'passwordResetApi',
   run: handle,
 };

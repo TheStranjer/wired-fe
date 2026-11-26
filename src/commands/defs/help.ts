@@ -11,16 +11,13 @@
  * asking about one it cannot do says why.
  */
 
+import { t } from '../../i18n/translate';
 import { unavailableRefusal } from '../available';
 import { commandDetailLines } from '../commandDetail';
 import { HELP_TOPICS, type HelpTopic, lookupTopic } from '../helpTopics';
 import { OK, fail, syncRun } from '../outcome';
 import { lookupCommand } from '../registry';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
-
-/** Bookends of the command listing. */
-const HEADER = 'Commands:';
-const FOOTER = 'Type /help <command> for details.';
 
 /** The first whitespace-separated word of {@link args}; undefined when there is none. */
 function firstWord(args: string): string | undefined {
@@ -30,14 +27,13 @@ function firstWord(args: string): string | undefined {
 
 /** Print the header, one line per command in registry order, then the footer. */
 function listAll(context: CommandContext): CommandOutcome {
-  context.print(HEADER);
+  context.print(t('commands.defs.help.header'));
   for (const definition of context.registry.commands) {
     context.print(`  /${definition.name} — ${definition.summary}`);
   }
-  context.print(FOOTER);
-  context.print(
-    `Topics: ${HELP_TOPICS.map((topic) => topic.name).join(', ')}. Type /help <topic>.`,
-  );
+  context.print(t('commands.defs.help.footer'));
+  const topics = HELP_TOPICS.map((topic) => topic.name).join(', ');
+  context.print(t('commands.defs.help.topics', { topics }));
   return OK;
 }
 
@@ -50,7 +46,7 @@ function showTopic(topic: HelpTopic, context: CommandContext): CommandOutcome {
       context.print(`  /${definition.name} — ${definition.summary}`);
     }
   }
-  context.print(FOOTER);
+  context.print(t('commands.defs.help.footer'));
   return OK;
 }
 
@@ -76,7 +72,8 @@ function handle(args: string, context: CommandContext): CommandOutcome {
   const definition = lookupCommand(context.registry, subject.toLowerCase());
   if (definition === undefined) {
     return fail(
-      unavailableRefusal(context, subject.toLowerCase()) ?? `No such command: /${subject}`,
+      unavailableRefusal(context, subject.toLowerCase()) ??
+        t('commands.defs.help.no_such_command', { subject }),
     );
   }
   return showDetails(definition, context);
@@ -86,8 +83,12 @@ function handle(args: string, context: CommandContext): CommandOutcome {
 export const command: CommandDefinition = {
   name: 'help',
   aliases: ['h'],
-  usage: '/help [command | topic]',
-  summary: 'List commands, or show help for one',
+  get usage(): string {
+    return t('commands.defs.help.usage');
+  },
+  get summary(): string {
+    return t('commands.defs.help.summary');
+  },
   run: syncRun(handle),
   bindings: [{ mode: 'navigation', chord: '?', args: '' }],
 };
