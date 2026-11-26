@@ -7,7 +7,8 @@
  * `notifications` action on the window's buffer (src/state/bufferNotifications).
  */
 
-import { type FetchPageOf, usePagedBuffer } from './usePagedBuffer';
+import type { FetchPageOf } from './pagedFetch';
+import { usePagedBuffer } from './usePagedBuffer';
 import type { Notification } from '../api/schemas/notification';
 
 /** One page of notifications, fetched through an ApiSession or cancelled. */

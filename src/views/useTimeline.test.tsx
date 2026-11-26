@@ -4,7 +4,7 @@
  * page prints its description and fails the load, an older request fetches
  * the cursor page and exhausts the window when no next link comes, a window
  * with no session prints its error once and asks nothing of the endpoint,
- * and unmounting aborts the page in flight without reporting anything.
+ * and unmounting aborts the page in flight, reporting nothing but idle.
  */
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
@@ -194,7 +194,7 @@ describe(useTimeline, () => {
     expect(screen.queryByText('Request cancelled')).toBeNull();
   });
 
-  it('aborts the in-flight page on unmount and reports nothing', async () => {
+  it('aborts the in-flight page on unmount and reports nothing but idle', async () => {
     const signals: AbortSignal[] = [];
     const pending: Promise<PageResult>[] = [];
     const hanging: FetchPage = async (_session, _page, signal) => {
@@ -223,7 +223,7 @@ describe(useTimeline, () => {
 
     expect(signals[0]?.aborted).toBe(true);
     expect(screen.getByRole('region', { name: 'buffer' })).toHaveTextContent('lines 0');
-    expect(screen.getByText('loading')).toBeInTheDocument();
+    expect(screen.getByText('idle')).toBeInTheDocument();
     expect(screen.queryByText('Request cancelled')).toBeNull();
   });
 });

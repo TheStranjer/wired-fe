@@ -6,7 +6,8 @@
  * signal; an arrived page lands as a `statuses` action on the window's buffer.
  */
 
-import { type FetchPageOf, usePagedBuffer } from './usePagedBuffer';
+import type { FetchPageOf } from './pagedFetch';
+import { usePagedBuffer } from './usePagedBuffer';
 import type { Status } from '../api/schemas/status';
 import { statusesAction } from '../state/pageActions';
 
