@@ -7,7 +7,7 @@
 
 import { expect, test } from '@playwright/test';
 
-import { alertOf } from './fixtures/alert';
+import { alertOf, backgroundAlpha } from './fixtures/alert';
 import { logRegion, showWindow, signIn, submit } from './fixtures/session';
 
 /** The title of the stream feed's window: its name behind a tilde. */
@@ -34,4 +34,21 @@ test('a refused post raises an alert that Enter dismisses, leaving the line behi
   await expect(alert).toHaveCount(0);
   await expect(page.getByRole('textbox', { name: 'Command line' })).toBeFocused();
   await expect(logRegion(page, 'feed')).toContainText(REFUSAL);
+});
+
+test('the backdrop dims the page with a translucent scrim while the box stays opaque', async ({
+  page,
+}) => {
+  await signIn(page);
+  await showWindow(page, STREAM, 'feed');
+
+  await submit(page, 'hello feed');
+
+  const alert = alertOf(page);
+  await expect(alert).toBeVisible();
+
+  const scrim = await backgroundAlpha(alert.locator('xpath=..'));
+  expect(scrim).toBeGreaterThan(0);
+  expect(scrim).toBeLessThan(1);
+  expect(await backgroundAlpha(alert)).toBe(1);
 });
