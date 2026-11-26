@@ -89,7 +89,7 @@ describe('the invite sign-up', () => {
       token: 'invite-1',
     });
     expect(seen.auth).toBe('Bearer app-token');
-    expect(screen.getByRole('textbox', { name: 'Command line' })).toHaveValue('');
+    expect(screen.getByRole('combobox', { name: 'Command line' })).toHaveValue('');
   });
 
   it('tells a visitor whose address needs confirming to check their email', async () => {

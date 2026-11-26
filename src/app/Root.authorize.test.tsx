@@ -134,7 +134,7 @@ describe('the app authorization', () => {
     await screen.findByText('Returning to the app…');
 
     expect(seen.auth).toBe('Bearer user-token');
-    expect(screen.getByRole('textbox', { name: 'Command line' })).toHaveValue('');
+    expect(screen.getByRole('combobox', { name: 'Command line' })).toHaveValue('');
     expect(navigateTo).toHaveBeenCalledExactlyOnceWith(
       'https://cool.example/cb?code=abc&state=xyz',
     );

@@ -33,7 +33,7 @@ const ACCOUNT: StoredAccount = {
 
 /** The command line. */
 function commandLine(): HTMLElement {
-  return screen.getByRole('textbox', { name: 'Command line' });
+  return screen.getByRole('combobox', { name: 'Command line' });
 }
 
 /** The composer's post textarea. */

@@ -1,0 +1,56 @@
+/* The suggestion list above the command line: rows of name and summary. */
+
+.popup {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg);
+}
+
+.popup[hidden] {
+  display: none;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+}
+
+.row,
+.chosen {
+  display: flex;
+  gap: var(--space);
+  width: 100%;
+  padding: 0 var(--space);
+  border: 0;
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.chosen,
+.row:hover {
+  background: var(--color-fg);
+  color: var(--color-bg);
+}
+
+.name {
+  flex: none;
+}
+
+.summary {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.more {
+  padding: 0 var(--space);
+  color: var(--color-dim);
+}

@@ -58,7 +58,7 @@ test('a long scrollback of error lines never makes the page scroll', async ({ pa
   const before = await pageMetrics(page);
   expect(before.scrollHeight).toBeLessThanOrEqual(before.innerHeight);
 
-  const line = page.getByRole('textbox', { name: 'Command line' });
+  const line = page.getByRole('combobox', { name: 'Command line' });
   await tryToScrollPage(page, (await boxOf(line)).y - 2);
 
   const after = await pageMetrics(page);

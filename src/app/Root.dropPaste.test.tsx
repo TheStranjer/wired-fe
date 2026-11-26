@@ -94,7 +94,7 @@ function renderRoot(): void {
     </AppStateProvider>,
   );
   act(() => {
-    screen.getByRole('textbox', { name: 'Command line' }).focus();
+    screen.getByRole('combobox', { name: 'Command line' }).focus();
   });
 }
 

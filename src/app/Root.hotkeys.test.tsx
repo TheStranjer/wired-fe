@@ -61,7 +61,7 @@ function renderRoot(actions: readonly AppAction[]): void {
 
 /** The command line, focused the way insert mode leaves it. */
 function commandLine(): HTMLElement {
-  const input = screen.getByRole('textbox', { name: 'Command line' });
+  const input = screen.getByRole('combobox', { name: 'Command line' });
   act(() => {
     input.focus();
   });
@@ -109,7 +109,7 @@ describe(Root, () => {
     fireEvent.keyDown(window, { key: 'i' });
 
     expect(screen.getByText('[INS]')).toBeInTheDocument();
-    expect(screen.getByRole('textbox', { name: 'Command line' })).toHaveFocus();
+    expect(screen.getByRole('combobox', { name: 'Command line' })).toHaveFocus();
   });
 
   it('the digit switches to that window in navigation mode', async () => {

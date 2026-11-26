@@ -29,7 +29,7 @@ function field(): HTMLElement {
 
 /** The command line. */
 function line(): HTMLElement {
-  return screen.getByRole('textbox', { name: 'Command line' });
+  return screen.getByRole('combobox', { name: 'Command line' });
 }
 
 /** Wait for the review dialog and type {@link text} into its textarea. */

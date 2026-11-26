@@ -1,6 +1,7 @@
 /* The command line: prompt and input on one row, input filling the rest. */
 
 .container {
+  position: relative;
   display: flex;
   gap: var(--space);
 }

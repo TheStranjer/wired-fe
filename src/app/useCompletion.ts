@@ -25,19 +25,24 @@ import type { InputModeState } from '../state/appState';
 const TAB = 'Tab';
 
 /** What one Tab achieved: the new line, the new caret, and the state to cycle. */
-type Showing = {
+export type Showing = {
   readonly text: string;
   readonly cursor: number;
   readonly state: CompletionState;
 };
 
-/** The command line the hook steers: its element, its mode, text and owner. */
+/**
+ * The command line the hook steers: its element, its mode, text and owner.
+ * {@link onShown} hears what the completion in progress shows, and null when
+ * it ends, so the suggestion list can follow it (WFE-297).
+ */
 export type CompletionLine = {
   readonly inputRef: RefObject<HTMLInputElement | null>;
   readonly mode: InputModeState;
   readonly providers: readonly Provider[];
   readonly value: string;
   readonly setValue: (text: string) => void;
+  readonly onShown: (showing: Showing | null) => void;
 };
 
 /** The handler to fold into the command line's onKeyDown. */
@@ -49,14 +54,21 @@ type PendingCaret = {
   readonly cursor: number;
 };
 
+/** What {@link usePendingCaret} lends: name where the caret goes, and focus the line. */
+type CaretPlacer = {
+  /** The line is about to show {@link text}; the caret belongs at {@link cursor} in it. */
+  readonly place: (text: string, cursor: number) => void;
+  /** Focus the line. */
+  readonly focus: () => void;
+};
+
 /**
- * Carry the caret behind a completion: the returned ref names the text the
- * line is about to show and where inside it the caret belongs, and the effect
- * places it as soon as a commit puts that text into {@link inputRef}.
+ * Carry the caret behind a completion: {@link CaretPlacer.place} names the
+ * text the line is about to show and where inside it the caret belongs, and
+ * an effect puts the caret there as soon as a commit puts that text into
+ * {@link inputRef}.
  */
-function usePendingCaret(
-  inputRef: RefObject<HTMLInputElement | null>,
-): RefObject<PendingCaret | null> {
+export function usePendingCaret(inputRef: RefObject<HTMLInputElement | null>): CaretPlacer {
   const caretRef = useRef<PendingCaret | null>(null);
 
   useEffect(() => {
@@ -71,7 +83,14 @@ function usePendingCaret(
     }
   });
 
-  return caretRef;
+  return {
+    place: (text, cursor) => {
+      caretRef.current = { text, cursor };
+    },
+    focus: () => {
+      inputRef.current?.focus();
+    },
+  };
 }
 
 /**
@@ -82,21 +101,23 @@ function usePendingCaret(
  * starts fresh instead of cycling back into stale text.
  */
 export function useCompletion(line: CompletionLine): CompletionKeyDown {
-  const { inputRef, mode, providers, value, setValue } = line;
+  const { inputRef, mode, providers, value, setValue, onShown } = line;
   const activeRef = useRef<CompletionState | null>(null);
   const shownRef = useRef<string | null>(null);
-  const caretRef = usePendingCaret(inputRef);
+  const placer = usePendingCaret(inputRef);
 
   function end(): void {
     activeRef.current = null;
     shownRef.current = null;
+    onShown(null);
   }
 
   function show(showing: Showing): void {
     activeRef.current = showing.state;
     shownRef.current = showing.text;
-    caretRef.current = { text: showing.text, cursor: showing.cursor };
+    placer.place(showing.text, showing.cursor);
     setValue(showing.text);
+    onShown(showing);
   }
 
   function start(event: KeyboardEvent<HTMLInputElement>): void {

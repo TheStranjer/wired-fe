@@ -74,7 +74,7 @@ describe('the DM window’s input box in the shell', () => {
       }),
     );
     await renderDm();
-    const line = screen.getByRole('textbox', { name: 'Command line' });
+    const line = screen.getByRole('combobox', { name: 'Command line' });
 
     fireEvent.change(line, { target: { value: 'from the line' } });
     fireEvent.keyDown(line, { key: 'Enter' });

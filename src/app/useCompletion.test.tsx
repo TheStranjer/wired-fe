@@ -38,6 +38,7 @@ function Harness(props: {
     providers: props.providers,
     value,
     setValue,
+    onShown: () => undefined,
   });
 
   return (
@@ -56,7 +57,7 @@ function Harness(props: {
 
 /** The command line under test. */
 function line(): HTMLElement {
-  return screen.getByRole('textbox', { name: 'Command line' });
+  return screen.getByRole('combobox', { name: 'Command line' });
 }
 
 /** Shows {@link text} on the line, as typing it would. */

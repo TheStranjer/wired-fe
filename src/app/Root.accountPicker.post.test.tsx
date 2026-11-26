@@ -49,7 +49,7 @@ function renderRoot(actions: readonly AppAction[]): void {
 
 /** The command line, the shell's only textbox. */
 function commandLine(): HTMLElement {
-  return screen.getByRole('textbox', { name: 'Command line' });
+  return screen.getByRole('combobox', { name: 'Command line' });
 }
 
 /** Types {@link text} at the command line and presses Enter. */

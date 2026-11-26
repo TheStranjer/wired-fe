@@ -5,12 +5,8 @@
  */
 import { describe, expect, it } from 'vitest';
 
-import {
-  type CompletionState,
-  commandProvider,
-  cycleCompletion,
-  startCompletion,
-} from './complete';
+import { commandProvider } from './commandProvider';
+import { type CompletionState, cycleCompletion, startCompletion } from './complete';
 import type { CommandDefinition, CommandOutcome, Registry } from './types';
 
 /** What the fixture commands report: completion never runs them. */

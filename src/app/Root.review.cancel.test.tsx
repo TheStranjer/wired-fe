@@ -72,7 +72,7 @@ describe('cancelling the alt-text review of a command-line send', () => {
       </AppStateProvider>,
     );
     act(() => {
-      screen.getByRole('textbox', { name: 'Command line' }).focus();
+      screen.getByRole('combobox', { name: 'Command line' }).focus();
     });
     await attachOne(container);
 
@@ -86,7 +86,7 @@ describe('cancelling the alt-text review of a command-line send', () => {
     expectNothingAnnounced();
 
     expect(screen.getByRole('list', { name: 'Pending media' })).toBeInTheDocument();
-    expect(screen.getByRole('textbox', { name: 'Command line' })).toHaveValue(typed);
+    expect(screen.getByRole('combobox', { name: 'Command line' })).toHaveValue(typed);
     expect(seen()).toStrictEqual([]);
   });
 });

@@ -81,7 +81,7 @@ test('Enter on a blank line posts the pending picture after the review', async (
   const descriptions = await routeMedia(page);
   await attachPicture(page);
 
-  await page.getByRole('textbox', { name: 'Command line' }).press('Enter');
+  await page.getByRole('combobox', { name: 'Command line' }).press('Enter');
   const dialog = page.getByRole('dialog', { name: 'Describe media' });
   const field = dialog.getByRole('textbox', { name: 'Description for pixel.png' });
 
@@ -122,6 +122,6 @@ test('Cancel in the review raises no alert, and keeps the picture and the line (
   await expect(dialog).toHaveCount(0);
   await expect(page.getByRole('alertdialog')).toHaveCount(0);
   await expect(page.getByRole('list', { name: 'Pending media' })).toBeVisible();
-  await expect(page.getByRole('textbox', { name: 'Command line' })).toHaveValue('hello');
+  await expect(page.getByRole('combobox', { name: 'Command line' })).toHaveValue('hello');
   expect(descriptions).toStrictEqual([]);
 });

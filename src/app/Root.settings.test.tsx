@@ -23,7 +23,7 @@ const settingsStore = createStore('settings');
 
 /** Types {@link text} at the command line and presses Enter. */
 function submit(text: string): void {
-  const input = screen.getByRole('textbox', { name: 'Command line' });
+  const input = screen.getByRole('combobox', { name: 'Command line' });
   fireEvent.change(input, { target: { value: text } });
   fireEvent.keyDown(input, { key: 'Enter' });
 }
