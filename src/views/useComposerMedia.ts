@@ -1,5 +1,5 @@
 /**
- * The attachments of one composer window (WFE-205): the entry points the pane
+ * The attachments of one box (WFE-205, WFE-289): a composer window, or the docked box of a DM or thread window. The entry points the pane
  * offers — the attach button's file input, a paste, a drop — all end in {@link
  * ComposerMediaApi.add}, which adds a line to this window's own media
  * (src/state/composerMedia), so two composers never share a file and the
@@ -14,12 +14,12 @@
  * for them.
  */
 
-import { isMedia } from '../../lib/dropFiles';
-import { printAction } from '../../state/appState';
-import { composerMediaOf, heldCount, maxMedia } from '../../state/composerMedia';
-import type { ComposerMedia } from '../../state/draft';
-import { useAppDispatch, useAppState } from '../../state/StateContext';
-import { uploadLine } from '../../state/uploadLine';
+import { isMedia } from '../lib/dropFiles';
+import { printAction } from '../state/appState';
+import { composerMediaOf, heldCount, maxMedia } from '../state/composerMedia';
+import type { ComposerMedia } from '../state/draft';
+import { useAppDispatch, useAppState } from '../state/StateContext';
+import { uploadLine } from '../state/uploadLine';
 
 /** What the pane gets of its media: the lines, and the ways to change them. */
 export type ComposerMediaApi = {

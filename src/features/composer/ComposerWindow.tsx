@@ -2,7 +2,7 @@
  * The composer window's content (decision 13): the shared form
  * (src/views/ComposerForm), over the draft the app state keeps for this window,
  * with a "Post as" picker above it, the window's attachments under the text
- * (./MediaLines, WFE-205) and the window's client messages — the confirmation
+ * (src/views/MediaLines, WFE-205) and the window's client messages — the confirmation
  * after a send — in the scrollback below. The window's account sets the limit
  * and the audiences offered; picking another account moves the window to it,
  * and an audience that account's instance does not serve (`local` on Mastodon)
@@ -22,16 +22,16 @@ import type { JSX } from 'react';
 
 import { ComposerHeader } from './ComposerHeader';
 import styles from './ComposerWindow.module.css';
-import { MediaLines } from './MediaLines';
 import { useAccountPick } from './useAccountPick';
-import { useComposerMedia } from './useComposerMedia';
 import { useComposerSend } from './useComposerSend';
-import { usePaneDrop } from './usePaneDrop';
 import { composerLimits } from '../../state/composerActions';
 import { mediaIdsOf } from '../../state/composerMedia';
 import { useAppDispatch, useAppState } from '../../state/StateContext';
 import { BufferView } from '../../views/BufferView';
 import { ComposerForm } from '../../views/ComposerForm';
+import { MediaLines } from '../../views/MediaLines';
+import { useComposerMedia } from '../../views/useComposerMedia';
+import { usePaneDrop } from '../../views/usePaneDrop';
 
 /** The composer window: picker, form and confirmations of window {@link windowId}. */
 export function ComposerWindow({ windowId }: { readonly windowId: string }): JSX.Element {

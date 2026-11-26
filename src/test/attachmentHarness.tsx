@@ -31,7 +31,7 @@ export const ACCOUNT: StoredAccount = {
 };
 
 /** What the fake instance answers a finished upload with, under `id`. */
-function ready(id: string): Record<string, unknown> {
+export function ready(id: string): Record<string, unknown> {
   return {
     id,
     type: 'image',

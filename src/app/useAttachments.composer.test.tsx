@@ -1,5 +1,6 @@
 /**
- * Tests for `/attach` while a composer window is focused (WFE-245): the files
+ * Tests for `/attach` while a composer window (WFE-245), or a DM or thread
+ * window with a docked box (WFE-289), is focused: the files
  * the dialog returns become that composer's own media, carrying the alt text
  * the command was given, and the command line's pending list stays empty; with
  * another window focused they are pending as ever.
@@ -17,7 +18,9 @@ import { composerMediaOf } from '../state/composerMedia';
 import type { AppAction } from '../state/reducer';
 import { AppStateProvider, useAppState } from '../state/StateContext';
 import { choose, fileInput, picture } from '../test/attachmentHarness';
+import { DM_WINDOW, dmState } from '../test/dmWindow';
 import { server } from '../test/server';
+import { THREAD_WINDOW, threadState } from '../test/threadWindow';
 import { STATUS_WINDOW_ID } from '../windows/model';
 
 /** The hook and the state behind it, as the last render handed them over. */
@@ -100,4 +103,30 @@ describe('attaching with a composer focused', () => {
 
     expect(pending).toBeInTheDocument();
   });
+});
+
+describe('attaching with a docked box focused', () => {
+  it.each([
+    ['DM', dmState(), DM_WINDOW],
+    ['thread', threadState(), THREAD_WINDOW],
+  ] as const)(
+    'gives the files to the %s window’s box, described',
+    async (_kind, state, windowId) => {
+      server.use(acceptingUploads());
+      const mounted = mount(state);
+
+      act(() => {
+        mounted.current().attachments.pick('a wall at night');
+      });
+      choose(fileInput(mounted.container), [picture('pixel.png')]);
+
+      await waitFor(() => {
+        expect(composerMediaOf(mounted.current().state, windowId)).toMatchObject([
+          { name: 'pixel.png', status: 'ready', mediaId: 'm1', description: 'a wall at night' },
+        ]);
+      });
+
+      expect(screen.getByText('pending:0')).toBeInTheDocument();
+    },
+  );
 });

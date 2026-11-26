@@ -5,20 +5,24 @@
  * what the command line's plain text does in this window (./directDraft):
  * mentioning the person the window is private with, `direct`, answering the
  * newest direct post — and the posted status lands in the window's scrollback.
- * Success empties the box; a failure shows inside it with the text kept for a
- * retry. Typing here is insert-mode typing: focusing the box leaves navigation
- * mode, the way focusing the command line does.
+ * The box has its own media (WFE-289): `[📎]` and the rows under the text
+ * (src/views/MediaLines) hold files apart from the command line's pending
+ * media and every other box's, and a send carries them (./useDirectSend).
+ * Success empties the box and its media; a failure shows inside it with the
+ * text and the media kept for a retry. Typing here is insert-mode typing:
+ * focusing the box leaves navigation mode, the way focusing the command line
+ * does.
  */
 
 import { type JSX, useState } from 'react';
 
-import { postDirect } from './directDraft';
-import { currentMoment } from '../../lib/time';
+import { useDirectSend } from './useDirectSend';
 import { composerLimits } from '../../state/composerActions';
-import { type ComposerFields, fieldsToDraft } from '../../state/draft';
-import { useRefreshDeps } from '../../state/RefreshContext';
+import type { ComposerFields } from '../../state/draft';
 import { useAppDispatch, useAppState } from '../../state/StateContext';
 import { ComposerForm } from '../../views/ComposerForm';
+import { MediaLines } from '../../views/MediaLines';
+import { useComposerMedia } from '../../views/useComposerMedia';
 import type { WindowState } from '../../windows/model';
 
 /** What the box holds when nothing is typed: the audience is the window's, never chosen. */
@@ -28,29 +32,22 @@ const EMPTY: ComposerFields = { text: '', spoiler: '', visibility: 'direct' };
 export function DmInput({ win }: { readonly win: WindowState }): JSX.Element {
   const state = useAppState();
   const dispatch = useAppDispatch();
-  const refresh = useRefreshDeps();
+  const media = useComposerMedia(win.id, win.ref.accountKey);
+  const { sending, error, send } = useDirectSend(win, media.items);
   const [fields, setFields] = useState(EMPTY);
-  const [sending, setSending] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  async function submit(): Promise<void> {
-    setSending(true);
-    const failure = await postDirect(fieldsToDraft(fields), win, {
-      state,
-      dispatch,
-      now: currentMoment,
-      refresh,
-    });
-    setSending(false);
-    setError(failure);
-    if (failure === null) {
-      setFields(EMPTY);
-    }
-  }
 
   return (
     <ComposerForm
       allowLocal={false}
+      attachments={
+        <MediaLines
+          compact
+          items={media.items}
+          onDescribe={media.describe}
+          onFiles={media.add}
+          onRemove={media.remove}
+        />
+      }
       compact
       error={error}
       fields={fields}
@@ -64,7 +61,11 @@ export function DmInput({ win }: { readonly win: WindowState }): JSX.Element {
         }
       }}
       onSend={() => {
-        void submit();
+        void send(fields).then((sent) => {
+          if (sent) {
+            setFields(EMPTY);
+          }
+        });
       }}
       sending={sending}
     />

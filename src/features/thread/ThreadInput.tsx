@@ -6,10 +6,13 @@
  * command line's does (./threadReply); a line starting with `/` runs as a
  * command with this thread active (./useThreadSend). The box starts from the
  * answered post's audience and warning (`replyDefaults`), so it shows the real
- * defaults. Success empties the box; a failure or a refusal shows inside it
- * with the text kept. Focusing the box leaves navigation mode and makes the
- * thread the active window. While the target post has not loaded the box is
- * disabled and says so.
+ * defaults. It has its own media (WFE-289): `[📎]` and the rows under the text
+ * (src/views/MediaLines) hold files apart from the command line's pending
+ * media and every other box's, and a reply carries them. Success empties the
+ * box and its media; a failure or a refusal shows inside it with the text and
+ * the media kept. Focusing the box leaves navigation mode and makes the thread
+ * the active window. While the target post has not loaded the box is disabled
+ * and says so.
  */
 
 import { type JSX, useState } from 'react';
@@ -20,6 +23,8 @@ import { composerLimits } from '../../state/composerActions';
 import type { ComposerFields } from '../../state/draft';
 import { useAppDispatch, useAppState } from '../../state/StateContext';
 import { ComposerForm } from '../../views/ComposerForm';
+import { MediaLines } from '../../views/MediaLines';
+import { useComposerMedia } from '../../views/useComposerMedia';
 import type { WindowState } from '../../windows/model';
 
 /** What the disabled box holds while its thread loads. */
@@ -29,7 +34,8 @@ const WAITING: ComposerFields = { text: '', spoiler: '', visibility: 'public' };
 export function ThreadInput({ win }: { readonly win: WindowState }): JSX.Element {
   const state = useAppState();
   const dispatch = useAppDispatch();
-  const { sending, error, send, activate } = useThreadSend(win);
+  const media = useComposerMedia(win.id, win.ref.accountKey);
+  const { sending, error, send, activate } = useThreadSend(win, media.items);
   const defaults = replyDefaults(state, win);
   const [typed, setTyped] = useState<ComposerFields | null>(null);
   const fields = typed ?? defaults ?? WAITING;
@@ -37,6 +43,15 @@ export function ThreadInput({ win }: { readonly win: WindowState }): JSX.Element
   return (
     <ComposerForm
       allowLocal={false}
+      attachments={
+        <MediaLines
+          compact
+          items={media.items}
+          onDescribe={media.describe}
+          onFiles={media.add}
+          onRemove={media.remove}
+        />
+      }
       compact
       disabled={defaults === null}
       error={error}

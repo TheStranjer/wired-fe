@@ -19,3 +19,17 @@
 .attach:focus-visible {
   outline: 1px solid var(--color-accent);
 }
+
+/* The docked box's lines (WFE-289): the button joins the box's own row, and the
+   rows take a row of their own between the text and the send row, a few lines
+   tall at most and scrolling inside, so the box stays compact. */
+
+.mediaCompact {
+  display: contents;
+}
+
+.rowsCompact {
+  flex: 1 0 100%;
+  overflow-y: auto;
+  max-height: calc(9 * var(--line-height) * 1em);
+}

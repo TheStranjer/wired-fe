@@ -1,5 +1,5 @@
 /**
- * Paste and drop onto one composer pane (WFE-205): the files a paste or a drop
+ * Paste and drop onto one pane with a box (WFE-205, WFE-289): the files a paste or a drop
  * carries go to that pane's own {@link ComposerMediaApi.add}, and the event
  * stops there — the shell's window-wide listeners (src/app/useDropAndPaste)
  * never see it, so the files do not also join the command line's pending
@@ -11,7 +11,7 @@
 import { useState } from 'react';
 import type { ClipboardEvent, DragEvent } from 'react';
 
-import { carriedFiles, carriesFiles } from '../../lib/dropFiles';
+import { carriedFiles, carriesFiles } from '../lib/dropFiles';
 
 /** The handlers to put on the pane, and whether a file drag is over it. */
 export type PaneDrop = {
