@@ -20,11 +20,10 @@ import { requireFeature } from '../../capabilities/requireFeature';
 import { availableVisibilities } from '../../capabilities/visibilities';
 import { PLACEMENTS } from '../../state/placement';
 import { capabilitiesFor } from '../../state/selectors';
+import { SETTING_KEYS, type SettingKey } from '../../state/settingKeys';
 import {
   CLOCK_FORMATS,
   DENSITIES,
-  SETTING_KEYS,
-  type SettingKey,
   type Settings,
   THEMES,
   VISIBILITIES,

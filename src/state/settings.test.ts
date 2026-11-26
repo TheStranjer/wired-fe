@@ -4,16 +4,16 @@
  * default filled in, junk refused so the reader of storage can fall back) and
  * the SETTING_KEYS metadata /set lists and checks itself against: every visible
  * knob the type names, exactly once, with its values and description, and the
- * hidden ones among none of them. A new knob is defaulted, schema'd and keyed here.
+ * hidden ones among none of them.
  */
 
 import * as v from 'valibot';
 import { describe, expect, it } from 'vitest';
 
+import { SETTING_KEYS } from './settingKeys';
 import {
   CLOCK_FORMATS,
   DEFAULT_SETTINGS,
-  SETTING_KEYS,
   SettingsSchema,
   type Settings,
   THEMES,
@@ -40,6 +40,7 @@ const CHOSEN: Settings = {
   keyOverrides: OVERRIDES,
   openIn: 'float',
   openInByKind: { thread: 'vsplit', dm: 'hidden' },
+  postAs: 'a#1',
   replyIn: 'hidden',
   streamMade: true,
   theme: 'lain',
@@ -64,6 +65,7 @@ describe('the settings a session starts from', () => {
       keyOverrides: [],
       openIn: 'here',
       openInByKind: {},
+      postAs: null,
       replyIn: 'split',
       streamMade: false,
       theme: 'wired',
@@ -83,6 +85,7 @@ describe('the settings a session starts from', () => {
       'keyOverrides',
       'openIn',
       'openInByKind',
+      'postAs',
       'replyIn',
       'streamMade',
       'theme',

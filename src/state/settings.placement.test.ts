@@ -9,7 +9,8 @@ import * as v from 'valibot';
 import { describe, expect, it } from 'vitest';
 
 import { PLACEMENTS } from './placement';
-import { DEFAULT_SETTINGS, SETTING_KEYS, type Settings, SettingsSchema } from './settings';
+import { SETTING_KEYS } from './settingKeys';
+import { DEFAULT_SETTINGS, type Settings, SettingsSchema } from './settings';
 
 /** Parse {@link input} with SettingsSchema, throwing through to the test on failure. */
 function parse(input: unknown): Settings {

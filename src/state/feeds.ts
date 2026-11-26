@@ -1,15 +1,12 @@
 /**
  * The saved-feed model (decision 14): a `FeedSpec` is an id, a name and the
  * sources — each one a kind of stream read as one signed-in account — that a
- * feed window merges. Pure data: the valibot schema that reads the list back
- * from storage (names 1-32 characters and unique ignoring case, tag names
- * non-empty without `#` or spaces), the helpers that add, rename, remove and
- * look feeds up, and the one that drops a signed-out account's sources. The
- * command grammar that reads `@me@host:home` into references is in
- * src/state/feedSource.
+ * feed window merges. Pure data: the schema that reads the list back from
+ * storage is in ./feedSchema; here are the helpers that add, rename, remove
+ * and look feeds up, set the account a feed posts as, and drop a signed-out
+ * account's sources and posting default. The command grammar that reads
+ * `@me@host:home` into references is in src/state/feedSource.
  */
-
-import * as v from 'valibot';
 
 import { type Result, err, ok } from '../lib/result';
 
@@ -31,6 +28,8 @@ export type FeedSpec = {
    * itself when another account signs in.
    */
   readonly auto?: boolean | undefined;
+  /** The key of the account plain text in this feed's window posts as (WFE-281); absent when unset. */
+  readonly postAs?: string | undefined;
 };
 
 /** The feeds a reader has saved, in the order they made them. */
@@ -59,33 +58,6 @@ export function isFeedSource(text: string): text is FeedSource {
   }
   return (PLAIN_SOURCES as readonly string[]).includes(text);
 }
-
-/** The source field: a plain source or a tag with a valid name. */
-const FeedSourceSchema = v.custom<FeedSource>(
-  (input) => typeof input === 'string' && isFeedSource(input),
-  'Not a feed source',
-);
-
-/** One source reference as storage keeps it. */
-const FeedSourceRefSchema = v.object({ accountKey: v.string(), source: FeedSourceSchema });
-
-/** One feed as storage keeps it, before the cross-feed checks. */
-const OneFeedSchema = v.object({
-  id: v.pipe(v.string(), v.minLength(1)),
-  name: v.pipe(v.string(), v.minLength(1), v.maxLength(MAX_FEED_NAME)),
-  sources: v.array(FeedSourceRefSchema),
-  auto: v.optional(v.boolean()),
-});
-
-/** The stored feed list: every feed valid, names unique ignoring case, ids unique. */
-export const FeedsSchema: v.GenericSchema<unknown, Feeds> = v.pipe(
-  v.array(OneFeedSchema),
-  v.check(
-    (feeds) => new Set(feeds.map((f) => f.name.toLowerCase())).size === feeds.length,
-    'Duplicate name',
-  ),
-  v.check((feeds) => new Set(feeds.map((f) => f.id)).size === feeds.length, 'Duplicate id'),
-);
 
 /** Whether two references name the same source of the same account. */
 export function sameRef(a: FeedSourceRef, b: FeedSourceRef): boolean {
@@ -132,7 +104,8 @@ function checkedName(feeds: Feeds, name: string, id: string): Result<string, str
 
 /** {@link feed} as a reader's edit leaves it: with {@link change} laid over it, and no longer automatic. */
 function edited(feed: FeedSpec, change: Partial<Pick<FeedSpec, 'name' | 'sources'>>): FeedSpec {
-  return { id: feed.id, name: feed.name, sources: feed.sources, ...change };
+  const kept = feed.postAs === undefined ? {} : { postAs: feed.postAs };
+  return { id: feed.id, name: feed.name, sources: feed.sources, ...kept, ...change };
 }
 
 /** {@link feeds} with the feed {@link id} replaced by what {@link change} makes of it. */
@@ -188,10 +161,16 @@ export function removeSource(feeds: Feeds, id: string, ref: FeedSourceRef): Feed
   );
 }
 
-/** {@link feeds} without the sources of the account {@link accountKey}; feeds left empty stay. */
+/** {@link feeds} with the feed {@link id} posting as the account {@link key}, or as none for undefined. */
+export function setFeedPostAs(feeds: Feeds, id: string, key: string | undefined): Feeds {
+  return mapFeed(feeds, id, (feed) => ({ ...feed, postAs: key }));
+}
+
+/** {@link feeds} without the sources of the account {@link accountKey}, nor it as a posting default; feeds left empty stay. */
 export function dropAccount(feeds: Feeds, accountKey: string): Feeds {
   return feeds.map((feed) => ({
     ...feed,
     sources: feed.sources.filter((ref) => ref.accountKey !== accountKey),
+    ...(feed.postAs === accountKey ? { postAs: undefined } : {}),
   }));
 }

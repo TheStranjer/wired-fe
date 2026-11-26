@@ -62,6 +62,7 @@ describe('the shell persisting settings', () => {
       keyOverrides: [],
       openIn: 'here',
       openInByKind: {},
+      postAs: null,
       replyIn: 'split',
       streamMade: false,
       theme: 'wired',
