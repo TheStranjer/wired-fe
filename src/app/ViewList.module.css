@@ -1,0 +1,29 @@
+/* The inline view list: plain rows in a column, the focused or hovered one inverted like a menu row. */
+
+.list {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  min-width: max-content;
+  border: 1px solid var(--color-border-idle);
+  background: var(--color-bg);
+  font-family: var(--font-mono);
+}
+
+.row {
+  padding: 0 var(--space);
+  border: 0;
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font: inherit;
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.row:focus,
+.row:hover {
+  background: var(--color-fg);
+  color: var(--color-bg);
+  outline: none;
+}

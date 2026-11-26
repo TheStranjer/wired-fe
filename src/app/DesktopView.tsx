@@ -13,6 +13,7 @@ import type { JSX, ReactNode } from 'react';
 import { Pane, windowOf } from './DesktopPane';
 import type { View } from './DesktopPane';
 import styles from './DesktopView.module.css';
+import { EmptyDesktop } from './EmptyDesktop';
 import { FloatLayer } from './FloatLayer';
 import { MobileDesktop } from './MobileDesktop';
 import { DEVICE_CLASS } from './readDeviceClass';
@@ -91,13 +92,11 @@ function Node(props: {
   );
 }
 
-/** The hint shown where an empty desktop has no pane to draw. */
-const EMPTY_HINT = (
-  <div className={styles['empty']}>empty desktop — /vsplit, /split or Ctrl+B %</div>
-);
+/** What is shown where an empty desktop has no pane to draw. */
+const EMPTY_HINT = <EmptyDesktop />;
 
 /**
- * The active desktop: its tree of panes, or a hint when it has none. On a
+ * The active desktop: its tree of panes, or the empty desktop's hint and view list when it has none. On a
  * mobile device class (decision 17) only the focused pane or float is drawn.
  */
 export function DesktopView(props: { readonly deviceClass?: DeviceClass }): JSX.Element {
