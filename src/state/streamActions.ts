@@ -29,10 +29,8 @@ import { type Update, updateTargets } from './streamTargets';
 import { fullHandle } from '../accounts/handle';
 import type { Notification } from '../api/schemas/notification';
 import type { StreamEvent } from '../api/streaming';
+import { t } from '../i18n/translate';
 import type { WindowState } from '../windows/model';
-
-/** The hint that sends the reader to the window they are not looking at. */
-const SEE_NOTIFS = '[see notifs]';
 
 /** A frame carrying a post nobody has seen yet. */
 type UpdateEvent = Extract<StreamEvent, { readonly kind: 'update' }>;
@@ -78,9 +76,13 @@ function arriving(windowId: string, notification: Notification): NotificationsAc
 /** The notifications action, named for {@link arriving}'s return. */
 type NotificationsAction = Extract<BufferAction, { readonly type: 'notifications' }>;
 
-/** The sentence that says an account was mentioned, the actor as the window names them. */
+/**
+ * The sentence that says an account was mentioned, the actor as the window
+ * names them, with the hint that sends the reader to the window they are not
+ * looking at.
+ */
 function mentionLine(notification: Notification, origin: string): string {
-  return `@${fullHandle(notification.account, origin)} mentioned you ${SEE_NOTIFS}`;
+  return t('state.mentioned_you', { handle: fullHandle(notification.account, origin) });
 }
 
 /** The notification's window, and — for a mention the reader is not looking at —

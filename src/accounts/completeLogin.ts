@@ -21,6 +21,7 @@ import { type PendingLogin, clearPendingLogin, readPendingLogin } from './pendin
 import { verifyCredentials } from '../api/endpoints/accountRead';
 import { type ApiError, describeApiError } from '../api/errors';
 import { exchangeCode } from '../api/oauth';
+import { t } from '../i18n/translate';
 import { type Result, err, ok } from '../lib/result';
 import type { Store } from '../storage/store';
 
@@ -42,10 +43,14 @@ type LoginStores = {
 type Accepted = { readonly pending: PendingLogin; readonly code: string };
 
 /** Shown when a callback arrives with no (or an expired) pending login. */
-const EXPIRED_MESSAGE = 'Login expired or was not started here. Try again.';
+function expiredMessage(): string {
+  return t('accounts.login_expired');
+}
 
 /** Shown when the callback's `state` is not the one this browser sent. */
-const MISMATCH_MESSAGE = 'Login state did not match. Try again.';
+function mismatchMessage(): string {
+  return t('accounts.login_mismatch');
+}
 
 /** The shape an `error` value must have to be echoed: a short OAuth error code. */
 const ERROR_CODE = /^[a-z_]{1,64}$/;
@@ -57,7 +62,9 @@ const ERROR_CODE = /^[a-z_]{1,64}$/;
  */
 function refused(login: Store, error: string): LoginOutcome {
   clearPendingLogin(login);
-  const message = ERROR_CODE.test(error) ? `Login refused (${error})` : 'Login refused';
+  const message = ERROR_CODE.test(error)
+    ? t('accounts.login_refused_code', { code: error })
+    : t('accounts.login_refused');
   return { kind: 'error', message };
 }
 
@@ -81,11 +88,11 @@ function checkCallback(
     return err(matches ? refused(stores.login, callback.error) : { kind: 'ignored' });
   }
   if (pending === null) {
-    return err({ kind: 'error', message: EXPIRED_MESSAGE });
+    return err({ kind: 'error', message: expiredMessage() });
   }
   if (pending.state !== callback.state) {
     clearPendingLogin(stores.login);
-    return err({ kind: 'error', message: MISMATCH_MESSAGE });
+    return err({ kind: 'error', message: mismatchMessage() });
   }
   return ok({ pending, code: callback.code });
 }
@@ -134,7 +141,10 @@ async function exchange(input: {
  */
 function failed(login: Store, error: ApiError): LoginOutcome {
   clearPendingLogin(login);
-  return { kind: 'error', message: `Login failed: ${describeApiError(error)}` };
+  return {
+    kind: 'error',
+    message: t('accounts.login_failed', { reason: describeApiError(error) }),
+  };
 }
 
 /**

@@ -13,6 +13,7 @@ import { toAdd } from './loginRecord';
 import { verifyCredentials } from '../api/endpoints/accountRead';
 import { type ApiError, describeApiError } from '../api/errors';
 import { type Token, requestPasswordToken } from '../api/oauth';
+import { t } from '../i18n/translate';
 import type { Result } from '../lib/result';
 import type { Store } from '../storage/store';
 
@@ -46,7 +47,10 @@ async function tokenFor(apps: Store, params: PasswordParams): Promise<Result<Tok
 
 /** The error outcome for {@link error}: a one-line message with no credentials in it. */
 function failed(error: ApiError): PasswordOutcome {
-  return { kind: 'error', message: `Login failed: ${describeApiError(error)}` };
+  return {
+    kind: 'error',
+    message: t('accounts.login_failed', { reason: describeApiError(error) }),
+  };
 }
 
 /**

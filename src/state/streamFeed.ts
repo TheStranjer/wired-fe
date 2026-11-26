@@ -19,6 +19,7 @@ import {
 } from './feeds';
 import type { Settings } from './settings';
 import type { StoredAccount } from '../accounts/accountStore';
+import { t } from '../i18n/translate';
 
 /** The name of the default feed. */
 const STREAM_FEED_NAME = 'stream';
@@ -86,7 +87,11 @@ export function joinStream(feeds: Feeds, account: StoredAccount): StreamJoin {
     return { feeds: added, joined: true, hint: null };
   }
   const sources = STREAM_SOURCES.map((source) => `@${account.handle}:${source}`).join(' ');
-  const hint = `~${stream.name} was edited, so @${account.handle} is not in it: /feed add ${stream.name} ${sources}`;
+  const hint = t('state.stream_edited_hint', {
+    name: stream.name,
+    handle: account.handle,
+    sources,
+  });
   return { feeds, joined: false, hint };
 }
 

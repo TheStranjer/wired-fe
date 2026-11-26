@@ -2,11 +2,13 @@
  * The metadata of the knobs `/set` lists and turns (src/commands/defs/set): one
  * {@link SettingKey} per listed setting, with its kind, its words and a line of
  * description. The hidden settings (key overrides, feeds, the language, per-kind
- * placements, the first-run flag, the posting account) are not here.
+ * placements, the first-run flag, the posting account) are not here. The
+ * descriptions are getters (decision 19), so they follow the language in use.
  */
 
 import { PLACEMENTS } from './placement';
 import { CLOCK_FORMATS, DENSITIES, type Settings, THEMES, VISIBILITIES } from './settings';
+import { t } from '../i18n/translate';
 
 /** The knobs `/set` lists and turns: every setting except the hidden key overrides. */
 type ListedSettingKey = Exclude<
@@ -31,57 +33,77 @@ export const SETTING_KEYS: readonly SettingKey[] = [
   {
     key: 'avatars',
     kind: 'boolean',
-    description: 'Show author avatars on posts',
+    get description(): string {
+      return t('state.setting_avatars');
+    },
   },
   {
     key: 'clockFormat',
     kind: 'enum',
     values: CLOCK_FORMATS,
-    description: 'How timestamps print: 24-hour or 12-hour',
+    get description(): string {
+      return t('state.setting_clock_format');
+    },
   },
   {
     key: 'defaultVisibility',
     kind: 'enum',
     values: VISIBILITIES,
-    description: 'The audience new posts aim at by default',
+    get description(): string {
+      return t('state.setting_default_visibility');
+    },
   },
   {
     key: 'density',
     kind: 'enum',
     values: DENSITIES,
-    description: 'How posts render: as cards or as IRC lines',
+    get description(): string {
+      return t('state.setting_density');
+    },
   },
   {
     key: 'effects',
     kind: 'boolean',
-    description: 'The CRT/glitch effects (they never flash)',
+    get description(): string {
+      return t('state.setting_effects');
+    },
   },
   {
     key: 'expandMedia',
     kind: 'boolean',
-    description: 'Media behind a content warning starts open',
+    get description(): string {
+      return t('state.setting_expand_media');
+    },
   },
   {
     key: 'images',
     kind: 'boolean',
-    description: 'Show attachments inline instead of [IMG …] lines',
+    get description(): string {
+      return t('state.setting_images');
+    },
   },
   {
     key: 'openIn',
     kind: 'enum',
     values: PLACEMENTS,
-    description: 'Where new windows open: here, vsplit, split, float or hidden',
+    get description(): string {
+      return t('state.setting_open_in');
+    },
   },
   {
     key: 'replyIn',
     kind: 'enum',
     values: PLACEMENTS,
-    description: 'Where a reply composer opens: here, vsplit, split, float or hidden',
+    get description(): string {
+      return t('state.setting_reply_in');
+    },
   },
   {
     key: 'theme',
     kind: 'enum',
     values: THEMES,
-    description: 'The colors the shell is painted in',
+    get description(): string {
+      return t('state.setting_theme');
+    },
   },
 ];

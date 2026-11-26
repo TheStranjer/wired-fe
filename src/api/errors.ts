@@ -6,6 +6,7 @@
 
 import { activeLocale } from '../i18n/activeLocale';
 import { formatClock } from '../i18n/format';
+import { t } from '../i18n/translate';
 
 /** Per-field validation messages of a refused request, keyed by field name. */
 export type FieldErrors = Readonly<Record<string, readonly string[]>>;
@@ -28,16 +29,18 @@ export type ApiError =
 export function describeApiError(error: ApiError): string {
   switch (error.kind) {
     case 'network':
-      return `Network error: ${error.message}`;
+      return t('api.network_error', { message: error.message });
     case 'aborted':
-      return 'Request cancelled';
+      return t('api.request_cancelled');
     case 'http':
-      return `HTTP ${String(error.status)}: ${error.message}`;
+      return t('api.http_error', { status: String(error.status), message: error.message });
     case 'rate-limited':
       return error.resetAt === null
-        ? 'Rate limited'
-        : `Rate limited until ${formatClock(activeLocale(), error.resetAt, '24h')}`;
+        ? t('api.rate_limited')
+        : t('api.rate_limited_until', {
+            time: formatClock(activeLocale(), error.resetAt, '24h'),
+          });
     case 'parse':
-      return `Unexpected response: ${error.message}`;
+      return t('api.unexpected_response', { message: error.message });
   }
 }

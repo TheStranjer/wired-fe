@@ -19,6 +19,7 @@ import { verifyCredentials } from '../api/endpoints/accountRead';
 import { type NewAccount, type Registration, createAccount } from '../api/endpoints/registration';
 import { type ApiError, type FieldErrors, describeApiError } from '../api/errors';
 import { requestAppToken } from '../api/oauth';
+import { t } from '../i18n/translate';
 import { type Result, err, ok } from '../lib/result';
 import type { Store } from '../storage/store';
 
@@ -42,9 +43,12 @@ type RegisterParams = {
 };
 
 /** The error outcome of {@link error}: a one-line message and the fields the instance rejected. */
-function failed(prefix: string, error: ApiError): RegistrationOutcome {
+function failed(
+  key: 'accounts.registered_login_failed' | 'accounts.registration_failed',
+  error: ApiError,
+): RegistrationOutcome {
   const fields = error.kind === 'http' ? (error.details ?? {}) : {};
-  return { kind: 'error', message: `${prefix}: ${describeApiError(error)}`, fields };
+  return { kind: 'error', message: t(key, { reason: describeApiError(error) }), fields };
 }
 
 /** The outcome a refused `verify_credentials` of the new token stands for: the instance's own words decide. */
@@ -56,7 +60,7 @@ function refusedOutcome(error: ApiError): RegistrationOutcome {
   if (/confirm/iu.test(message)) {
     return { kind: 'confirmation' };
   }
-  return failed('Registered, but login failed', error);
+  return failed('accounts.registered_login_failed', error);
 }
 
 /**
@@ -110,14 +114,14 @@ export async function registerAccount(
 ): Promise<RegistrationOutcome> {
   const authorised = await appToken(stores.apps, params);
   if (!authorised.ok) {
-    return failed('Registration failed', authorised.error);
+    return failed('accounts.registration_failed', authorised.error);
   }
   const created = await createAccount(params.origin, {
     appToken: authorised.value,
     account: params.account,
   });
   if (!created.ok) {
-    return failed('Registration failed', created.error);
+    return failed('accounts.registration_failed', created.error);
   }
   return pending(created.value) ?? (await signIn(stores.accounts, params, created.value));
 }

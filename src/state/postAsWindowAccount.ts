@@ -12,7 +12,7 @@ import type { Draft } from './draft';
 import { createPost } from './postStatus';
 import { accountByKey } from './selectors';
 import type { PostContext, WindowKindDefinition } from './windowKind';
-import { NOT_LOGGED_IN_MESSAGE, NO_POST_MESSAGE } from '../lib/refusal';
+import { t } from '../i18n/translate';
 
 /**
  * Creates the post for {@link params.accountKey} and prints the confirmation
@@ -29,17 +29,17 @@ export async function postAsAccount(
 ): Promise<string | null> {
   const { accountKey, windowId, draft } = params;
   if (accountKey === null) {
-    return NO_POST_MESSAGE;
+    return t('state.no_post_here');
   }
   const account = accountByKey(context.state, accountKey);
   if (account === null) {
-    return NOT_LOGGED_IN_MESSAGE;
+    return t('state.not_logged_in');
   }
   const created = await createPost(context, account.key, draft);
   if (!created.ok) {
     return created.error;
   }
-  context.dispatch(printAction(windowId, 'info', `posted as @${account.handle}`));
+  context.dispatch(printAction(windowId, 'info', t('state.posted_as', { handle: account.handle })));
   return null;
 }
 

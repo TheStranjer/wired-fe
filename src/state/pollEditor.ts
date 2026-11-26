@@ -9,6 +9,7 @@
 
 import type { Draft } from './draft';
 import type { PollLimits } from '../api/schemas/pollLimits';
+import { t } from '../i18n/translate';
 import { formatDuration } from '../lib/duration';
 
 /** The poll a composer edits: options as typed, the run in seconds, and the two switches. */
@@ -20,15 +21,22 @@ type DurationChoice = { readonly seconds: number; readonly label: string };
 /** A poll needs at least this many options. */
 export const MIN_POLL_OPTIONS = 2;
 
+/** A preset: its run and the unit message that words it for {@link count} of that unit. */
+type Preset = {
+  readonly seconds: number;
+  readonly unit: 'state.duration_minutes' | 'state.duration_hours' | 'state.duration_days';
+  readonly count: number;
+};
+
 /** The durations the select offers, before the instance's limits cut them. */
-const DURATION_PRESETS: readonly DurationChoice[] = [
-  { seconds: 300, label: '5 min' },
-  { seconds: 1800, label: '30 min' },
-  { seconds: 3600, label: '1 h' },
-  { seconds: 21_600, label: '6 h' },
-  { seconds: 86_400, label: '1 d' },
-  { seconds: 259_200, label: '3 d' },
-  { seconds: 604_800, label: '7 d' },
+const DURATION_PRESETS: readonly Preset[] = [
+  { seconds: 300, unit: 'state.duration_minutes', count: 5 },
+  { seconds: 1800, unit: 'state.duration_minutes', count: 30 },
+  { seconds: 3600, unit: 'state.duration_hours', count: 1 },
+  { seconds: 21_600, unit: 'state.duration_hours', count: 6 },
+  { seconds: 86_400, unit: 'state.duration_days', count: 1 },
+  { seconds: 259_200, unit: 'state.duration_days', count: 3 },
+  { seconds: 604_800, unit: 'state.duration_days', count: 7 },
 ];
 
 /** The run a new poll starts with: a day, or the allowed one nearest to it. */
@@ -41,7 +49,7 @@ const DEFAULT_EXPIRES_IN = 86_400;
 export function durationChoices(limits: PollLimits): readonly DurationChoice[] {
   const fitting = DURATION_PRESETS.filter(
     ({ seconds }) => seconds >= limits.minExpiration && seconds <= limits.maxExpiration,
-  );
+  ).map(({ seconds, unit, count }) => ({ seconds, label: t(unit, { count }) }));
   return fitting.length > 0
     ? fitting
     : [{ seconds: limits.minExpiration, label: formatDuration(limits.minExpiration) }];
@@ -101,16 +109,16 @@ function optionProblem(
   whole: { readonly options: readonly string[]; readonly limits: PollLimits },
 ): string | null {
   const { options, limits } = whole;
-  const name = `Option ${String(index + 1)}`;
+  const n = String(index + 1);
   if (text.trim() === '') {
-    return `${name} is empty`;
+    return t('state.poll_option_empty', { n });
   }
   if (text.length > limits.maxCharactersPerOption) {
-    return `${name} is over ${String(limits.maxCharactersPerOption)} characters`;
+    return t('state.poll_option_too_long', { n, max: limits.maxCharactersPerOption });
   }
   const key = text.trim().toLowerCase();
   const first = options.findIndex((other) => other.trim().toLowerCase() === key);
-  return first === index ? null : `${name} repeats option ${String(first + 1)}`;
+  return first === index ? null : t('state.poll_option_repeats', { n, first: String(first + 1) });
 }
 
 /** Each of {@link poll}'s options, in order, with what is wrong with it under {@link limits}. */
