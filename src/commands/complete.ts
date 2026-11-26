@@ -18,13 +18,15 @@ const WORD_SEPARATOR = ' ';
 /**
  * How a suggestion list shows one candidate (WFE-297): {@link word} is what
  * the row completes to, {@link label} how the row names it (a command and its
- * aliases), {@link description} one line about it. Candidates that share a
- * {@link word} share one row.
+ * aliases), {@link description} one line about it (empty for none) and
+ * {@link image} the URL of a picture shown beside the label (an emoji).
+ * Candidates that share a {@link word} share one row.
  */
 export type Described = {
   readonly word: string;
   readonly label: string;
   readonly description: string;
+  readonly image?: string;
 };
 
 /**
