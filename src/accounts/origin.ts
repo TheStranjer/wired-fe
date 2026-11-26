@@ -5,7 +5,7 @@
  */
 
 import type { InstancesConfig } from '../config/schema';
-import { isAllowedInstanceUrl } from '../lib/origin';
+import { type InstanceChoices, isAllowedInstanceUrl } from '../lib/origin';
 import { type Result, err, ok } from '../lib/result';
 
 /** A leading `scheme://` on user input, per RFC 3986. */
@@ -84,4 +84,23 @@ export function resolveInstanceOrigin(
     case 'open':
       return normalizeTypedOrigin(typed);
   }
+}
+
+/**
+ * What a visitor may pick from on {@link instances}: the listed origins of a
+ * `list` build, and whether they may type another. Null when there is nothing
+ * to pick from (every other mode, and a list with no origins), which leaves the
+ * instance a free text field when the build asks at all.
+ */
+export function instanceChoices(instances: InstancesConfig): InstanceChoices | null {
+  if (instances.mode !== 'list' || instances.origins.length === 0) {
+    return null;
+  }
+  return { origins: instances.origins, allowCustom: instances.allowCustom === true };
+}
+
+/** The origin to start a form with: the only one on offer, otherwise none (`''`). */
+export function preselectedOrigin(choices: InstanceChoices | null | undefined): string {
+  const [first, ...rest] = choices?.origins ?? [];
+  return first !== undefined && rest.length === 0 ? first : '';
 }

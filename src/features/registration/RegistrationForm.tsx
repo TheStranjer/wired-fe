@@ -15,13 +15,18 @@ import { Field } from './Field';
 import styles from './RegistrationForm.module.css';
 import type { RegistrationValues } from './submitRegistration';
 import { EMPTY_VALUES, type RegistrationActions, useRegistration } from './useRegistration';
+import { preselectedOrigin } from '../../accounts/origin';
 import type { RegistrationOutcome } from '../../accounts/registerAccount';
 import type { FieldErrors } from '../../api/errors';
+import type { InstanceChoices as Choices } from '../../lib/origin';
+import { InstanceChoices } from '../../ui/InstanceChoices';
 
 /** What the form shows and the callbacks it drives. */
 export type RegistrationFormProps = RegistrationActions & {
   /** Whether the build leaves the instance to the visitor (a `list` or `open` build). */
   readonly askInstance: boolean;
+  /** The instances to pick from (a `list` build with origins); absent: the instance is typed. */
+  readonly choices?: Choices | null | undefined;
 };
 
 /** One field of the form: which value it edits and how it reads. */
@@ -102,12 +107,34 @@ function Waiting(props: {
   );
 }
 
+/** The instances to choose from, when the build asks for the instance and lists some. */
+function chosenChoices(askInstance: boolean, choices: Choices | null | undefined): Choices | null {
+  return askInstance ? (choices ?? null) : null;
+}
+
+/** The instance's complaints about fields of {@link outcome}, none unless it is a failure. */
+function fieldsOf(outcome: RegistrationOutcome | null): FieldErrors {
+  return outcome?.kind === 'error' ? outcome.fields : {};
+}
+
+/** Which further step the account in {@link outcome} waits for, if it waits. */
+function waitingKind(outcome: RegistrationOutcome | null): 'confirmation' | 'approval' | null {
+  return outcome?.kind === 'confirmation' || outcome?.kind === 'approval' ? outcome.kind : null;
+}
+
 /** The sign-up box: its fields, the failure of the last send, and the send button. */
 export function RegistrationForm(props: RegistrationFormProps): JSX.Element {
-  const { values, sending, outcome, set, submit } = useRegistration(props);
-  const fields = outcome?.kind === 'error' ? outcome.fields : {};
-  if (outcome?.kind === 'confirmation' || outcome?.kind === 'approval') {
-    return <Waiting kind={outcome.kind} onClose={props.onClose} />;
+  const { choices } = props;
+  const { values, sending, outcome, set, submit } = useRegistration(
+    props,
+    preselectedOrigin(choices),
+  );
+  const chosen = chosenChoices(props.askInstance, choices);
+  const typed = props.askInstance && chosen === null;
+  const fields = fieldsOf(outcome);
+  const waiting = waitingKind(outcome);
+  if (waiting !== null) {
+    return <Waiting kind={waiting} onClose={props.onClose} />;
   }
   return (
     <form
@@ -117,7 +144,16 @@ export function RegistrationForm(props: RegistrationFormProps): JSX.Element {
         void submit(event);
       }}
     >
-      {SPECS.filter((spec) => props.askInstance || spec.name !== 'instance').map((spec) => (
+      {chosen === null ? null : (
+        <InstanceChoices
+          {...chosen}
+          onChange={(value) => {
+            set('instance', value);
+          }}
+          value={values.instance}
+        />
+      )}
+      {SPECS.filter((spec) => typed || spec.name !== 'instance').map((spec) => (
         <Field
           autoComplete={spec.autoComplete}
           errors={fields[spec.name] ?? []}

@@ -14,6 +14,7 @@ import { navigateTo } from './navigate';
 import { isOwnRequest } from './ownRequest';
 import { appStores } from './stores';
 import type { StoredAccount } from '../accounts/accountStore';
+import { instanceChoices } from '../accounts/origin';
 import { clearPendingLogin } from '../accounts/pendingLogin';
 import { detectInstance } from '../capabilities/detect';
 import { refreshingDetect } from '../capabilities/profileCache';
@@ -99,6 +100,11 @@ export function AuthorizeFlow(props: FlowProps): JSX.Element {
     return outcome;
   };
   return (
-    <PasswordLoginForm askInstance={origin === null} onClose={props.onClose} onSubmit={login} />
+    <PasswordLoginForm
+      askInstance={origin === null}
+      choices={instanceChoices(buildConfig.instances)}
+      onClose={props.onClose}
+      onSubmit={login}
+    />
   );
 }

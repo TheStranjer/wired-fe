@@ -5,6 +5,8 @@
  * options (or, with `allowCustom`, anything typed) and an `open` build, the
  * same as an empty `allowCustom` list, whatever the user typed — `wired.example`,
  * `https://wired.example` or `@lain@wired.example` all mean the same instance.
+ * On a `list` build Tab completes the argument to the listed hosts
+ * (src/commands/connectWords.ts, WFE-307).
  * The argument is the only subject; on an unusable one nothing is registered
  * and nothing is saved. Otherwise the session's cached profile of the instance
  * is dropped, so the next detection reads it afresh (decision 5), the

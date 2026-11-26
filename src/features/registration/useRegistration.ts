@@ -38,8 +38,8 @@ export type RegistrationState = {
 };
 
 /** The form's values, its send in flight and its last outcome, with the changes that move them. */
-export function useRegistration(actions: RegistrationActions): RegistrationState {
-  const [values, setValues] = useState(EMPTY_VALUES);
+export function useRegistration(actions: RegistrationActions, instance: string): RegistrationState {
+  const [values, setValues] = useState<RegistrationValues>({ ...EMPTY_VALUES, instance });
   const [sending, setSending] = useState(false);
   const [outcome, setOutcome] = useState<RegistrationOutcome | null>(null);
 
