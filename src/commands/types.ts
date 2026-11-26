@@ -16,6 +16,7 @@ import type { SyncStore } from '../accounts/syncPrefs';
 import type { Capabilities, FeatureFlag } from '../capabilities/capabilities';
 import type { WiredConfig } from '../config/schema';
 import type { DeviceClass } from '../lib/deviceClass';
+import type { Result } from '../lib/result';
 import type { AppState } from '../state/appState';
 import type { Draft } from '../state/draft';
 import type { AppAction } from '../state/reducer';
@@ -82,6 +83,13 @@ export type CommandContext = {
     readonly clear: () => void;
     readonly pending: readonly string[];
   };
+  /**
+   * The gate of every post that may carry the pending media (WFE-290):
+   * {@link draft} with their ids after the reader reviewed the alt text of any
+   * without one and it was sent, or the message saying why the post must not
+   * go out — the review was cancelled, or the alt text was refused.
+   */
+  readonly carryMedia: (draft: Draft) => Promise<Result<Draft, string>>;
   /** The keys layer's helpers (WFE-130): chord parsing, the insert-mode guard, the effective keymap. */
   readonly keys: {
     /** Binding text of one or more chords (`w v`) to its canonical sequence; null when unbindable. */

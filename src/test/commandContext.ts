@@ -12,7 +12,9 @@ import { createAccountStore } from '../accounts/accountStore';
 import { createSyncStore } from '../accounts/syncPrefs';
 import type { CommandContext, Registry } from '../commands/types';
 import type { WiredConfig } from '../config/schema';
+import { ok } from '../lib/result';
 import { initialAppState } from '../state/appState';
+import { withPendingMedia } from '../state/draft';
 import { type StorageBackend, createStore } from '../storage/store';
 
 /** The example build-time configuration (wired.config.example.json). */
@@ -86,6 +88,7 @@ function inMemoryStores(): CommandContext['stores'] {
  */
 export function fakeCommandContext(overrides: Partial<CommandContext> = {}): CommandContext {
   const state = initialAppState();
+  const attachments = overrides.attachments ?? fakeAttachments();
 
   return {
     print: vi.fn(),
@@ -99,7 +102,9 @@ export function fakeCommandContext(overrides: Partial<CommandContext> = {}): Com
     post: vi.fn<CommandContext['post']>().mockResolvedValue(null),
     setInput: vi.fn(),
     line: '',
-    attachments: fakeAttachments(),
+    attachments,
+    carryMedia: async (draft) =>
+      await Promise.resolve(ok(withPendingMedia(draft, attachments.pending))),
     keys: INERT_KEYS,
     navigate: vi.fn(),
     page: EXAMPLE_PAGE,

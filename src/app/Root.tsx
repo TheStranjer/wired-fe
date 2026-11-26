@@ -24,6 +24,7 @@ import { CommandTray } from './CommandTray';
 import { deskSource } from './deskSource';
 import { DesktopView } from './DesktopView';
 import { KINDS } from './loadedKinds';
+import { MediaReviewHost } from './MediaReviewHost';
 import { appRegistry } from './registry';
 import { Shell } from './Shell';
 import { StatusBar } from './StatusBar';
@@ -107,30 +108,32 @@ export function Root(): JSX.Element {
   useLoadFailures();
 
   return (
-    <PostActionsProvider actions={postActions.actions}>
-      <LineRunnerProvider runner={lineRunner.runner}>
-        <Shell
-          header={<AppHeader />}
-          scrollback={<DesktopView />}
-          scrollbackLabel={`Desktop ${String(state.layout.active + 1)}`}
-          statusLine={<StatusBar attachments={attachments} pendingKeys={pendingKeys.prefix} />}
-          tray={<CommandTray attachments={attachments} />}
-          input={
-            <CommandLine
-              attachments={attachments}
-              pendingKeys={pendingKeys}
-              completion={providers}
-              registerRunner={postActions.register}
-              registerLineRunner={lineRunner.register}
-              registerRestorer={restorer.register}
-            />
-          }
-        />
-        {overlays.elements}
-        {modals}
-        {drop}
-        {attachments.input}
-      </LineRunnerProvider>
-    </PostActionsProvider>
+    <MediaReviewHost>
+      <PostActionsProvider actions={postActions.actions}>
+        <LineRunnerProvider runner={lineRunner.runner}>
+          <Shell
+            header={<AppHeader />}
+            scrollback={<DesktopView />}
+            scrollbackLabel={`Desktop ${String(state.layout.active + 1)}`}
+            statusLine={<StatusBar attachments={attachments} pendingKeys={pendingKeys.prefix} />}
+            tray={<CommandTray attachments={attachments} />}
+            input={
+              <CommandLine
+                attachments={attachments}
+                pendingKeys={pendingKeys}
+                completion={providers}
+                registerRunner={postActions.register}
+                registerLineRunner={lineRunner.register}
+                registerRestorer={restorer.register}
+              />
+            }
+          />
+          {overlays.elements}
+          {modals}
+          {drop}
+          {attachments.input}
+        </LineRunnerProvider>
+      </PostActionsProvider>
+    </MediaReviewHost>
   );
 }

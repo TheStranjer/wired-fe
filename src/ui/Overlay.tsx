@@ -23,6 +23,8 @@ export type OverlayProps = {
   readonly role?: 'dialog' | 'alertdialog';
   /** The id of the element that describes the box, for assistive technology. */
   readonly describedBy?: string;
+  /** `wide` for a box that holds a list to read through (WFE-290); `normal` when not given. */
+  readonly size?: 'normal' | 'wide';
   /** The box's contents; its fields are where the trapped focus lives. */
   readonly children: ReactNode;
 };
@@ -112,7 +114,11 @@ export function Overlay(props: OverlayProps): JSX.Element {
         aria-describedby={props.describedBy}
         aria-label={props.label}
         aria-modal="true"
-        className={[styles['box'], role === 'alertdialog' ? styles['alert'] : ''].join(' ')}
+        className={[
+          styles['box'],
+          role === 'alertdialog' ? styles['alert'] : '',
+          props.size === 'wide' ? styles['wide'] : '',
+        ].join(' ')}
         ref={boxRef}
         role={role}
       >
