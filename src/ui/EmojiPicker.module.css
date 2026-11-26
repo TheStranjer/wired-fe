@@ -18,7 +18,7 @@
   max-width: 90vw;
   max-height: 20rem;
   padding: var(--space);
-  border: var(--border-width) solid var(--color-border);
+  border: var(--border-width) solid var(--color-border-focus);
   background: var(--color-bg);
   color: var(--color-fg);
   font-family: var(--font-mono);

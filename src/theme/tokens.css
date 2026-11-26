@@ -4,16 +4,18 @@
  * Three themes, chosen by `/theme` (WFE-131) and set as `data-theme` on the
  * root element by src/app/useTheme; the bare `:root` is the `wired` default:
  * pseudomonochrome (decision 16), near-black with grey-white text, lime kept
- * for `--color-accent` and the pane borders. `lain` is the pink-and-dark
+ * for `--color-accent` and the borders. `lain` is the pink-and-dark
  * Wicked-Lain palette, `bnet` the Battle.net blue-and-gold one. Warnings and
  * errors stay amber and red (kept readable in each theme) so they read as
  * different from ordinary text.
  *
- * `--color-border` frames a pane; `--color-border-focus` is a darker, duller
- * version of it for the focused pane (focus is also marked by `[*]` in the
- * title, never by colour alone). Borders are not text, so they are exempt from
- * the 4.5:1 rule below, but each focus border keeps at least 3:1 against
- * `--color-bg` (WCAG 1.4.11) and stays visibly distinct from `--color-border`.
+ * The focused thing glows: `--color-border-focus` is the bright accent border
+ * of whatever holds focus (the focused pane or float, dialogs, open menus),
+ * and `--color-border-idle` is a dimmer version of it for everything else
+ * (unfocused panes, split gutters, title-bar rules, dividers; focus is also
+ * marked by `[*]` in the title, never by colour alone). Borders are not text,
+ * so they are exempt from the 4.5:1 rule below, but each keeps at least 3:1
+ * against `--color-bg` (WCAG 1.4.11) and the two stay visibly distinct.
  * `--border-width` and `--border-width-focus` are the matching thicknesses.
  *
  * Every color here is text on `--color-bg` or on `--color-bar-bg` somewhere in
@@ -33,8 +35,8 @@
   --color-fg: #d0d0d0;
   --color-dim: #8f8f8f;
   --color-accent: #8dffaa;
-  --color-border: #6f3;
-  --color-border-focus: #1f7a3a;
+  --color-border-focus: #6f3;
+  --color-border-idle: #1f7a3a;
   --border-width: 1px;
   --border-width-focus: 2px;
   --color-bar-bg: #161616;
@@ -57,8 +59,8 @@
   --color-fg: #d7c6cc;
   --color-dim: #a3868f;
   --color-accent: #e0507a;
-  --color-border: #e0507a;
-  --color-border-focus: #a84763;
+  --color-border-focus: #e0507a;
+  --color-border-idle: #a84763;
   --border-width: 1px;
   --border-width-focus: 2px;
   --color-bar-bg: #2a1119;
@@ -77,8 +79,8 @@
   --color-fg: #e8e8e8;
   --color-dim: #9a9a9a;
   --color-accent: #f2d34b;
-  --color-border: #f2d34b;
-  --color-border-focus: #8c7424;
+  --color-border-focus: #f2d34b;
+  --color-border-idle: #8c7424;
   --border-width: 1px;
   --border-width-focus: 2px;
   --color-bar-bg: #1b2a44;

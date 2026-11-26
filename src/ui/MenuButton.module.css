@@ -7,7 +7,7 @@
 
 .button {
   padding: 0 var(--space);
-  border: var(--border-width) solid var(--color-border);
+  border: var(--border-width) solid var(--color-border-idle);
   background: var(--color-bg);
   color: var(--color-fg);
   font: inherit;
@@ -26,7 +26,7 @@
   display: flex;
   flex-direction: column;
   min-width: max-content;
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-focus);
   background: var(--color-bg);
   font-family: var(--font-mono);
 }
@@ -47,7 +47,7 @@
 }
 
 .item.apart {
-  border-top: 1px solid var(--color-border);
+  border-top: 1px solid var(--color-border-focus);
 }
 
 .item:disabled {

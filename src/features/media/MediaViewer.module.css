@@ -63,7 +63,7 @@
 }
 
 .button {
-  border: var(--border-width) solid var(--color-border);
+  border: var(--border-width) solid var(--color-border-idle);
   padding: 0 var(--space);
   background: var(--color-bg);
   font: inherit;

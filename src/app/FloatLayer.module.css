@@ -29,9 +29,15 @@
   height: 1rem;
   padding: 0;
   border: 0;
-  border-top: var(--border-width) solid var(--color-border-focus);
-  border-left: var(--border-width) solid var(--color-border-focus);
-  background: var(--color-bg);
+
+  /* A corner triangle in the frame's own colour: it covers the frame's corner
+     without cutting a notch out of it. */
+  background: linear-gradient(135deg, transparent 50%, var(--color-border-idle) 50%);
   cursor: nwse-resize;
   touch-action: none;
+}
+
+/* The focused float's grip follows its frame's focus colour. */
+.float:has([aria-current='true']) .grip {
+  background: linear-gradient(135deg, transparent 50%, var(--color-border-focus) 50%);
 }

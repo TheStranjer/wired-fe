@@ -24,7 +24,7 @@
   box-sizing: border-box;
   width: calc(2 * var(--line-height) * 1em);
   height: calc(2 * var(--line-height) * 1em);
-  border: var(--border-width) solid var(--color-border);
+  border: var(--border-width) solid var(--color-border-idle);
   border-radius: 0;
   object-fit: cover;
 }

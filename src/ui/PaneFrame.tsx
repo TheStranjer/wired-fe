@@ -2,7 +2,7 @@
  * The bordered frame every pane and float is drawn in (WFE-184): a title bar
  * with the window's title, the account it acts as and its topic, an actions
  * slot at the right end, and a content area that scrolls on its own while the
- * title bar stays put. Focus shows as a duller, thicker border and a leading
+ * title bar stays put. Focus shows as a brighter, thicker border and a leading
  * `[*]`, never colour alone (decision 16). Presentational only: which window
  * is focused, what the actions do and what the content is belong to the
  * desktop renderer.
