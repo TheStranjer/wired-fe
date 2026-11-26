@@ -8,7 +8,8 @@
  * `stream` flag (WFE-243), the per-kind placements `openInByKind` (decision
  * 13, turned by the dotted `/set openIn.<kind>`) and the global posting
  * account `postAs` (WFE-281, turned by `/postas`) are stored and defaulted
- * like the rest but absent from the `/set` knobs. `openIn` is where new
+ * like the rest but absent from the `/set` knobs. The same goes for the UI
+ * `language` (WFE-310, turned by `/lang`). `openIn` is where new
  * windows open; `replyIn` is where a reply composer opens (WFE-244).
  */
 
@@ -18,6 +19,8 @@ import type { Feeds } from './feeds';
 import { FeedsSchema } from './feedSchema';
 import { type KindPlacements, PLACEMENTS, type Placement, kindPlacements } from './placement';
 import type { Visibility } from '../api/schemas/status';
+import { knownLanguage } from '../i18n/parseLanguage';
+import type { Locale } from '../i18n/supportedLocales';
 import type { KeyOverride } from '../lib/keyOverride';
 import type { ClockFormat } from '../lib/time';
 
@@ -47,6 +50,8 @@ export type Settings = {
   readonly images: boolean;
   /** The reader's own key bindings over the defaults (WFE-130, `/bind`). */
   readonly keyOverrides: readonly KeyOverride[];
+  /** The language of WiredFE's own text (WFE-310, `/lang`, decision 19); null follows the instance and the browser. */
+  readonly language: Locale | null;
   /** Where a newly opened window goes unless its kind or `--in` says otherwise (decision 13). */
   readonly openIn: Placement;
   /** Where windows of a kind go, over {@link openIn}; stored and shown by `/set openIn.<kind>`. */
@@ -72,6 +77,7 @@ export const DEFAULT_SETTINGS: Settings = {
   feeds: [],
   images: true,
   keyOverrides: [],
+  language: null,
   openIn: 'here',
   openInByKind: {},
   postAs: null,
@@ -116,6 +122,7 @@ export const SettingsSchema: v.GenericSchema<unknown, Settings> = v.object({
   feeds: v.optional(FeedsSchema, DEFAULT_SETTINGS.feeds),
   images: v.optional(v.boolean(), DEFAULT_SETTINGS.images),
   keyOverrides: v.optional(v.array(KeyOverrideSchema), DEFAULT_SETTINGS.keyOverrides),
+  language: v.pipe(v.optional(v.nullable(v.string()), null), v.transform(knownLanguage)),
   openIn: v.optional(v.picklist(PLACEMENTS), DEFAULT_SETTINGS.openIn),
   openInByKind: v.pipe(
     v.optional(v.record(v.string(), v.picklist(PLACEMENTS)), {}),

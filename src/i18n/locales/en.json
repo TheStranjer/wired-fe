@@ -1,9 +1,24 @@
 {
   "accounts": {},
   "api": {},
-  "app": {},
+  "app": {
+    "language_auto": "Automatic",
+    "language_list_label": "Choose the interface language",
+    "language_row": "Language…"
+  },
   "commands": {
-    "defs": {},
+    "defs": {
+      "lang": {
+        "auto_hint": "Follow the instance default, then the browser",
+        "available": "Available languages:",
+        "cleared": "Language setting cleared: now {name} ({code}), from {source, select, user {your setting} instance {the instance default} browser {the browser} other {the fallback}}",
+        "current": "Language: {name} ({code}), from {source, select, user {your setting} instance {the instance default} browser {the browser} other {the fallback}}",
+        "set": "Language set to {name} ({code})",
+        "summary": "Show or choose the interface language",
+        "unknown": "No language {input}. Choose auto or one of: {choices}",
+        "usage": "/lang [code|name|auto]"
+      }
+    },
     "not_signed_in_as": "You aren't signed in as {handle}. {count, plural, =0 {No account is signed in.} other {Signed in: {accounts}.}} Type /connect to add an account."
   },
   "features": {},

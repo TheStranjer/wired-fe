@@ -51,7 +51,7 @@ export type AppState = {
   readonly layout: DesktopsState;
   /** One scrollback per window, by window id; always holds the status window's. */
   readonly buffers: ReadonlyMap<string, Buffer>;
-  /** The signed-in accounts, in the order they were added. */
+  /** The signed-in accounts, in order added. */
   readonly accounts: readonly StoredAccount[];
   /** The account commands act as; null while nobody is signed in. */
   readonly activeAccountKey: string | null;
@@ -75,6 +75,8 @@ export type AppState = {
   readonly accountPick: AccountPick | null;
   /** Whether the start menu is open. */
   readonly startMenu: boolean;
+  /** Whether the language list is open (WFE-310). */
+  readonly languageMenu: boolean;
 };
 
 /** One thing that can happen to the application as a whole. */
@@ -96,12 +98,12 @@ export type CoreAction =
 /** The print action, named so its fields can be passed around as one. */
 export type PrintAction = Extract<CoreAction, { readonly type: 'print' }>;
 
-/** The action that prints one client line into a window's scrollback (the active one for a null id), stamped with the real clock. */
+/** The action that prints a client line into a window (the active one for null), stamped now. */
 export function printAction(windowId: string | null, level: LineLevel, text: string): PrintAction {
   return { type: 'print', windowId, date: new Date(), level, text };
 }
 
-/** The starting state: window 1, nobody signed in, insert mode, {@link DEFAULT_SETTINGS} unless given others. */
+/** The starting state: window 1, nobody signed in, insert mode, default settings. */
 export function initialAppState(settings: Settings = DEFAULT_SETTINGS): AppState {
   const windows = initialWindowsState();
   return {
@@ -121,6 +123,7 @@ export function initialAppState(settings: Settings = DEFAULT_SETTINGS): AppState
     alerts: [],
     accountPick: null,
     startMenu: false,
+    languageMenu: false,
   };
 }
 
@@ -150,7 +153,7 @@ export function coreReducer(state: AppState, action: CoreAction): AppState {
   }
 }
 
-/** A window action, and the buffers brought back to the shape of the list. */
+/** A window action, with the buffers brought back in line with the list. */
 function applyWindows(state: AppState, action: WindowsAction): AppState {
   const { windows, layout } = applyWindowsAction(state, action);
   const buffers = syncBuffers(windows.windows, state.buffers);

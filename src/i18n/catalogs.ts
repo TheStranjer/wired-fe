@@ -61,16 +61,14 @@ async function read(locale: string, loader: () => Promise<unknown>): Promise<boo
 
 /**
  * Load the catalog of {@link locale} once. Resolves true when it is held
- * afterwards; false when the language has no file yet or the file failed to
+ * afterwards, and also when the language has no file yet (it can be chosen,
+ * and every message falls back to English); false when its file failed to
  * load (a failed load can be tried again).
  */
 export async function loadCatalog(locale: string): Promise<boolean> {
-  if (held.has(locale)) {
-    return true;
-  }
   const loader = loaders[`./locales/${locale}.json`];
-  if (loader === undefined) {
-    return false;
+  if (held.has(locale) || loader === undefined) {
+    return true;
   }
   const started = pending.get(locale) ?? read(locale, loader);
   pending.set(locale, started);

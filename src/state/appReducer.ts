@@ -154,6 +154,11 @@ function sameLook(a: Settings, b: Settings): boolean {
   );
 }
 
+/** Whether the knobs that say where windows open are the same in both. */
+function samePlacement(a: Settings, b: Settings): boolean {
+  return a.openIn === b.openIn && a.openInByKind === b.openInByKind && a.replyIn === b.replyIn;
+}
+
 /** Whether the knobs that change what is stored or shown are the same in both. */
 function sameBehaviour(a: Settings, b: Settings): boolean {
   return (
@@ -162,11 +167,10 @@ function sameBehaviour(a: Settings, b: Settings): boolean {
     a.expandMedia === b.expandMedia &&
     a.feeds === b.feeds &&
     a.keyOverrides === b.keyOverrides &&
-    a.openIn === b.openIn &&
-    a.openInByKind === b.openInByKind &&
+    a.language === b.language &&
     a.postAs === b.postAs &&
-    a.replyIn === b.replyIn &&
-    a.streamMade === b.streamMade
+    a.streamMade === b.streamMade &&
+    samePlacement(a, b)
   );
 }
 

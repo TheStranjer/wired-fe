@@ -1,8 +1,8 @@
 /**
  * The metadata of the knobs `/set` lists and turns (src/commands/defs/set): one
  * {@link SettingKey} per listed setting, with its kind, its words and a line of
- * description. The hidden settings (key overrides, feeds, per-kind placements,
- * the first-run flag, the posting account) are not here.
+ * description. The hidden settings (key overrides, feeds, the language, per-kind
+ * placements, the first-run flag, the posting account) are not here.
  */
 
 import { PLACEMENTS } from './placement';
@@ -11,7 +11,7 @@ import { CLOCK_FORMATS, DENSITIES, type Settings, THEMES, VISIBILITIES } from '.
 /** The knobs `/set` lists and turns: every setting except the hidden key overrides. */
 type ListedSettingKey = Exclude<
   keyof Settings,
-  'keyOverrides' | 'feeds' | 'openInByKind' | 'postAs' | 'streamMade'
+  'keyOverrides' | 'feeds' | 'language' | 'openInByKind' | 'postAs' | 'streamMade'
 >;
 
 /** One knob the reader can set, as the `/set` command lists and checks it. */
