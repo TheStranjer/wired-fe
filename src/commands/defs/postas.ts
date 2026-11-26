@@ -1,7 +1,8 @@
 /**
  * `/postas [--global] [<handle|n>|--clear]` (WFE-281, decision 6): choose which
  * account plain text posts as where the window has none of its own. Bare, it
- * says who the active window posts as and why. With an account (named as `/as`
+ * opens the account picker (WFE-282; `--global` alone says who the active
+ * window posts as and why). With an account (named as `/as`
  * names one) it sets the default of the feed the active window shows, or the
  * global default when the window is no feed, has its own account or `--global`
  * is given. `--clear` forgets the feed's default, or the global one. Feeds and
@@ -10,10 +11,10 @@
 
 import { findAccount } from '../../accounts/findAccount';
 import { wordsOf } from '../../lib/words';
-import { type FeedSpec, setFeedPostAs } from '../../state/feeds';
-import { postingAccount } from '../../state/postingAccount';
+import type { FeedSpec } from '../../state/feeds';
+import { postingLine, postingPatch, postingSetLine } from '../../state/postingDefault';
 import { activeWindow } from '../../windows/model';
-import { OK, fail, syncRun } from '../outcome';
+import { NOT_LOGGED_IN, OK, fail, syncRun } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** The command's grammar: /help shows it, a bad argument echoes it. */
@@ -48,35 +49,27 @@ function feedTarget(context: CommandContext, global: boolean): FeedSpec | null {
   return context.state.settings.feeds.find((feed) => feed.id === ref.target) ?? null;
 }
 
-/** Why plain text posts as an account, by the source the resolver names, in words. */
-const BECAUSE = {
-  window: "window's account",
-  feed: 'feed default',
-  global: 'global default',
-  only: 'only account',
-} as const;
-
 /** Say who the active window posts as and why, or that nothing decides it. */
 function describe(context: CommandContext): CommandOutcome {
-  const win = activeWindow(context.windows);
-  const posting = postingAccount(context.state, win);
-  if (posting === null) {
-    context.print('No posting account set: /postas <handle|n>');
-    return OK;
+  const line = postingLine(context.state, activeWindow(context.windows));
+  context.print(line ?? 'No posting account set: /postas <handle|n>');
+  return OK;
+}
+
+/** Open the account picker for the active window; nobody signed in has nothing to pick from. */
+function pick(context: CommandContext): CommandOutcome {
+  if (context.state.accounts.length === 0) {
+    return NOT_LOGGED_IN;
   }
-  const subject = win.ref.kind === 'feed' ? `${win.title} posts` : 'posts';
-  context.print(`${subject} as @${posting.account.handle} (${BECAUSE[posting.source]})`);
+  const { id } = activeWindow(context.windows);
+  context.dispatch({ type: 'openAccountPick', pick: { purpose: 'default', windowId: id } });
   return OK;
 }
 
 /** Make {@link key} (or nothing) the account {@link feed}, or the whole client when null, posts as. */
 function save(context: CommandContext, feed: FeedSpec | null, key: string | null): void {
-  if (feed === null) {
-    context.dispatch({ type: 'settings', settings: { postAs: key } });
-    return;
-  }
-  const feeds = setFeedPostAs(context.state.settings.feeds, feed.id, key ?? undefined);
-  context.dispatch({ type: 'settings', settings: { feeds } });
+  const patch = postingPatch(context.state.settings.feeds, feed?.id ?? null, key);
+  context.dispatch({ type: 'settings', settings: patch });
 }
 
 /** Forget the default of {@link feed}, or the global one when null. */
@@ -100,13 +93,11 @@ function setDefault(
     return fail(`No account ${setting.word}`);
   }
   save(context, feed, account.key);
-  if (feed !== null) {
-    context.print(`~${feed.name} posts as @${account.handle} (feed default)`);
-    return OK;
-  }
-  const own = !setting.global && activeWindow(context.windows).ref.accountKey !== null;
+  const line = postingSetLine(feed?.name ?? null, account.handle);
+  const own =
+    feed === null && !setting.global && activeWindow(context.windows).ref.accountKey !== null;
   const note = own ? '; this window has its own account, so it is the global default' : '';
-  context.print(`posts as @${account.handle} (global default)${note}`);
+  context.print(`${line}${note}`);
   return OK;
 }
 
@@ -121,7 +112,10 @@ function handle(args: string, context: CommandContext): CommandOutcome {
     return clearDefault(context, feed);
   }
   const { word, global } = request;
-  return word === null ? describe(context) : setDefault(context, feed, { word, global });
+  if (word !== null) {
+    return setDefault(context, feed, { word, global });
+  }
+  return args.trim() === '' ? pick(context) : describe(context);
 }
 
 /** The `/postas` definition. */

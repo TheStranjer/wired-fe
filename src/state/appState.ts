@@ -7,6 +7,7 @@
  * when the action changes nothing; the pieces live in ./appReducer.
  */
 
+import { type AccountPick, withoutLonelyPick } from './accountPick';
 import type { Alert } from './alerts';
 import { withPrintedAlert } from './appPrint';
 import type { PrintLine } from './appPrint';
@@ -70,6 +71,8 @@ export type AppState = {
   readonly seq: number;
   /** The modal alerts the error lines raised, oldest first; the head is on screen (./alerts). */
   readonly alerts: readonly Alert[];
+  /** The account picker's open question, or null. */
+  readonly accountPick: AccountPick | null;
 };
 
 /** One thing that can happen to the application as a whole. */
@@ -118,6 +121,7 @@ export function initialAppState(settings: Settings = DEFAULT_SETTINGS): AppState
     sync: INITIAL_SYNC,
     seq: 0,
     alerts: [],
+    accountPick: null,
   };
 }
 
@@ -133,7 +137,9 @@ export function coreReducer(state: AppState, action: CoreAction): AppState {
     case 'clear':
       return applyClear(state, action.windowId);
     case 'accounts':
-      return dropSignedOut(state, withAccounts(state, action.accounts, action.activeKey));
+      return withoutLonelyPick(
+        dropSignedOut(state, withAccounts(state, action.accounts, action.activeKey)),
+      );
     case 'accountExpired':
       return { ...state, expired: withExpired(state.expired, action.accountKey) };
     case 'profile':

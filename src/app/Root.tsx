@@ -34,12 +34,12 @@ import { useDeskPersistence } from './useDeskPersistence';
 import { useDeskSync } from './useDeskSync';
 import { useDocumentTitle } from './useDocumentTitle';
 import { useDropAndPaste } from './useDropAndPaste';
-import { useErrorAlert } from './useErrorAlert';
 import { useHashRoute } from './useHashRoute';
 import { useLineRunnerApi } from './useLineRunnerApi';
 import { usePostActionsApi } from './usePostActionsApi';
 import { useRouteOverlays } from './useRouteOverlays';
 import { useSettingsPersistence } from './useSettingsPersistence';
+import { useShellModals } from './useShellModals';
 import { useStartup } from './useStartup';
 import { useTheme } from './useTheme';
 import { usePendingKeys } from '../keys/useGlobalKeys';
@@ -91,7 +91,7 @@ export function Root(): JSX.Element {
   const ready = useStartup();
   useHashRoute(ready);
   const overlays = useRouteOverlays(ready);
-  const alert = useErrorAlert(overlays.open);
+  const modals = useShellModals(overlays.open);
   useStateMirrors(state, ready);
   useStreams();
   const postActions = usePostActionsApi();
@@ -119,7 +119,7 @@ export function Root(): JSX.Element {
           }
         />
         {overlays.elements}
-        {alert}
+        {modals}
         {drop}
         {attachments.input}
       </LineRunnerProvider>

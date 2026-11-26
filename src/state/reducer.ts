@@ -13,6 +13,7 @@
  * exhaustive — so a new action cannot quietly find no home.
  */
 
+import { type AccountPickAction, accountPickReducer } from './accountPick';
 import { type AlertAction, withAlertDismissed } from './alerts';
 import { type AppState, type CoreAction, coreReducer } from './appState';
 import { bufferReducer, type BufferAction } from './bufferActions';
@@ -30,6 +31,7 @@ export type AppAction =
   | SignInAction
   | SyncAction
   | AlertAction
+  | AccountPickAction
   | PlaceAction
   | BufferAction
   | ComposerAction
@@ -57,8 +59,8 @@ const COMPOSER_ACTION_TYPES: Record<ComposerAction['type'], true> = {
   composerAppend: true,
 };
 
-/** The sign-in, sync and alert actions: each a one-line transition, handled by {@link smallReducer}. */
-type SmallAction = SignInAction | SyncAction | AlertAction;
+/** The sign-in, sync, alert and account picker actions: each a one-line transition, handled by {@link smallReducer}. */
+type SmallAction = SignInAction | SyncAction | AlertAction | AccountPickAction;
 
 /** The action types of {@link SmallAction}, every one of them by name. */
 const SMALL_ACTION_TYPES: Record<SmallAction['type'], true> = {
@@ -66,9 +68,11 @@ const SMALL_ACTION_TYPES: Record<SmallAction['type'], true> = {
   sync: true,
   syncUnsupported: true,
   dismissAlert: true,
+  openAccountPick: true,
+  closeAccountPick: true,
 };
 
-/** Whether this action is one of the small slices' (sign-in, sync, alerts). */
+/** Whether this action is one of the small slices' (sign-in, sync, alerts, account picker). */
 function isSmallAction(action: AppAction): action is SmallAction {
   return Object.hasOwn(SMALL_ACTION_TYPES, action.type);
 }
@@ -83,6 +87,9 @@ function smallReducer(state: AppState, action: SmallAction): AppState {
       return syncReducer(state, action);
     case 'dismissAlert':
       return withAlertDismissed(state);
+    case 'openAccountPick':
+    case 'closeAccountPick':
+      return accountPickReducer(state, action);
   }
 }
 
