@@ -13,7 +13,6 @@ import {
   type FeedSourceRef,
   type FeedSpec,
   type Feeds,
-  FeedsSchema,
   MAX_FEED_NAME,
   addAutoSources,
   addFeed,
@@ -25,6 +24,7 @@ import {
   removeSource,
   renameFeed,
 } from './feeds';
+import { FeedsSchema } from './feedSchema';
 
 const HOME: FeedSource = 'home';
 const LAIN_HOME: FeedSourceRef = { accountKey: 'https://a.example#1', source: HOME };

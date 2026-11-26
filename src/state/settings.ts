@@ -2,18 +2,20 @@
  * The settings a reader chooses for themselves (AGENTS.md "Layout": src/state
  * holds the pure app state): plain data with one default record, the valibot
  * schema that reads them back from storage (every field optional, every
- * default filled in), and {@link SETTING_KEYS}: the per-knob metadata `/set`
- * lists and checks itself against. Storing them is the storage module's
- * business. The key overrides (WFE-130), the saved feeds (WFE-195), the
- * first-run `stream` flag (WFE-243) and the per-kind placements `openInByKind`
- * (decision 13, turned by the dotted `/set openIn.<kind>`) are stored and
- * defaulted like the rest but absent from SETTING_KEYS. `openIn` is where new
+ * default filled in). The per-knob metadata `/set` lists and checks itself
+ * against is in ./settingKeys. Storing them is the storage module's business.
+ * The key overrides (WFE-130), the saved feeds (WFE-195), the first-run
+ * `stream` flag (WFE-243), the per-kind placements `openInByKind` (decision
+ * 13, turned by the dotted `/set openIn.<kind>`) and the global posting
+ * account `postAs` (WFE-281, turned by `/postas`) are stored and defaulted
+ * like the rest but absent from the `/set` knobs. `openIn` is where new
  * windows open; `replyIn` is where a reply composer opens (WFE-244).
  */
 
 import * as v from 'valibot';
 
-import { type Feeds, FeedsSchema } from './feeds';
+import type { Feeds } from './feeds';
+import { FeedsSchema } from './feedSchema';
 import { type KindPlacements, PLACEMENTS, type Placement, kindPlacements } from './placement';
 import type { Visibility } from '../api/schemas/status';
 import type { KeyOverride } from '../lib/keyOverride';
@@ -49,6 +51,8 @@ export type Settings = {
   readonly openIn: Placement;
   /** Where windows of a kind go, over {@link openIn}; stored and shown by `/set openIn.<kind>`. */
   readonly openInByKind: KindPlacements;
+  /** The key of the account plain text posts as when its window and feed name none (WFE-281); null when unset. */
+  readonly postAs: string | null;
   /** Where the composer a reply opens goes unless `--in` or `openIn.composer` says otherwise (WFE-244). */
   readonly replyIn: Placement;
   /** Whether the first-run `stream` feed has been made (WFE-243); once true it is never made again. */
@@ -70,6 +74,7 @@ export const DEFAULT_SETTINGS: Settings = {
   keyOverrides: [],
   openIn: 'here',
   openInByKind: {},
+  postAs: null,
   replyIn: 'split',
   streamMade: false,
   theme: 'wired',
@@ -116,85 +121,8 @@ export const SettingsSchema: v.GenericSchema<unknown, Settings> = v.object({
     v.optional(v.record(v.string(), v.picklist(PLACEMENTS)), {}),
     v.transform(kindPlacements),
   ),
+  postAs: v.optional(v.nullable(v.string()), DEFAULT_SETTINGS.postAs),
   replyIn: v.optional(v.picklist(PLACEMENTS), DEFAULT_SETTINGS.replyIn),
   streamMade: v.optional(v.boolean(), DEFAULT_SETTINGS.streamMade),
   theme: v.optional(v.picklist(THEMES), DEFAULT_SETTINGS.theme),
 });
-
-/** The knobs `/set` lists and turns: every setting except the hidden key overrides. */
-type ListedSettingKey = Exclude<
-  keyof Settings,
-  'keyOverrides' | 'feeds' | 'openInByKind' | 'streamMade'
->;
-
-/** One knob the reader can set, as the `/set` command lists and checks it. */
-export type SettingKey = {
-  /** Which field of {@link Settings} it turns — a listed one; the key overrides are not a knob. */
-  readonly key: ListedSettingKey;
-  /** Whether the knob takes one of {@link values} or an on/off word. */
-  readonly kind: 'enum' | 'boolean';
-  /** The words an enum knob takes; absent for a boolean one. */
-  readonly values?: readonly string[];
-  /** One line saying what the knob does, printed beside its value. */
-  readonly description: string;
-};
-
-/** Every setting, in the order `/set` prints them. */
-export const SETTING_KEYS: readonly SettingKey[] = [
-  {
-    key: 'avatars',
-    kind: 'boolean',
-    description: 'Show author avatars on posts',
-  },
-  {
-    key: 'clockFormat',
-    kind: 'enum',
-    values: CLOCK_FORMATS,
-    description: 'How timestamps print: 24-hour or 12-hour',
-  },
-  {
-    key: 'defaultVisibility',
-    kind: 'enum',
-    values: VISIBILITIES,
-    description: 'The audience new posts aim at by default',
-  },
-  {
-    key: 'density',
-    kind: 'enum',
-    values: DENSITIES,
-    description: 'How posts render: as cards or as IRC lines',
-  },
-  {
-    key: 'effects',
-    kind: 'boolean',
-    description: 'The CRT/glitch effects (they never flash)',
-  },
-  {
-    key: 'expandMedia',
-    kind: 'boolean',
-    description: 'Media behind a content warning starts open',
-  },
-  {
-    key: 'images',
-    kind: 'boolean',
-    description: 'Show attachments inline instead of [IMG …] lines',
-  },
-  {
-    key: 'openIn',
-    kind: 'enum',
-    values: PLACEMENTS,
-    description: 'Where new windows open: here, vsplit, split, float or hidden',
-  },
-  {
-    key: 'replyIn',
-    kind: 'enum',
-    values: PLACEMENTS,
-    description: 'Where a reply composer opens: here, vsplit, split, float or hidden',
-  },
-  {
-    key: 'theme',
-    kind: 'enum',
-    values: THEMES,
-    description: 'The colors the shell is painted in',
-  },
-];

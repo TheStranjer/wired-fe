@@ -164,6 +164,7 @@ function sameBehaviour(a: Settings, b: Settings): boolean {
     a.keyOverrides === b.keyOverrides &&
     a.openIn === b.openIn &&
     a.openInByKind === b.openInByKind &&
+    a.postAs === b.postAs &&
     a.replyIn === b.replyIn &&
     a.streamMade === b.streamMade
   );

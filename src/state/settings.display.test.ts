@@ -8,13 +8,8 @@
 import * as v from 'valibot';
 import { describe, expect, it } from 'vitest';
 
-import {
-  DEFAULT_SETTINGS,
-  DENSITIES,
-  SETTING_KEYS,
-  SettingsSchema,
-  type Settings,
-} from './settings';
+import { SETTING_KEYS } from './settingKeys';
+import { DEFAULT_SETTINGS, DENSITIES, SettingsSchema, type Settings } from './settings';
 
 /** Parse {@link input} with SettingsSchema, throwing through to the test on failure. */
 function parse(input: unknown): Settings {
