@@ -129,6 +129,7 @@ e2e/              Playwright tests against the production build
 ### Translated text
 
 - User-facing text of our own goes through `t()` / `useT()` (decision 19); English lives in `src/i18n/locales/en.json`. **Never hand-edit a non-English locale file**: Prism owns them. A hand translation goes in `.prism/exceptions.json`.
+- Edit only `en.json`. After a change to it lands on master, `.github/workflows/prism.yml` runs Prism, which translates changed keys into `es`, `ru`, `ja`, `zh-Hans` and `de`, backfills missing keys, prunes removed ones, and pushes the result. Those files are not Prettier-formatted (`.prettierignore`).
 - Never call `t()` at module load: constants become functions, a command's static `summary` and `usage` become getters. Whole sentences per key; never concatenate translated fragments.
 
 ### Security
