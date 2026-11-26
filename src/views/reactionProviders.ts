@@ -17,8 +17,8 @@ const REACTION_LINE = /^\/(?:react|unreact)(?:\s|$)/iu;
  */
 export function withoutReactionWords(provider: CompletionProvider): CompletionProvider {
   return {
+    ...provider,
     accepts: (word, isFirstWord, line) =>
       !REACTION_LINE.test(line ?? '') && provider.accepts(word, isFirstWord, line),
-    candidates: provider.candidates,
   };
 }

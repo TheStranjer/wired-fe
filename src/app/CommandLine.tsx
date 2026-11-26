@@ -3,9 +3,9 @@
  * composer"): every submitted line — command or post — goes to the dispatcher
  * (decision 6), which runs it and clears the line when it is done with, and
  * joins the command history the arrow keys walk (./useCommandHistory). Tab
- * completes the word under the caret, and a list of matching commands narrows
- * as it is typed (WFE-297), both through ./useCommandCompletion with the
- * providers the composition root passes in. The ref lets the hotkeys move the
+ * completes the word under the caret, and a list of matching commands,
+ * handles, tags and emoji narrows as it is typed (WFE-297, WFE-300), both
+ * through ./useCommandCompletion. The ref lets the hotkeys move the
  * caret, and focusing the line while navigation is shown switches back to
  * insert. The `[📎]` button at its left edge opens the file dialog `/attach`
  * opens (WFE-287). The context carries the line's own text, so a bare `/compose` can
@@ -25,7 +25,6 @@ import { useRegisterLineRunner } from './useLineRunnerApi';
 import { useLineWriter } from './useLineWriter';
 import { usePostActionRunner } from './usePostActionRunner';
 import type { PostActionRunner } from './usePostActionsApi';
-import type { Provider } from '../commands/complete';
 import { dispatchInput } from '../commands/dispatch';
 import type { CommandContext } from '../commands/types';
 import type { PendingKeys } from '../keys/useGlobalKeys';
@@ -34,9 +33,8 @@ import { AttachButton } from '../ui/AttachButton';
 import { InputLine } from '../ui/InputLine';
 import type { LineRunner } from '../views/LineRunnerContext';
 
-/** What the shell gives the command line: completion words and the pending media. */
+/** What the shell gives the command line: the pending media and the app's runners. */
 export type CommandLineProps = {
-  readonly completion: readonly Provider[];
   /** The media waiting for the next post (WFE-126); the app owns the list. */
   readonly attachments: CommandContext['attachments'];
   /** The prefix of a key sequence under way (decision 18); the shell shows it in the status line. */
@@ -72,13 +70,7 @@ export function CommandLine(props: CommandLineProps): JSX.Element {
   usePostActionRunner(inputRef, context, props.registerRunner);
   useRegisterLineRunner(context, props.registerLineRunner);
   const history = useCommandHistory(state.mode, value, setValue);
-  const completion = useCommandCompletion({
-    inputRef,
-    mode: state.mode,
-    providers: props.completion,
-    value,
-    setValue,
-  });
+  const completion = useCommandCompletion({ inputRef, mode: state.mode, value, setValue });
   /** Do what one submitted line asks — command or post — then clear the line (./useLineWriter). */
   function runLine(line: string): void {
     history.remember(line);

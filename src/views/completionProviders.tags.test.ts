@@ -33,7 +33,10 @@ describe(tagProvider, () => {
           quote: status('t5', { tags: [tag('qt')] }),
         }),
       ],
-      notifications: [notification('t6n', status('t6', { tags: [tag('notif')] }))],
+      notifications: [
+        notification('t6n', status('t6', { tags: [tag('notif')] })),
+        notification('t7n', null),
+      ],
     });
 
     expect(tagProvider(state).candidates('#')).toStrictEqual([

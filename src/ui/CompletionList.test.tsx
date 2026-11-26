@@ -121,4 +121,44 @@ describe(CompletionList, () => {
 
     expect(fireEvent.mouseDown(screen.getByRole('option', { name: /host/u }))).toBe(false);
   });
+
+  it('shows a row without a description as its name alone, with no dash', () => {
+    render(
+      <CompletionList
+        active={-1}
+        id="list"
+        label="Suggestions"
+        more={0}
+        rows={[{ label: '#zen', description: '', pick: vi.fn() }]}
+      />,
+    );
+
+    expect(screen.getByRole('option')).toHaveTextContent(/^#zen$/u);
+  });
+
+  it('shows the image of a row before its name, named by it', () => {
+    render(
+      <CompletionList
+        active={-1}
+        id="list"
+        label="Suggestions"
+        more={0}
+        rows={[
+          {
+            label: ':fox:',
+            description: '',
+            image: 'https://wired.example/e/fox.png',
+            pick: vi.fn(),
+          },
+          { label: ':owl:', description: '', pick: vi.fn() },
+        ]}
+      />,
+    );
+
+    expect(screen.getByRole('img', { name: ':fox:' })).toHaveAttribute(
+      'src',
+      'https://wired.example/e/fox.png',
+    );
+    expect(screen.getAllByRole('img')).toHaveLength(1);
+  });
 });

@@ -18,7 +18,10 @@ export function rowId(listId: string, index: number): string {
 /** One option: how it is named, what it is, and what a click on it does. */
 export type CompletionRow = {
   readonly label: string;
+  /** One line about it; empty for none, and the row then shows no dash. */
   readonly description: string;
+  /** The URL of a picture shown before the label, named by the label (an emoji). */
+  readonly image?: string | undefined;
   readonly pick: () => void;
 };
 
@@ -53,8 +56,16 @@ export function CompletionList(props: CompletionListProps): JSX.Element {
             tabIndex={-1}
             type="button"
           >
-            <span className={styles['name']}>{row.label}</span>{' '}
-            <span className={styles['summary']}>— {row.description}</span>
+            {row.image === undefined ? null : (
+              <img alt={row.label} className={styles['image']} draggable={false} src={row.image} />
+            )}
+            <span className={styles['name']}>{row.label}</span>
+            {row.description === '' ? null : (
+              <>
+                {' '}
+                <span className={styles['summary']}>— {row.description}</span>
+              </>
+            )}
           </button>
         ))}
       </div>

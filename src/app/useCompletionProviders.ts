@@ -23,12 +23,21 @@ import { feedProvider } from '../commands/feedWords';
 import { viewProvider } from '../commands/viewProvider';
 import { capabilitiesFor } from '../state/selectors';
 import { useAppState } from '../state/StateContext';
-import { emojiProvider, handleProvider, tagProvider } from '../views/completionProviders';
+import {
+  type HandleSearch,
+  emojiProvider,
+  handleProvider,
+  tagProvider,
+} from '../views/completionProviders';
 import { withoutReactionWords } from '../views/reactionProviders';
 import { useCustomEmojis } from '../views/useCustomEmojis';
 
-/** The providers for the active account, in the order they are asked. */
-export function useCompletionProviders(): readonly Provider[] {
+/**
+ * The providers for the active account, in the order they are asked; the
+ * handle provider also offers what the instance's search found
+ * ({@link searched}, ./useHandleSearch).
+ */
+export function useCompletionProviders(searched: HandleSearch): readonly Provider[] {
   const state = useAppState();
   const registry = useAvailableRegistry();
   const emojis = useCustomEmojis(state.activeAccountKey);
@@ -36,7 +45,7 @@ export function useCompletionProviders(): readonly Provider[] {
   const custom = capabilities !== null && hasFeature(capabilities, 'customEmojiReactions');
   const emoji = emojiProvider(emojis);
   const seen = [
-    handleProvider(state),
+    handleProvider(state, searched),
     tagProvider(state),
     custom ? emoji : withoutReactionWords(emoji),
   ];

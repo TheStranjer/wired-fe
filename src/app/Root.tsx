@@ -31,7 +31,6 @@ import { StartMenu } from './StartMenu';
 import { StatusBar } from './StatusBar';
 import { appStores } from './stores';
 import { useAttachments } from './useAttachments';
-import { useCompletionProviders } from './useCompletionProviders';
 import { useDeskPersistence } from './useDeskPersistence';
 import { useDeskSync } from './useDeskSync';
 import { useDocumentTitle } from './useDocumentTitle';
@@ -93,7 +92,6 @@ function useBackgroundWork(state: AppState, ready: boolean): void {
 /** The shell regions, filled from the app state above it. */
 export function Root(): JSX.Element {
   const state = useAppState();
-  const providers = useCompletionProviders();
   const attachments = useAttachments();
   const drop = useDropAndPaste(attachments);
   const pendingKeys = usePendingKeys(state.mode);
@@ -123,7 +121,6 @@ export function Root(): JSX.Element {
               <CommandLine
                 attachments={attachments}
                 pendingKeys={pendingKeys}
-                completion={providers}
                 registerRunner={postActions.register}
                 registerLineRunner={lineRunner.register}
                 registerRestorer={restorer.register}
