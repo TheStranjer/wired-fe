@@ -14,6 +14,7 @@ import type { PaneAsk } from './paneAsk';
 import { PaneAskDialog } from './PaneAskDialog';
 import { askedLine, entryLine } from './paneMenu';
 import type { PaneMenuEntry, ViewCommand } from './paneMenu';
+import { useCommandTip } from './useCommandTip';
 import { pickedWindowLine, windowPickerItems } from './windowPicker';
 import type { AppState } from '../state/appState';
 import { useAppState } from '../state/StateContext';
@@ -21,10 +22,11 @@ import { MenuButton } from '../ui/MenuButton';
 import type { MenuItem } from '../ui/MenuButton';
 import type { PostActionLine } from '../ui/postActionTypes';
 
-/** One of the split buttons: its glyph, accessible name and command. */
+/** One of the split buttons: its glyph, accessible name, what it does (for its tooltip) and command. */
 export type SplitButton = {
   readonly glyph: string;
   readonly label: string;
+  readonly action: string;
   readonly command: ViewCommand;
 };
 
@@ -43,6 +45,29 @@ function drillItems(from: {
     : null;
 }
 
+/** What choosing a row does: a picked window runs at once, a plain row runs, an asking row opens its dialog. */
+function selectRow(choice: {
+  readonly id: string;
+  readonly command: ViewCommand;
+  readonly entries: readonly PaneMenuEntry[];
+  readonly runOnPane: (line: PostActionLine) => void;
+  readonly setAsking: (asking: Asking) => void;
+}): void {
+  const { id, command, entries, runOnPane, setAsking } = choice;
+  const picked = pickedWindowLine(id, command);
+  if (picked !== null) {
+    runOnPane({ line: picked, prefill: false });
+    return;
+  }
+  for (const entry of entries.filter((candidate) => candidate.id === id)) {
+    if (entry.ask === null) {
+      runOnPane({ line: entryLine(entry, command), prefill: false });
+    } else {
+      setAsking({ entry, ask: entry.ask });
+    }
+  }
+}
+
 /** One split button over {@link entries}, on the pane that shows the window `ownWindowId`. */
 export function SplitMenu(props: {
   readonly button: SplitButton;
@@ -52,20 +77,10 @@ export function SplitMenu(props: {
 }): JSX.Element {
   const { button, entries, runOnPane, ownWindowId } = props;
   const state = useAppState();
+  const tip = useCommandTip();
   const [asking, setAsking] = useState<Asking | null>(null);
   const select = (id: string): void => {
-    const picked = pickedWindowLine(id, button.command);
-    if (picked !== null) {
-      runOnPane({ line: picked, prefill: false });
-      return;
-    }
-    for (const entry of entries.filter((candidate) => candidate.id === id)) {
-      if (entry.ask === null) {
-        runOnPane({ line: entryLine(entry, button.command), prefill: false });
-      } else {
-        setAsking({ entry, ask: entry.ask });
-      }
-    }
+    selectRow({ id, command: button.command, entries, runOnPane, setAsking });
   };
   const drill = (id: string): readonly MenuItem[] | null =>
     drillItems({ entries, id, state, ownWindowId });
@@ -73,6 +88,7 @@ export function SplitMenu(props: {
     <>
       <MenuButton
         label={button.label}
+        title={tip(button.action, button.command)}
         glyph={button.glyph}
         items={entries}
         onSelect={select}

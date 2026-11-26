@@ -8,7 +8,7 @@
  */
 
 import type { Keymap } from './bindingTypes';
-import type { CommandDefinition } from './types';
+import type { CommandDefinition, Registry } from './types';
 
 /** The modes of a keymap, in the order their keys are listed. */
 const MODES = ['insert', 'navigation'] as const;
@@ -29,12 +29,21 @@ function aliasLine(definition: CommandDefinition): string | undefined {
   return `  Aliases: ${aliases.map((alias) => `/${alias}`).join(', ')}`;
 }
 
+/** The chords of {@link keymap} that run {@link definition} in {@link mode}. */
+function chordsIn(
+  definition: CommandDefinition,
+  keymap: Keymap,
+  mode: (typeof MODES)[number],
+): string[] {
+  return [...keymap[mode]]
+    .filter(([, entry]) => runs(definition, entry.line))
+    .map(([chord]) => chord);
+}
+
 /** The `Keys:` line of {@link definition} in {@link keymap}, or undefined when nothing runs it. */
 function keyLine(definition: CommandDefinition, keymap: Keymap): string | undefined {
   const keys = MODES.flatMap((mode) =>
-    [...keymap[mode]]
-      .filter(([, entry]) => runs(definition, entry.line))
-      .map(([chord]) => `${chord} (${mode})`),
+    chordsIn(definition, keymap, mode).map((chord) => `${chord} (${mode})`),
   );
   return keys.length === 0 ? undefined : `  Keys: ${keys.join(', ')}`;
 }
@@ -55,4 +64,27 @@ export function commandDetailLines(
 /** {@link commandDetailLines} as one multi-line text, for a tooltip and the suggestion strip. */
 export function commandDetail(definition: CommandDefinition, keymap: Keymap): string {
   return commandDetailLines(definition, keymap).join('\n');
+}
+
+/** What a one-line tooltip needs to look a command up: the registry and the effective keymap. */
+export type TipSource = {
+  readonly registry: Registry;
+  readonly keymap: Keymap;
+};
+
+/**
+ * The tooltip of a button that runs {@link command} (WFE-312): `Action: /command
+ * (keys)`, the keys being the distinct chords of the effective keymap in
+ * either mode, so a rebind changes it. {@link command} is the text shown, e.g.
+ * `feed edit`; its first word names the registry entry. A command the registry
+ * lacks, or one nothing is bound to, shows no keys.
+ */
+export function commandTip(action: string, command: string, source: TipSource): string {
+  const definition = source.registry.byName.get(command.replace(/ .*/u, ''));
+  const chords =
+    definition === undefined
+      ? []
+      : [...new Set(MODES.flatMap((mode) => chordsIn(definition, source.keymap, mode)))];
+  const keys = chords.length === 0 ? '' : ` (${chords.join(', ')})`;
+  return `${action}: /${command}${keys}`;
 }

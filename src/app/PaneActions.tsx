@@ -7,8 +7,9 @@
  * argument ask for it in a small dialog, then run the finished line, WFE-269,
  * and no row fills the command line); `◐▾` sets how its
  * posts are drawn; `✕` closes it. A tree pane also has `⧉`, a plain button
- * that tears the pane off into a float (`/float`, WFE-299); a float has `⊞`
- * (`/dock`) instead, and no split buttons (WFE-230). In both split menus
+ * that tears the pane off into a float (`/float`, WFE-299); a float has `⇲`
+ * (`/dock`) instead, and no split buttons (WFE-230). Every button has a
+ * `title` naming its action, command and keys (WFE-312). In both split menus
  * `Existing window…` swaps the rows for a list of the other open windows and
  * runs `/vsplit win N` (or `/split`) for the one chosen (WFE-270). Opening a
  * view as a float is the start menu's job (./StartMenu).
@@ -19,6 +20,7 @@ import type { JSX } from 'react';
 import { displayItems, displayLine, showsPosts } from './displayMenu';
 import styles from './PaneActions.module.css';
 import { TreeButtons } from './TreeButtons';
+import { useCommandTip } from './useCommandTip';
 import { useRunOnPane } from './useRunOnPane';
 import { feedById } from '../state/feeds';
 import { useAppState } from '../state/StateContext';
@@ -32,9 +34,11 @@ function DisplayMenu(props: { readonly paneId: string; readonly win: WindowState
   const { paneId, win } = props;
   const { settings } = useAppState();
   const runOnPane = useRunOnPane(paneId);
+  const tip = useCommandTip();
   return (
     <MenuButton
       label={`Display options for ${win.title}`}
+      title={tip('How posts are drawn', 'display')}
       glyph="◐▾"
       items={displayItems(settings, win)}
       onSelect={(id) => {
@@ -44,20 +48,22 @@ function DisplayMenu(props: { readonly paneId: string; readonly win: WindowState
   );
 }
 
-/** The `⊞` button of a float: puts it back in the tree. */
+/** The `⇲` button of a float: puts it back in the tree. */
 function DockButton(props: { readonly paneId: string; readonly win: WindowState }): JSX.Element {
   const { paneId, win } = props;
   const runOnPane = useRunOnPane(paneId);
+  const tip = useCommandTip();
   return (
     <button
       type="button"
       className={styles['button']}
       aria-label={`Dock ${win.title}`}
+      title={tip('Dock into the tiles', 'dock')}
       onClick={() => {
         runOnPane({ line: '/dock', prefill: false });
       }}
     >
-      ⊞
+      ⇲
     </button>
   );
 }
@@ -66,11 +72,13 @@ function DockButton(props: { readonly paneId: string; readonly win: WindowState 
 function FloatButton(props: { readonly paneId: string; readonly win: WindowState }): JSX.Element {
   const { paneId, win } = props;
   const runOnPane = useRunOnPane(paneId);
+  const tip = useCommandTip();
   return (
     <button
       type="button"
       className={styles['button']}
       aria-label={`Float ${win.title}`}
+      title={tip('Tear off into a floating window', 'float')}
       onClick={() => {
         runOnPane({ line: '/float', prefill: false });
       }}
@@ -88,6 +96,7 @@ function EditFeedButton(props: {
   const { paneId, win } = props;
   const { settings } = useAppState();
   const runOnPane = useRunOnPane(paneId);
+  const tip = useCommandTip();
   const feed = feedById(settings.feeds, win.ref.target ?? '');
   if (win.ref.kind !== 'feed' || feed === undefined) {
     return null;
@@ -97,6 +106,7 @@ function EditFeedButton(props: {
       type="button"
       className={styles['button']}
       aria-label={`Edit feed ${win.title}`}
+      title={tip('Edit this feed', 'feed edit')}
       onClick={() => {
         runOnPane({ line: `/feed edit ${feed.name}`, prefill: false });
       }}
@@ -115,6 +125,7 @@ export function PaneActions(props: {
   const { layout } = useAppState();
   const floating = findFloat(activeDesktop(layout).floats, paneId) !== null;
   const runOnPane = useRunOnPane(paneId);
+  const tip = useCommandTip();
   const close = useCallback(() => {
     runOnPane({ line: '/unsplit', prefill: false });
   }, [runOnPane]);
@@ -134,6 +145,7 @@ export function PaneActions(props: {
         type="button"
         className={styles['button']}
         aria-label={`Close pane ${win.title}`}
+        title={tip('Close this pane', 'unsplit')}
         onClick={close}
       >
         ✕

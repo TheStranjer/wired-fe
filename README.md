@@ -25,7 +25,7 @@ The screen is a desktop of panes split side by side or stacked. Each pane shows 
 | Swap with the neighbour            | `/swap left\|right\|up\|down`     |                        | `w x`                      |                                        |
 | Tear off into a float              | `/float [view]`                   | `Ctrl+B f`             | `w f`                      | `⧉`                                    |
 | Start menu: open a view as a float | `/start`                          | `Ctrl+B Space`         | `w Space`                  | `[≡ wired]` in the status line         |
-| Dock a float                       | `/dock`                           | `Ctrl+B d`             | `w d`                      | `⊞`; Shift-drag over a pane            |
+| Dock a float                       | `/dock`                           | `Ctrl+B d`             | `w d`                      | `⇲`; Shift-drag over a pane            |
 | Go to desktop N                    | `/desktop N`                      | `Ctrl+B N`             |                            | `Alt+1`..`Alt+9`                       |
 | Previous or next desktop           | `/desktop prev`, `/desktop next`  | `Ctrl+B p`, `Ctrl+B n` |                            | `Alt+[`, `Alt+]`                       |
 | New desktop                        | `/desktop new`                    | `Ctrl+B c`             |                            |                                        |

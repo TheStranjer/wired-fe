@@ -28,6 +28,8 @@ export type { MenuItem } from './menuNav';
 export type MenuButtonProps = {
   /** Accessible name of the button and of the menu, e.g. `Split side by side`. */
   readonly label: string;
+  /** The tooltip of the button, e.g. what it does, its command and keys (WFE-312); none when absent. */
+  readonly title?: string;
   /** The visible text of the button, e.g. `◫▾`. */
   readonly glyph: string;
   /** The menu's rows, top to bottom. */
@@ -59,7 +61,7 @@ function OpenMenu(props: {
 
 /** A button that opens a dropdown menu of `items`. */
 export function MenuButton(props: MenuButtonProps): JSX.Element {
-  const { label, glyph, items, onSelect, drill } = props;
+  const { label, title, glyph, items, onSelect, drill } = props;
   const buttonRef = useRef<HTMLButtonElement | null>(null);
   const focusButton = (): void => {
     buttonRef.current?.focus();
@@ -89,6 +91,7 @@ export function MenuButton(props: MenuButtonProps): JSX.Element {
           onButtonKey(event, items, menu.setActive);
         }}
         ref={buttonRef}
+        title={title}
         type="button"
       >
         {glyph}
