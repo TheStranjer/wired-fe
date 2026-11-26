@@ -8,6 +8,161 @@
   },
   "commands": {
     "defs": {
+      "about": {
+        "backend": "backend: {backend}",
+        "device": "device: {device}",
+        "features": "features: {count, plural, =0 {none} other {{names}}}",
+        "not_connected": "Not connected. Type /connect",
+        "polls": "polls: {options, plural, one {# option} other {# options}} of {characters} characters, {span}",
+        "posts": "posts: up to {characters} characters, {attachments, plural, one {# attachment} other {# attachments}}",
+        "summary": "Show what this instance is and can do",
+        "title_at": "{title} at {origin}"
+      },
+      "account": {
+        "active": "Active account: @{handle}",
+        "logged_out": "Logged out @{handle}",
+        "revoke_failed": "Could not revoke the token: {reason}",
+        "summary": "List, switch between and log out of accounts",
+        "usage": "/account [list] | /account switch '<n|handle>' | /account next | /account logout [n|handle]",
+        "usage_error": "Usage: {usage}"
+      },
+      "as": {
+        "posted": "posted as @{handle}",
+        "summary": "Post one line as another account",
+        "usage": "/as '<handle|n> <text>'",
+        "usage_error": "Usage: {usage}"
+      },
+      "attach": {
+        "summary": "Attach media to your next post",
+        "usage": "/attach [alt text]"
+      },
+      "bind": {
+        "blocks_typing": "{chord} would block typing in insert mode",
+        "must_start_with_slash": "The command line must start with /",
+        "not_a_key": "Not a key: {chords}",
+        "summary": "Bind a key to a command line",
+        "usage": "/bind '<insert|navigation> <chord> <command line>'",
+        "usage_error": "Usage: {usage}"
+      },
+      "binds": {
+        "mode_header": "Keys ({mode} mode):",
+        "none": "(none)",
+        "not_a_mode": "Not a mode: {word}. Try /binds",
+        "prefill": "(prefill)",
+        "summary": "Show the effective key bindings",
+        "usage_error": "Usage: {usage}"
+      },
+      "block": {
+        "summary": "Block an account",
+        "usage": "/block [target]"
+      },
+      "bookmark": {
+        "summary": "Bookmark a post, or remove the bookmark",
+        "usage": "/bookmark [label]"
+      },
+      "boost": {
+        "summary": "Boost a post, or take the boost back",
+        "usage": "/boost [label]"
+      },
+      "clear": {
+        "summary": "Clear the active window"
+      },
+      "close": {
+        "cannot_close_status": "The status window can't be closed",
+        "summary": "Close the active window"
+      },
+      "compose": {
+        "summary": "Open a composer window",
+        "usage": "/compose [text] [--in '<placement>']"
+      },
+      "connect": {
+        "could_not_start": "Could not start login: {reason}",
+        "opening": "Opening {origin} to log in…",
+        "summary": "Log in to an instance",
+        "usage": "/connect [instance]"
+      },
+      "copy": {
+        "copied": "copied {link}",
+        "summary": "Copy a post link to the clipboard",
+        "unavailable": "Clipboard unavailable",
+        "usage": "/copy [label]"
+      },
+      "cw": {
+        "summary": "Post to the active window behind a content warning",
+        "usage": "/cw '<warning> <text>'",
+        "usage_error": "Usage: /cw \"warning\" text"
+      },
+      "delete": {
+        "deleted": "✗ deleted [{label}]",
+        "summary": "Delete one of your own posts",
+        "usage": "/delete [label]"
+      },
+      "desktop": {
+        "closed": "closed desktop {number} (its windows are still open: /win)",
+        "closed_empty": "{count, plural, one {closed # empty desktop} other {closed # empty desktops}}",
+        "last_desktop": "Can't close the last desktop",
+        "no_desktop": "No desktop {number}",
+        "no_empty": "no empty desktops",
+        "summary": "List, switch (Alt+1..9, Alt+[ and Alt+]), create (only past a desktop with something on it), close (Ctrl+B &, a × or a middle-click on the status line) or prune empty desktops",
+        "usage": "/desktop [list] | /desktop '<number>' | /desktop next | /desktop prev | /desktop new | /desktop close [number] | /desktop prune",
+        "usage_error": "Usage: {usage}"
+      },
+      "detach": {
+        "cleared": "attachments cleared",
+        "summary": "Drop every attachment waiting for the next post"
+      },
+      "display": {
+        "cleared": "Display overrides cleared",
+        "inherited": "{key} inherited",
+        "line": "{key} = {value}  ({source, select, inherited {inherited} other {overridden}})",
+        "no_key": "No display key {key}. Try /display",
+        "summary": "Show or override this window's density, avatars and images",
+        "takes": "{key} takes {values}",
+        "usage": "/display [key [value] | reset [key]]",
+        "usage_error": "Usage: {usage}"
+      },
+      "dm": {
+        "summary": "Send a direct message in one line",
+        "usage": "/dm @user@host message",
+        "usage_error": "Usage: {usage}"
+      },
+      "dock": {
+        "not_a_float": "The focused pane is not a float",
+        "summary": "Dock the focused float into the tiled panes"
+      },
+      "edit": {
+        "edited": "✎ edited [{label}]",
+        "summary": "Edit one of your own posts; with no text, open a composer (e prefills)",
+        "usage": "/edit [label] [text]; with no text, opens a composer"
+      },
+      "equalize": {
+        "summary": "Give every pane an equal share of the desktop"
+      },
+      "fav": {
+        "summary": "Favourite a post, or take the favourite back",
+        "usage": "/fav [label]"
+      },
+      "federated": {
+        "summary": "Open the federated timeline",
+        "usage": "/federated [text] [--in '<placement>']"
+      },
+      "feed": {
+        "summary": "Make, change and open feeds ({subcommands})",
+        "usage": "/feed [list] | /feed '<name>' | /feed edit '<name>' | /feed new ['<name> <source>'…] | /feed add|rm '<name> <source>'… | /feed rename '<old> <new>' | /feed delete '<name>'"
+      },
+      "float": {
+        "already_floating": "The focused pane is already a float",
+        "no_pane": "There is no pane to float on this desktop",
+        "summary": "Tear the focused pane off into a float, or open a view in a new one"
+      },
+      "focus": {
+        "summary": "Focus the pane in a direction, or cycle through the panes",
+        "usage_error": "Usage: {usage}"
+      },
+      "follow": {
+        "summary": "Follow an account",
+        "usage": "/follow [target]"
+      },
       "lang": {
         "auto_hint": "Follow the instance default, then the browser",
         "available": "Available languages:",

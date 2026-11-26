@@ -13,6 +13,7 @@
  */
 
 import type { StoredAccount } from '../../accounts/accountStore';
+import { t } from '../../i18n/translate';
 import { composerIsEmpty } from '../../state/composerActions';
 import { composerWindowOpen } from '../../state/composerWindow';
 import { activeAccount } from '../../state/selectors';
@@ -89,8 +90,12 @@ function handle(args: string, context: CommandContext): CommandOutcome {
 export const command: CommandDefinition = {
   name: 'compose',
   aliases: ['c', 'composer'],
-  usage: '/compose [text] [--in <placement>]',
-  summary: 'Open a composer window',
+  get usage(): string {
+    return t('commands.defs.compose.usage');
+  },
+  get summary(): string {
+    return t('commands.defs.compose.summary');
+  },
   run: placedRun(syncRun(handle)),
   bindings: BINDINGS,
 };

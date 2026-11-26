@@ -5,6 +5,7 @@
  * the active window is the only target.
  */
 
+import { t } from '../../i18n/translate';
 import { STATUS_WINDOW_ID, activeWindow } from '../../windows/model';
 import type { CommandDefinition, CommandOutcome } from '../types';
 
@@ -12,21 +13,22 @@ import type { CommandDefinition, CommandOutcome } from '../types';
 const OK: CommandOutcome = { ok: true };
 
 /** The refusal: every session keeps its window 1. */
-const CANNOT_CLOSE_STATUS: CommandOutcome = {
-  ok: false,
-  message: "The status window can't be closed",
-};
+function cannotCloseStatus(): CommandOutcome {
+  return { ok: false, message: t('commands.defs.close.cannot_close_status') };
+}
 
 /** The `/close` (alias `/part`) definition. */
 export const command: CommandDefinition = {
   name: 'close',
   aliases: ['part'],
   usage: '/close',
-  summary: 'Close the active window',
+  get summary(): string {
+    return t('commands.defs.close.summary');
+  },
   run: async (_args, context) => {
     const { id } = activeWindow(context.windows);
     if (id === STATUS_WINDOW_ID) {
-      return await Promise.resolve(CANNOT_CLOSE_STATUS);
+      return await Promise.resolve(cannotCloseStatus());
     }
     context.dispatchWindows({ type: 'close', id });
     return await Promise.resolve(OK);

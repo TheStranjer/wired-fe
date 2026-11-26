@@ -6,6 +6,7 @@
  * this command only reads the word and hands the step over.
  */
 
+import { t } from '../../i18n/translate';
 import { wordsOf } from '../../lib/words';
 import type { CommandBinding } from '../bindingTypes';
 import { focusStepOf } from '../directionWords';
@@ -13,7 +14,7 @@ import { OK, fail, syncRun } from '../outcome';
 import { tmuxBindings } from '../tmuxBindings';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
-/** The command's one form; a refused argument echoes it. */
+/** The command's one form, all literal words, so it is not translated; a refused argument echoes it. */
 const USAGE = '/focus <left|right|up|down|next|prev>';
 
 /**
@@ -39,7 +40,7 @@ function handle(args: string, context: CommandContext): CommandOutcome {
   const [word, ...rest] = wordsOf(args.toLowerCase());
   const step = word === undefined || rest.length > 0 ? null : focusStepOf(word);
   if (step === null) {
-    return fail(`Usage: ${USAGE}`);
+    return fail(t('commands.defs.focus.usage_error', { usage: USAGE }));
   }
   context.dispatch({ type: 'layout', action: { type: 'focusStep', step } });
   return OK;
@@ -49,7 +50,9 @@ function handle(args: string, context: CommandContext): CommandOutcome {
 export const command: CommandDefinition = {
   name: 'focus',
   usage: USAGE,
-  summary: 'Focus the pane in a direction, or cycle through the panes',
+  get summary(): string {
+    return t('commands.defs.focus.summary');
+  },
   run: syncRun(handle),
   bindings: BINDINGS,
 };

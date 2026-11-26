@@ -9,14 +9,19 @@
  * the author of the selected post, as immediate as the post toggles.
  */
 
+import { t } from '../../i18n/translate';
 import { accountToggleRun } from '../accountToggle';
 import type { CommandDefinition } from '../types';
 
 /** The `/follow` definition. */
 export const command: CommandDefinition = {
   name: 'follow',
-  usage: '/follow [target]',
-  summary: 'Follow an account',
+  get usage(): string {
+    return t('commands.defs.follow.usage');
+  },
+  get summary(): string {
+    return t('commands.defs.follow.summary');
+  },
   run: accountToggleRun('follow', 'following'),
   bindings: [{ mode: 'navigation', chord: 'Shift+f', args: '' }],
 };

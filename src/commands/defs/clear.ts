@@ -4,6 +4,7 @@
  * terminal. Arguments are ignored: the active window is the only target.
  */
 
+import { t } from '../../i18n/translate';
 import type { CommandDefinition, CommandOutcome } from '../types';
 
 /** /clear cannot fail: an already empty window clears just the same. */
@@ -14,7 +15,9 @@ export const command: CommandDefinition = {
   name: 'clear',
   aliases: ['cl'],
   usage: '/clear',
-  summary: 'Clear the active window',
+  get summary(): string {
+    return t('commands.defs.clear.summary');
+  },
   run: async (_args, context) => {
     context.clearActiveWindow();
     return await Promise.resolve(OK);

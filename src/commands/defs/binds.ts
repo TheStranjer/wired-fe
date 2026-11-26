@@ -8,25 +8,26 @@
  * prints `(none)`. One argument limits the list to that mode.
  */
 
+import { t } from '../../i18n/translate';
 import { wordsOf } from '../../lib/words';
 import { modeOf } from '../bindingArgs';
 import type { BindingMode } from '../bindingTypes';
 import { OK, fail, syncRun } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
-/** The command's one form. */
+/** The command's one form: its words are all literal, so it is not translated. */
 const USAGE = '/binds [insert|navigation]';
 
 /** Print {@link mode}'s header and its chords sorted by chord; `(none)` when it has none. */
 function printMode(context: CommandContext, mode: BindingMode): void {
-  context.print(`Keys (${mode} mode):`);
+  context.print(t('commands.defs.binds.mode_header', { mode }));
   const bound = [...context.keys.keymap[mode]].toSorted((a, b) => a[0].localeCompare(b[0]));
   if (bound.length === 0) {
-    context.print('  (none)');
+    context.print(`  ${t('commands.defs.binds.none')}`);
     return;
   }
   for (const [chord, entry] of bound) {
-    const tag = entry.prefill ? ' (prefill)' : '';
+    const tag = entry.prefill ? ` ${t('commands.defs.binds.prefill')}` : '';
     context.print(`  ${chord}  ${entry.line}${tag}`);
   }
 }
@@ -35,7 +36,7 @@ function printMode(context: CommandContext, mode: BindingMode): void {
 function handle(args: string, context: CommandContext): CommandOutcome {
   const [word, extra] = wordsOf(args);
   if (extra !== undefined) {
-    return fail(`Usage: ${USAGE}`);
+    return fail(t('commands.defs.binds.usage_error', { usage: USAGE }));
   }
   if (word === undefined) {
     printMode(context, 'insert');
@@ -44,7 +45,7 @@ function handle(args: string, context: CommandContext): CommandOutcome {
   }
   const mode = modeOf(word);
   if (mode === null) {
-    return fail(`Not a mode: ${word}. Try /binds`);
+    return fail(t('commands.defs.binds.not_a_mode', { word }));
   }
   printMode(context, mode);
   return OK;
@@ -55,6 +56,8 @@ export const command: CommandDefinition = {
   name: 'binds',
   aliases: ['keys'],
   usage: USAGE,
-  summary: 'Show the effective key bindings',
+  get summary(): string {
+    return t('commands.defs.binds.summary');
+  },
   run: syncRun(handle),
 };

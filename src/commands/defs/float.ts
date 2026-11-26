@@ -7,6 +7,7 @@
  * puts a float back in the tree and `/raise` brings one to the top.
  */
 
+import { t } from '../../i18n/translate';
 import { wordsOf } from '../../lib/words';
 import { activeDesktop } from '../../windows/desktops';
 import { findFloat } from '../../windows/floats';
@@ -19,20 +20,14 @@ import type { CommandContext, CommandDefinition, CommandOutcome } from '../types
 /** Every form of the command: /help shows it, a bad view echoes it. */
 const USAGE = `/float ${VIEW_USAGE} | /float ${ADJUST_USAGE}`;
 
-/** The refusal on a desktop with nothing focused. */
-const NO_PANE = fail('There is no pane to float on this desktop');
-
-/** The refusal when the focused pane is a float already. */
-const ALREADY_FLOATING = fail('The focused pane is already a float');
-
 /** Tear the focused tiled pane off into a float. */
 function floatFocused(context: CommandContext): CommandOutcome {
   const { floats, focusedPaneId } = activeDesktop(context.state.layout);
   if (focusedPaneId === null) {
-    return NO_PANE;
+    return fail(t('commands.defs.float.no_pane'));
   }
   if (findFloat(floats, focusedPaneId) !== null) {
-    return ALREADY_FLOATING;
+    return fail(t('commands.defs.float.already_floating'));
   }
   context.dispatch({ type: 'layout', action: { type: 'float' } });
   return OK;
@@ -55,7 +50,9 @@ async function floatView(args: string, context: CommandContext): Promise<Command
 export const command: CommandDefinition = {
   name: 'float',
   usage: USAGE,
-  summary: 'Tear the focused pane off into a float, or open a view in a new one',
+  get summary(): string {
+    return t('commands.defs.float.summary');
+  },
   bindings: [...tmuxBindings('f', ''), { mode: 'navigation', chord: 'w f', args: '' }],
   run: async (args, context) => {
     const [first, ...rest] = wordsOf(args);

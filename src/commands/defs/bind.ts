@@ -13,13 +13,11 @@
  * <line>`.
  */
 
+import { t } from '../../i18n/translate';
 import { wordsOf } from '../../lib/words';
 import { modeOf, splitBinding, storeRebind } from '../bindingArgs';
 import { OK, fail, syncRun } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
-
-/** The command's one form. */
-const USAGE = '/bind <insert|navigation> <chord> <command line>';
 
 /** Do what one argument text asks, or refuse it naming the reason it cannot work. */
 function handle(args: string, context: CommandContext): CommandOutcome {
@@ -27,17 +25,17 @@ function handle(args: string, context: CommandContext): CommandOutcome {
   const mode = modeOf(modeWord);
   const { chords, line } = splitBinding(rest);
   if (mode === null || chords === '' || line === '') {
-    return fail(`Usage: ${USAGE}`);
+    return fail(t('commands.defs.bind.usage_error', { usage: t('commands.defs.bind.usage') }));
   }
   const chord = context.keys.parseChord(chords);
   if (chord === null) {
-    return fail(`Not a key: ${chords}`);
+    return fail(t('commands.defs.bind.not_a_key', { chords }));
   }
   if (!line.startsWith('/')) {
-    return fail('The command line must start with /');
+    return fail(t('commands.defs.bind.must_start_with_slash'));
   }
   if (mode === 'insert' && context.keys.blocksTyping(chord)) {
-    return fail(`${chord} would block typing in insert mode`);
+    return fail(t('commands.defs.bind.blocks_typing', { chord }));
   }
   storeRebind(context, { mode, chord, line });
   context.print(`${mode} ${chord} → ${line}`);
@@ -47,7 +45,11 @@ function handle(args: string, context: CommandContext): CommandOutcome {
 /** The `/bind` definition. */
 export const command: CommandDefinition = {
   name: 'bind',
-  usage: USAGE,
-  summary: 'Bind a key to a command line',
+  get usage(): string {
+    return t('commands.defs.bind.usage');
+  },
+  get summary(): string {
+    return t('commands.defs.bind.summary');
+  },
   run: syncRun(handle),
 };

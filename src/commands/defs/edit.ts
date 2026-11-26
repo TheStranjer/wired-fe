@@ -22,6 +22,7 @@ import { editStatus } from '../../api/endpoints/statusWrite';
 import { describeApiError } from '../../api/errors';
 import type { Capabilities } from '../../capabilities/capabilities';
 import { requireFeature } from '../../capabilities/requireFeature';
+import { t } from '../../i18n/translate';
 import { composerWindowFor } from '../../state/composerWindow';
 import type { Placement } from '../../state/placement';
 import { windowId } from '../../windows/model';
@@ -50,7 +51,7 @@ async function send(
     return fail(describeApiError(edited.error));
   }
   context.dispatch({ type: 'statusUpdated', status: edited.value });
-  context.print(`✎ edited [${printedLabel(context, status)}]`);
+  context.print(t('commands.defs.edit.edited', { label: printedLabel(context, status) }));
   return OK;
 }
 
@@ -106,8 +107,12 @@ async function handle(args: string, context: CommandContext): Promise<CommandOut
 /** The `/edit` definition. */
 export const command: CommandDefinition = {
   name: 'edit',
-  usage: '/edit [label] [text]; with no text, opens a composer',
-  summary: 'Edit one of your own posts; with no text, open a composer (e prefills)',
+  get usage(): string {
+    return t('commands.defs.edit.usage');
+  },
+  get summary(): string {
+    return t('commands.defs.edit.summary');
+  },
   requires: 'editing',
   run: async (args, context) => await handle(args, context),
   bindings: [{ mode: 'navigation', chord: 'e', args: '{label}', prefill: true }],

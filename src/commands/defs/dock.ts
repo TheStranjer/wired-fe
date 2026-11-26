@@ -4,23 +4,28 @@
  * changes nothing. The layout reducer does the move.
  */
 
+import { t } from '../../i18n/translate';
 import { focusedFloat } from '../focusedFloat';
 import { OK, contextRun, fail } from '../outcome';
 import { tmuxBindings } from '../tmuxBindings';
-import type { CommandDefinition } from '../types';
+import type { CommandDefinition, CommandOutcome } from '../types';
 
 /** The refusal when the focused pane is not a float. */
-const NOT_A_FLOAT = fail('The focused pane is not a float');
+function notAFloat(): CommandOutcome {
+  return fail(t('commands.defs.dock.not_a_float'));
+}
 
 /** The `/dock` definition. */
 export const command: CommandDefinition = {
   name: 'dock',
   usage: '/dock',
-  summary: 'Dock the focused float into the tiled panes',
+  get summary(): string {
+    return t('commands.defs.dock.summary');
+  },
   bindings: [...tmuxBindings('d', ''), { mode: 'navigation', chord: 'w d', args: '' }],
   run: contextRun((context) => {
     if (focusedFloat(context) === null) {
-      return NOT_A_FLOAT;
+      return notAFloat();
     }
     context.dispatch({ type: 'layout', action: { type: 'dock' } });
     return OK;

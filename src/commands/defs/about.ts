@@ -9,22 +9,17 @@
 
 import type { Capabilities } from '../../capabilities/capabilities';
 import type { InstanceProfile } from '../../capabilities/detect';
+import { t } from '../../i18n/translate';
 import type { DeviceClass } from '../../lib/deviceClass';
 import { formatDuration } from '../../lib/duration';
 import { activeAccount } from '../../state/selectors';
-import { OK, contextRun } from '../outcome';
+import { OK, contextRun, fail } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
-
-/** Shown when the command has no connected instance to describe. */
-const NOT_CONNECTED: CommandOutcome = {
-  ok: false,
-  message: 'Not connected. Type /connect',
-};
 
 /** The `features:` line: the advertised flags in order, or none at all. */
 function featuresLine(capabilities: Capabilities): string {
   const names = [...capabilities.features];
-  return `  features: ${names.length === 0 ? 'none' : names.join(', ')}`;
+  return t('commands.defs.about.features', { count: names.length, names: names.join(', ') });
 }
 
 /** The six report lines of {@link profile} on a {@link device}, as the scrollback shows them. */
@@ -32,12 +27,16 @@ function reportLines(profile: InstanceProfile, device: DeviceClass): readonly st
   const { backend, maxCharacters, maxMediaAttachments, pollLimits } = profile.capabilities;
   const span = `${formatDuration(pollLimits.minExpiration)}–${formatDuration(pollLimits.maxExpiration)}`;
   return [
-    `${profile.title} at ${profile.origin}`,
-    `  backend: ${backend}`,
-    `  posts: up to ${String(maxCharacters)} characters, ${String(maxMediaAttachments)} attachments`,
-    `  polls: ${String(pollLimits.maxOptions)} options of ${String(pollLimits.maxCharactersPerOption)} characters, ${span}`,
-    featuresLine(profile.capabilities),
-    `  device: ${device}`,
+    t('commands.defs.about.title_at', { title: profile.title, origin: profile.origin }),
+    `  ${t('commands.defs.about.backend', { backend })}`,
+    `  ${t('commands.defs.about.posts', { characters: String(maxCharacters), attachments: maxMediaAttachments })}`,
+    `  ${t('commands.defs.about.polls', {
+      options: pollLimits.maxOptions,
+      characters: String(pollLimits.maxCharactersPerOption),
+      span,
+    })}`,
+    `  ${featuresLine(profile.capabilities)}`,
+    `  ${t('commands.defs.about.device', { device })}`,
   ];
 }
 
@@ -46,7 +45,7 @@ function handle(context: CommandContext): CommandOutcome {
   const account = activeAccount(context.state);
   const profile = account === null ? undefined : context.state.profiles.get(account.origin);
   if (profile === undefined) {
-    return NOT_CONNECTED;
+    return fail(t('commands.defs.about.not_connected'));
   }
   for (const line of reportLines(profile, context.deviceClass)) {
     context.print(line);
@@ -59,6 +58,8 @@ export const command: CommandDefinition = {
   name: 'about',
   aliases: ['info'],
   usage: '/about',
-  summary: 'Show what this instance is and can do',
+  get summary(): string {
+    return t('commands.defs.about.summary');
+  },
   run: contextRun(handle),
 };

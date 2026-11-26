@@ -20,6 +20,7 @@ import { redirectUriFor } from '../../accounts/callback';
 import { resolveInstanceOrigin } from '../../accounts/origin';
 import { describeApiError } from '../../api/errors';
 import { forgetProfile } from '../../capabilities/profileCache';
+import { t } from '../../i18n/translate';
 import { OK, fail } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
@@ -48,10 +49,12 @@ async function handle(args: string, context: CommandContext): Promise<CommandOut
     },
   );
   if (!started.ok) {
-    return fail(`Could not start login: ${describeApiError(started.error)}`);
+    return fail(
+      t('commands.defs.connect.could_not_start', { reason: describeApiError(started.error) }),
+    );
   }
 
-  context.print(`Opening ${instance.value} to log in…`);
+  context.print(t('commands.defs.connect.opening', { origin: instance.value }));
   context.navigate(started.value);
   return OK;
 }
@@ -60,7 +63,11 @@ async function handle(args: string, context: CommandContext): Promise<CommandOut
 export const command: CommandDefinition = {
   name: 'connect',
   aliases: ['server', 'login'],
-  usage: '/connect [instance]',
-  summary: 'Log in to an instance',
+  get usage(): string {
+    return t('commands.defs.connect.usage');
+  },
+  get summary(): string {
+    return t('commands.defs.connect.summary');
+  },
   run: handle,
 };

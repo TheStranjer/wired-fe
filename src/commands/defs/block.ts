@@ -9,14 +9,19 @@
  * same line.
  */
 
+import { t } from '../../i18n/translate';
 import { accountToggleRun } from '../accountToggle';
 import type { CommandDefinition } from '../types';
 
 /** The `/block` definition. */
 export const command: CommandDefinition = {
   name: 'block',
-  usage: '/block [target]',
-  summary: 'Block an account',
+  get usage(): string {
+    return t('commands.defs.block.usage');
+  },
+  get summary(): string {
+    return t('commands.defs.block.summary');
+  },
   run: accountToggleRun('block', 'blocked'),
   bindings: [{ mode: 'navigation', chord: 'Shift+x', args: '{label}', prefill: true }],
 };

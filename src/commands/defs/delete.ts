@@ -15,6 +15,7 @@
 
 import { deleteStatus } from '../../api/endpoints/statusWrite';
 import { describeApiError } from '../../api/errors';
+import { t } from '../../i18n/translate';
 import { OK, fail } from '../outcome';
 import { printedLabel } from '../statusLabel';
 import { type StatusTarget, resolveOwnStatusTarget } from '../targets';
@@ -28,7 +29,7 @@ async function remove(target: StatusTarget, context: CommandContext): Promise<Co
     return fail(describeApiError(deleted.error));
   }
   context.dispatch({ type: 'statusDeleted', id });
-  context.print(`✗ deleted [${printedLabel(context, target.status)}]`);
+  context.print(t('commands.defs.delete.deleted', { label: printedLabel(context, target.status) }));
   return OK;
 }
 
@@ -42,8 +43,12 @@ async function handle(args: string, context: CommandContext): Promise<CommandOut
 export const command: CommandDefinition = {
   name: 'delete',
   aliases: ['del'],
-  usage: '/delete [label]',
-  summary: 'Delete one of your own posts',
+  get usage(): string {
+    return t('commands.defs.delete.usage');
+  },
+  get summary(): string {
+    return t('commands.defs.delete.summary');
+  },
   run: async (args, context) => await handle(args, context),
   bindings: [{ mode: 'navigation', chord: 'Shift+d', args: '{label}', prefill: true }],
 };
