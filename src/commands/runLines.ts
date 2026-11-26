@@ -12,6 +12,7 @@ import { OK, fail } from './outcome';
 import { parseInput } from './parseInput';
 import { lookupCommand } from './registry';
 import type { CommandContext, CommandOutcome } from './types';
+import { t } from '../i18n/translate';
 import { type AppAction, appReducer } from '../state/reducer';
 
 /** The message of a thrown value, however unfriendly the throw was. */
@@ -23,16 +24,16 @@ function errorMessage(error: unknown): string {
 async function runLine(line: string, context: CommandContext): Promise<CommandOutcome> {
   const parsed = parseInput(line);
   if (parsed.kind !== 'command') {
-    return fail(`Not a command: ${line}`);
+    return fail(t('commands.not_a_command', { line }));
   }
   const definition = lookupCommand(context.registry, parsed.name);
   if (definition === undefined) {
-    return fail(`Unknown command: /${parsed.name}`);
+    return fail(t('commands.unknown_command_plain', { name: parsed.name }));
   }
   try {
     return await definition.run(parsed.rest, context);
   } catch (error) {
-    return fail(`Command failed: ${errorMessage(error)}`);
+    return fail(t('commands.command_failed', { error: errorMessage(error) }));
   }
 }
 

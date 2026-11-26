@@ -19,7 +19,7 @@ import { describeApiError } from '../api/errors';
 import type { Account } from '../api/schemas/account';
 import type { Status } from '../api/schemas/status';
 import type { ApiSession } from '../api/session';
-import { NOT_LOGGED_IN_MESSAGE } from '../lib/refusal';
+import { t } from '../i18n/translate';
 import { type Result, err, ok } from '../lib/result';
 import { type LineStatus, lineStatusForLabel, selectedLineStatus } from '../state/bufferSelection';
 import { accountByKey, activeBuffer, sessionFor, windowAccountKey } from '../state/selectors';
@@ -63,7 +63,7 @@ function actingAs(context: CommandContext): Result<Acting, string> {
   const { state } = context;
   const accountKey = windowAccountKey(state, activeWindow(state.windows).id);
   const session = sessionFor(state, accountKey);
-  return session === null ? err(NOT_LOGGED_IN_MESSAGE) : ok({ accountKey, session });
+  return session === null ? err(t('commands.not_logged_in')) : ok({ accountKey, session });
 }
 
 /** The status a boost shows instead of itself; any other status as it is. */
@@ -83,13 +83,13 @@ function actingForLine(context: CommandContext, fallback: Acting, lineKey: strin
 /** The post the active window gave {@link word} as its label, or the refusal naming it. */
 function labelledPost(context: CommandContext, word: string): Result<LineStatus, string> {
   const found = lineStatusForLabel(activeBuffer(context.state), word);
-  return found === null ? err(`No post ${word} here`) : ok(found);
+  return found === null ? err(t('commands.no_post_here', { label: word })) : ok(found);
 }
 
 /** The post the active window's selection stands on, or the refusal to run without one. */
 function selectedPost(context: CommandContext): Result<LineStatus, string> {
   const found = selectedLineStatus(activeBuffer(context.state));
-  return found === null ? err('Select a post first (j/k) or give a label') : ok(found);
+  return found === null ? err(t('commands.select_post_first')) : ok(found);
 }
 
 /**
@@ -142,7 +142,7 @@ export function resolveOwnStatusTarget(
   const accountId = accountByKey(context.state, target.value.accountKey)?.accountId;
   return target.value.status.account.id === accountId
     ? target
-    : err(`You can only ${verb} your own posts`);
+    : err(t('commands.own_posts_only', { verb }));
 }
 
 /** The account named by {@link handle}, or the refusal quoting why the lookup failed. */
@@ -153,7 +153,7 @@ async function accountByHandle(
 ): Promise<Result<AccountTarget, string>> {
   const found = await lookupAccount(acting.session, handle);
   if (!found.ok) {
-    return err(`No account ${handle}: ${describeApiError(found.error)}`);
+    return err(t('commands.no_account_lookup', { handle, error: describeApiError(found.error) }));
   }
   return ok({ account: found.value, rest, ...acting });
 }
