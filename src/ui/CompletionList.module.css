@@ -20,9 +20,13 @@
   bottom: auto;
 }
 
+/* About eight rows tall; the rest scrolls, and never into the pane behind (WFE-306). */
 .list {
   display: flex;
   flex-direction: column;
+  max-height: calc(8 * var(--line-height) * 1em);
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .row,
@@ -54,11 +58,6 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.more {
-  padding: 0 var(--space);
-  color: var(--color-dim);
 }
 
 .image {

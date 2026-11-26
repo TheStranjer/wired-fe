@@ -1,11 +1,13 @@
 /**
  * The live suggestion list above the command line (WFE-297): a listbox with
- * one option per suggested word, its name and a one-line description, and a
- * dim count of the rows that did not fit. The input keeps focus and names the
+ * one option per suggested word, its name and a one-line description. It
+ * scrolls when there are more rows than fit (WFE-306), and keeps the
+ * highlighted option in view. The input keeps focus and names the
  * highlighted option through `aria-activedescendant`, so the options are not
  * in the tab order and a press on one does not take focus; a click picks it.
  * Generic: the rows are labels and descriptions, whatever provider made them.
  */
+import { useEffect, useRef } from 'react';
 import type { JSX } from 'react';
 
 import styles from './CompletionList.module.css';
@@ -32,16 +34,24 @@ type CompletionListProps = {
   readonly rows: readonly CompletionRow[];
   /** The highlighted row, -1 for none. */
   readonly active: number;
-  /** Rows that did not fit, counted on a line after the list. */
-  readonly more: number;
 };
 
-/** The suggestions as a listbox, hidden while there are none. */
+/** The suggestions as a listbox, hidden while there are none; it scrolls to the highlighted option. */
 export function CompletionList(props: CompletionListProps): JSX.Element {
-  const { id, label, rows, active, more } = props;
+  const { id, label, rows, active } = props;
+  const listRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const row = listRef.current?.children.item(active);
+    // jsdom implements no scrollIntoView.
+    if (row instanceof HTMLElement && 'scrollIntoView' in row) {
+      row.scrollIntoView({ block: 'nearest' });
+    }
+  }, [active]);
+
   return (
     <div className={styles['popup']} hidden={rows.length === 0}>
-      <div aria-label={label} className={styles['list']} id={id} role="listbox">
+      <div aria-label={label} className={styles['list']} id={id} ref={listRef} role="listbox">
         {rows.map((row, index) => (
           <button
             aria-selected={index === active}
@@ -69,7 +79,6 @@ export function CompletionList(props: CompletionListProps): JSX.Element {
           </button>
         ))}
       </div>
-      {more > 0 ? <div className={styles['more']}>+{String(more)} more</div> : null}
     </div>
   );
 }

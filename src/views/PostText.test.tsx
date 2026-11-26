@@ -22,7 +22,6 @@ function completion(overrides: Partial<PostCompletion> = {}): PostCompletion {
       { label: '@alice@m.example', description: 'Alice', pick: vi.fn() },
       { label: '@alex@m.example', description: 'Alex', pick: vi.fn() },
     ],
-    more: 0,
     active: 1,
     ...overrides,
   };
@@ -55,6 +54,29 @@ describe(PostText, () => {
       'post-list',
     );
     expect(screen.getAllByRole('option')).toHaveLength(2);
+  });
+
+  it('lists every row and scrolls the highlighted one into view (WFE-306)', () => {
+    const scrollIntoView = vi.fn();
+    Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
+      configurable: true,
+      value: scrollIntoView,
+    });
+    const many = Array.from({ length: 12 }, (_, index) => ({
+      label: `@u${String(index)}`,
+      description: '',
+      pick: vi.fn(),
+    }));
+
+    show({ completion: completion({ rows: many, active: 10 }) });
+
+    const options = screen.getAllByRole('option');
+
+    expect(options).toHaveLength(12);
+    expect(scrollIntoView).toHaveBeenCalledExactlyOnceWith({ block: 'nearest' });
+    expect(scrollIntoView.mock.contexts[0]).toBe(options[10]);
+
+    Reflect.deleteProperty(HTMLElement.prototype, 'scrollIntoView');
   });
 
   it('names no row while none is highlighted', () => {
