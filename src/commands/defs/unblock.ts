@@ -5,13 +5,18 @@
  * {@link accountToggleRun} describes is the body.
  */
 
+import { t } from '../../i18n/translate';
 import { accountToggleRun } from '../accountToggle';
 import type { CommandDefinition } from '../types';
 
 /** The `/unblock` definition. */
 export const command: CommandDefinition = {
   name: 'unblock',
-  usage: '/unblock [target]',
-  summary: 'Take a block back',
+  get usage(): string {
+    return t('commands.defs.unblock.usage');
+  },
+  get summary(): string {
+    return t('commands.defs.unblock.summary');
+  },
   run: accountToggleRun('unblock', 'unblocked'),
 };

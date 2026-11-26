@@ -13,13 +13,16 @@
  * checked the command says what to type instead.
  */
 
+import { t } from '../../i18n/translate';
 import { activeAccount } from '../../state/selectors';
 import { placedRun } from '../openWindowRun';
 import { NOT_LOGGED_IN, OK, fail, syncRun } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** The command's grammar: /help shows it, a bare argument echoes it. */
-const USAGE = '/search <query>';
+function usage(): string {
+  return t('commands.defs.search.usage');
+}
 
 /** How many query characters the window title shows; the target keeps it all. */
 const TITLE_QUERY_LENGTH = 20;
@@ -33,7 +36,7 @@ function searchTitle(query: string): string {
 function handle(args: string, context: CommandContext): CommandOutcome {
   const query = args.trim();
   if (query === '') {
-    return fail(`Usage: ${USAGE}`);
+    return fail(t('commands.defs.search.usage_error', { usage: usage() }));
   }
   const account = activeAccount(context.state);
   if (account === null) {
@@ -51,7 +54,11 @@ function handle(args: string, context: CommandContext): CommandOutcome {
 export const command: CommandDefinition = {
   name: 'search',
   aliases: ['s'],
-  usage: USAGE,
-  summary: 'Search accounts, posts and tags',
+  get usage(): string {
+    return usage();
+  },
+  get summary(): string {
+    return t('commands.defs.search.summary');
+  },
   run: placedRun(syncRun(handle)),
 };

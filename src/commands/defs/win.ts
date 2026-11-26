@@ -7,6 +7,7 @@
  * command only reads the list and hands the matching action over.
  */
 
+import { t } from '../../i18n/translate';
 import { wordsOf } from '../../lib/words';
 import { STATUS_WINDOW_ID, activeWindow, type WindowState } from '../../windows/model';
 import type { CommandBinding } from '../bindingTypes';
@@ -14,10 +15,14 @@ import { OK, fail, syncRun } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** Every form of the command: /help shows it, a bad argument echoes it. */
-const USAGE = '/win <number> | /win next | /win prev | /win move <number> | /win list';
+function usage(): string {
+  return t('commands.defs.win.usage');
+}
 
 /** The argument text matched none of the command's forms. */
-const USAGE_ERROR = fail(`Usage: ${USAGE}`);
+function usageError(): CommandOutcome {
+  return fail(t('commands.defs.win.usage_error', { usage: usage() }));
+}
 
 /** The digits whose bare N binding jumps straight to window N in navigation mode. */
 const WINDOW_DIGITS: readonly string[] = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
@@ -55,7 +60,7 @@ function positiveInteger(text: string | undefined): number | null {
 /** Jump to window `number`; a list too short to have it is the refusal. */
 function activate(context: CommandContext, number: number): CommandOutcome {
   if (number > context.windows.windows.length) {
-    return fail(`No window ${String(number)}`);
+    return fail(t('commands.defs.win.no_window', { number: String(number) }));
   }
   context.dispatchWindows({ type: 'activateNumber', number });
   return OK;
@@ -71,11 +76,11 @@ function cycle(context: CommandContext, direction: 'next' | 'previous'): Command
 function move(context: CommandContext, word: string | undefined): CommandOutcome {
   const toNumber = positiveInteger(word);
   if (toNumber === null) {
-    return USAGE_ERROR;
+    return usageError();
   }
   const { id } = activeWindow(context.windows);
   if (id === STATUS_WINDOW_ID || toNumber < 2 || toNumber > context.windows.windows.length) {
-    return fail("Can't move this window there");
+    return fail(t('commands.defs.win.cannot_move'));
   }
   context.dispatchWindows({ type: 'move', id, toNumber });
   return OK;
@@ -84,7 +89,7 @@ function move(context: CommandContext, word: string | undefined): CommandOutcome
 /** One listing line: marker, number, title, then unread and highlight tags. */
 function listLine(win: WindowState, number: number, active: boolean): string {
   const marker = active ? '>' : ' ';
-  const unread = win.unread > 0 ? ` (${String(win.unread)} unread)` : '';
+  const unread = win.unread > 0 ? t('commands.defs.win.unread', { count: win.unread }) : '';
   const highlighted = win.highlight ? ' *' : '';
   return `${marker} ${String(number)}: ${win.title}${unread}${highlighted}`;
 }
@@ -117,15 +122,19 @@ function handle(args: string, context: CommandContext): CommandOutcome {
   if (word === 'move') {
     return move(context, second);
   }
-  return USAGE_ERROR;
+  return usageError();
 }
 
 /** The `/win` (aliases `/w`, `/window`) definition. */
 export const command: CommandDefinition = {
   name: 'win',
   aliases: ['w', 'window'],
-  usage: USAGE,
-  summary: 'Switch, cycle, reorder or list windows (desktops: /desktop)',
+  get usage(): string {
+    return usage();
+  },
+  get summary(): string {
+    return t('commands.defs.win.summary');
+  },
   run: syncRun(handle),
   bindings: BINDINGS,
 };

@@ -23,6 +23,7 @@
 
 import { type NewStatus, createStatus } from '../../api/endpoints/statusWrite';
 import { describeApiError } from '../../api/errors';
+import { t } from '../../i18n/translate';
 import { composerWindowFor } from '../../state/composerWindow';
 import { draftToNewStatus } from '../../state/draft';
 import type { Placement } from '../../state/placement';
@@ -35,9 +36,6 @@ import { addToActiveWindow, wantsComposer } from '../ownStream';
 import { targetLabel } from '../statusLabel';
 import { type StatusTarget, resolveStatusTarget } from '../targets';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
-
-/** The command's grammar: /help shows it, a bare label echoes it. */
-const USAGE = '/reply [label] [text]';
 
 /** The handle the {@link accountKey} account replies under; none while unknown. */
 function ownHandle(context: CommandContext, accountKey: string | null): string {
@@ -93,7 +91,7 @@ async function handle(args: string, context: CommandContext): Promise<CommandOut
     return fail(describeApiError(created.error));
   }
   addToActiveWindow(context, created.value);
-  context.print(`↳ replied to ${targetLabel(context, status)}`);
+  context.print(t('commands.defs.reply.replied', { label: targetLabel(context, status) }));
   return OK;
 }
 
@@ -101,8 +99,12 @@ async function handle(args: string, context: CommandContext): Promise<CommandOut
 export const command: CommandDefinition = {
   name: 'reply',
   aliases: ['r'],
-  usage: USAGE,
-  summary: 'Reply in one line; with no text, open a composer (r prefills, Shift+r composes)',
+  get usage(): string {
+    return t('commands.defs.reply.usage');
+  },
+  get summary(): string {
+    return t('commands.defs.reply.summary');
+  },
   run: handle,
   bindings: [
     { mode: 'navigation', chord: 'r', args: '{label}', prefill: true },

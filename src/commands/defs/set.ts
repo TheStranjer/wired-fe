@@ -18,6 +18,7 @@
 
 import { requireFeature } from '../../capabilities/requireFeature';
 import { availableVisibilities } from '../../capabilities/visibilities';
+import { t } from '../../i18n/translate';
 import { PLACEMENTS } from '../../state/placement';
 import { capabilitiesFor } from '../../state/selectors';
 import { SETTING_KEYS, type SettingKey } from '../../state/settingKeys';
@@ -34,7 +35,9 @@ import { listKindPlacements, setPerKind } from '../setPlacement';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** The command's one form. */
-const USAGE = '/set [key [value]]';
+function usage(): string {
+  return t('commands.defs.set.usage');
+}
 
 /** One knob turned: the patch for the reducer and the word that prints. */
 type Turn = { readonly patch: Partial<Settings>; readonly word: string };
@@ -47,7 +50,11 @@ function isOneOf<T extends string>(values: readonly T[], raw: string): raw is T 
 
 /** The listed line of {@link meta}, taken from {@link context}'s state. */
 function listed(context: CommandContext, meta: SettingKey): string {
-  return `  ${meta.key} = ${shown(context.state.settings[meta.key])}  — ${meta.description}`;
+  return t('commands.defs.set.listed', {
+    key: meta.key,
+    value: shown(context.state.settings[meta.key]),
+    description: meta.description,
+  });
 }
 
 /** The listed keys whose value is a word, and the ones whose value is a switch. */
@@ -137,7 +144,7 @@ function setOne(context: CommandContext, meta: SettingKey, raw: string): Command
   if (turned === null) {
     const words = wordsFor(context, meta);
     const list = words === undefined ? BOOLEAN_WORDS : words.join('|');
-    return fail(`${meta.key} takes ${list}`);
+    return fail(t('commands.defs.set.takes', { key: meta.key, words: list }));
   }
   context.dispatch({ type: 'settings', settings: turned.patch });
   context.print(`${meta.key} = ${turned.word}`);
@@ -161,14 +168,14 @@ function handle(args: string, context: CommandContext): CommandOutcome {
   }
   const meta = SETTING_KEYS.find((entry) => entry.key === key);
   if (meta === undefined) {
-    return fail(`No setting ${key}. Try /set`);
+    return fail(t('commands.defs.set.no_setting', { key }));
   }
   if (value === undefined) {
     context.print(listed(context, meta));
     return OK;
   }
   if (extra !== undefined) {
-    return fail(`Usage: ${USAGE}`);
+    return fail(t('commands.defs.set.usage_error', { usage: usage() }));
   }
   return setOne(context, meta, value);
 }
@@ -177,7 +184,11 @@ function handle(args: string, context: CommandContext): CommandOutcome {
 export const command: CommandDefinition = {
   name: 'set',
   aliases: ['settings'],
-  usage: USAGE,
-  summary: 'Show or change your settings',
+  get usage(): string {
+    return usage();
+  },
+  get summary(): string {
+    return t('commands.defs.set.summary');
+  },
   run: syncRun((args, context) => setPerKind(args, context) ?? handle(args, context)),
 };

@@ -6,13 +6,18 @@
  * the typed command, `f` on a favourited post and this help entry reach it.
  */
 
+import { t } from '../../i18n/translate';
 import { toggleRun } from '../statusToggle';
 import type { CommandDefinition } from '../types';
 
 /** The `/unfav` definition. */
 export const command: CommandDefinition = {
   name: 'unfav',
-  usage: '/unfav [label]',
-  summary: 'Take your favourite of a post back',
+  get usage(): string {
+    return t('commands.defs.unfav.usage');
+  },
+  get summary(): string {
+    return t('commands.defs.unfav.summary');
+  },
   run: toggleRun('unfav'),
 };

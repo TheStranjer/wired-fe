@@ -12,6 +12,7 @@
  * the command says back.
  */
 
+import { t } from '../../i18n/translate';
 import { profileWindowOpen } from '../../state/profileWindow';
 import { placedRun } from '../openWindowRun';
 import { OK, fail } from '../outcome';
@@ -33,8 +34,12 @@ async function handle(args: string, context: CommandContext): Promise<CommandOut
 export const command: CommandDefinition = {
   name: 'whois',
   aliases: ['wi', 'profile'],
-  usage: '/whois [label | @user@host]',
-  summary: "Open an account's profile window",
+  get usage(): string {
+    return t('commands.defs.whois.usage');
+  },
+  get summary(): string {
+    return t('commands.defs.whois.summary');
+  },
   run: placedRun(handle),
   bindings: [{ mode: 'navigation', chord: 'Shift+w', args: '' }],
 };

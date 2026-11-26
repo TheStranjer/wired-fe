@@ -6,20 +6,23 @@
  * this command only reads the word and hands the direction over.
  */
 
+import { t } from '../../i18n/translate';
 import { wordsOf } from '../../lib/words';
 import { directionOf } from '../directionWords';
 import { OK, fail, syncRun } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** The command's one form; a refused argument echoes it. */
-const USAGE = '/swap <left|right|up|down>';
+function usage(): string {
+  return t('commands.defs.swap.usage');
+}
 
 /** Swap toward the one direction of {@link args}; anything else echoes the usage. */
 function handle(args: string, context: CommandContext): CommandOutcome {
   const [word, ...rest] = wordsOf(args.toLowerCase());
   const direction = word === undefined || rest.length > 0 ? null : directionOf(word);
   if (direction === null) {
-    return fail(`Usage: ${USAGE}`);
+    return fail(t('commands.defs.swap.usage_error', { usage: usage() }));
   }
   context.dispatch({ type: 'layout', action: { type: 'swap', direction } });
   return OK;
@@ -28,8 +31,12 @@ function handle(args: string, context: CommandContext): CommandOutcome {
 /** The `/swap` definition. */
 export const command: CommandDefinition = {
   name: 'swap',
-  usage: USAGE,
-  summary: 'Swap the focused pane’s window with its neighbour',
+  get usage(): string {
+    return usage();
+  },
+  get summary(): string {
+    return t('commands.defs.swap.summary');
+  },
   bindings: [{ mode: 'navigation', chord: 'w x', args: 'right' }],
   run: syncRun(handle),
 };

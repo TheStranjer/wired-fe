@@ -7,14 +7,19 @@
  * command and this help entry reach it.
  */
 
+import { t } from '../../i18n/translate';
 import { reactionRun } from '../reactions';
 import type { CommandDefinition } from '../types';
 
 /** The `/unreact` definition. */
 export const command: CommandDefinition = {
   name: 'unreact',
-  usage: '/unreact [label] <emoji>',
-  summary: 'Remove your emoji reaction from a post',
+  get usage(): string {
+    return t('commands.defs.unreact.usage');
+  },
+  get summary(): string {
+    return t('commands.defs.unreact.summary');
+  },
   requires: 'emojiReactions',
   run: reactionRun('unreact'),
 };

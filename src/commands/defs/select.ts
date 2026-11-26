@@ -8,6 +8,7 @@
  * to turn a label into the line key the `select` action asks for.
  */
 
+import { t } from '../../i18n/translate';
 import type { Buffer, LineData } from '../../state/buffer';
 import { statusForLabel, statusOfLine } from '../../state/bufferSelection';
 import { activeBuffer } from '../../state/selectors';
@@ -17,10 +18,14 @@ import { OK, fail, syncRun } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** Every form of the command: /help shows it, a bad argument echoes it. */
-const USAGE = '/select next | prev | first | last | none | <label>';
+function usage(): string {
+  return t('commands.defs.select.usage');
+}
 
 /** The argument text matched none of the command's forms. */
-const USAGE_ERROR = fail(`Usage: ${USAGE}`);
+function usageError(): CommandOutcome {
+  return fail(t('commands.defs.select.usage_error', { usage: usage() }));
+}
 
 /** Anything beyond a single word is no form of this command. */
 const WHITESPACE = /\s/u;
@@ -53,7 +58,7 @@ function selectLabel(context: CommandContext, windowId: string, label: string): 
   const status = statusForLabel(buffer, label);
   const line = status === null ? undefined : lineShowing(buffer, status.id);
   if (line === undefined) {
-    return fail(`No post ${label} here`);
+    return fail(t('commands.defs.select.no_post', { label }));
   }
   context.dispatch({ type: 'select', windowId, key: line.key });
   return OK;
@@ -87,7 +92,7 @@ function move(context: CommandContext, word: string): CommandOutcome {
 function handle(args: string, context: CommandContext): CommandOutcome {
   const word = args.trim();
   if (word === '' || WHITESPACE.test(word)) {
-    return USAGE_ERROR;
+    return usageError();
   }
   return move(context, word);
 }
@@ -96,8 +101,12 @@ function handle(args: string, context: CommandContext): CommandOutcome {
 export const command: CommandDefinition = {
   name: 'select',
   aliases: ['sel'],
-  usage: USAGE,
-  summary: 'Move or set the selected post',
+  get usage(): string {
+    return usage();
+  },
+  get summary(): string {
+    return t('commands.defs.select.summary');
+  },
   run: syncRun(handle),
   bindings: BINDINGS,
 };

@@ -9,13 +9,16 @@
  * echoes the usage.
  */
 
+import { t } from '../../i18n/translate';
 import { wordsOf } from '../../lib/words';
 import { type Theme, THEMES } from '../../state/settings';
 import { OK, fail, syncRun } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** The command's one form. */
-const USAGE = '/theme [name]';
+function usage(): string {
+  return t('commands.defs.theme.usage');
+}
 
 /** Whether {@link word} names a theme, narrowed to {@link Theme}. */
 function isTheme(word: string): word is Theme {
@@ -25,11 +28,12 @@ function isTheme(word: string): word is Theme {
 
 /** Print every theme, the one {@link context}'s settings choose tagged. */
 function listThemes(context: CommandContext): void {
-  context.print('Themes:');
+  context.print(t('commands.defs.theme.list_header'));
   const current = context.state.settings.theme;
   for (const theme of THEMES) {
-    const tag = theme === current ? ' (current)' : '';
-    context.print(`  ${theme}${tag}`);
+    context.print(
+      theme === current ? t('commands.defs.theme.current', { name: theme }) : `  ${theme}`,
+    );
   }
 }
 
@@ -37,14 +41,14 @@ function listThemes(context: CommandContext): void {
 function handle(args: string, context: CommandContext): CommandOutcome {
   const [name, extra] = wordsOf(args);
   if (extra !== undefined) {
-    return fail(`Usage: ${USAGE}`);
+    return fail(t('commands.defs.theme.usage_error', { usage: usage() }));
   }
   if (name === undefined) {
     listThemes(context);
     return OK;
   }
   if (!isTheme(name)) {
-    return fail(`No theme ${name}. Try /theme`);
+    return fail(t('commands.defs.theme.no_theme', { name }));
   }
   context.dispatch({ type: 'settings', settings: { theme: name } });
   context.print(`theme = ${name}`);
@@ -54,7 +58,11 @@ function handle(args: string, context: CommandContext): CommandOutcome {
 /** The `/theme` definition. */
 export const command: CommandDefinition = {
   name: 'theme',
-  usage: USAGE,
-  summary: 'List or choose the color theme',
+  get usage(): string {
+    return usage();
+  },
+  get summary(): string {
+    return t('commands.defs.theme.summary');
+  },
   run: syncRun(handle),
 };

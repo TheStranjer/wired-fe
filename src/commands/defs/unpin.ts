@@ -7,13 +7,18 @@
  * post and this help entry reach it.
  */
 
+import { t } from '../../i18n/translate';
 import { toggleRun } from '../statusToggle';
 import type { CommandDefinition } from '../types';
 
 /** The `/unpin` definition. */
 export const command: CommandDefinition = {
   name: 'unpin',
-  usage: '/unpin [label]',
-  summary: 'Unpin one of your own posts',
+  get usage(): string {
+    return t('commands.defs.unpin.usage');
+  },
+  get summary(): string {
+    return t('commands.defs.unpin.summary');
+  },
   run: toggleRun('unpin'),
 };
