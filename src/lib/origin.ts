@@ -15,3 +15,19 @@ export function isAllowedInstanceUrl(url: URL): boolean {
     (url.protocol === 'http:' && LOCAL_HOSTNAMES.includes(url.hostname))
   );
 }
+
+/** The instances a visitor may pick from on a `list` build, and whether they may type another. */
+export type InstanceChoices = {
+  readonly origins: readonly string[];
+  readonly allowCustom: boolean;
+};
+
+/**
+ * How {@link origin} is written when typed or shown: the bare host for an
+ * `https:` origin (`wired.example`), the whole origin for a local `http:` one,
+ * since a bare host would be read as `https:`. Either form is accepted as typed.
+ */
+export function instanceWord(origin: string): string {
+  const url = new URL(origin);
+  return url.protocol === 'https:' ? url.host : url.origin;
+}

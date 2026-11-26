@@ -24,8 +24,9 @@ export type PasswordResetState = {
 /** The form's values, its send in flight and its last outcome, with the changes that move them. */
 export function usePasswordReset(
   onSubmit: (values: PasswordResetValues) => Promise<PasswordResetOutcome>,
+  instance: string,
 ): PasswordResetState {
-  const [values, setValues] = useState(EMPTY_VALUES);
+  const [values, setValues] = useState<PasswordResetValues>({ ...EMPTY_VALUES, instance });
   const [sending, setSending] = useState(false);
   const [outcome, setOutcome] = useState<PasswordResetOutcome | null>(null);
 
@@ -39,7 +40,7 @@ export function usePasswordReset(
     const result = await onSubmit(values);
     setSending(false);
     if (result.kind === 'ok') {
-      setValues(EMPTY_VALUES);
+      setValues({ ...EMPTY_VALUES, instance });
     }
     setOutcome(result);
   }

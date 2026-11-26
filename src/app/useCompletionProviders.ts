@@ -8,7 +8,7 @@
  * (its keys and their values), `/desktop` and `/mvd` arguments, `/focus` and
  * `/swap` directions, and the view names after `/vsplit` and `/split` are
  * offered ahead of everything else, as are the subcommands, feed names and
- * sources after `/feed`. The post labels of the active window (WFE-301) come
+ * sources after `/feed`; the listed instances after `/connect` (WFE-307). The post labels of the active window (WFE-301) come
  * before all of them, so the argument of a command that takes a post prefers
  * a label, and a `[` word completes to one anywhere on the line.
  */
@@ -18,12 +18,14 @@ import { useAvailableRegistry } from './useAvailableRegistry';
 import { hasFeature } from '../capabilities/capabilities';
 import { commandProvider } from '../commands/commandProvider';
 import type { Provider } from '../commands/complete';
+import { connectProvider } from '../commands/connectWords';
 import { desktopProvider } from '../commands/desktopWords';
 import { directionProvider } from '../commands/directionWords';
 import { displayProvider } from '../commands/displayWords';
 import { feedProvider } from '../commands/feedWords';
 import { postTargetWords } from '../commands/postTargets';
 import { viewProvider } from '../commands/viewProvider';
+import { buildConfig } from '../config/config';
 import { capabilitiesFor } from '../state/selectors';
 import { useAppState } from '../state/StateContext';
 import {
@@ -61,6 +63,7 @@ export function useCompletionProviders(searched: HandleSearch): readonly Provide
         desktopProvider(),
         directionProvider(),
         viewProvider(),
+        connectProvider(buildConfig.instances),
         feedProvider(state),
         commandProvider(registry),
         ...seen,

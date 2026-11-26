@@ -1,7 +1,7 @@
 /** Tests for the shared allowed-instance-URL rule. */
 import { describe, expect, it } from 'vitest';
 
-import { LOCAL_HOSTNAMES, isAllowedInstanceUrl } from './origin';
+import { LOCAL_HOSTNAMES, instanceWord, isAllowedInstanceUrl } from './origin';
 
 describe(isAllowedInstanceUrl, () => {
   it('accepts https on any host', () => {
@@ -22,5 +22,16 @@ describe(isAllowedInstanceUrl, () => {
 
   it('names the local hostnames', () => {
     expect(LOCAL_HOSTNAMES).toStrictEqual(['localhost', '127.0.0.1']);
+  });
+});
+
+describe(instanceWord, () => {
+  it('is the bare host of an https origin, port included', () => {
+    expect(instanceWord('https://wired.example')).toBe('wired.example');
+    expect(instanceWord('https://wired.example:8443')).toBe('wired.example:8443');
+  });
+
+  it('keeps the scheme of a local http origin, which a bare host would lose', () => {
+    expect(instanceWord('http://localhost:3000')).toBe('http://localhost:3000');
   });
 });

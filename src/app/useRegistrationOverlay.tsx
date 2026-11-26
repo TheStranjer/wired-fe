@@ -12,6 +12,7 @@ import { useEffect, useState } from 'react';
 import type { JSX } from 'react';
 
 import { appStores } from './stores';
+import { instanceChoices } from '../accounts/origin';
 import { detectInstance } from '../capabilities/detect';
 import { refreshingDetect } from '../capabilities/profileCache';
 import { buildConfig } from '../config/config';
@@ -84,6 +85,7 @@ export function useRegistrationOverlay(ready: boolean): JSX.Element | null {
     <Overlay label="Sign up" onClose={close}>
       <RegistrationForm
         askInstance={ASKING_MODES.has(buildConfig.instances.mode)}
+        choices={instanceChoices(buildConfig.instances)}
         onClose={close}
         onSubmit={async (values: RegistrationValues) =>
           submitRegistration(values, envFor(token, dispatch))

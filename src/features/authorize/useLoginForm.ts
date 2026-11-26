@@ -26,8 +26,11 @@ export type LoginForm = {
 };
 
 /** The form's values, its send in flight and its last refusal, for a send that goes through {@link send}. */
-export function useLoginForm(send: (values: LoginValues) => Promise<PasswordOutcome>): LoginForm {
-  const [values, setValues] = useState<LoginValues>({ instance: '', username: '', password: '' });
+export function useLoginForm(
+  send: (values: LoginValues) => Promise<PasswordOutcome>,
+  instance: string,
+): LoginForm {
+  const [values, setValues] = useState<LoginValues>({ instance, username: '', password: '' });
   const [sending, setSending] = useState(false);
   const [failure, setFailure] = useState<string | null>(null);
 

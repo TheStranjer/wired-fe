@@ -11,6 +11,7 @@
 import { useEffect, useState } from 'react';
 import type { JSX } from 'react';
 
+import { instanceChoices } from '../accounts/origin';
 import { buildConfig } from '../config/config';
 import { PasswordResetForm } from '../features/passwordReset/PasswordResetForm';
 import {
@@ -61,6 +62,7 @@ export function usePasswordResetOverlay(ready: boolean): JSX.Element | null {
     <Overlay label="Reset password" onClose={close}>
       <PasswordResetForm
         askInstance={ASKING_MODES.has(buildConfig.instances.mode)}
+        choices={instanceChoices(buildConfig.instances)}
         onClose={close}
         onSubmit={async (values: PasswordResetValues) =>
           submitPasswordReset(values, {

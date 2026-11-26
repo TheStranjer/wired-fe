@@ -11,12 +11,17 @@ import type { JSX } from 'react';
 
 import styles from './AuthorizeBox.module.css';
 import { type LoginValues, useLoginForm } from './useLoginForm';
+import { preselectedOrigin } from '../../accounts/origin';
 import type { PasswordOutcome } from '../../accounts/passwordLogin';
+import type { InstanceChoices as Choices } from '../../lib/origin';
+import { InstanceChoices } from '../../ui/InstanceChoices';
 
 /** What the form shows and the callbacks it drives. */
 export type PasswordLoginFormProps = {
   /** Whether the build leaves the instance to the visitor (a `list` or `open` build). */
   readonly askInstance: boolean;
+  /** The instances to pick from (a `list` build with origins); absent: the instance is typed. */
+  readonly choices?: Choices | null | undefined;
   /** Send the form; resolves to what came of it. */
   readonly onSubmit: (values: LoginValues) => Promise<PasswordOutcome>;
   /** Close the box, giving up the authorization. */
@@ -45,6 +50,26 @@ function Input(props: {
         value={props.value}
       />
     </label>
+  );
+}
+
+/** The instance: a choice of the build's instances when it lists any, a text field otherwise. */
+function InstanceField(props: {
+  readonly choices: Choices | null | undefined;
+  readonly value: string;
+  readonly onChange: (value: string) => void;
+}): JSX.Element {
+  const { choices } = props;
+  return choices === null || choices === undefined ? (
+    <Input
+      autoComplete="url"
+      label="Instance"
+      onChange={props.onChange}
+      type="text"
+      value={props.value}
+    />
+  ) : (
+    <InstanceChoices {...choices} onChange={props.onChange} value={props.value} />
   );
 }
 
@@ -79,7 +104,11 @@ function Actions(props: { readonly sending: boolean; readonly onClose: () => voi
 
 /** The login box: its fields, the failure of the last send, and the send and cancel buttons. */
 export function PasswordLoginForm(props: PasswordLoginFormProps): JSX.Element {
-  const { values, sending, failure, set, submit } = useLoginForm(props.onSubmit);
+  const { choices } = props;
+  const { values, sending, failure, set, submit } = useLoginForm(
+    props.onSubmit,
+    preselectedOrigin(choices),
+  );
   return (
     <form
       aria-label="Log in"
@@ -90,13 +119,7 @@ export function PasswordLoginForm(props: PasswordLoginFormProps): JSX.Element {
     >
       <p className={styles['line']}>Log in to authorize the app.</p>
       {props.askInstance ? (
-        <Input
-          autoComplete="url"
-          label="Instance"
-          onChange={set('instance')}
-          type="text"
-          value={values.instance}
-        />
+        <InstanceField choices={choices} onChange={set('instance')} value={values.instance} />
       ) : null}
       <Input
         autoComplete="username"
