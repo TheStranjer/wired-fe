@@ -3,3 +3,6 @@ dist/
 test-results/
 playwright-report/
 pnpm-lock.yaml
+# Prism writes the other locales with Ruby's JSON generator; only en.json is ours.
+src/i18n/locales/*.json
+!src/i18n/locales/en.json
