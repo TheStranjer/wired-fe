@@ -187,4 +187,14 @@ describe(textHandler, () => {
 
     expect(context.print).toHaveBeenCalledWith(refusal, 'error');
   });
+
+  it('prints nothing when the reader cancelled the alt-text review (WFE-294)', async () => {
+    const context = fakeCommandContext({
+      post: vi.fn<CommandContext['post']>().mockResolvedValue({ cancelled: true }),
+    });
+
+    await textHandler(context)('hello wired');
+
+    expect(context.print).not.toHaveBeenCalled();
+  });
 });

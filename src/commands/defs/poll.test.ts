@@ -112,4 +112,14 @@ describe('/poll', () => {
     });
     expect(context.print).not.toHaveBeenCalled();
   });
+
+  it('succeeds without announcing a poll when the reader cancelled the review (WFE-294)', async () => {
+    const context = wiredContext(STOCK, {
+      post: vi.fn<CommandContext['post']>().mockResolvedValue({ cancelled: true }),
+    });
+
+    await expect(command.run('"q" "a" "b"', context)).resolves.toStrictEqual({ ok: true });
+
+    expect(context.print).not.toHaveBeenCalled();
+  });
 });

@@ -25,6 +25,7 @@ import { requestSync } from './syncRequests';
 import { useAvailableRegistry } from './useAvailableRegistry';
 import { useMediaCarry } from './useMediaCarry';
 import { loadWindowKinds } from './windowKinds';
+import { POST_CANCELLED } from '../commands/outcome';
 import type { CommandContext, PrintLevel } from '../commands/types';
 import { buildConfig } from '../config/config';
 import { blocksTyping, parseSequence } from '../keys/chord';
@@ -64,7 +65,8 @@ function postHandler(win: WindowState, postContext: PostContext): CommandContext
  * ({@link CommandContext.carryMedia}: the alt text reviewed and sent first,
  * WFE-287, WFE-290), and a send that worked takes those ids out of the list
  * with it — a refused post, a cancelled review, or alt text the instance
- * refused, keeps its media for the retry.
+ * refused, keeps its media for the retry. A cancelled review is the reader's
+ * own choice, so it stops with no error to print (WFE-294).
  */
 function posting(
   win: WindowState,
@@ -74,10 +76,13 @@ function posting(
   const send = postHandler(win, postContext);
   return async (draft: Draft) => {
     const carried = await media.carryMedia(draft);
-    if (!carried.ok) {
+    if (carried.kind === 'cancelled') {
+      return POST_CANCELLED;
+    }
+    if (carried.kind === 'refused') {
       return carried.error;
     }
-    const error = await send(carried.value);
+    const error = await send(carried.draft);
     if (error === null) {
       media.attachments.clear();
     }

@@ -12,7 +12,6 @@ import { createAccountStore } from '../accounts/accountStore';
 import { createSyncStore } from '../accounts/syncPrefs';
 import type { CommandContext, Registry } from '../commands/types';
 import type { WiredConfig } from '../config/schema';
-import { ok } from '../lib/result';
 import { initialAppState } from '../state/appState';
 import { withPendingMedia } from '../state/draft';
 import { type StorageBackend, createStore } from '../storage/store';
@@ -104,7 +103,10 @@ export function fakeCommandContext(overrides: Partial<CommandContext> = {}): Com
     line: '',
     attachments,
     carryMedia: async (draft) =>
-      await Promise.resolve(ok(withPendingMedia(draft, attachments.pending))),
+      await Promise.resolve({
+        kind: 'carried',
+        draft: withPendingMedia(draft, attachments.pending),
+      }),
     keys: INERT_KEYS,
     navigate: vi.fn(),
     page: EXAMPLE_PAGE,

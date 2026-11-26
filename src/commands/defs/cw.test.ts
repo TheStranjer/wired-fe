@@ -100,4 +100,14 @@ describe('/cw', () => {
       message: "You can't post in this window",
     });
   });
+
+  it('succeeds without a word when the reader cancelled the alt-text review (WFE-294)', async () => {
+    const context = fakeCommandContext({
+      post: vi.fn<CommandContext['post']>().mockResolvedValue({ cancelled: true }),
+    });
+
+    await expect(command.run('warn the text', context)).resolves.toStrictEqual({ ok: true });
+
+    expect(context.print).not.toHaveBeenCalled();
+  });
 });

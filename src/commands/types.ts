@@ -16,9 +16,9 @@ import type { SyncStore } from '../accounts/syncPrefs';
 import type { Capabilities, FeatureFlag } from '../capabilities/capabilities';
 import type { WiredConfig } from '../config/schema';
 import type { DeviceClass } from '../lib/deviceClass';
-import type { Result } from '../lib/result';
 import type { AppState } from '../state/appState';
 import type { Draft } from '../state/draft';
+import type { Carried } from '../state/mediaReview';
 import type { AppAction } from '../state/reducer';
 import type { SyncRequest } from '../state/syncStatus';
 import type { Store } from '../storage/store';
@@ -28,6 +28,9 @@ import type { WindowsAction } from '../windows/reducer';
 /** What running a command achieved: success, or a message to show the user. */
 export type CommandOutcome =
   { readonly ok: true } | { readonly ok: false; readonly message: string };
+
+/** What a post answers: null when sent, why it was not, or `cancelled` at the alt-text review (WFE-294). */
+export type PostAnswer = string | null | { readonly cancelled: true };
 
 /** How a client message is emphasised in the window it is printed into. */
 export type PrintLevel = 'info' | 'warn' | 'error';
@@ -66,8 +69,8 @@ export type CommandContext = {
   readonly dispatch: (action: AppAction) => void;
   /** The current moment, so printed lines and posts can be stamped. */
   readonly now: () => Date;
-  /** Posts through the active window (its kind's post handler). Resolves to an error message or null. */
-  readonly post: (draft: Draft) => Promise<string | null>;
+  /** Posts through the active window (its kind's post handler). Resolves to a {@link PostAnswer}. */
+  readonly post: (draft: Draft) => Promise<PostAnswer>;
   /** Replaces the command-line text (used by prefill hotkeys and /edit). */
   readonly setInput: (text: string) => void;
   /** What the command line holds right now, so `/compose` can take a half-typed post into a composer window. */
@@ -86,10 +89,10 @@ export type CommandContext = {
   /**
    * The gate of every post that may carry the pending media (WFE-290):
    * {@link draft} with their ids after the reader reviewed the alt text of any
-   * without one and it was sent, or the message saying why the post must not
-   * go out — the review was cancelled, or the alt text was refused.
+   * without one and it was sent (`carried`); the reader's cancel of the review
+   * (`cancelled`, WFE-294: a silent stop); or why the alt text was refused.
    */
-  readonly carryMedia: (draft: Draft) => Promise<Result<Draft, string>>;
+  readonly carryMedia: (draft: Draft) => Promise<Carried>;
   /** The keys layer's helpers (WFE-130): chord parsing, the insert-mode guard, the effective keymap. */
   readonly keys: {
     /** Binding text of one or more chords (`w v`) to its canonical sequence; null when unbindable. */

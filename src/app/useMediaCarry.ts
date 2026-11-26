@@ -11,7 +11,6 @@
 import { withPendingMedia } from './pendingMedia';
 import type { CommandContext } from '../commands/types';
 import { currentMoment } from '../lib/time';
-import { SEND_CANCELLED } from '../state/mediaReview';
 import { useRefreshDeps } from '../state/RefreshContext';
 import { useAppDispatch, useAppState } from '../state/StateContext';
 import { useReviewMedia } from '../views/MediaReviewContext';
@@ -32,7 +31,7 @@ export function useMediaCarry(line: Line): CommandContext['carryMedia'] {
   return async (draft) => {
     const context = { state, dispatch, now: currentMoment, refresh, review };
     const carried = await withPendingMedia(draft, line.pending, context);
-    if (!carried.ok && carried.error === SEND_CANCELLED) {
+    if (carried.kind === 'cancelled') {
       line.setInput(line.text);
     }
     return carried;

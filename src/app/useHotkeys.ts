@@ -35,13 +35,14 @@ import { STATUS_WINDOW_ID } from '../windows/model';
 /**
  * What a line of plain text does wherever it was entered — Enter on the
  * command line, or a run that ends in text: post it through the active
- * window's kind, and print what the window answers when it refuses.
+ * window's kind, and print what the window answers when it refuses (a cancelled
+ * alt-text review is no refusal, WFE-294).
  */
 export function textHandler(context: CommandContext): TextHandler {
   return async (text: string): Promise<void> => {
-    const error = await context.post({ text });
-    if (error !== null) {
-      context.print(error, 'error');
+    const answer = await context.post({ text });
+    if (typeof answer === 'string') {
+      context.print(answer, 'error');
     }
   };
 }
