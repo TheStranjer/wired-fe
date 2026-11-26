@@ -22,6 +22,7 @@ import type { SystemLineData } from '../state/buffer';
 import { bufferFor } from '../state/selectors';
 import { AppStateProvider, useAppState } from '../state/StateContext';
 import { stateAfter } from '../test/appSessions';
+import { installFakeLocale } from '../test/i18n';
 import { STATUS_WINDOW_ID } from '../windows/model';
 
 /** One file named {@link name} with mime type {@link type}. */
@@ -187,6 +188,15 @@ describe(useDropAndPaste, () => {
     expect(drop.defaultPrevented).toBe(false);
     expect(add).not.toHaveBeenCalled();
     expect(screen.queryByText('-- drop to attach --')).toBeNull();
+  });
+
+  it('words the refusal in the language in use', () => {
+    installFakeLocale({ app: { attach_refused: 'No {file}!' } });
+    const { warns } = mountHook();
+
+    firePaste([TEXT]);
+
+    expect(warns()).toStrictEqual(['No notes.txt!']);
   });
 
   it('stops listening once unmounted', () => {

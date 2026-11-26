@@ -25,6 +25,7 @@ import {
 } from './useCompletion';
 import { useCompletionProviders } from './useCompletionProviders';
 import { type SuggestionView, suggestionView } from '../commands/suggest';
+import { useT } from '../i18n/I18nProvider';
 import { CompletionList, type CompletionRow, rowId } from '../ui/CompletionList';
 import type { InputLineProps } from '../ui/InputLine';
 import { handleWordAt, useHandleSearch } from '../views/useHandleSearch';
@@ -48,6 +49,7 @@ type CommandCompletionLine = Omit<CompletionLine, 'onShown' | 'providers'>;
 function listOf(
   view: SuggestionView | null,
   pick: (completed: ReturnType<SuggestionView['pick']>) => void,
+  label: string,
 ): JSX.Element {
   const rows: readonly CompletionRow[] =
     view === null
@@ -61,19 +63,13 @@ function listOf(
             pick(view.pick(row.word));
           },
         }));
-  return (
-    <CompletionList
-      active={view?.active ?? -1}
-      id={LIST_ID}
-      label="Command suggestions"
-      rows={rows}
-    />
-  );
+  return <CompletionList active={view?.active ?? -1} id={LIST_ID} label={label} rows={rows} />;
 }
 
 /** Steer {@link line} with Tab and draw the suggestion list for it. */
 export function useCommandCompletion(line: CommandCompletionLine): CommandCompletion {
   const { inputRef, mode, value, setValue } = line;
+  const t = useT();
   const [shown, setShown] = useState<Showing | null>(null);
   const [caret, setCaret] = useState(0);
   const placer = usePendingCaret(inputRef);
@@ -100,7 +96,7 @@ export function useCommandCompletion(line: CommandCompletionLine): CommandComple
       listId: LIST_ID,
       expanded: view !== null,
       activeId: view === null || view.active < 0 ? undefined : rowId(LIST_ID, view.active),
-      popup: listOf(view, complete),
+      popup: listOf(view, complete, t('app.command_suggestions')),
     },
   };
 }

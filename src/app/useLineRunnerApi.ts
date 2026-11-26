@@ -9,10 +9,13 @@ import { useCallback, useEffect, useRef } from 'react';
 
 import { runLines } from '../commands/runLines';
 import type { CommandContext } from '../commands/types';
+import { t } from '../i18n/translate';
 import type { LineOutcome, LineRunner } from '../views/LineRunnerContext';
 
 /** What running a line answers before the command line has registered. */
-const NOT_READY: LineOutcome = { ok: false, message: 'The command line is not ready' };
+function notReady(): LineOutcome {
+  return { ok: false, message: t('app.command_line_not_ready') };
+}
 
 /** The runner to provide, and how the command line registers its own. */
 export function useLineRunnerApi(): {
@@ -24,7 +27,7 @@ export function useLineRunnerApi(): {
     runnerRef.current = next;
   }, []);
   const runner = useCallback<LineRunner>(
-    async (lines) => await (runnerRef.current?.(lines) ?? Promise.resolve(NOT_READY)),
+    async (lines) => await (runnerRef.current?.(lines) ?? Promise.resolve(notReady())),
     [],
   );
   return { runner, register };

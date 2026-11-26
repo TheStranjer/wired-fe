@@ -8,6 +8,7 @@ import { useCallback } from 'react';
 import type { JSX } from 'react';
 
 import styles from './PaneSwitcher.module.css';
+import { useT } from '../i18n/I18nProvider';
 import { useAppDispatch } from '../state/StateContext';
 import { MenuButton } from '../ui/MenuButton';
 import type { MenuItem } from '../ui/MenuButton';
@@ -61,6 +62,7 @@ export function PaneSwitcher(props: {
 }): JSX.Element {
   const { entries, index } = props;
   const { step, jump } = useFocusMoves();
+  const t = useT();
   // The visible `2/4` is part of the name, so voice control can say what it sees.
   const count = `${String(index + 1)}/${String(entries.length)}`;
   const items: readonly MenuItem[] = entries.map((entry, at) => ({
@@ -71,15 +73,20 @@ export function PaneSwitcher(props: {
   return (
     <span className={styles['switcher']}>
       <Step
-        label="Previous pane"
+        label={t('app.pane_previous')}
         glyph="‹"
         onStep={() => {
           step('prev');
         }}
       />
-      <MenuButton label={`Switch pane, ${count}`} glyph={count} items={items} onSelect={jump} />
+      <MenuButton
+        label={t('app.pane_switch', { count })}
+        glyph={count}
+        items={items}
+        onSelect={jump}
+      />
       <Step
-        label="Next pane"
+        label={t('app.pane_next')}
         glyph="›"
         onStep={() => {
           step('next');

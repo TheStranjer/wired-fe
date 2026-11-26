@@ -17,6 +17,7 @@ import { DockHint } from './DockHint';
 import styles from './FloatLayer.module.css';
 import { useFloatGesture } from './useFloatGesture';
 import type { Gesture } from './useFloatGesture';
+import { useT } from '../i18n/I18nProvider';
 import { useAppDispatch } from '../state/StateContext';
 import type { DropTarget } from '../windows/dropZone';
 import type { FloatPane, Floats } from '../windows/floats';
@@ -43,6 +44,7 @@ function FloatBox(props: {
     },
     [x, y, w, h],
   );
+  const t = useT();
   const win = windowOf(view, float.windowId);
   if (win === undefined) {
     return null;
@@ -61,7 +63,7 @@ function FloatBox(props: {
       />
       <button
         type="button"
-        aria-label="Resize window"
+        aria-label={t('app.resize_window')}
         className={styles['grip']}
         onPointerDown={grab}
       />

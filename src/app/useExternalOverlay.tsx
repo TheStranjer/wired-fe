@@ -20,6 +20,7 @@ import { appStores } from './stores';
 import { buildConfig } from '../config/config';
 import { ConsentBox } from '../features/external/ConsentBox';
 import { RegisterBox } from '../features/external/RegisterBox';
+import { useT } from '../i18n/I18nProvider';
 import { type ExternalRoute, parseExternalRoute } from '../lib/externalRoute';
 import { Overlay } from '../ui/Overlay';
 
@@ -63,6 +64,7 @@ function ExternalBox(props: {
 /** The box over the shell while an external-login route is open, or null while it is not. */
 export function useExternalOverlay(ready: boolean): JSX.Element | null {
   const [route, setRoute] = useState<ExternalRoute | null>(null);
+  const t = useT();
 
   useEffect(() => {
     if (!ready) {
@@ -86,7 +88,7 @@ export function useExternalOverlay(ready: boolean): JSX.Element | null {
   };
   return (
     <Overlay
-      label={route.kind === 'register' ? 'Finish registration' : 'Authorize app'}
+      label={t(route.kind === 'register' ? 'app.finish_registration' : 'app.authorize_app')}
       onClose={close}
     >
       <ExternalBox onClose={close} route={route} />

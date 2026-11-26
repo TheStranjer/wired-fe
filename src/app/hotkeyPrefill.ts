@@ -10,15 +10,13 @@ import { useEffect, useRef } from 'react';
 import type { RefObject } from 'react';
 
 import type { CommandContext } from '../commands/types';
+import { t } from '../i18n/translate';
 import type { AppState } from '../state/appState';
 import { labelForStatus, selectedStatus } from '../state/bufferSelection';
 import { activeBuffer } from '../state/selectors';
 
 /** The part of a prefill line that stands for the selected post's label. */
 const LABEL_PLACEHOLDER = '{label}';
-
-/** What a prefill prints when its line wants a label and nothing is selected. */
-const NEED_SELECTION = 'Select a post first (j/k)';
 
 /** The label the active window gave its selected post, or null while none stands there. */
 function selectedLabel(state: AppState): string | null {
@@ -30,8 +28,8 @@ function selectedLabel(state: AppState): string | null {
 /**
  * Fill {@link line} into the command line (AGENTS.md "prefill bindings") and
  * switch to insert mode: `{label}` becomes the selected post's label, and a
- * line that wants one with nothing selected prints {@link NEED_SELECTION} and
- * changes nothing. Else the line lands in the input with a trailing space —
+ * line that wants one with nothing selected prints `Select a post first (j/k)`
+ * and changes nothing. Else the line lands in the input with a trailing space —
  * {@link caretBehind} is asked for first, so the caret follows the text into
  * the render it brings about — and the user finishes it in insert mode. A
  * line that ends in `@` gets no trailing space, so the handle is typed on.
@@ -45,7 +43,7 @@ export function fillCommandLine(
   if (text.includes(LABEL_PLACEHOLDER)) {
     const label = selectedLabel(context.state);
     if (label === null) {
-      context.print(NEED_SELECTION);
+      context.print(t('app.select_post_first'));
       return;
     }
     text = text.replaceAll(LABEL_PLACEHOLDER, label);

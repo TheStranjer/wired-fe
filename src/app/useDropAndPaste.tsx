@@ -14,6 +14,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { JSX } from 'react';
 
 import type { Attachments } from './useAttachments';
+import { t } from '../i18n/translate';
 import { carriedFiles, carriesFiles, isMedia } from '../lib/dropFiles';
 import { printAction } from '../state/appState';
 import { type Dispatch, useAppDispatch } from '../state/StateContext';
@@ -29,9 +30,7 @@ function accept(files: readonly File[], seam: Pick<Attachments, 'add'>, dispatch
     if (isMedia(file)) {
       seam.add(file);
     } else {
-      dispatch(
-        printAction(null, 'warn', `Can't attach ${file.name}: not an image, video or audio file`),
-      );
+      dispatch(printAction(null, 'warn', t('app.attach_refused', { file: file.name })));
     }
   }
 }

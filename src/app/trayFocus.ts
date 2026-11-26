@@ -5,11 +5,11 @@
  * name, which the tray and this module share.
  */
 
-/** The accessible name of the tray's list of pending media. */
-export const PENDING_MEDIA_LABEL = 'Pending media';
+import { t } from '../i18n/translate';
 
 /** Focus the first alt-text input of the tray; nothing happens while no tray is on screen. */
 export function showFirstDescription(): void {
-  const selector = `ul[aria-label="${PENDING_MEDIA_LABEL}"] input[type="text"]`;
+  const name = t('app.pending_media').replaceAll('\\', '\\\\').replaceAll('"', '\\"');
+  const selector = `ul[aria-label="${name}"] input[type="text"]`;
   document.querySelector<HTMLInputElement>(selector)?.focus();
 }

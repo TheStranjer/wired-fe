@@ -22,6 +22,7 @@ import styles from './PaneActions.module.css';
 import { TreeButtons } from './TreeButtons';
 import { useCommandTip } from './useCommandTip';
 import { useRunOnPane } from './useRunOnPane';
+import { useT } from '../i18n/I18nProvider';
 import { feedById } from '../state/feeds';
 import { useAppState } from '../state/StateContext';
 import { MenuButton } from '../ui/MenuButton';
@@ -35,12 +36,13 @@ function DisplayMenu(props: { readonly paneId: string; readonly win: WindowState
   const { settings } = useAppState();
   const runOnPane = useRunOnPane(paneId);
   const tip = useCommandTip();
+  const t = useT();
   return (
     <MenuButton
-      label={`Display options for ${win.title}`}
-      title={tip('How posts are drawn', 'display')}
+      label={t('app.display_options', { title: win.title })}
+      title={tip(t('app.tip_display'), 'display')}
       glyph="◐▾"
-      items={displayItems(settings, win)}
+      items={displayItems(settings, win, t)}
       onSelect={(id) => {
         runOnPane({ line: displayLine(id, settings, win), prefill: false });
       }}
@@ -53,12 +55,13 @@ function DockButton(props: { readonly paneId: string; readonly win: WindowState 
   const { paneId, win } = props;
   const runOnPane = useRunOnPane(paneId);
   const tip = useCommandTip();
+  const t = useT();
   return (
     <button
       type="button"
       className={styles['button']}
-      aria-label={`Dock ${win.title}`}
-      title={tip('Dock into the tiles', 'dock')}
+      aria-label={t('app.dock_window', { title: win.title })}
+      title={tip(t('app.tip_dock'), 'dock')}
       onClick={() => {
         runOnPane({ line: '/dock', prefill: false });
       }}
@@ -73,12 +76,13 @@ function FloatButton(props: { readonly paneId: string; readonly win: WindowState
   const { paneId, win } = props;
   const runOnPane = useRunOnPane(paneId);
   const tip = useCommandTip();
+  const t = useT();
   return (
     <button
       type="button"
       className={styles['button']}
-      aria-label={`Float ${win.title}`}
-      title={tip('Tear off into a floating window', 'float')}
+      aria-label={t('app.float_window', { title: win.title })}
+      title={tip(t('app.tip_float'), 'float')}
       onClick={() => {
         runOnPane({ line: '/float', prefill: false });
       }}
@@ -97,6 +101,7 @@ function EditFeedButton(props: {
   const { settings } = useAppState();
   const runOnPane = useRunOnPane(paneId);
   const tip = useCommandTip();
+  const t = useT();
   const feed = feedById(settings.feeds, win.ref.target ?? '');
   if (win.ref.kind !== 'feed' || feed === undefined) {
     return null;
@@ -105,8 +110,8 @@ function EditFeedButton(props: {
     <button
       type="button"
       className={styles['button']}
-      aria-label={`Edit feed ${win.title}`}
-      title={tip('Edit this feed', 'feed edit')}
+      aria-label={t('app.edit_feed', { title: win.title })}
+      title={tip(t('app.tip_edit_feed'), 'feed edit')}
       onClick={() => {
         runOnPane({ line: `/feed edit ${feed.name}`, prefill: false });
       }}
@@ -126,6 +131,7 @@ export function PaneActions(props: {
   const floating = findFloat(activeDesktop(layout).floats, paneId) !== null;
   const runOnPane = useRunOnPane(paneId);
   const tip = useCommandTip();
+  const t = useT();
   const close = useCallback(() => {
     runOnPane({ line: '/unsplit', prefill: false });
   }, [runOnPane]);
@@ -144,8 +150,8 @@ export function PaneActions(props: {
       <button
         type="button"
         className={styles['button']}
-        aria-label={`Close pane ${win.title}`}
-        title={tip('Close this pane', 'unsplit')}
+        aria-label={t('app.close_pane', { title: win.title })}
+        title={tip(t('app.tip_close'), 'unsplit')}
         onClick={close}
       >
         ✕

@@ -21,7 +21,7 @@ export type MessageKey = Paths<typeof english>;
 /** The values a message's arguments take. */
 export type MessageValues = Readonly<Record<string, string | number>>;
 
-/** `t()`, or the one `useT()` hands a component: what a helper takes to translate. */
+/** The shape of `t()` and of what `useT()` returns: a builder that must follow a language change takes one. */
 export type Translate = (key: MessageKey, values?: MessageValues) => string;
 
 /** Put the messages of {@link node}, an unknown parsed JSON value, into {@link into} under {@link prefix}. */
