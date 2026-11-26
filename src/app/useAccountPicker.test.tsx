@@ -47,7 +47,7 @@ function Outcome(): JSX.Element {
 
 /** Mounts the hook, renders what it hands back and the outcome. */
 function Host(props: { readonly blocked: boolean }): JSX.Element {
-  const picker = useAccountPicker(props.blocked);
+  const picker = useAccountPicker(props.blocked, () => false);
   return (
     <>
       {picker}
@@ -92,6 +92,22 @@ describe(useAccountPicker, () => {
 
   it('shows nothing when nobody is signed in', () => {
     renderHost([ask(STATUS_WINDOW_ID)]);
+
+    expect(screen.queryByRole('dialog')).toBeNull();
+  });
+
+  it('shows nothing for a draft of a gone window', () => {
+    const pick = { purpose: 'post', windowId: 'nowhere', draft: { text: 'hi' } } as const;
+
+    renderHost([...SIGNED_IN, { type: 'openAccountPick', pick }]);
+
+    expect(screen.queryByRole('dialog')).toBeNull();
+  });
+
+  it('shows nothing for a draft with nobody signed in', () => {
+    const pick = { purpose: 'post', windowId: STATUS_WINDOW_ID, draft: { text: 'hi' } } as const;
+
+    renderHost([{ type: 'openAccountPick', pick }]);
 
     expect(screen.queryByRole('dialog')).toBeNull();
   });

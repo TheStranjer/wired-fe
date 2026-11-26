@@ -35,6 +35,7 @@ import { useDeskSync } from './useDeskSync';
 import { useDocumentTitle } from './useDocumentTitle';
 import { useDropAndPaste } from './useDropAndPaste';
 import { useHashRoute } from './useHashRoute';
+import { useLineRestoreApi } from './useLineRestoreApi';
 import { useLineRunnerApi } from './useLineRunnerApi';
 import { usePostActionsApi } from './usePostActionsApi';
 import { useRouteOverlays } from './useRouteOverlays';
@@ -81,6 +82,12 @@ function useLoadFailures(): void {
   }, [dispatch]);
 }
 
+/** Mirrors the state out and keeps the streams open. */
+function useBackgroundWork(state: AppState, ready: boolean): void {
+  useStateMirrors(state, ready);
+  useStreams();
+}
+
 /** The shell regions, filled from the app state above it. */
 export function Root(): JSX.Element {
   const state = useAppState();
@@ -91,9 +98,9 @@ export function Root(): JSX.Element {
   const ready = useStartup();
   useHashRoute(ready);
   const overlays = useRouteOverlays(ready);
-  const modals = useShellModals(overlays.open);
-  useStateMirrors(state, ready);
-  useStreams();
+  const restorer = useLineRestoreApi();
+  const modals = useShellModals(overlays.open, restorer.restore);
+  useBackgroundWork(state, ready);
   const postActions = usePostActionsApi();
   const lineRunner = useLineRunnerApi();
 
@@ -115,6 +122,7 @@ export function Root(): JSX.Element {
               completion={providers}
               registerRunner={postActions.register}
               registerLineRunner={lineRunner.register}
+              registerRestorer={restorer.register}
             />
           }
         />

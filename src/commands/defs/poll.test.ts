@@ -101,16 +101,14 @@ describe('/poll', () => {
 
   it('reports what the post handler answers back', async () => {
     const context = wiredContext(STOCK, {
-      post: vi
-        .fn<CommandContext['post']>()
-        .mockResolvedValue("You can't post in this window. Try /home"),
+      post: vi.fn<CommandContext['post']>().mockResolvedValue("You can't post in this window"),
     });
 
     const outcome = await command.run('"q" "a" "b"', context);
 
     expect(outcome).toStrictEqual({
       ok: false,
-      message: "You can't post in this window. Try /home",
+      message: "You can't post in this window",
     });
     expect(context.print).not.toHaveBeenCalled();
   });

@@ -2,12 +2,13 @@
  * The `status` window kind (AGENTS.md "Windows, like IRC buffers"): window 1,
  * the client-message buffer every session starts at (src/windows/model.ts).
  * It shows the status window's own scrollback through the shared BufferView;
- * plain text typed into it posts nowhere, so the definition carries no
- * `onPost` — posting is not possible in this window.
+ * it belongs to no account, so plain text typed into it posts as the posting
+ * account (src/state/postAccountless), or asks which one (WFE-284).
  */
 import type { JSX } from 'react';
 
 import { buildConfig } from '../../config/config';
+import { postAccountless } from '../../state/postAccountless';
 import type { WindowKindDefinition } from '../../state/windowKind';
 import { BufferView } from '../../views/BufferView';
 
@@ -24,4 +25,5 @@ export const windowKind: WindowKindDefinition = {
   kind: 'status',
   topic: () => `${buildConfig.appName} — Present day. Present time.`,
   Component: StatusWindow,
+  onPost: postAccountless,
 };

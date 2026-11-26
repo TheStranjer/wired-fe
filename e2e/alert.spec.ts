@@ -1,6 +1,6 @@
 /**
- * The modal alert an error line raises (WFE-271): in a feed pane, plain text is
- * refused ("You can't post in this window"), the refusal comes up as an
+ * The modal alert an error line raises (WFE-271): in a feed pane, an unknown
+ * command is refused ("Unknown command: /nope"), the refusal comes up as an
  * alertdialog over the shell, Enter dismisses it, the command line has the
  * keyboard again and the red line stays in the scrollback.
  */
@@ -13,16 +13,16 @@ import { logRegion, showWindow, signIn, submit } from './fixtures/session';
 /** The title of the stream feed's window: its name behind a tilde. */
 const STREAM = '~stream';
 
-/** What the feed pane says to plain text. */
-const REFUSAL = "You can't post in this window. Try /home";
+/** What the feed pane says to a command that does not exist. */
+const REFUSAL = 'Unknown command: /nope. Try /help';
 
-test('a refused post raises an alert that Enter dismisses, leaving the line behind', async ({
+test('a refused command raises an alert that Enter dismisses, leaving the line behind', async ({
   page,
 }) => {
   await signIn(page);
   await showWindow(page, STREAM, 'feed');
 
-  await submit(page, 'hello feed');
+  await submit(page, '/nope');
 
   const alert = alertOf(page);
   await expect(alert).toBeVisible();
@@ -42,7 +42,7 @@ test('the backdrop dims the page with a translucent scrim while the box stays op
   await signIn(page);
   await showWindow(page, STREAM, 'feed');
 
-  await submit(page, 'hello feed');
+  await submit(page, '/nope');
 
   const alert = alertOf(page);
   await expect(alert).toBeVisible();

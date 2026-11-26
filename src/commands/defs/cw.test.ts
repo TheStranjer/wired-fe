@@ -91,13 +91,13 @@ describe('/cw', () => {
   });
 
   it('reports what the post handler answers back', async () => {
-    const context = refusingContext("You can't post in this window. Try /home");
+    const context = refusingContext("You can't post in this window");
 
     const outcome = await command.run('warn the text', context);
 
     expect(outcome).toStrictEqual({
       ok: false,
-      message: "You can't post in this window. Try /home",
+      message: "You can't post in this window",
     });
   });
 });

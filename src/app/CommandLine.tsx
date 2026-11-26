@@ -8,7 +8,8 @@
  * caret, and focusing the line while navigation is shown switches back to
  * insert. The `[📎]` button at its left edge opens the file dialog `/attach`
  * opens (WFE-287). The context carries the line's own text, so a bare `/compose` can
- * move a half-typed post into a composer window (WFE-245).
+ * move a half-typed post into a composer window (WFE-245), and it lends the
+ * app a way to put a cancelled draft's text back on an empty line (WFE-284).
  */
 
 import { useRef, useState } from 'react';
@@ -18,6 +19,7 @@ import { useCommandContext } from './useCommandContext';
 import { useCommandHistory } from './useCommandHistory';
 import { useCompletion } from './useCompletion';
 import { textHandler, useHotkeys } from './useHotkeys';
+import { type LineRestorer, useRegisterLineRestorer } from './useLineRestoreApi';
 import { useRegisterLineRunner } from './useLineRunnerApi';
 import { usePostActionRunner } from './usePostActionRunner';
 import type { PostActionRunner } from './usePostActionsApi';
@@ -41,6 +43,8 @@ export type CommandLineProps = {
   readonly registerRunner: (runner: PostActionRunner) => void;
   /** Hands the app the runner of command lines that windows with a GUI use (WFE-242). */
   readonly registerLineRunner: (runner: LineRunner) => void;
+  /** Hands the app the way to put text back on the empty line (WFE-284). */
+  readonly registerRestorer: (restorer: LineRestorer) => void;
 };
 
 /** The `[📎]` button: opens the file dialog `/attach` opens, asking for no alt text. */
@@ -64,6 +68,7 @@ export function CommandLine(props: CommandLineProps): JSX.Element {
   useHotkeys(inputRef, context, props.pendingKeys);
   usePostActionRunner(inputRef, context, props.registerRunner);
   useRegisterLineRunner(context, props.registerLineRunner);
+  useRegisterLineRestorer({ value, setValue }, props.registerRestorer);
   const history = useCommandHistory(state.mode, value, setValue);
   const completion = useCompletion({
     inputRef,

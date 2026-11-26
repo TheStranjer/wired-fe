@@ -1,17 +1,28 @@
 /**
  * The account picker's state (WFE-282): which question the modal box asks, or
- * null while none is open. A union on `purpose` so a later flow (picking the
- * account to post a draft as) adds a member; every switch on it must stay
- * exhaustive. Not persisted and not synced: a picker never outlives its page.
+ * null while none is open. A union on `purpose`: choosing the default account
+ * (WFE-282) or the account to post a waiting draft as (WFE-284); every switch
+ * on it must stay exhaustive. Not persisted and not synced: a picker never outlives its page.
  */
 
+import type { Draft } from './draft';
+
 /** The question the picker asks. */
-export type AccountPick = {
-  /** Choose the account plain text posts as by default, for the window's feed or everywhere. */
-  readonly purpose: 'default';
-  /** The window whose posting account is being chosen. */
-  readonly windowId: string;
-};
+export type AccountPick =
+  | {
+      /** Choose the account plain text posts as by default, for the window's feed or everywhere. */
+      readonly purpose: 'default';
+      /** The window whose posting account is being chosen. */
+      readonly windowId: string;
+    }
+  | {
+      /** Choose the account a draft that nobody could be resolved for posts as (WFE-284). */
+      readonly purpose: 'post';
+      /** The account-less window the draft was typed in. */
+      readonly windowId: string;
+      /** The draft that waits to be posted. */
+      readonly draft: Draft;
+    };
 
 /** The actions that open and close the picker. */
 export type AccountPickAction =

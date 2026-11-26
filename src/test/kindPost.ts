@@ -10,6 +10,7 @@ import { type Mock, vi } from 'vitest';
 import { status } from './fixtures';
 import { server } from './server';
 import type { AppState } from '../state/appState';
+import type { Draft } from '../state/draft';
 import type { PostContext, WindowKindDefinition } from '../state/windowKind';
 import type { WindowState } from '../windows/model';
 
@@ -25,7 +26,7 @@ type KindPostRun = {
 
 /**
  * Posts {@link text} through the `onPost` of {@link kind} for {@link win}
- * over {@link state}; the instance at {@link origin} answers the create with a
+ * over {@link state} — {@link text} is a draft's text, or the whole draft; the instance at {@link origin} answers the create with a
  * status, or with a 422 when `target.refused`.
  */
 export async function runKindPost(
@@ -36,7 +37,7 @@ export async function runKindPost(
     readonly origin: string;
     readonly refused?: boolean;
   },
-  text: string,
+  text: string | Draft,
 ): Promise<KindPostRun> {
   const bodies: unknown[] = [];
   server.use(
@@ -52,6 +53,6 @@ export async function runKindPost(
   if (kind.onPost === undefined) {
     throw new Error('the kind takes no posts');
   }
-  const result = await kind.onPost({ text }, target.win, context);
+  const result = await kind.onPost(typeof text === 'string' ? { text } : text, target.win, context);
   return { result, bodies, dispatch };
 }

@@ -9,10 +9,11 @@ import type { JSX } from 'react';
 
 import { useAccountPicker } from './useAccountPicker';
 import { useErrorAlert } from './useErrorAlert';
+import type { LineRestorer } from './useLineRestoreApi';
 
 /** The picker and the alert, each present only when it may have the keyboard. */
-export function useShellModals(routeOverlayOpen: boolean): JSX.Element {
-  const picker = useAccountPicker(routeOverlayOpen);
+export function useShellModals(routeOverlayOpen: boolean, restore: LineRestorer): JSX.Element {
+  const picker = useAccountPicker(routeOverlayOpen, restore);
   const alert = useErrorAlert(routeOverlayOpen || picker !== null);
   return (
     <>

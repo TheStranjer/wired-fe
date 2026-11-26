@@ -8,5 +8,5 @@
 /** What refusing for want of an account says. */
 export const NOT_LOGGED_IN_MESSAGE = 'Not logged in. Type /connect';
 
-/** What refusing a post in a window that has no account to post as says. */
-export const NO_POST_MESSAGE = "You can't post in this window. Try /home";
+/** What refusing a post in a window that takes no posts (media, feed editor) says. */
+export const NO_POST_MESSAGE = "You can't post in this window";

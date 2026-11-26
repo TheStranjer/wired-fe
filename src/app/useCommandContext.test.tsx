@@ -42,7 +42,7 @@ const NO_KIND: WindowRef = {
 };
 
 /** The message a window whose kind takes no posts gets back. */
-const NO_POST = "You can't post in this window. Try /home";
+const NO_POST = "You can't post in this window";
 
 /** The pending-media stub every context built here carries. */
 const NO_MEDIA = fakeAttachments();
@@ -147,10 +147,12 @@ describe(useCommandContext, () => {
     expect(systemLines(result.current.state)).toStrictEqual([]);
   });
 
-  it('refuses to post in the status window', async () => {
+  it('refuses to post in the status window when nobody is signed in', async () => {
     const { context } = renderContext([], vi.fn()).result.current;
 
-    await expect(context.post({ text: 'hello world' })).resolves.toBe(NO_POST);
+    await expect(context.post({ text: 'hello world' })).resolves.toBe(
+      'Not logged in. Type /connect',
+    );
   });
 
   it('refuses to post in a window whose kind no feature implements', async () => {

@@ -18,6 +18,7 @@
 import { useMemo } from 'react';
 
 import { withPendingMedia } from './pendingMedia';
+import { buildPostContext } from './postContext';
 import { DEVICE_CLASS } from './readDeviceClass';
 import { appStores } from './stores';
 import { requestSync } from './syncRequests';
@@ -27,6 +28,7 @@ import type { CommandContext, PrintLevel } from '../commands/types';
 import { buildConfig } from '../config/config';
 import { blocksTyping, parseSequence } from '../keys/chord';
 import { buildKeymap } from '../keys/keymap';
+import { NO_POST_MESSAGE } from '../lib/refusal';
 import { printAction } from '../state/appState';
 import type { Draft } from '../state/draft';
 import { useRefreshDeps } from '../state/RefreshContext';
@@ -34,9 +36,6 @@ import { useAppDispatch, useAppState } from '../state/StateContext';
 import type { PostContext, WindowKindDefinition } from '../state/windowKind';
 import { activeWindow } from '../windows/model';
 import type { WindowKind, WindowState } from '../windows/model';
-
-/** What the shell says when the active window's kind takes no posts. */
-const NO_POST = "You can't post in this window. Try /home";
 
 /** The kinds the loader collected; no kinds at all when that load failed. */
 function loadedKinds(): ReadonlyMap<WindowKind, WindowKindDefinition> {
@@ -54,7 +53,7 @@ const KINDS = loadedKinds();
 function postHandler(win: WindowState, postContext: PostContext): CommandContext['post'] {
   const onPost = KINDS.get(win.ref.kind)?.onPost;
   if (onPost === undefined) {
-    return async () => await Promise.resolve(NO_POST);
+    return async () => await Promise.resolve(NO_POST_MESSAGE);
   }
   return async (draft: Draft) => await onPost(draft, win, postContext);
 }
@@ -122,7 +121,7 @@ export function useCommandContext(
     state,
     dispatch,
     now,
-    post: posting(active, { state, dispatch, now, refresh }, attachments),
+    post: posting(active, buildPostContext(state, dispatch, refresh), attachments),
     setInput,
     line,
     attachments,
