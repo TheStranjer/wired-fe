@@ -1,0 +1,29 @@
+/* A fieldset of radios: one choice per line, framed like the dialog's other fields. */
+
+.group {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0 var(--space);
+  border: var(--border-width) solid var(--color-dim);
+}
+
+.legend {
+  padding: 0 var(--space);
+  color: var(--color-accent);
+}
+
+.choice {
+  display: flex;
+  gap: var(--space);
+  align-items: center;
+  cursor: pointer;
+}
+
+.choice input {
+  accent-color: var(--color-accent);
+}
+
+.choice input:focus-visible {
+  outline: var(--border-width-focus) solid var(--color-accent);
+}

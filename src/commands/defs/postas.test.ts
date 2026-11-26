@@ -18,7 +18,7 @@ describe('/postas', () => {
   it('says a feed window posts as its feed default', async () => {
     const session = desk([MAIN, OTHER], null, [openFeed(OTHER)]);
 
-    await expect(session.run('')).resolves.toStrictEqual({ ok: true });
+    await expect(session.run('--global')).resolves.toStrictEqual({ ok: true });
 
     expect(session.printed).toStrictEqual(['~other posts as @lain@wired.example (feed default)']);
   });
@@ -26,7 +26,7 @@ describe('/postas', () => {
   it('says a feed window without a default posts as the global one', async () => {
     const session = desk([MAIN], ALICE.key, [openFeed(MAIN)]);
 
-    await session.run('');
+    await session.run('--global');
 
     expect(session.printed).toStrictEqual(['~main posts as @alice@wired.example (global default)']);
   });
@@ -34,7 +34,7 @@ describe('/postas', () => {
   it('says who the status window posts as: the global default', async () => {
     const session = desk([], ALICE.key);
 
-    await session.run('');
+    await session.run('--global');
 
     expect(session.printed).toStrictEqual(['posts as @alice@wired.example (global default)']);
   });
@@ -42,7 +42,7 @@ describe('/postas', () => {
   it('says a window with its own account posts as that account', async () => {
     const session = desk([], ALICE.key, [OPEN_HOME]);
 
-    await session.run('');
+    await session.run('--global');
 
     expect(session.printed).toStrictEqual(["posts as @lain@wired.example (window's account)"]);
   });
@@ -50,7 +50,7 @@ describe('/postas', () => {
   it('says nothing is set when two accounts and no default leave it open', async () => {
     const session = desk([], null);
 
-    await expect(session.run('')).resolves.toStrictEqual({ ok: true });
+    await expect(session.run('--global')).resolves.toStrictEqual({ ok: true });
 
     expect(session.printed).toStrictEqual(['No posting account set: /postas <handle|n>']);
   });
