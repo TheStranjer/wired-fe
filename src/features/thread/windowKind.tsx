@@ -6,7 +6,8 @@
  * the way /thread opened it). Under the scrollback, outside the scrolling
  * area, sits a docked input box (./ThreadInput) that replies to the target
  * post and runs `/` lines as commands on this thread; a thread that failed to
- * load has no box. Plain text typed at the command line answers the target
+ * load has no box. Files pasted or dropped onto the pane go to the box's own
+ * media (WFE-289). Plain text typed at the command line answers the target
  * post too: ./threadReply prefixes the respondents the answer must name, keeps
  * the audience and the content warning of the post answered, and everything
  * else the composer settled on the draft — a `/cw` warning, a `/poll` — rides
@@ -24,6 +25,7 @@ import { useAppState } from '../../state/StateContext';
 import type { WindowKindDefinition } from '../../state/windowKind';
 import { BufferView } from '../../views/BufferView';
 import { DockedInput } from '../../views/DockedInput';
+import { useComposerMedia } from '../../views/useComposerMedia';
 
 /** The thread window: its buffer's lines, filled once by ./useThread, over its docked box. */
 function ThreadWindow({ windowId }: { readonly windowId: string }): JSX.Element {
@@ -31,8 +33,12 @@ function ThreadWindow({ windowId }: { readonly windowId: string }): JSX.Element 
   const state = useAppState();
   const win = state.windows.windows.find((candidate) => candidate.id === windowId);
   const failed = bufferFor(state, windowId).load === 'error';
+  const media = useComposerMedia(windowId, win?.ref.accountKey ?? null);
   return (
-    <DockedInput input={win === undefined || failed ? null : <ThreadInput win={win} />}>
+    <DockedInput
+      input={win === undefined || failed ? null : <ThreadInput win={win} />}
+      onFiles={media.add}
+    >
       <BufferView windowId={windowId} label={win?.title ?? 'thread'} />
     </DockedInput>
   );

@@ -3,7 +3,8 @@
  * attachments of one draft belong to its window, by window id, so two composers
  * keep separate media and a pane that is not shown keeps its uploads. Each line
  * is an upload under way, an attachment the instance accepted, or the reason one
- * failed; the alt text is typed on the line and sent with the post. A closed
+ * failed; the alt text is typed on the line and sent with the post. The DM and
+ * thread windows' docked boxes hold media the same way (WFE-289). A closed
  * window's media is dropped with its draft (./composerActions).
  */
 
@@ -12,6 +13,7 @@ import type { ComposerMedia, Draft } from './draft';
 import { capabilitiesFor } from './selectors';
 import type { MediaAttachment } from './uploadAttachment';
 import { DEFAULT_MAX_MEDIA_ATTACHMENTS } from '../capabilities/capabilities';
+import type { WindowKind } from '../windows/model';
 
 /**
  * The reserved key the command line's own pending media (WFE-287) lives under,
@@ -19,6 +21,14 @@ import { DEFAULT_MAX_MEDIA_ATTACHMENTS } from '../capabilities/capabilities';
  * mistaken for a composer's and is kept when composers are swept.
  */
 export const COMMAND_LINE_MEDIA = 'command-line';
+
+/** The kinds of window that hold media of their own: the composer, and the DM and thread windows with a docked box (WFE-289). */
+const MEDIA_KINDS: ReadonlySet<WindowKind> = new Set(['composer', 'dm', 'thread']);
+
+/** Whether a window of {@link kind} has a box to attach media to. */
+export function carriesMedia(kind: WindowKind): boolean {
+  return MEDIA_KINDS.has(kind);
+}
 
 /** One thing that can happen to a pane composer's media. */
 export type ComposerMediaAction =
@@ -90,11 +100,12 @@ function putMedia(state: AppState, windowId: string, media: readonly ComposerMed
 
 /**
  * Move the composers' media along by one action; the same state when the window
- * is not a composer, unless the action names {@link COMMAND_LINE_MEDIA}.
+ * holds none (not a composer, DM or thread), unless the action names {@link COMMAND_LINE_MEDIA}.
  */
 export function composerMediaReducer(state: AppState, action: ComposerMediaAction): AppState {
   const win = state.windows.windows.find((candidate) => candidate.id === action.windowId);
-  if (action.windowId !== COMMAND_LINE_MEDIA && win?.ref.kind !== 'composer') {
+  const holds = win !== undefined && carriesMedia(win.ref.kind);
+  if (action.windowId !== COMMAND_LINE_MEDIA && !holds) {
     return state;
   }
   const media = composerMediaOf(state, action.windowId);

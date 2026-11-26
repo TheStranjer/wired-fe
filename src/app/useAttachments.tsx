@@ -10,7 +10,8 @@
  * with it — and `add` uploads one file without the dialog: the paste and drop
  * entry points call it. While a composer window is focused the dialog's files
  * are not pending at all: they go to that composer as its own media, described
- * by the alt text (WFE-245).
+ * by the alt text (WFE-245); so are those of a DM or thread window, whose docked
+ * box holds media too (WFE-289).
  */
 
 import { useRef } from 'react';
@@ -21,10 +22,15 @@ import { type MediaActions, mediaActions } from './mediaActions';
 import { showFirstDescription } from './trayFocus';
 import { uploadFiles } from './uploadFiles';
 import type { CommandContext } from '../commands/types';
-import { useComposerMedia } from '../features/composer/useComposerMedia';
-import { COMMAND_LINE_MEDIA, composerMediaOf, mediaIdsOf } from '../state/composerMedia';
+import {
+  COMMAND_LINE_MEDIA,
+  carriesMedia,
+  composerMediaOf,
+  mediaIdsOf,
+} from '../state/composerMedia';
 import type { ComposerMedia } from '../state/draft';
 import { useAppDispatch, useAppState } from '../state/StateContext';
+import { useComposerMedia } from '../views/useComposerMedia';
 import { activeWindow } from '../windows/model';
 
 /** What Root gets from {@link useAttachments}: the command-context slice, the lines, and the dialog and drop-in entries. */
@@ -58,9 +64,9 @@ export function useAttachments(): Attachments {
     void uploadFiles(files, { state, dispatch, description: altRef.current });
   }
 
-  /** A focused composer window takes the chosen files as its own media; else they wait for the next post. */
+  /** A focused window with a box of its own (a composer, a DM, a thread) takes the chosen files as its own media; else they wait for the next post. */
   function onFiles(chosen: readonly File[]): void {
-    if (focused.ref.kind === 'composer') {
+    if (carriesMedia(focused.ref.kind)) {
       composerMedia.addDescribed(chosen, altRef.current);
     } else {
       upload(chosen);
