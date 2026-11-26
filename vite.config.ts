@@ -62,6 +62,9 @@ export default defineConfig({
   },
   test: {
     environment: 'jsdom',
+    // Vitest stubs every stylesheet to an empty module, `?raw` ones too; the
+    // theme-token test (src/theme/tokens.test.ts) reads the CSS text itself.
+    css: { include: [/\.css\?raw$/] },
     include: ['src/**/*.test.{ts,tsx}', 'tooling/**/*.test.ts'],
     setupFiles: ['src/test/setup.ts'],
     allowOnly: false,
