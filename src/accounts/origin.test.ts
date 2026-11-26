@@ -7,14 +7,22 @@ import { describe, expect, it } from 'vitest';
 import { type OriginChoice, normalizeTypedOrigin, resolveInstanceOrigin } from './origin';
 import type { InstancesConfig } from '../config/schema';
 
-const LIST: InstancesConfig = {
-  mode: 'list',
-  origins: ['https://wired.example', 'https://pleroma.example'],
-};
+const LIST_ORIGINS = ['https://wired.example', 'https://pleroma.example'];
+
+const LIST: InstancesConfig = { mode: 'list', origins: LIST_ORIGINS };
 
 /** Resolves on a `list` build and returns the choice. */
 function resolveList(typed: string): OriginChoice {
   return resolveInstanceOrigin(LIST, 'https://fe.example', typed);
+}
+
+/** Resolves on a `list` build that also allows custom instances. */
+function resolveCustom(typed: string): OriginChoice {
+  return resolveInstanceOrigin(
+    { mode: 'list', origins: LIST_ORIGINS, allowCustom: true },
+    'https://fe.example',
+    typed,
+  );
 }
 
 describe(normalizeTypedOrigin, () => {
@@ -154,6 +162,53 @@ describe(resolveInstanceOrigin, () => {
     expect(resolveList('')).toStrictEqual({
       ok: false,
       error: 'That instance is not available here',
+    });
+  });
+
+  it('list with allowCustom still accepts a listed host', () => {
+    expect(resolveCustom('wired.example')).toStrictEqual({
+      ok: true,
+      value: 'https://wired.example',
+    });
+  });
+
+  it('list with allowCustom accepts an unlisted valid host', () => {
+    expect(resolveCustom('@lain@other.example')).toStrictEqual({
+      ok: true,
+      value: 'https://other.example',
+    });
+  });
+
+  it('list with allowCustom forwards normalization failures', () => {
+    expect(resolveCustom('http://other.example')).toStrictEqual({
+      ok: false,
+      error: 'Only https instances are supported',
+    });
+    expect(resolveCustom('')).toStrictEqual({
+      ok: false,
+      error: 'Enter an instance, like wired.example',
+    });
+  });
+
+  it('list with allowCustom false still refuses an unlisted host', () => {
+    const instances: InstancesConfig = {
+      mode: 'list',
+      origins: LIST_ORIGINS,
+      allowCustom: false,
+    };
+
+    expect(resolveInstanceOrigin(instances, 'https://fe.example', 'other.example')).toStrictEqual({
+      ok: false,
+      error: 'That instance is not available here',
+    });
+  });
+
+  it('an empty list with allowCustom accepts any valid host', () => {
+    const instances: InstancesConfig = { mode: 'list', origins: [], allowCustom: true };
+
+    expect(resolveInstanceOrigin(instances, 'https://fe.example', 'other.example')).toStrictEqual({
+      ok: true,
+      value: 'https://other.example',
     });
   });
 

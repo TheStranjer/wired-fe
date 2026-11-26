@@ -74,4 +74,13 @@ describe(loadConfig, () => {
     expect(lines.some((line) => line.startsWith('instances.mode: '))).toBe(true);
     expect(lines.some((line) => line.startsWith('extra: '))).toBe(true);
   });
+
+  it('fails on an empty origins list that forbids custom instances', () => {
+    expect(() =>
+      loadConfig(
+        '/srv/app/wired.config.json',
+        reader('{ "appName": "WIRED", "instances": { "mode": "list", "origins": [] } }'),
+      ),
+    ).toThrow(/instances: an empty origins list needs allowCustom: true/);
+  });
 });

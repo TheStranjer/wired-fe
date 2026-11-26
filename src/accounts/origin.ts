@@ -51,20 +51,23 @@ export function normalizeTypedOrigin(typed: string): Result<string, string> {
   }
 }
 
-/** On a `list` build only the configured origins are accepted, typed or not. */
-function fromList(origins: readonly string[], typed: string): OriginChoice {
+/**
+ * On a `list` build a listed origin is accepted; any other valid typed origin
+ * only when {@link allowCustom}, otherwise {@link NOT_LISTED}.
+ */
+function fromList(origins: readonly string[], allowCustom: boolean, typed: string): OriginChoice {
   const normalized = normalizeTypedOrigin(typed);
   if (normalized.ok && origins.includes(normalized.value)) {
     return normalized;
   }
-  return err(NOT_LISTED);
+  return allowCustom ? normalized : err(NOT_LISTED);
 }
 
 /**
  * The instance origin to use for {@link instances}' mode (decision 3):
  * `same-origin` takes the page's own origin, `fixed` the configured one,
- * `list` only accepts a typed origin that is on the list, and `open` takes
- * whatever valid instance the user typed.
+ * `list` accepts a typed origin that is on the list (any valid one too, with
+ * `allowCustom`), and `open` takes whatever valid instance the user typed.
  */
 export function resolveInstanceOrigin(
   instances: InstancesConfig,
@@ -77,7 +80,7 @@ export function resolveInstanceOrigin(
     case 'fixed':
       return ok(instances.origin);
     case 'list':
-      return fromList(instances.origins, typed);
+      return fromList(instances.origins, instances.allowCustom === true, typed);
     case 'open':
       return normalizeTypedOrigin(typed);
   }

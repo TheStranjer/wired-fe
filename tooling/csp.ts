@@ -34,7 +34,9 @@ export function connectSources(instances: InstancesConfig): readonly string[] {
     case 'fixed':
       return ["'self'", instances.origin, wsOrigin(instances.origin)];
     case 'list':
-      return ["'self'", ...instances.origins.flatMap((origin) => [origin, wsOrigin(origin)])];
+      return instances.allowCustom === true
+        ? ["'self'", 'https:', 'wss:']
+        : ["'self'", ...instances.origins.flatMap((origin) => [origin, wsOrigin(origin)])];
     case 'open':
       return ["'self'", 'https:', 'wss:'];
   }
