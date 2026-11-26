@@ -3,7 +3,7 @@
  * (AGENTS.md "The command line is the composer"). Presentational only:
  * parsing, history and completion belong to higher layers.
  */
-import type { ChangeEvent, JSX, KeyboardEvent, Ref } from 'react';
+import type { ChangeEvent, JSX, KeyboardEvent, ReactNode, Ref } from 'react';
 
 import styles from './InputLine.module.css';
 
@@ -24,11 +24,13 @@ export type InputLineProps = {
   readonly onKeyDown?: (event: KeyboardEvent<HTMLInputElement>) => void;
   /** Forwarded to the input so the parent can focus it. */
   readonly inputRef?: Ref<HTMLInputElement>;
+  /** Something at the left edge before the prompt, e.g. the attach button (WFE-287). */
+  readonly lead?: ReactNode;
 };
 
 /** A single-line composer styled after an IRC input. */
 export function InputLine(props: InputLineProps): JSX.Element {
-  const { prompt, value, onChange, onSubmit, onFocus, onKeyDown, inputRef } = props;
+  const { prompt, value, onChange, onSubmit, onFocus, onKeyDown, inputRef, lead } = props;
 
   function handleChange(event: ChangeEvent<HTMLInputElement>): void {
     onChange(event.target.value);
@@ -44,6 +46,7 @@ export function InputLine(props: InputLineProps): JSX.Element {
 
   return (
     <div className={styles['container']}>
+      {lead}
       <span aria-hidden="true" className={styles['prompt']}>
         {prompt}
       </span>

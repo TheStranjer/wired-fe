@@ -20,6 +20,7 @@ import type { JSX } from 'react';
 
 import { AppHeader } from './AppHeader';
 import { CommandLine } from './CommandLine';
+import { CommandTray } from './CommandTray';
 import { deskSource } from './deskSource';
 import { DesktopView } from './DesktopView';
 import { KINDS } from './loadedKinds';
@@ -105,9 +106,8 @@ export function Root(): JSX.Element {
           header={<AppHeader />}
           scrollback={<DesktopView />}
           scrollbackLabel={`Desktop ${String(state.layout.active + 1)}`}
-          statusLine={
-            <StatusBar pendingMedia={attachments.pending.length} pendingKeys={pendingKeys.prefix} />
-          }
+          statusLine={<StatusBar attachments={attachments} pendingKeys={pendingKeys.prefix} />}
+          tray={<CommandTray attachments={attachments} />}
           input={
             <CommandLine
               attachments={attachments}

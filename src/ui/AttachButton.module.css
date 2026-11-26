@@ -1,0 +1,15 @@
+/* The command line's attach button: plain text in the accent colour, like the other bracketed buttons. */
+
+.attach {
+  flex: none;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--color-accent);
+  font: inherit;
+  cursor: pointer;
+}
+
+.attach:focus-visible {
+  outline: 1px solid var(--color-accent);
+}

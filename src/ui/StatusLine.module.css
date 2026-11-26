@@ -16,6 +16,20 @@
   cursor: pointer;
 }
 
+/* The waiting-media group is a button made to look like the rest of the line, in the text colour. */
+.media {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.media:focus-visible {
+  outline: 1px solid var(--color-dim);
+}
+
 .unread {
   color: var(--color-fg);
 }

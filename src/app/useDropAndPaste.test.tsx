@@ -22,7 +22,6 @@ import type { SystemLineData } from '../state/buffer';
 import { bufferFor } from '../state/selectors';
 import { AppStateProvider, useAppState } from '../state/StateContext';
 import { stateAfter } from '../test/appSessions';
-import { fakeAttachments } from '../test/commandContext';
 import { STATUS_WINDOW_ID } from '../windows/model';
 
 /** One file named {@link name} with mime type {@link type}. */
@@ -40,7 +39,7 @@ const REFUSAL = "Can't attach notes.txt: not an image, video or audio file";
 
 /** The hook under test: renders what it returns and reports the state it saw. */
 function Probe(props: {
-  readonly attachments: Attachments;
+  readonly attachments: Pick<Attachments, 'add'>;
   readonly report: (state: AppState) => void;
 }): JSX.Element | null {
   const state = useAppState();
@@ -61,7 +60,7 @@ type Mounted = {
 /** Mount the probe over an empty session with a stub seam. */
 function mountHook(): Mounted {
   const add = vi.fn<(file: File) => void>();
-  const attachments: Attachments = { ...fakeAttachments(), add, input: <span hidden /> };
+  const attachments = { add };
   let captured: AppState | null = null;
   const { unmount } = render(
     <AppStateProvider initial={stateAfter([])}>

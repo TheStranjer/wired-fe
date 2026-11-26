@@ -1,6 +1,4 @@
-/* The composer's attachments: the attach button, then one line per file —
-   a fixed-size thumbnail, the name, the alt-text input, the upload state and
-   the remove mark — so the layout never shifts while a thumbnail loads. */
+/* The composer's attachments: the attach button, then the shared list of lines. */
 
 .media {
   display: flex;
@@ -9,8 +7,7 @@
   gap: var(--space);
 }
 
-.attach,
-.remove {
+.attach {
   border: 0;
   padding: 0;
   background: transparent;
@@ -19,56 +16,6 @@
   cursor: pointer;
 }
 
-.list {
-  display: flex;
-  flex-direction: column;
-  align-self: stretch;
-  margin: 0;
-  padding: 0;
-  gap: var(--space);
-  list-style: none;
-}
-
-.line {
-  display: flex;
-  align-items: center;
-  gap: var(--space);
-}
-
-.thumb {
-  display: block;
-  flex: none;
-  box-sizing: border-box;
-  width: calc(2 * var(--line-height) * 1em);
-  height: calc(2 * var(--line-height) * 1em);
-  border: var(--border-width) solid var(--color-border);
-  border-radius: 0;
-  object-fit: cover;
-}
-
-.name {
-  overflow: hidden;
-  max-width: 12em;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.description {
-  flex: 1;
-  min-width: 0;
-  padding: 0 var(--space);
-  border: 1px solid var(--color-dim);
-  background: var(--color-bg);
-  color: var(--color-fg);
-  font: inherit;
-}
-
-.failed {
-  color: var(--color-error);
-}
-
-.attach:focus-visible,
-.remove:focus-visible,
-.description:focus-visible {
+.attach:focus-visible {
   outline: 1px solid var(--color-accent);
 }
