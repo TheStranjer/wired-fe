@@ -32,7 +32,7 @@ test('/postas opens the picker with focus inside, and Escape returns focus to th
   await page.keyboard.press('Escape');
 
   await expect(dialog).toHaveCount(0);
-  await expect(page.getByRole('textbox', { name: 'Command line' })).toBeFocused();
+  await expect(page.getByRole('combobox', { name: 'Command line' })).toBeFocused();
 });
 
 test('Enter on a radio submits, saving the default and printing it', async ({ page }) => {

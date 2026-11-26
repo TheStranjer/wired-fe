@@ -17,7 +17,7 @@ function renderInputLine(
   onSubmit: (value: string) => void,
 ): HTMLElement {
   render(<InputLine prompt="lain>" value={value} onChange={onChange} onSubmit={onSubmit} />);
-  return screen.getByRole('textbox', { name: 'Command line' });
+  return screen.getByRole('combobox', { name: 'Command line' });
 }
 
 describe(InputLine, () => {
@@ -25,7 +25,7 @@ describe(InputLine, () => {
     renderInputLine('', NOOP, NOOP);
 
     expect(screen.getByText('lain>')).toBeInTheDocument();
-    expect(screen.getByRole('textbox', { name: 'Command line' })).toHaveValue('');
+    expect(screen.getByRole('combobox', { name: 'Command line' })).toHaveValue('');
   });
 
   it('shows its lead before the prompt', () => {
@@ -83,7 +83,7 @@ describe(InputLine, () => {
     const onSubmit = vi.fn<(value: string) => void>();
     render(<InputLine prompt=">" value="" onChange={NOOP} onSubmit={onSubmit} allowEmpty />);
 
-    fireEvent.keyDown(screen.getByRole('textbox', { name: 'Command line' }), { key: 'Enter' });
+    fireEvent.keyDown(screen.getByRole('combobox', { name: 'Command line' }), { key: 'Enter' });
 
     expect(onSubmit).toHaveBeenCalledWith('');
   });
@@ -94,7 +94,7 @@ describe(InputLine, () => {
       <InputLine prompt=">" value="" onChange={NOOP} onSubmit={onSubmit} allowEmpty={false} />,
     );
 
-    fireEvent.keyDown(screen.getByRole('textbox', { name: 'Command line' }), { key: 'Enter' });
+    fireEvent.keyDown(screen.getByRole('combobox', { name: 'Command line' }), { key: 'Enter' });
 
     expect(onSubmit).not.toHaveBeenCalled();
   });
@@ -112,7 +112,7 @@ describe(InputLine, () => {
     const inputRef = createRef<HTMLInputElement>();
     render(<InputLine prompt=">" value="" onChange={NOOP} onSubmit={NOOP} inputRef={inputRef} />);
 
-    expect(inputRef.current).toBe(screen.getByRole('textbox', { name: 'Command line' }));
+    expect(inputRef.current).toBe(screen.getByRole('combobox', { name: 'Command line' }));
   });
 
   it('calls onKeyDown with every key, before its own Enter handling', () => {
@@ -129,7 +129,7 @@ describe(InputLine, () => {
         }}
       />,
     );
-    const input = screen.getByRole('textbox', { name: 'Command line' });
+    const input = screen.getByRole('combobox', { name: 'Command line' });
 
     fireEvent.keyDown(input, { key: 'ArrowUp' });
     fireEvent.keyDown(input, { key: 'Enter' });
@@ -152,7 +152,7 @@ describe(InputLine, () => {
       />,
     );
 
-    fireEvent.keyDown(screen.getByRole('textbox', { name: 'Command line' }), { key: 'Enter' });
+    fireEvent.keyDown(screen.getByRole('combobox', { name: 'Command line' }), { key: 'Enter' });
 
     expect(onSubmit).not.toHaveBeenCalled();
   });
@@ -164,7 +164,7 @@ describe(InputLine, () => {
     };
     render(<InputLine prompt=">" value="" onChange={NOOP} onSubmit={NOOP} onFocus={onFocus} />);
 
-    fireEvent.focus(screen.getByRole('textbox', { name: 'Command line' }));
+    fireEvent.focus(screen.getByRole('combobox', { name: 'Command line' }));
 
     expect(focusCount).toBe(1);
   });

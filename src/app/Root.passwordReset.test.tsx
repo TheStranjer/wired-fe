@@ -120,7 +120,7 @@ describe('the reset-letter overlay', () => {
     expect(seen).toStrictEqual([
       { token: 'tok-1', password: 'hunter2hunter2', password_confirmation: 'hunter2hunter2' },
     ]);
-    expect(screen.getByRole('textbox', { name: 'Command line' })).toHaveValue('');
+    expect(screen.getByRole('combobox', { name: 'Command line' })).toHaveValue('');
     expect(screen.queryByDisplayValue('hunter2hunter2')).not.toBeInTheDocument();
   });
 

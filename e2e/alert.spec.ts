@@ -32,7 +32,7 @@ test('a refused command raises an alert that Enter dismisses, leaving the line b
   await page.keyboard.press('Enter');
 
   await expect(alert).toHaveCount(0);
-  await expect(page.getByRole('textbox', { name: 'Command line' })).toBeFocused();
+  await expect(page.getByRole('combobox', { name: 'Command line' })).toBeFocused();
   await expect(logRegion(page, 'feed')).toContainText(REFUSAL);
 });
 

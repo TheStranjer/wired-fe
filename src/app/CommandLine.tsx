@@ -3,7 +3,8 @@
  * composer"): every submitted line — command or post — goes to the dispatcher
  * (decision 6), which runs it and clears the line when it is done with, and
  * joins the command history the arrow keys walk (./useCommandHistory). Tab
- * completes the word under the caret through ./useCompletion with the
+ * completes the word under the caret, and a list of matching commands narrows
+ * as it is typed (WFE-297), both through ./useCommandCompletion with the
  * providers the composition root passes in. The ref lets the hotkeys move the
  * caret, and focusing the line while navigation is shown switches back to
  * insert. The `[📎]` button at its left edge opens the file dialog `/attach`
@@ -15,9 +16,9 @@
 import { useRef, useState } from 'react';
 import type { JSX, KeyboardEvent } from 'react';
 
+import { useCommandCompletion } from './useCommandCompletion';
 import { useCommandContext } from './useCommandContext';
 import { useCommandHistory } from './useCommandHistory';
-import { useCompletion } from './useCompletion';
 import { textHandler, useHotkeys } from './useHotkeys';
 import type { LineRestorer } from './useLineRestoreApi';
 import { useRegisterLineRunner } from './useLineRunnerApi';
@@ -71,7 +72,7 @@ export function CommandLine(props: CommandLineProps): JSX.Element {
   usePostActionRunner(inputRef, context, props.registerRunner);
   useRegisterLineRunner(context, props.registerLineRunner);
   const history = useCommandHistory(state.mode, value, setValue);
-  const completion = useCompletion({
+  const completion = useCommandCompletion({
     inputRef,
     mode: state.mode,
     providers: props.completion,
@@ -86,7 +87,7 @@ export function CommandLine(props: CommandLineProps): JSX.Element {
     });
   }
   function handleKeyDown(event: KeyboardEvent<HTMLInputElement>): void {
-    completion(event);
+    completion.onKeyDown(event);
     history.onKeyDown(event);
   }
   function handleInputFocus(): void {
@@ -94,7 +95,6 @@ export function CommandLine(props: CommandLineProps): JSX.Element {
       dispatch({ type: 'mode', mode: 'insert' });
     }
   }
-
   return (
     <InputLine
       prompt=">"
@@ -106,6 +106,7 @@ export function CommandLine(props: CommandLineProps): JSX.Element {
       inputRef={inputRef}
       onFocus={handleInputFocus}
       lead={<PickButton attachments={props.attachments} />}
+      {...completion.input}
     />
   );
 }

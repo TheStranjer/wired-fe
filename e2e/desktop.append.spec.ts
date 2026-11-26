@@ -26,6 +26,6 @@ test('Alt+] makes one desktop and is then refused past the empty one', async ({ 
   await page.keyboard.press('Enter');
 
   await expect(alert).toHaveCount(0);
-  await expect(page.getByRole('textbox', { name: 'Command line' })).toBeFocused();
+  await expect(page.getByRole('combobox', { name: 'Command line' })).toBeFocused();
   await expect(desktopButton(page, 3)).toHaveCount(0);
 });

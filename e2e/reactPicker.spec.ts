@@ -35,7 +35,7 @@ async function searchFire(page: Page): Promise<void> {
 /** The chip a 🔥 reaction leaves under the first post, and the empty command line. */
 async function expectFireReaction(page: Page): Promise<void> {
   await expect(logRegion(page, 'home').getByRole('img', { name: '🔥, 1 reaction' })).toBeVisible();
-  await expect(page.getByRole('textbox', { name: 'Command line' })).toHaveValue('');
+  await expect(page.getByRole('combobox', { name: 'Command line' })).toHaveValue('');
 }
 
 test('reacts to a post through the emoji picker without touching the command line', async ({

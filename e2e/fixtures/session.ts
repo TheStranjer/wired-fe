@@ -57,7 +57,7 @@ export function watchErrors(page: Page): string[] {
 
 /** The shell's command line. */
 function commandLine(page: Page): Locator {
-  return page.getByRole('textbox', { name: 'Command line' });
+  return page.getByRole('combobox', { name: 'Command line' });
 }
 
 /** Types {@link text} into the command line and submits it with Enter. */

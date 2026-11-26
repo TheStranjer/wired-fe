@@ -23,6 +23,6 @@ describe(App, () => {
 
     expect(screen.getByRole('log', { name: 'status' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Desktop 1, active' })).toBeInTheDocument();
-    expect(screen.getByRole('textbox', { name: 'Command line' })).toHaveValue('');
+    expect(screen.getByRole('combobox', { name: 'Command line' })).toHaveValue('');
   });
 });

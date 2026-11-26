@@ -59,7 +59,7 @@ function stateAfter(actions: readonly AppAction[]): AppState {
 
 /** The command line. */
 function commandLine(): HTMLElement {
-  return screen.getByRole('textbox', { name: 'Command line' });
+  return screen.getByRole('combobox', { name: 'Command line' });
 }
 
 /** Render Root over a session built from {@link actions}, focus on the line. */

@@ -96,14 +96,14 @@ function renderRoot(): HTMLElement {
     </AppStateProvider>,
   );
   act(() => {
-    screen.getByRole('textbox', { name: 'Command line' }).focus();
+    screen.getByRole('combobox', { name: 'Command line' }).focus();
   });
   return container;
 }
 
 /** Type {@link text} at the command line and press Enter. */
 function submit(text: string): void {
-  const line = screen.getByRole('textbox', { name: 'Command line' });
+  const line = screen.getByRole('combobox', { name: 'Command line' });
   fireEvent.change(line, { target: { value: text } });
   fireEvent.keyDown(line, { key: 'Enter' });
 }

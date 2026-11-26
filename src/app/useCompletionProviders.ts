@@ -14,7 +14,8 @@
 import { appRegistry } from './registry';
 import { useAvailableRegistry } from './useAvailableRegistry';
 import { hasFeature } from '../capabilities/capabilities';
-import { type Provider, commandProvider } from '../commands/complete';
+import { commandProvider } from '../commands/commandProvider';
+import type { Provider } from '../commands/complete';
 import { desktopProvider } from '../commands/desktopWords';
 import { directionProvider } from '../commands/directionWords';
 import { displayProvider } from '../commands/displayWords';

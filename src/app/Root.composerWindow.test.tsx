@@ -33,7 +33,7 @@ const ACCOUNT: StoredAccount = {
 
 /** The command line. */
 function commandLine(): HTMLElement {
-  return screen.getByRole('textbox', { name: 'Command line' });
+  return screen.getByRole('combobox', { name: 'Command line' });
 }
 
 /** Render Root signed in as lain, focus on the command line. */

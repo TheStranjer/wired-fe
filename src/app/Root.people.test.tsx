@@ -82,7 +82,7 @@ function seedHome(): readonly AppAction[] {
 
 /** The command line, the shell's only textbox. */
 function commandLine(): HTMLElement {
-  return screen.getByRole('textbox', { name: 'Command line' });
+  return screen.getByRole('combobox', { name: 'Command line' });
 }
 
 /** Types {@link text} at the command line, presses Enter and waits for the line to clear. */

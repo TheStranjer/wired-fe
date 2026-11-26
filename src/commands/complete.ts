@@ -1,25 +1,31 @@
 /**
- * Tab completion for the command line (decision 6): the engine plus the one
- * provider this layer can build itself, the command list read from the
- * registry. On the first Tab the engine finds the run of non-whitespace
- * characters ending at the cursor, asks the first provider that accepts that
- * word for its full replacement words and puts the first of them into the
- * text; every further Tab cycles through the list, wrapping at both ends.
- * Providers for accounts, hashtags, windows and posts are built by their own
- * layers and passed in, so this module only ever knows the command registry.
+ * Tab completion for the command line (decision 6): the engine. On the first
+ * Tab it finds the run of non-whitespace characters ending at the cursor, asks
+ * the first provider that accepts that word for its full replacement words
+ * and puts the first of them into the text; every further Tab cycles through
+ * the list, wrapping at both ends. Providers for commands, accounts, hashtags,
+ * windows and posts are built by their own modules and passed in, so this
+ * module knows no word of its own. The suggestion list (./suggest) reads the
+ * same candidates through {@link candidatesAt}.
  */
-
-import type { Registry } from './types';
-import { compareWords } from '../lib/words';
 
 /** Characters that separate two words on the command line. */
 const WHITESPACE = /\s/;
 
-/** What a command word is written with in front of its name. */
-const COMMAND_PREFIX = '/';
-
 /** What a completed word is followed by, so the next one can be typed. */
 const WORD_SEPARATOR = ' ';
+
+/**
+ * How a suggestion list shows one candidate (WFE-297): {@link word} is what
+ * the row completes to, {@link label} how the row names it (a command and its
+ * aliases), {@link description} one line about it. Candidates that share a
+ * {@link word} share one row.
+ */
+export type Described = {
+  readonly word: string;
+  readonly label: string;
+  readonly description: string;
+};
 
 /**
  * One kind of word the command line can complete. {@link accepts} decides
@@ -36,6 +42,11 @@ export type Provider = {
    * providers whose words depend on the ones already typed.
    */
   readonly candidates: (word: string, before?: string) => readonly string[];
+  /**
+   * The row a suggestion list shows for one of {@link candidates}; undefined
+   * for a word with nothing to say. A provider without it has no list.
+   */
+  readonly describe?: (candidate: string) => Described | undefined;
 };
 
 /**
@@ -52,6 +63,19 @@ export type CompletionState = {
   readonly candidates: readonly string[];
   readonly index: number;
   readonly wordStart: number;
+};
+
+/**
+ * What the providers offer for the word ending at a cursor in {@link text}:
+ * the {@link provider} that accepted it and its sorted {@link candidates}, for
+ * the word spanning {@link wordStart} up to {@link end}.
+ */
+type Found = {
+  readonly text: string;
+  readonly provider: Provider;
+  readonly candidates: readonly string[];
+  readonly wordStart: number;
+  readonly end: number;
 };
 
 /** {@link cursor} as an offset into {@link text}: both ends clamped. */
@@ -92,12 +116,48 @@ function showing(
   };
 }
 
+/** The completion of {@link found} that has not replaced anything yet. */
+function stateOf(found: Found): CompletionState {
+  const { text, candidates, wordStart, end } = found;
+  return { original: text, cursor: end, candidates, index: 0, wordStart };
+}
+
+/**
+ * The candidates for the word ending at {@link cursor}: the first provider that
+ * accepts the word answers, and a later one is never asked. Null when there is
+ * no word, no provider accepts it, or the accepting provider has nothing to offer.
+ */
+export function candidatesAt(
+  text: string,
+  cursor: number,
+  providers: readonly Provider[],
+): Found | null {
+  const end = clampedCursor(text, cursor);
+  const wordStart = wordStartBefore(text, end);
+  const word = text.slice(wordStart, end);
+  const provider =
+    word === '' ? undefined : providers.find((one) => one.accepts(word, wordStart === 0, text));
+  if (provider === undefined) {
+    return null;
+  }
+  const candidates = provider.candidates(word, text.slice(0, wordStart));
+  return candidates.length === 0 ? null : { text, provider, candidates, wordStart, end };
+}
+
+/** The text and caret of {@link found} with {@link word} written in place of the word it completes. */
+export function completeTo(
+  found: Found,
+  word: string,
+): { readonly text: string; readonly cursor: number } {
+  const { text, cursor } = showing(stateOf(found), word);
+  return { text, cursor };
+}
+
 /**
  * Complete the word ending at {@link cursor}: the first provider that accepts
  * it replaces the word with its first candidate plus a space, and the returned
  * state cycles through the rest. Null when there is no word, no provider
- * accepts it, or the accepting provider has nothing to offer; a later provider
- * is never asked once one has accepted the word.
+ * accepts it, or the accepting provider has nothing to offer.
  */
 export function startCompletion(
   text: string,
@@ -108,22 +168,12 @@ export function startCompletion(
   readonly cursor: number;
   readonly state: CompletionState;
 } | null {
-  const end = clampedCursor(text, cursor);
-  const wordStart = wordStartBefore(text, end);
-  const word = text.slice(wordStart, end);
-  if (word === '') {
+  const found = candidatesAt(text, cursor, providers);
+  const first = found?.candidates[0];
+  if (found === null || first === undefined) {
     return null;
   }
-  const chosen = providers.find((provider) => provider.accepts(word, wordStart === 0, text));
-  if (chosen === undefined) {
-    return null;
-  }
-  const candidates = chosen.candidates(word, text.slice(0, wordStart));
-  const first = candidates[0];
-  if (first === undefined) {
-    return null;
-  }
-  return showing({ original: text, cursor: end, candidates, index: 0, wordStart }, first);
+  return showing(stateOf(found), first);
 }
 
 /**
@@ -142,35 +192,4 @@ export function cycleCompletion(
     return { text: state.original, cursor: state.cursor, state };
   }
   return showing({ ...state, index }, candidate);
-}
-
-/** Every name and alias of {@link registry}, each written as it is completed. */
-function commandWords(registry: Registry): string[] {
-  const words: string[] = [];
-  for (const definition of registry.commands) {
-    words.push(`/${definition.name}`);
-    for (const alias of definition.aliases ?? []) {
-      words.push(`/${alias}`);
-    }
-  }
-  return words;
-}
-
-/**
- * The provider for commands: the line's first word starting with `/` completes
- * to `/name` for every name and alias that starts with it, because the
- * registry is the one source of both (decision 6). Registry names are already
- * lowercase, so only the typed word is lowercased before matching, the way
- * parseInput does; a bare `/` offers every command.
- */
-export function commandProvider(registry: Registry): Provider {
-  const words = commandWords(registry);
-
-  return {
-    accepts: (word, isFirstWord) => isFirstWord && word.startsWith(COMMAND_PREFIX),
-    candidates: (word) => {
-      const prefix = word.toLowerCase();
-      return words.filter((candidate) => candidate.startsWith(prefix)).toSorted(compareWords);
-    },
-  };
 }

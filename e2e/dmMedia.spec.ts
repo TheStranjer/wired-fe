@@ -66,7 +66,7 @@ async function routeMedia(page: Page): Promise<string[]> {
 
 /** Opens the conversation with alice and gives back its pane. */
 async function openDm(page: Page): Promise<Locator> {
-  const line = page.getByRole('textbox', { name: 'Command line' });
+  const line = page.getByRole('combobox', { name: 'Command line' });
   await line.fill('/query alice');
   await line.press('Enter');
   await showWindow(page, 'dm/alice');
