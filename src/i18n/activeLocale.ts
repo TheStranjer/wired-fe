@@ -1,9 +1,9 @@
 /**
  * The language in use (decision 19): one module-level value that plain code
  * reads through `t()` and React reads through a subscription. Switching waits
- * for the catalog, so the screen never shows a half-translated state, and a
- * language that cannot be had (no file yet, or it failed to load) leaves
- * English active.
+ * for the catalog, so the screen never shows a half-translated state. A
+ * language with no file yet can be chosen (its messages are English until the
+ * file lands); one whose file failed to load leaves English active.
  */
 
 import { SOURCE_LOCALE, dropLoadedCatalogs, installCatalog, loadCatalog } from './catalogs';
@@ -40,7 +40,7 @@ function activate(locale: string): void {
 
 /**
  * Switch to {@link locale}: load its catalog, then make it active. English
- * stays (or becomes) active when the catalog is not there. When two switches
+ * stays (or becomes) active when the file fails to load. When two switches
  * overlap, the later one wins.
  */
 export async function setLocale(locale: string): Promise<void> {

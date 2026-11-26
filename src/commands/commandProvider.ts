@@ -2,38 +2,38 @@
  * Tab completion of command names (decision 6): the line's first word
  * starting with `/` completes to every command name and alias of the
  * registry, and describes each one for the suggestion list (WFE-297) from the
- * same registry entry, so the list and the completion never disagree.
+ * same registry entry, so the list and the completion never disagree. A row is
+ * described when it is asked for, never kept: a summary is translated text
+ * (decision 19) and must follow the language as it changes.
  */
 
 import type { Described, Provider } from './complete';
-import type { Registry } from './types';
+import type { CommandDefinition, Registry } from './types';
 import { compareWords } from '../lib/words';
 
 /** What a command word is written with in front of its name. */
 const COMMAND_PREFIX = '/';
 
-/** The row of a command: its name with its aliases beside it, and its one-line summary. */
-function noteOf(name: string, aliases: readonly string[], summary: string): Described {
-  const also = aliases.map((alias) => `${COMMAND_PREFIX}${alias}`).join(', ');
-  const label = `${COMMAND_PREFIX}${name}`;
+/** The row of {@link definition}: its name with its aliases beside it, and its one-line summary as it reads now. */
+function noteOf(definition: CommandDefinition): Described {
+  const also = (definition.aliases ?? []).map((alias) => `${COMMAND_PREFIX}${alias}`).join(', ');
+  const label = `${COMMAND_PREFIX}${definition.name}`;
   return {
     word: label,
-    label: aliases.length === 0 ? label : `${label} (${also})`,
-    description: summary,
+    label: also === '' ? label : `${label} (${also})`,
+    description: definition.summary,
   };
 }
 
-/** Every name and alias of {@link registry}, each written as it is completed, with the row it belongs to. */
-function commandNotes(registry: Registry): Map<string, Described> {
-  const notes = new Map<string, Described>();
+/** Every name and alias of {@link registry}, each written as it is completed, with the command it belongs to. */
+function commandsByWord(registry: Registry): Map<string, CommandDefinition> {
+  const byWord = new Map<string, CommandDefinition>();
   for (const definition of registry.commands) {
-    const aliases = definition.aliases ?? [];
-    const note = noteOf(definition.name, aliases, definition.summary);
-    for (const name of [definition.name, ...aliases]) {
-      notes.set(`${COMMAND_PREFIX}${name}`, note);
+    for (const name of [definition.name, ...(definition.aliases ?? [])]) {
+      byWord.set(`${COMMAND_PREFIX}${name}`, definition);
     }
   }
-  return notes;
+  return byWord;
 }
 
 /**
@@ -44,8 +44,8 @@ function commandNotes(registry: Registry): Map<string, Described> {
  * parseInput does; a bare `/` offers every command.
  */
 export function commandProvider(registry: Registry): Provider {
-  const notes = commandNotes(registry);
-  const words = [...notes.keys()];
+  const byWord = commandsByWord(registry);
+  const words = [...byWord.keys()];
 
   return {
     accepts: (word, isFirstWord) => isFirstWord && word.startsWith(COMMAND_PREFIX),
@@ -53,6 +53,9 @@ export function commandProvider(registry: Registry): Provider {
       const prefix = word.toLowerCase();
       return words.filter((candidate) => candidate.startsWith(prefix)).toSorted(compareWords);
     },
-    describe: (candidate) => notes.get(candidate),
+    describe: (candidate) => {
+      const definition = byWord.get(candidate);
+      return definition === undefined ? undefined : noteOf(definition);
+    },
   };
 }

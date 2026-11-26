@@ -1,7 +1,8 @@
 /**
  * Tests for the lazy loading of catalogs: one load per language however many
- * switches ask for it, a language with no file or a failed load leaving
- * English active (and a failed load being tried again), an overlapping switch
+ * switches ask for it, a language with no file yet becoming active with
+ * English messages, a failed load leaving English active (and being tried
+ * again), an overlapping switch
  * where the later wins, and what listeners are told.
  */
 import { describe, expect, it, vi } from 'vitest';
@@ -38,12 +39,13 @@ describe('loading a catalog', () => {
     expect(t('commands.not_signed_in_as', VALUES)).toBe('ES zzz @lain@wired.example');
   });
 
-  it('keeps English for a supported language with no file yet', async () => {
+  it('activates a supported language with no file yet, with English messages', async () => {
     replaceLoaders({});
 
     await setLocale('ru');
 
-    expect(activeLocale()).toBe('en');
+    expect(activeLocale()).toBe('ru');
+    expect(t('commands.not_signed_in_as', VALUES)).toContain("aren't signed in as zzz");
   });
 
   it('keeps English when the file fails to load, and tries again next time', async () => {

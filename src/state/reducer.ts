@@ -20,6 +20,7 @@ import { bufferReducer, type BufferAction } from './bufferActions';
 import { type ComposerAction, composerReducer, withLiveComposers } from './composerActions';
 import { type ComposerMediaAction, composerMediaReducer } from './composerMedia';
 import { type RestoreAction, restoreReducer } from './deskRestore';
+import { type LanguageMenuAction, languageMenuReducer } from './languageMenu';
 import { type PlaceAction, placeReducer } from './placeAction';
 import { type SignInAction, signInReducer } from './signIn';
 import { type StartMenuAction, startMenuReducer } from './startMenu';
@@ -34,6 +35,7 @@ export type AppAction =
   | AlertAction
   | AccountPickAction
   | StartMenuAction
+  | LanguageMenuAction
   | PlaceAction
   | BufferAction
   | ComposerAction
@@ -61,8 +63,14 @@ const COMPOSER_ACTION_TYPES: Record<ComposerAction['type'], true> = {
   composerAppend: true,
 };
 
-/** The sign-in, sync, alert, account picker and start menu actions: each a one-line transition, handled by {@link smallReducer}. */
-type SmallAction = SignInAction | SyncAction | AlertAction | AccountPickAction | StartMenuAction;
+/** The sign-in, sync, alert, account picker, start menu and language list actions: each a one-line transition, handled by {@link smallReducer}. */
+type SmallAction =
+  | SignInAction
+  | SyncAction
+  | AlertAction
+  | AccountPickAction
+  | StartMenuAction
+  | LanguageMenuAction;
 
 /** The action types of {@link SmallAction}, every one of them by name. */
 const SMALL_ACTION_TYPES: Record<SmallAction['type'], true> = {
@@ -73,6 +81,7 @@ const SMALL_ACTION_TYPES: Record<SmallAction['type'], true> = {
   openAccountPick: true,
   closeAccountPick: true,
   startMenu: true,
+  languageMenu: true,
 };
 
 /** Whether this action is one of the small slices' (sign-in, sync, alerts, account picker). */
@@ -95,6 +104,8 @@ function smallReducer(state: AppState, action: SmallAction): AppState {
       return accountPickReducer(state, action);
     case 'startMenu':
       return startMenuReducer(state, action);
+    case 'languageMenu':
+      return languageMenuReducer(state, action);
   }
 }
 

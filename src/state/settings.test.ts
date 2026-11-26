@@ -21,7 +21,7 @@ import {
 } from './settings';
 import type { KeyOverride } from '../lib/keyOverride';
 
-/** One bound and one unbound override, as a reader who rebound keys would keep them. */
+/** One bound and one unbound override. */
 const OVERRIDES: readonly KeyOverride[] = [
   { mode: 'insert', chord: 'Ctrl+e', line: '/compose' },
   { mode: 'navigation', chord: 'f', line: null },
@@ -38,6 +38,7 @@ const CHOSEN: Settings = {
   feeds: [{ id: 'f1', name: 'main', sources: [{ accountKey: 'a#1', source: 'tag:rust' }] }],
   images: false,
   keyOverrides: OVERRIDES,
+  language: 'de',
   openIn: 'float',
   openInByKind: { thread: 'vsplit', dm: 'hidden' },
   postAs: 'a#1',
@@ -46,7 +47,7 @@ const CHOSEN: Settings = {
   theme: 'lain',
 };
 
-/** Parse {@link input} with SettingsSchema, throwing through to the test on failure. */
+/** Parse {@link input} with SettingsSchema. */
 function parse(input: unknown): Settings {
   return v.parse(SettingsSchema, input);
 }
@@ -63,6 +64,7 @@ describe('the settings a session starts from', () => {
       feeds: [],
       images: true,
       keyOverrides: [],
+      language: null,
       openIn: 'here',
       openInByKind: {},
       postAs: null,
@@ -83,6 +85,7 @@ describe('the settings a session starts from', () => {
       'feeds',
       'images',
       'keyOverrides',
+      'language',
       'openIn',
       'openInByKind',
       'postAs',

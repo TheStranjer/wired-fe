@@ -10,7 +10,9 @@
  * offered ahead of everything else, as are the subcommands, feed names and
  * sources after `/feed`; the listed instances after `/connect` (WFE-307). The post labels of the active window (WFE-301) come
  * before all of them, so the argument of a command that takes a post prefers
- * a label, and a `[` word completes to one anywhere on the line.
+ * a label, and a `[` word completes to one anywhere on the line. The languages
+ * after `/lang` complete too (WFE-310). The rows are described when they are
+ * shown and the hook follows the language, so a switch redraws them in it.
  */
 
 import { appRegistry } from './registry';
@@ -23,9 +25,11 @@ import { desktopProvider } from '../commands/desktopWords';
 import { directionProvider } from '../commands/directionWords';
 import { displayProvider } from '../commands/displayWords';
 import { feedProvider } from '../commands/feedWords';
+import { languageProvider } from '../commands/languageWords';
 import { postTargetWords } from '../commands/postTargets';
 import { viewProvider } from '../commands/viewProvider';
 import { buildConfig } from '../config/config';
+import { useLocale } from '../i18n/I18nProvider';
 import { capabilitiesFor } from '../state/selectors';
 import { useAppState } from '../state/StateContext';
 import {
@@ -44,6 +48,7 @@ import { useCustomEmojis } from '../views/useCustomEmojis';
  * ({@link searched}, ./useHandleSearch).
  */
 export function useCompletionProviders(searched: HandleSearch): readonly Provider[] {
+  useLocale();
   const state = useAppState();
   const registry = useAvailableRegistry();
   const emojis = useCustomEmojis(state.activeAccountKey);
@@ -62,6 +67,7 @@ export function useCompletionProviders(searched: HandleSearch): readonly Provide
         displayProvider(),
         desktopProvider(),
         directionProvider(),
+        languageProvider(),
         viewProvider(),
         connectProvider(buildConfig.instances),
         feedProvider(state),

@@ -7,13 +7,18 @@ import { act, render, screen } from '@testing-library/react';
 import type { JSX } from 'react';
 import { describe, expect, it } from 'vitest';
 
-import { I18nProvider, useT } from './I18nProvider';
+import { I18nProvider, useLocale, useT } from './I18nProvider';
 import { FAKE_LOCALE, installFakeLocale, resetFakeLocale } from '../test/i18n';
 
 /** A line of the refusal, as a component shows it. */
 function Refusal(): JSX.Element {
   const t = useT();
   return <p>{t('commands.not_signed_in_as', { handle: 'zzz', count: 0, accounts: '' })}</p>;
+}
+
+/** The language in use, as a component shows it. */
+function Locale(): JSX.Element {
+  return <p>{useLocale()}</p>;
 }
 
 /** The English sentence for no account signed in. */
@@ -67,6 +72,20 @@ describe(I18nProvider, () => {
 
     expect(screen.getByText(ENGLISH)).toBeInTheDocument();
     expect(document.documentElement.lang).toBe('en');
+  });
+
+  it('tells a component the language in use, as it changes', () => {
+    render(
+      <I18nProvider>
+        <Locale />
+      </I18nProvider>,
+    );
+
+    expect(screen.getByText('en')).toBeInTheDocument();
+
+    switchToFake();
+
+    expect(screen.getByText(FAKE_LOCALE)).toBeInTheDocument();
   });
 
   it('gives a component without a provider the English text', () => {

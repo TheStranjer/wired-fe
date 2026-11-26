@@ -60,6 +60,7 @@ describe('the shell persisting settings', () => {
       feeds: [],
       images: true,
       keyOverrides: [],
+      language: null,
       openIn: 'here',
       openInByKind: {},
       postAs: null,

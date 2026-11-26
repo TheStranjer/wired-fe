@@ -32,9 +32,14 @@ export function I18nProvider(props: { readonly children: ReactNode }): JSX.Eleme
   return <LocaleContext value={locale}>{props.children}</LocaleContext>;
 }
 
+/** The language the tree below shows, for a component that must re-render when it changes. */
+export function useLocale(): string {
+  return use(LocaleContext);
+}
+
 /** `t()` for components: a new function whenever the language changes. */
 export function useT(): (key: MessageKey, values?: MessageValues) => string {
-  const locale = use(LocaleContext);
+  const locale = useLocale();
   return useCallback(
     (key: MessageKey, values?: MessageValues) => translate(locale, key, values),
     [locale],
