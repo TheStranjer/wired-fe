@@ -124,7 +124,10 @@ describe('/as', () => {
 
     const outcome = await command.run('zzz hello', context);
 
-    expect(outcome).toStrictEqual({ ok: false, message: 'No account zzz' });
+    expect(outcome).toStrictEqual({
+      ok: false,
+      message: `You aren't signed in as zzz. Signed in: @${LAIN}. Type /connect to add an account.`,
+    });
     expect(context.print).not.toHaveBeenCalled();
   });
 

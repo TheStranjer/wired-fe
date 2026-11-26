@@ -64,7 +64,8 @@ describe('/postas', () => {
 
     await expect(session.run('nobody')).resolves.toStrictEqual({
       ok: false,
-      message: 'No account nobody',
+      message:
+        "You aren't signed in as nobody. Signed in: @lain@wired.example, @alice@wired.example. Type /connect to add an account.",
     });
 
     expect(session.state().settings.feeds).toStrictEqual([MAIN]);

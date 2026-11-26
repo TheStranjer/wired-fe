@@ -83,6 +83,7 @@ src/
   accounts/       multi-account store, OAuth app registration and login, token storage
   capabilities/   backend detection -> one typed Capabilities object (decision 5)
   api/            HTTP and streaming clients, valibot schemas, backend adapters
+  i18n/           message catalogs (locales/*.json), typed t(), useT(), locale resolution; imports lib and config only
   config/         typed access to build-time configuration
   storage/        the only module that touches localStorage: namespaced, versioned, validated
   lib/            pure helpers with no React and no I/O
@@ -124,6 +125,11 @@ e2e/              Playwright tests against the production build
 - Function components and hooks only. Components render; logic lives in plain functions in the same slice or in `lib/`, where it can be unit-tested without a DOM.
 - No inline `style`; CSS modules with theme tokens. No colors or font names outside `src/theme/tokens.css` (Stylelint enforces this).
 - Accessibility is not optional: the scrollback is a log region, every action has an accessible name, ASCII art is `aria-hidden` with a text alternative, focus is always visible.
+
+### Translated text
+
+- User-facing text of our own goes through `t()` / `useT()` (decision 19); English lives in `src/i18n/locales/en.json`. **Never hand-edit a non-English locale file**: Prism owns them. A hand translation goes in `.prism/exceptions.json`.
+- Never call `t()` at module load: constants become functions, a command's static `summary` and `usage` become getters. Whole sentences per key; never concatenate translated fragments.
 
 ### Security
 

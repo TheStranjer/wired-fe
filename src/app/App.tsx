@@ -9,20 +9,23 @@ import type { JSX } from 'react';
 import styles from './App.module.css';
 import { appRefresher } from './appRefresher';
 import { Root } from './Root';
+import { useBrowserLocale } from './useBrowserLocale';
+import { I18nProvider } from '../i18n/I18nProvider';
 import { RefresherProvider } from '../state/RefreshContext';
 import { AppStateProvider } from '../state/StateContext';
 
 /** The whole application: the heading and the live shell below it. */
 export function App(): JSX.Element {
   const [refresher] = useState(appRefresher);
+  useBrowserLocale();
   return (
-    <>
+    <I18nProvider>
       <h1 className={styles['visuallyHidden']}>WIRED</h1>
       <AppStateProvider>
         <RefresherProvider refresher={refresher}>
           <Root />
         </RefresherProvider>
       </AppStateProvider>
-    </>
+    </I18nProvider>
   );
 }

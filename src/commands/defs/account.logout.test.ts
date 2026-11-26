@@ -118,7 +118,7 @@ describe('/account logout', () => {
 
     await expect(command.run('logout 9', context)).resolves.toStrictEqual({
       ok: false,
-      message: 'No account 9',
+      message: `You aren't signed in as 9. Signed in: @${LAIN}. Type /connect to add an account.`,
     });
     await expect(command.run('logout', fakeCommandContext())).resolves.toStrictEqual({
       ok: false,

@@ -6,7 +6,16 @@
 import { describe, expect, it } from 'vitest';
 
 import { command } from './sync';
-import { K_BOB, K_EVE, K_LAIN, desk, listed, printed, refused } from '../../test/syncDesk';
+import {
+  K_BOB,
+  K_EVE,
+  K_LAIN,
+  NOT_SIGNED_IN_AS_NOBODY,
+  desk,
+  listed,
+  printed,
+  refused,
+} from '../../test/syncDesk';
 
 describe('/sync report', () => {
   it('names the first usable account when nothing is chosen', async () => {
@@ -91,7 +100,7 @@ describe('/sync primary', () => {
     const context = desk();
 
     await expect(command.run('primary @nobody@nowhere.example', context)).resolves.toStrictEqual(
-      refused('No account @nobody@nowhere.example'),
+      refused(NOT_SIGNED_IN_AS_NOBODY),
     );
 
     expect(context.stores.sync.read().syncAccounts).toStrictEqual([]);

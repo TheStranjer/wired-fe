@@ -15,6 +15,7 @@ import { wordsOf } from '../../lib/words';
 import type { FeedSpec } from '../../state/feeds';
 import { postingLine, postingPatch, postingSetLine } from '../../state/postingDefault';
 import { activeWindow } from '../../windows/model';
+import { notSignedInAs } from '../notSignedInAs';
 import { NOT_LOGGED_IN, OK, fail, syncRun } from '../outcome';
 import { tmuxBindings } from '../tmuxBindings';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
@@ -90,9 +91,10 @@ function setDefault(
   feed: FeedSpec | null,
   setting: Setting,
 ): CommandOutcome {
-  const account = findAccount(context.stores.accounts.list(), setting.word);
+  const accounts = context.stores.accounts.list();
+  const account = findAccount(accounts, setting.word);
   if (account === null) {
-    return fail(`No account ${setting.word}`);
+    return notSignedInAs(setting.word, accounts);
   }
   save(context, feed, account.key);
   const line = postingSetLine(feed?.name ?? null, account.handle);

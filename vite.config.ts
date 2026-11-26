@@ -48,14 +48,21 @@ export default defineConfig({
       },
     },
     // The deliverable is index.html plus one JS and one CSS file, and the
-    // chunk of the Unicode emoji list (WFE-265), the one dynamic import: it
-    // is fetched when a picker first opens, so it stays out of the main file.
+    // chunk of the Unicode emoji list (WFE-265), a dynamic import: it is
+    // fetched when a picker first opens, so it stays out of the main file.
+    // The other dynamic imports are the language catalogs (WFE-305), one
+    // chunk per language, fetched when that language is first shown.
     cssCodeSplit: false,
     modulePreload: false,
     rolldownOptions: {
       output: {
         entryFileNames: 'wired.[hash].js',
-        chunkFileNames: 'emoji.[hash].js',
+        // The language catalogs (src/i18n/locales, decision 19) are chunks of
+        // their own, named apart from the emoji one the size report counts.
+        chunkFileNames: (chunk) =>
+          chunk.facadeModuleId?.includes('/i18n/locales/') === true
+            ? 'locale.[hash].js'
+            : 'emoji.[hash].js',
         assetFileNames: 'wired.[hash][extname]',
       },
     },
