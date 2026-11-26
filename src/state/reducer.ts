@@ -22,6 +22,7 @@ import { type ComposerMediaAction, composerMediaReducer } from './composerMedia'
 import { type RestoreAction, restoreReducer } from './deskRestore';
 import { type PlaceAction, placeReducer } from './placeAction';
 import { type SignInAction, signInReducer } from './signIn';
+import { type StartMenuAction, startMenuReducer } from './startMenu';
 import { type SyncAction, syncReducer } from './syncStatus';
 
 /** One thing that can happen to the application as a whole. */
@@ -32,6 +33,7 @@ export type AppAction =
   | SyncAction
   | AlertAction
   | AccountPickAction
+  | StartMenuAction
   | PlaceAction
   | BufferAction
   | ComposerAction
@@ -59,8 +61,8 @@ const COMPOSER_ACTION_TYPES: Record<ComposerAction['type'], true> = {
   composerAppend: true,
 };
 
-/** The sign-in, sync, alert and account picker actions: each a one-line transition, handled by {@link smallReducer}. */
-type SmallAction = SignInAction | SyncAction | AlertAction | AccountPickAction;
+/** The sign-in, sync, alert, account picker and start menu actions: each a one-line transition, handled by {@link smallReducer}. */
+type SmallAction = SignInAction | SyncAction | AlertAction | AccountPickAction | StartMenuAction;
 
 /** The action types of {@link SmallAction}, every one of them by name. */
 const SMALL_ACTION_TYPES: Record<SmallAction['type'], true> = {
@@ -70,6 +72,7 @@ const SMALL_ACTION_TYPES: Record<SmallAction['type'], true> = {
   dismissAlert: true,
   openAccountPick: true,
   closeAccountPick: true,
+  startMenu: true,
 };
 
 /** Whether this action is one of the small slices' (sign-in, sync, alerts, account picker). */
@@ -90,6 +93,8 @@ function smallReducer(state: AppState, action: SmallAction): AppState {
     case 'openAccountPick':
     case 'closeAccountPick':
       return accountPickReducer(state, action);
+    case 'startMenu':
+      return startMenuReducer(state, action);
   }
 }
 

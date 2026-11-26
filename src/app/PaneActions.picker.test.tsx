@@ -82,18 +82,18 @@ describe('the Existing window… row', () => {
     expect(buttonOf('Split side by side')).toHaveFocus();
   });
 
-  it('runs /split win N from the stacked button and /float win N from the pop-out', async () => {
+  it('runs /split win N from the stacked button and /vsplit win N from the side-by-side one', async () => {
     render(<Desk />);
 
     openPicker('Split stacked');
     fireEvent.click(screen.getByRole('menuitem', { name: '1 · status' }));
-    openPicker('Pop out');
+    openPicker('Split side by side');
     fireEvent.click(screen.getByRole('menuitem', { name: '3 · phantom/b' }));
 
     await waitFor(() => {
       expect(lines).toStrictEqual([
         { line: '/split win 1', prefill: false },
-        { line: '/float win 3', prefill: false },
+        { line: '/vsplit win 3', prefill: false },
       ]);
     });
   });

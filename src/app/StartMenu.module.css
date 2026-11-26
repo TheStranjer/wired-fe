@@ -1,0 +1,29 @@
+/* The start menu: a button that looks like the rest of the status line, and its list opening upward. */
+
+.root {
+  position: relative;
+  display: inline-block;
+}
+
+.button {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--color-accent);
+  font: inherit;
+  cursor: pointer;
+}
+
+.button:focus-visible {
+  outline: 1px solid var(--color-dim);
+}
+
+.popup {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  z-index: 20;
+  max-height: 70vh;
+  overflow: auto;
+  border: 1px solid var(--color-border-focus);
+}

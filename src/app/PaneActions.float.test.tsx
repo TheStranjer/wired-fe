@@ -1,15 +1,14 @@
 /**
- * Tests for the float buttons of a pane's title bar (WFE-230): `⧉▾` pops the
- * clicked pane (not the focused one) or a view out into a float, `⊞` docks a
- * float back into the tree, and a float has no split buttons.
+ * Tests for the float buttons of a pane's title bar (WFE-230, WFE-299): `⧉`
+ * floats the clicked pane (not the focused one) and has no menu, `⊞` docks a
+ * float back into the tree, and a float has no split or float buttons.
  */
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { useEffect, useRef } from 'react';
 import type { JSX } from 'react';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { DesktopView } from './DesktopView';
-import type { StoredAccount } from '../accounts/accountStore';
 import { command as dock } from '../commands/defs/dock';
 import { command as float } from '../commands/defs/float';
 import { dispatchInput } from '../commands/dispatch';
@@ -88,30 +87,7 @@ function floatedA(): AppState {
   return appReducer(focused, { type: 'layout', action: { type: 'float' } });
 }
 
-/** {@link state} with a signed-in account, whose handle the account suggestions offer. */
-function withAlice(state: AppState): AppState {
-  const alice: StoredAccount = {
-    key: 'https://mastodon.test#1',
-    origin: 'https://mastodon.test',
-    accountId: '1',
-    handle: 'alice@mastodon.test',
-    token: 'not-a-real-token',
-    refreshToken: null,
-    expiresAt: null,
-  };
-  return appReducer(state, { type: 'accounts', accounts: [alice], activeKey: null });
-}
-
-/** Opens the pop-out menu of pane a, the first pane. */
-function openPopOut(): void {
-  const [button] = screen.getAllByRole('button', { name: 'Pop out' });
-  if (button === undefined) {
-    throw new Error('no Pop out button');
-  }
-  fireEvent.click(button);
-}
-
-describe('the pop-out button', () => {
+describe('the float button', () => {
   beforeEach(() => {
     lines.length = 0;
   });
@@ -119,8 +95,7 @@ describe('the pop-out button', () => {
   it('floats the clicked pane even when another pane is focused', async () => {
     renderDesk(twoPanes());
 
-    openPopOut();
-    fireEvent.click(screen.getByRole('menuitem', { name: 'This pane' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Float phantom/a' }));
 
     await waitFor(() => {
       expect(screen.getByLabelText('floats')).toHaveTextContent('phantom:-:a');
@@ -129,78 +104,15 @@ describe('the pop-out button', () => {
     expect(lines).toStrictEqual(['/float']);
   });
 
-  it('offers This pane first and no Same window, then the views', () => {
+  it('is a plain button on every tree pane: no menu, and no pop-out menu button', () => {
     renderDesk(twoPanes());
 
-    openPopOut();
-    const labels = within(screen.getByRole('menu', { name: 'Pop out' }))
-      .getAllByRole('menuitem')
-      .map((item) => item.textContent);
+    const floater = screen.getByRole('button', { name: 'Float phantom/a' });
 
-    expect(labels[0]).toBe('This pane');
-    expect(labels).not.toContain('Same window');
-    expect(labels).toContain('Home');
-  });
-
-  it('runs a view as /float <view> for a new float', async () => {
-    renderDesk(twoPanes());
-
-    openPopOut();
-    fireEvent.click(screen.getByRole('menuitem', { name: 'Home' }));
-
-    await waitFor(() => {
-      expect(lines).toStrictEqual(['/float home']);
-    });
-  });
-
-  it('asks for the tag in a dialog before it runs /float tag <name>', async () => {
-    renderDesk(twoPanes());
-
-    openPopOut();
-    fireEvent.click(screen.getByRole('menuitem', { name: 'Hashtag…' }));
-
-    expect(lines).toStrictEqual([]);
-
-    fireEvent.change(screen.getByRole('combobox', { name: 'Pop out' }), {
-      target: { value: 'rust' },
-    });
-    fireEvent.click(screen.getByRole('button', { name: 'OK' }));
-
-    await waitFor(() => {
-      expect(lines).toStrictEqual(['/float tag rust']);
-    });
-  });
-
-  it('suggests the signed-in accounts for Profile… and runs the one chosen', async () => {
-    renderDesk(withAlice(twoPanes()));
-
-    openPopOut();
-    fireEvent.click(screen.getByRole('menuitem', { name: 'Profile…' }));
-    const input = screen.getByRole('combobox', { name: 'Pop out' });
-    fireEvent.change(input, { target: { value: 'al' } });
-    fireEvent.click(screen.getByRole('option', { name: '@alice@mastodon.test' }));
-    fireEvent.click(screen.getByRole('button', { name: 'OK' }));
-
-    await waitFor(() => {
-      expect(lines).toStrictEqual(['/float whois @alice@mastodon.test']);
-    });
-  });
-
-  it('offers no suggestion for Search… and runs its words as typed', async () => {
-    renderDesk(withAlice(twoPanes()));
-
-    openPopOut();
-    fireEvent.click(screen.getByRole('menuitem', { name: 'Search…' }));
-    const input = screen.getByRole('combobox', { name: 'Pop out' });
-    fireEvent.change(input, { target: { value: 'al' } });
-
-    expect(screen.queryByRole('option')).not.toBeInTheDocument();
-
-    fireEvent.keyDown(input, { key: 'Enter' });
-
-    await waitFor(() => {
-      expect(lines).toStrictEqual(['/float search al']);
-    });
+    expect(floater).not.toHaveAttribute('aria-haspopup');
+    expect(screen.getAllByRole('button', { name: /^Float / })).toHaveLength(2);
+    expect(screen.queryByRole('button', { name: 'Pop out' })).not.toBeInTheDocument();
+    expect(screen.queryByText('⧉▾')).not.toBeInTheDocument();
   });
 });
 
@@ -224,12 +136,12 @@ describe('the dock button', () => {
     expect(lines).toStrictEqual(['/dock']);
   });
 
-  it('shows no split or pop-out buttons on a float, only on the tree pane', () => {
+  it('shows no split or float buttons on a float, only on the tree pane', () => {
     renderDesk(floatedA());
 
     expect(screen.getAllByRole('button', { name: 'Split side by side' })).toHaveLength(1);
     expect(screen.getAllByRole('button', { name: 'Split stacked' })).toHaveLength(1);
-    expect(screen.getAllByRole('button', { name: 'Pop out' })).toHaveLength(1);
+    expect(screen.getAllByRole('button', { name: /^Float / })).toHaveLength(1);
     expect(screen.getAllByRole('button', { name: /^Dock / })).toHaveLength(1);
   });
 });

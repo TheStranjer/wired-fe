@@ -33,10 +33,19 @@
   flex-direction: column;
 }
 
-.statusLine {
+/* The status row: the start menu, then the status line taking the rest of the width. */
+.statusRow {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space);
   background: var(--color-bar-bg);
   color: var(--color-bar-fg);
   padding: 0 var(--space);
+}
+
+.statusLine {
+  flex: 1;
+  min-width: 0;
 }
 
 .inputLine {

@@ -1,6 +1,6 @@
 /**
- * One view-menu button of a pane's title bar (WFE-229, WFE-269, WFE-270):
- * `◫▾`, `⊟▾` or `⧉▾` over the rows of ./paneMenu. A plain row runs its line
+ * One split button of a pane's title bar (WFE-229, WFE-269, WFE-270): `◫▾`
+ * or `⊟▾` over the rows of ./paneMenu. A plain row runs its line
  * through the pane runner at once, a row that asks (`Hashtag…`, `Profile…`,
  * ...) opens its dialog first and runs the completed line when it is
  * answered, and `Existing window…` opens a second level listing the other
@@ -21,7 +21,7 @@ import { MenuButton } from '../ui/MenuButton';
 import type { MenuItem } from '../ui/MenuButton';
 import type { PostActionLine } from '../ui/postActionTypes';
 
-/** One of the view-menu buttons: its glyph, accessible name and command. */
+/** One of the split buttons: its glyph, accessible name and command. */
 export type SplitButton = {
   readonly glyph: string;
   readonly label: string;
@@ -43,7 +43,7 @@ function drillItems(from: {
     : null;
 }
 
-/** One view-menu button over {@link entries}, on the pane that shows the window `ownWindowId`. */
+/** One split button over {@link entries}, on the pane that shows the window `ownWindowId`. */
 export function SplitMenu(props: {
   readonly button: SplitButton;
   readonly entries: readonly PaneMenuEntry[];

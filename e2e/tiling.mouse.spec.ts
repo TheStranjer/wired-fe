@@ -1,7 +1,8 @@
 /**
  * The tiling desktop by mouse (WFE-250, decisions 12 and 13): the `◫▾` split
- * button and its view menu, the `⧉▾` pop-out button, a float dragged by its
- * title bar and docked back with `⊞`, and the dividers between panes, dragged
+ * button and its view menu, the `⧉` float button, the start menu that opens a
+ * view as a float (WFE-299), a float dragged by its title bar and docked back
+ * with `⊞`, and the dividers between panes, dragged
  * and driven with the arrow keys. The keyboard and command flows are in
  * ./tiling.spec. Everything is found by role and accessible name.
  */
@@ -34,10 +35,12 @@ async function splitWithHome(page: Page): Promise<void> {
   await expect(pane(page, 'home')).toHaveCount(2);
 }
 
-/** Tears the second pane off into a float, through its `⧉▾` menu. */
+/** Tears the second pane off into a float, through its `⧉` button. */
 async function popOutSecond(page: Page): Promise<void> {
-  await pane(page, 'home').nth(1).getByRole('button', { name: 'Pop out' }).click();
-  await page.getByRole('menuitem', { name: 'This pane', exact: true }).click();
+  await pane(page, 'home')
+    .nth(1)
+    .getByRole('button', { name: /^Float / })
+    .click();
   await expect(floatOf(page, 'home')).toBeVisible();
 }
 
@@ -79,21 +82,43 @@ test('the glyphs of the title-bar menu buttons stay inside their buttons', async
     }
   }
   expect([...checked]).toEqual(
-    expect.arrayContaining(['Split side by side', 'Split stacked', 'Pop out']),
+    expect.arrayContaining(['Split side by side', 'Split stacked', 'Float home']),
   );
 });
 
-test('Existing window… lists the other windows and floats the one picked', async ({ page }) => {
+test('Existing window… lists the other windows and splits with the one picked', async ({
+  page,
+}) => {
   await routeTags(page);
   await signIn(page);
   await submit(page, '/tag rust');
   await expect(pane(page, 'home')).toHaveCount(0);
-  await pane(page, '#rust').getByRole('button', { name: 'Pop out' }).click();
+  await pane(page, '#rust').getByRole('button', { name: 'Split side by side' }).click();
   await page.getByRole('menuitem', { name: 'Existing window…', exact: true }).click();
   await expect(page.getByRole('menuitem', { name: '‹ Back', exact: true })).toBeFocused();
   await page.getByRole('menuitem', { name: /^\d+ · home$/u }).click();
-  await expect(floatOf(page, 'home')).toBeVisible();
+  await expect(pane(page, 'home')).toBeVisible();
   await expect(pane(page, '#rust')).toBeVisible();
+});
+
+test('the start menu opens a view as a float', async ({ page }) => {
+  await signIn(page);
+  await expect(floatOf(page, 'home')).toHaveCount(0);
+  await page.getByRole('button', { name: '[≡ wired] start menu' }).click();
+  await page.getByRole('button', { name: 'Home', exact: true }).click();
+  await expect(floatOf(page, 'home')).toBeVisible();
+  await expect(page.getByRole('button', { name: '[≡ wired] start menu' })).toHaveAttribute(
+    'aria-expanded',
+    'false',
+  );
+});
+
+test("a pane's ⧉ button turns that pane into a float", async ({ page }) => {
+  await signIn(page);
+  await splitWithHome(page);
+  await popOutSecond(page);
+  await expect(floatOf(page, 'home')).toHaveCount(1);
+  await expect(pane(page, 'home')).toHaveCount(2);
 });
 
 test('Hashtag… asks for the tag in a dialog, then splits with that tag', async ({ page }) => {
