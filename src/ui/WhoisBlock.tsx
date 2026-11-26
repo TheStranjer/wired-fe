@@ -14,6 +14,7 @@ import { RemoteHtml } from './RemoteHtml';
 import styles from './WhoisBlock.module.css';
 import { formatDay } from '../i18n/format';
 import { useLocale, useT } from '../i18n/I18nProvider';
+import type { MessageKey, Translate } from '../i18n/messages';
 
 /** One profile metadata row, as the whois block shows it. */
 type WhoisField = {
@@ -53,16 +54,16 @@ export type WhoisBlockProps = {
 };
 
 /** The relationships in speaking order, each with the words it speaks. */
-const RELATIONSHIPS: readonly [keyof WhoisBlockProps['relationships'], string][] = [
-  ['following', 'you follow them'],
-  ['followedBy', 'they follow you'],
-  ['blocked', 'blocked'],
-  ['muted', 'muted'],
+const RELATIONSHIPS: readonly [keyof WhoisBlockProps['relationships'], MessageKey][] = [
+  ['following', 'ui.whois_block.following'],
+  ['followedBy', 'ui.whois_block.followed_by'],
+  ['blocked', 'ui.whois_block.blocked'],
+  ['muted', 'ui.whois_block.muted'],
 ];
 
 /** The words of the relationships that hold, in that order; empty if none. */
-function relationshipWords(rel: WhoisBlockProps['relationships']): readonly string[] {
-  return RELATIONSHIPS.filter(([flag]) => rel[flag]).map(([, word]) => word);
+function relationshipWords(t: Translate, rel: WhoisBlockProps['relationships']): readonly string[] {
+  return RELATIONSHIPS.filter(([flag]) => rel[flag]).map(([, key]) => t(key));
 }
 
 /** One `***` line of the block; detail lines indent past the marker. */
@@ -85,13 +86,14 @@ function WhoisLine(props: {
 /** One profile metadata row: its name, its sanitized value, and its mark. */
 function FieldLine(props: { readonly field: WhoisField }): JSX.Element {
   const { field } = props;
+  const t = useT();
   return (
     <WhoisLine indent>
       {`${field.name}: `}
       <RemoteHtml html={field.valueHtml} inline />
       {field.verified ? (
-        <span className={styles['verified']} title="verified link">
-          <span className={styles['visuallyHidden']}>verified</span>
+        <span className={styles['verified']} title={t('ui.whois_block.verified_title')}>
+          <span className={styles['visuallyHidden']}>{t('ui.whois_block.verified')}</span>
           <span aria-hidden="true"> ✓</span>
         </span>
       ) : undefined}
@@ -102,9 +104,9 @@ function FieldLine(props: { readonly field: WhoisField }): JSX.Element {
 /** The account header of a profile window, IRC whois style. */
 export function WhoisBlock(props: WhoisBlockProps): JSX.Element {
   const { displayName, handle, bioHtml, fields, counts, joined, relationships } = props;
-  const words = relationshipWords(relationships);
   const locale = useLocale();
   const t = useT();
+  const words = relationshipWords(t, relationships);
   return (
     <div className={styles['block']}>
       <WhoisLine>{`${displayName} (@${handle})`}</WhoisLine>

@@ -10,6 +10,7 @@
  */
 import type { MouseEvent } from 'react';
 
+import type { Translate } from '../i18n/messages';
 import { type ClickModifiers, isMiddleClick } from '../lib/clickModifiers';
 
 /** What a row does with a click: select itself, or open a body link in the app. */
@@ -31,6 +32,8 @@ type PostArticleInput = RowClickHandlers & {
   readonly direct?: boolean;
   /** Called when the row is double-clicked outside its controls: pop the post out. */
   readonly onPop: () => void;
+  /** The component's `t()`, for the article's accessible name. */
+  readonly t: Translate;
 };
 
 /** What the click routing hands back to the `article`: its marks and handlers. */
@@ -55,12 +58,13 @@ const CONTROLS = 'button, a, audio, video';
  * caught in their capture phase.
  */
 export function postArticleProps(input: PostArticleInput): PostArticleProps {
-  const { label, fullHandle, selected, direct = false, onPop, ...handlers } = input;
+  const { label, fullHandle, selected, direct = false, onPop, t, ...handlers } = input;
   return {
     'aria-current': selected ? 'true' : undefined,
-    'aria-label': direct
-      ? `Direct message ${label} from ${fullHandle}`
-      : `Post ${label} by ${fullHandle}`,
+    'aria-label': t(direct ? 'ui.post_article.direct' : 'ui.post_article.post', {
+      handle: fullHandle,
+      label,
+    }),
     onClickCapture: (event) => {
       routeRowClick(event, handlers);
     },

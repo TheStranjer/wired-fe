@@ -17,7 +17,7 @@ import {
 
 import { activeLocale, subscribeLocale } from './activeLocale';
 import { SOURCE_LOCALE } from './catalogs';
-import type { MessageKey, MessageValues } from './messages';
+import type { Translate } from './messages';
 import { translate } from './translate';
 
 /** The language the tree below shows; English where there is no provider. */
@@ -38,10 +38,7 @@ export function useLocale(): string {
 }
 
 /** `t()` for components: a new function whenever the language changes. */
-export function useT(): (key: MessageKey, values?: MessageValues) => string {
+export function useT(): Translate {
   const locale = useLocale();
-  return useCallback(
-    (key: MessageKey, values?: MessageValues) => translate(locale, key, values),
-    [locale],
-  );
+  return useCallback<Translate>((key, values) => translate(locale, key, values), [locale]);
 }
