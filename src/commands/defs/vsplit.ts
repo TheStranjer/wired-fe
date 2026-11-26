@@ -8,19 +8,26 @@
  * viewProvider's; their arguments complete as they do for the open commands.
  */
 
+import { t } from '../../i18n/translate';
 import { VIEW_USAGE, splitRun } from '../splitRun';
 import { tmuxBindings } from '../tmuxBindings';
 import type { CommandDefinition } from '../types';
 
 /** The command's grammar: /help shows it, a bad argument echoes it. */
-const USAGE = `/vsplit ${VIEW_USAGE}`;
+function usage(): string {
+  return t('commands.defs.vsplit.usage', { views: VIEW_USAGE });
+}
 
 /** The `/vsplit` (alias `/vs`) definition. */
 export const command: CommandDefinition = {
   name: 'vsplit',
   aliases: ['vs'],
-  usage: USAGE,
-  summary: 'Split the focused pane side by side',
-  run: splitRun('row', USAGE),
+  get usage(): string {
+    return usage();
+  },
+  get summary(): string {
+    return t('commands.defs.vsplit.summary');
+  },
+  run: splitRun('row', usage),
   bindings: [...tmuxBindings('%', ''), { mode: 'navigation', chord: 'w v', args: '' }],
 };

@@ -5,25 +5,30 @@
  * With nothing focused at all the command says so.
  */
 
+import { t } from '../../i18n/translate';
 import { activeDesktop } from '../../windows/desktops';
 import { focusedFloat } from '../focusedFloat';
 import { OK, contextRun, fail } from '../outcome';
-import type { CommandDefinition } from '../types';
+import type { CommandDefinition, CommandOutcome } from '../types';
 
 /** The refusal on a desktop with nothing focused. */
-const NO_PANE = fail('There is no pane to raise on this desktop');
+function noPane(): CommandOutcome {
+  return fail(t('commands.defs.raise.no_pane'));
+}
 
 /** The `/raise` definition. */
 export const command: CommandDefinition = {
   name: 'raise',
   usage: '/raise',
-  summary: 'Bring the focused float to the top',
+  get summary(): string {
+    return t('commands.defs.raise.summary');
+  },
   run: contextRun((context) => {
     const float = focusedFloat(context);
     if (float !== null) {
       context.dispatch({ type: 'layout', action: { type: 'raiseFloat', paneId: float.paneId } });
       return OK;
     }
-    return activeDesktop(context.state.layout).focusedPaneId === null ? NO_PANE : OK;
+    return activeDesktop(context.state.layout).focusedPaneId === null ? noPane() : OK;
   }),
 };

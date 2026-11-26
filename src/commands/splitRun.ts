@@ -113,12 +113,13 @@ export function placeShown(
 /**
  * The run of a split command: no argument shows the focused window in the
  * new pane (vim's behaviour), otherwise the argument is a view spec. A spec
- * that does not parse echoes {@link usage}; one that parses but cannot open
- * says why, and nothing is split.
+ * that does not parse echoes {@link usage} (read when it runs, so it follows
+ * the language, decision 19); one that parses but cannot open says why, and
+ * nothing is split.
  */
-export function splitRun(dir: SplitDir, usage: string): CommandDefinition['run'] {
+export function splitRun(dir: SplitDir, usage: () => string): CommandDefinition['run'] {
   return async (args, context) => {
-    const shown = await viewToShow(args, context, usage);
+    const shown = await viewToShow(args, context, usage());
     return shown.ok
       ? placeShown(context, shown.value, [{ type: 'split', dir, windowId: shown.value.windowId }])
       : fail(shown.error);

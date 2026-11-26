@@ -6,13 +6,18 @@
  * on a boosted post and this help entry reach it.
  */
 
+import { t } from '../../i18n/translate';
 import { toggleRun } from '../statusToggle';
 import type { CommandDefinition } from '../types';
 
 /** The `/unboost` definition. */
 export const command: CommandDefinition = {
   name: 'unboost',
-  usage: '/unboost [label]',
-  summary: 'Take your boost of a post back',
+  get usage(): string {
+    return t('commands.defs.unboost.usage');
+  },
+  get summary(): string {
+    return t('commands.defs.unboost.summary');
+  },
   run: toggleRun('unboost'),
 };

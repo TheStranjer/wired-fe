@@ -8,6 +8,7 @@
  * focused pane and hands the matching action over.
  */
 
+import { t } from '../../i18n/translate';
 import { wordsOf } from '../../lib/words';
 import { activeDesktop } from '../../windows/desktops';
 import { findFloat } from '../../windows/floats';
@@ -18,10 +19,14 @@ import { OK, fail, syncRun } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** Every form of the command: /help shows it, a bad argument echoes it. */
-const USAGE = '/resize width|height +N|-N|N';
+function usage(): string {
+  return t('commands.defs.resize.usage');
+}
 
 /** The refusal when the focused pane has no split or float to resize along that axis. */
-const NOTHING_TO_RESIZE = fail('Nothing to resize');
+function nothingToResize(): CommandOutcome {
+  return fail(t('commands.defs.resize.nothing_to_resize'));
+}
 
 /** Which edge a word resizes: a row split holds panes side by side, a column split stacks them. */
 const AXES: ReadonlyMap<string, SplitDir> = new Map([
@@ -70,7 +75,7 @@ function resizeFloat(
 function resizeFocused(context: CommandContext, axis: SplitDir, amount: Amount): CommandOutcome {
   const { tree, floats, focusedPaneId } = activeDesktop(context.state.layout);
   if (focusedPaneId === null) {
-    return NOTHING_TO_RESIZE;
+    return nothingToResize();
   }
   const float = findFloat(floats, focusedPaneId);
   if (float !== null) {
@@ -78,7 +83,7 @@ function resizeFocused(context: CommandContext, axis: SplitDir, amount: Amount):
   }
   const share = tree === null ? null : paneShare(tree, focusedPaneId, axis);
   if (share === null) {
-    return NOTHING_TO_RESIZE;
+    return nothingToResize();
   }
   const delta = change(amount, share);
   context.dispatch({ type: 'layout', action: { type: 'resizePane', dir: axis, delta } });
@@ -91,7 +96,7 @@ function handle(args: string, context: CommandContext): CommandOutcome {
   const axis = AXES.get(word ?? '');
   const amount = parseAmount(size);
   if (axis === undefined || amount === null || extra.length > 0) {
-    return fail(`Usage: ${USAGE}`);
+    return fail(t('commands.defs.resize.usage_error', { usage: usage() }));
   }
   return resizeFocused(context, axis, amount);
 }
@@ -99,7 +104,11 @@ function handle(args: string, context: CommandContext): CommandOutcome {
 /** The `/resize` definition. */
 export const command: CommandDefinition = {
   name: 'resize',
-  usage: USAGE,
-  summary: 'Resize the focused pane by percentage points, or set its share',
+  get usage(): string {
+    return usage();
+  },
+  get summary(): string {
+    return t('commands.defs.resize.summary');
+  },
   run: syncRun(handle),
 };

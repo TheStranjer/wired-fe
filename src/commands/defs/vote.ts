@@ -16,6 +16,7 @@ import { describeApiError } from '../../api/errors';
 import type { Poll } from '../../api/schemas/poll';
 import type { Status } from '../../api/schemas/status';
 import type { ApiSession } from '../../api/session';
+import { t } from '../../i18n/translate';
 import { type Result, err, ok } from '../../lib/result';
 import { wordsOf } from '../../lib/words';
 import { OK, fail } from '../outcome';
@@ -35,12 +36,12 @@ function indexOf(word: string): number {
 function openPoll(status: Status, label: string): Result<Poll, string> {
   const { poll } = status;
   if (poll === null) {
-    return err(`No poll on ${label}`);
+    return err(t('commands.defs.vote.no_poll', { label }));
   }
   if (poll.expired) {
-    return err('That poll is closed');
+    return err(t('commands.defs.vote.closed'));
   }
-  return poll.voted ? err('You already voted') : ok(poll);
+  return poll.voted ? err(t('commands.defs.vote.already_voted')) : ok(poll);
 }
 
 /**
@@ -52,12 +53,12 @@ function parseChoices(typed: readonly string[], poll: Poll): Result<number[], st
   const last = poll.options.length;
   const indexes = typed.map(indexOf);
   if (indexes.some((index) => !Number.isInteger(index) || index < 0 || index >= last)) {
-    return err(`Options are 1–${String(last)}`);
+    return err(t('commands.defs.vote.options_range', { last: String(last) }));
   }
   const repeated = new Set(indexes).size !== indexes.length;
   const tooMany = indexes.length > 1 && !poll.multiple;
   if (repeated || tooMany || indexes.length === 0) {
-    return err(`Pick one option (1–${String(last)})`);
+    return err(t('commands.defs.vote.pick_one', { last: String(last) }));
   }
   return ok(indexes);
 }
@@ -97,7 +98,12 @@ async function cast(context: CommandContext, ballot: Ballot): Promise<CommandOut
     return fail(describeApiError(voted.error));
   }
   context.dispatch({ type: 'statusUpdated', status: { ...ballot.status, poll: voted.value } });
-  context.print(`voted ${ballot.choices.map(typedChoice).join(' ')} on ${ballot.label}`);
+  context.print(
+    t('commands.defs.vote.voted', {
+      choices: ballot.choices.map(typedChoice).join(' '),
+      label: ballot.label,
+    }),
+  );
   return OK;
 }
 
@@ -114,7 +120,11 @@ async function handle(args: string, context: CommandContext): Promise<CommandOut
 /** The `/vote` definition. */
 export const command: CommandDefinition = {
   name: 'vote',
-  usage: '/vote [label] <n> [n…]',
-  summary: 'Vote on the poll of a post',
+  get usage(): string {
+    return t('commands.defs.vote.usage');
+  },
+  get summary(): string {
+    return t('commands.defs.vote.summary');
+  },
   run: handle,
 };

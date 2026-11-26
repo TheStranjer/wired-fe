@@ -12,6 +12,7 @@
  * checked the command says what to type instead.
  */
 
+import { t } from '../../i18n/translate';
 import { hashtagWindowOpen } from '../../state/hashtagWindow';
 import { activeAccount } from '../../state/selectors';
 import { placedRun } from '../openWindowRun';
@@ -31,7 +32,7 @@ function tagName(args: string): string {
 function handle(args: string, context: CommandContext): CommandOutcome {
   const name = tagName(args);
   if (!TAG.test(name)) {
-    return fail(`Not a hashtag: ${args.trim()}`);
+    return fail(t('commands.defs.tag.not_a_hashtag', { input: args.trim() }));
   }
   const account = activeAccount(context.state);
   if (account === null) {
@@ -45,7 +46,11 @@ function handle(args: string, context: CommandContext): CommandOutcome {
 export const command: CommandDefinition = {
   name: 'tag',
   aliases: ['join', 't'],
-  usage: '/tag <name>',
-  summary: 'Open a hashtag timeline',
+  get usage(): string {
+    return t('commands.defs.tag.usage');
+  },
+  get summary(): string {
+    return t('commands.defs.tag.summary');
+  },
   run: placedRun(syncRun(handle)),
 };

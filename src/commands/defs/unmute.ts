@@ -5,13 +5,18 @@
  * {@link accountToggleRun} describes is the body.
  */
 
+import { t } from '../../i18n/translate';
 import { accountToggleRun } from '../accountToggle';
 import type { CommandDefinition } from '../types';
 
 /** The `/unmute` definition. */
 export const command: CommandDefinition = {
   name: 'unmute',
-  usage: '/unmute [target]',
-  summary: 'Take a mute back',
+  get usage(): string {
+    return t('commands.defs.unmute.usage');
+  },
+  get summary(): string {
+    return t('commands.defs.unmute.summary');
+  },
   run: accountToggleRun('unmute', 'unmuted'),
 };

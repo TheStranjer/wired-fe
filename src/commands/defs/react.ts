@@ -10,14 +10,19 @@
  * line runner, so the typed command, the hotkey and the click stay one path.
  */
 
+import { t } from '../../i18n/translate';
 import { reactionRun } from '../reactions';
 import type { CommandDefinition } from '../types';
 
 /** The `/react` definition. */
 export const command: CommandDefinition = {
   name: 'react',
-  usage: '/react [label] <emoji>',
-  summary: 'React to a post with an emoji',
+  get usage(): string {
+    return t('commands.defs.react.usage');
+  },
+  get summary(): string {
+    return t('commands.defs.react.summary');
+  },
   requires: 'emojiReactions',
   run: reactionRun('react'),
   bindings: [{ mode: 'navigation', chord: 'Shift+e', args: '{label}', prefill: true }],

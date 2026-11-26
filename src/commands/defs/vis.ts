@@ -20,12 +20,15 @@ import type { Visibility } from '../../api/schemas/status';
 import type { Capabilities } from '../../capabilities/capabilities';
 import { requireFeature } from '../../capabilities/requireFeature';
 import { availableVisibilities } from '../../capabilities/visibilities';
+import { t } from '../../i18n/translate';
 import { OK, fail, postOutcome } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 import { splitFirstWord } from '../words';
 
 /** The command's one form; a refused argument echoes it. */
-const USAGE = '/vis [public|unlisted|private|direct|local] [text]';
+function usage(): string {
+  return t('commands.defs.vis.usage');
+}
 
 /** The words the command takes, and the audience each names; may be none. */
 const AUDIENCES: ReadonlyMap<string, Visibility> = new Map([
@@ -39,12 +42,14 @@ const AUDIENCES: ReadonlyMap<string, Visibility> = new Map([
 
 /** The usage on a backend with {@link capabilities}: `local` is listed only where it exists. */
 function usageFor(capabilities: Capabilities | null): string {
-  return `/vis [${availableVisibilities(capabilities).join('|')}] [text]`;
+  return t('commands.defs.vis.usage_for', {
+    audiences: availableVisibilities(capabilities).join('|'),
+  });
 }
 
 /** The line that answers both showing and setting: what new posts now are. */
 function report(context: CommandContext, visibility: Visibility): void {
-  context.print(`New posts are ${visibility} by default`);
+  context.print(t('commands.defs.vis.report', { visibility }));
 }
 
 /** The audience a word names, or the {@link error} that refuses it. */
@@ -60,7 +65,7 @@ type Audience =
 function audienceFor(word: string, context: CommandContext): Audience {
   const visibility = AUDIENCES.get(word);
   if (visibility === undefined) {
-    return { ok: false, error: `Usage: ${USAGE}` };
+    return { ok: false, error: t('commands.defs.vis.usage_error', { usage: usage() }) };
   }
   if (visibility === 'local') {
     const local = requireFeature(context, context.state.activeAccountKey, 'localOnlyPosts');
@@ -98,8 +103,12 @@ async function handle(args: string, context: CommandContext): Promise<CommandOut
 export const command: CommandDefinition = {
   name: 'vis',
   aliases: ['visibility'],
-  usage: USAGE,
-  summary: 'Show or set the default audience, or post one line with an audience',
+  get usage(): string {
+    return usage();
+  },
+  get summary(): string {
+    return t('commands.defs.vis.summary');
+  },
   usageFor,
   run: handle,
 };

@@ -4,6 +4,7 @@
  * Space` in either mode and `w Space` in navigation mode run it.
  */
 
+import { t } from '../../i18n/translate';
 import { OK, contextRun } from '../outcome';
 import { tmuxBindings } from '../tmuxBindings';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
@@ -18,7 +19,9 @@ function handle(context: CommandContext): CommandOutcome {
 export const command: CommandDefinition = {
   name: 'start',
   usage: '/start',
-  summary: 'Open the start menu, to open a view as a float',
+  get summary(): string {
+    return t('commands.defs.start.summary');
+  },
   run: contextRun(handle),
   bindings: [...tmuxBindings('Space', ''), { mode: 'navigation', chord: 'w Space', args: '' }],
 };
