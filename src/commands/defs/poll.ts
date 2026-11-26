@@ -16,18 +16,13 @@
  */
 
 import type { PollLimits } from '../../api/schemas/pollLimits';
+import { t } from '../../i18n/translate';
 import { formatDuration } from '../../lib/duration';
 import { type Result, err, ok } from '../../lib/result';
 import { capabilitiesFor } from '../../state/selectors';
 import { fail, postOutcome } from '../outcome';
 import { tokenize } from '../tokenize';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
-
-/** How to call the command, echoed by every grammar refusal. */
-const USAGE = '/poll "<question>" "<option>" "<option>" [...] [--multiple] [--hours N]';
-
-/** Shown when there is no acting account whose instance limits can be read. */
-const NOT_CONNECTED = fail('Not connected. Type /connect');
 
 /** Fewer options than this is not much of a poll. */
 const MIN_OPTIONS = 2;
@@ -82,12 +77,12 @@ function pickArgs(rest: readonly string[]): Result<Picked, string> {
     } else if (token === HOURS_FLAG) {
       const value = parseHours(rest[i + 1]);
       if (value === null) {
-        return err(`${HOURS_FLAG} wants a positive number of hours`);
+        return err(t('commands.defs.poll.hours_wants'));
       }
       hours = value;
       i += 1;
     } else if (isFlag(token)) {
-      return err(`Unknown flag: ${token}`);
+      return err(t('commands.defs.poll.unknown_flag', { flag: token }));
     } else {
       options.push(token);
     }
@@ -105,7 +100,7 @@ function planPoll(args: string): Result<PollPlan, string> {
   const tokenized = tokenize(args);
   const [question, ...rest] = tokenized.ok ? tokenized.value : [];
   if (question === undefined || question === '') {
-    return err(`Usage: ${USAGE}`);
+    return err(t('commands.defs.poll.usage_error'));
   }
   const picked = pickArgs(rest);
   if (!picked.ok) {
@@ -123,15 +118,20 @@ function planPoll(args: string): Result<PollPlan, string> {
 /** Why {@link plan} does not fit {@link limits}; null when it fits. */
 function checkPoll(plan: PollPlan, limits: PollLimits): string | null {
   if (plan.options.length < MIN_OPTIONS || plan.options.length > limits.maxOptions) {
-    return `A poll needs ${String(MIN_OPTIONS)}–${String(limits.maxOptions)} options`;
+    return t('commands.defs.poll.option_count', { min: MIN_OPTIONS, max: limits.maxOptions });
   }
   const long = plan.options.find((option) => option.length > limits.maxCharactersPerOption);
   if (long !== undefined) {
-    return `Option "${long}" is longer than ${String(limits.maxCharactersPerOption)} characters`;
+    return t('commands.defs.poll.option_too_long', {
+      option: long,
+      max: limits.maxCharactersPerOption,
+    });
   }
   if (plan.expiresIn < limits.minExpiration || plan.expiresIn > limits.maxExpiration) {
-    const span = `${formatDuration(limits.minExpiration)} and ${formatDuration(limits.maxExpiration)}`;
-    return `Poll must run between ${span}`;
+    return t('commands.defs.poll.run_span', {
+      min: formatDuration(limits.minExpiration),
+      max: formatDuration(limits.maxExpiration),
+    });
   }
   return null;
 }
@@ -144,7 +144,7 @@ async function handle(args: string, context: CommandContext): Promise<CommandOut
   }
   const capabilities = capabilitiesFor(context.state, context.state.activeAccountKey);
   if (capabilities === null) {
-    return NOT_CONNECTED;
+    return fail(t('commands.defs.poll.not_connected'));
   }
   const problem = checkPoll(plan.value, capabilities.pollLimits);
   if (problem !== null) {
@@ -153,7 +153,7 @@ async function handle(args: string, context: CommandContext): Promise<CommandOut
   const { question, options, expiresIn, multiple } = plan.value;
   const answer = await context.post({ text: question, poll: { options, expiresIn, multiple } });
   if (answer === null) {
-    context.print('poll posted');
+    context.print(t('commands.defs.poll.posted'));
   }
   return postOutcome(answer);
 }
@@ -161,7 +161,11 @@ async function handle(args: string, context: CommandContext): Promise<CommandOut
 /** The `/poll` definition. */
 export const command: CommandDefinition = {
   name: 'poll',
-  usage: USAGE,
-  summary: 'Post a poll to the active window',
+  get usage(): string {
+    return t('commands.defs.poll.usage');
+  },
+  get summary(): string {
+    return t('commands.defs.poll.summary');
+  },
   run: handle,
 };

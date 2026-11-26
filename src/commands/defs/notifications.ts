@@ -12,6 +12,7 @@
  * type instead.
  */
 
+import { t } from '../../i18n/translate';
 import { notificationsWindowOpen } from '../../state/notificationsWindow';
 import { postAsAccount } from '../../state/postAsWindowAccount';
 import { accountWindowRun } from '../openWindowRun';
@@ -21,7 +22,11 @@ import type { CommandDefinition } from '../types';
 export const command: CommandDefinition = {
   name: 'notifications',
   aliases: ['n', 'notifs'],
-  usage: '/notifications [text] [--in <placement>]',
-  summary: 'Open your notifications',
+  get usage(): string {
+    return t('commands.defs.notifications.usage');
+  },
+  get summary(): string {
+    return t('commands.defs.notifications.summary');
+  },
   run: accountWindowRun(notificationsWindowOpen, { postsText: postAsAccount }),
 };

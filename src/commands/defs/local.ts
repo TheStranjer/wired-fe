@@ -11,6 +11,7 @@
  * window.
  */
 
+import { t } from '../../i18n/translate';
 import { accountWindowOpen } from '../../state/accountWindow';
 import { postStatus } from '../../state/postStatus';
 import { accountWindowRun } from '../openWindowRun';
@@ -19,8 +20,12 @@ import type { CommandDefinition } from '../types';
 /** The `/local` definition. */
 export const command: CommandDefinition = {
   name: 'local',
-  usage: '/local [text] [--in <placement>]',
-  summary: 'Open the local timeline',
+  get usage(): string {
+    return t('commands.defs.local.usage');
+  },
+  get summary(): string {
+    return t('commands.defs.local.summary');
+  },
   run: accountWindowRun((account, activeKey) => accountWindowOpen('local', account, activeKey), {
     postsText: postStatus,
   }),

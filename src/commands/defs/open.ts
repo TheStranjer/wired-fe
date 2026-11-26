@@ -11,6 +11,7 @@
  * link in the scrollback is hostile, and so the command refuses it.
  */
 
+import { t } from '../../i18n/translate';
 import { accountByKey } from '../../state/selectors';
 import { OK, fail, syncRun } from '../outcome';
 import { localPermalink, statusLink } from '../statusLink';
@@ -19,8 +20,10 @@ import { openThreadWindow } from '../threadWindow';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 import { splitFirstWord } from '../words';
 
-/** Shown for any link that is not http(s), however it arrived. */
-const NOT_HTTP = fail('Only http(s) links can be opened');
+/** The refusal for any link that is not http(s), however it arrived. */
+function notHttp(): CommandOutcome {
+  return fail(t('commands.defs.open.not_http'));
+}
 
 /** A first word that carries a URL scheme: `https:`, `javascript:`, `ftp:`. */
 const SCHEMED = /^[a-z][a-z0-9+.-]*:/iu;
@@ -41,14 +44,14 @@ function openPost(target: StatusTarget, context: CommandContext): CommandOutcome
     return openThreadWindow(context, target);
   }
   const link = statusLink(target.status);
-  return HTTP.test(link) ? openUrl(link) : NOT_HTTP;
+  return HTTP.test(link) ? openUrl(link) : notHttp();
 }
 
 /** Open the typed URL, or the link of the post the argument names. */
 function handle(args: string, context: CommandContext): CommandOutcome {
   const [word] = splitFirstWord(args);
   if (SCHEMED.test(word)) {
-    return HTTP.test(word) ? openUrl(word) : NOT_HTTP;
+    return HTTP.test(word) ? openUrl(word) : notHttp();
   }
   const target = resolveStatusTarget(args, context);
   if (!target.ok) {
@@ -60,8 +63,12 @@ function handle(args: string, context: CommandContext): CommandOutcome {
 /** The `/open` definition. */
 export const command: CommandDefinition = {
   name: 'open',
-  usage: '/open [label | url]',
-  summary: 'Open a post or URL in a new browser tab',
+  get usage(): string {
+    return t('commands.defs.open.usage');
+  },
+  get summary(): string {
+    return t('commands.defs.open.summary');
+  },
   run: syncRun(handle),
   bindings: [{ mode: 'navigation', chord: 'o', args: '' }],
 };
