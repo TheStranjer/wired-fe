@@ -6,6 +6,7 @@
  * runs it on the selected post. `/unboost` always takes it back.
  */
 
+import { t } from '../../i18n/translate';
 import { toggleRun } from '../statusToggle';
 import type { CommandDefinition } from '../types';
 
@@ -13,8 +14,12 @@ import type { CommandDefinition } from '../types';
 export const command: CommandDefinition = {
   name: 'boost',
   aliases: ['rt', 'reblog'],
-  usage: '/boost [label]',
-  summary: 'Boost a post, or take the boost back',
+  get usage(): string {
+    return t('commands.defs.boost.usage');
+  },
+  get summary(): string {
+    return t('commands.defs.boost.summary');
+  },
   run: toggleRun('boost'),
   bindings: [{ mode: 'navigation', chord: 'b', args: '' }],
 };

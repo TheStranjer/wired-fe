@@ -12,6 +12,7 @@
  * (src/commands/viewSpec).
  */
 
+import { t } from '../../i18n/translate';
 import { wordsOf } from '../../lib/words';
 import { FEED_SUBCOMMANDS } from '../feedArgs';
 import { feedAdd, feedNew, feedRemove } from '../feedChange';
@@ -35,10 +36,6 @@ const SUBCOMMANDS: ReadonlyMap<string, Subcommand> = new Map<string, Subcommand>
   ['edit', feedEdit],
 ]);
 
-/** The command's forms: /help shows them. */
-const USAGE =
-  '/feed [list] | /feed <name> | /feed edit <name> | /feed new [<name> <source>…] | /feed add|rm <name> <source>… | /feed rename <old> <new> | /feed delete <name>';
-
 /** Run the subcommand the first word names; a first word that names none is a feed to open. */
 function handle(args: string, context: CommandContext): CommandOutcome {
   const [first, rest] = splitFirstWord(args);
@@ -52,7 +49,11 @@ function handle(args: string, context: CommandContext): CommandOutcome {
 /** The `/feed` definition. */
 export const command: CommandDefinition = {
   name: 'feed',
-  usage: USAGE,
-  summary: `Make, change and open feeds (${FEED_SUBCOMMANDS.join(', ')})`,
+  get usage(): string {
+    return t('commands.defs.feed.usage');
+  },
+  get summary(): string {
+    return t('commands.defs.feed.summary', { subcommands: FEED_SUBCOMMANDS.join(', ') });
+  },
   run: syncRun(handle),
 };

@@ -14,16 +14,16 @@ import type { StoredAccount } from '../../accounts/accountStore';
 import { findAccount } from '../../accounts/findAccount';
 import { createStatus } from '../../api/endpoints/statusWrite';
 import { describeApiError } from '../../api/errors';
+import { t } from '../../i18n/translate';
 import { notSignedInAs } from '../notSignedInAs';
 import { OK, fail } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 import { splitFirstWord } from '../words';
 
-/** The command's grammar: /help shows it, a bad argument echoes it. */
-const USAGE = '/as <handle|n> <text>';
-
 /** The argument text was not an account and a message. */
-const USAGE_ERROR = fail(`Usage: ${USAGE}`);
+function usageError(): CommandOutcome {
+  return fail(t('commands.defs.as.usage_error', { usage: t('commands.defs.as.usage') }));
+}
 
 /**
  * The account word and the text word: {@link args} trimmed and split at its
@@ -53,7 +53,7 @@ async function postAs(
   if (!created.ok) {
     return fail(describeApiError(created.error));
   }
-  context.print(`posted as @${account.handle}`);
+  context.print(t('commands.defs.as.posted', { handle: account.handle }));
   return OK;
 }
 
@@ -61,7 +61,7 @@ async function postAs(
 async function handle(args: string, context: CommandContext): Promise<CommandOutcome> {
   const parts = splitAccountAndText(args);
   if (parts === null) {
-    return USAGE_ERROR;
+    return usageError();
   }
   const [word, text] = parts;
   const accounts = context.stores.accounts.list();
@@ -75,7 +75,11 @@ async function handle(args: string, context: CommandContext): Promise<CommandOut
 /** The `/as` definition. */
 export const command: CommandDefinition = {
   name: 'as',
-  usage: USAGE,
-  summary: 'Post one line as another account',
+  get usage(): string {
+    return t('commands.defs.as.usage');
+  },
+  get summary(): string {
+    return t('commands.defs.as.summary');
+  },
   run: handle,
 };

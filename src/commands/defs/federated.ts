@@ -11,6 +11,7 @@
  * the way typing it there would (WFE-279); `--in` places the window.
  */
 
+import { t } from '../../i18n/translate';
 import { accountWindowOpen } from '../../state/accountWindow';
 import { postStatus } from '../../state/postStatus';
 import { accountWindowRun } from '../openWindowRun';
@@ -20,8 +21,12 @@ import type { CommandDefinition } from '../types';
 export const command: CommandDefinition = {
   name: 'federated',
   aliases: ['fed'],
-  usage: '/federated [text] [--in <placement>]',
-  summary: 'Open the federated timeline',
+  get usage(): string {
+    return t('commands.defs.federated.usage');
+  },
+  get summary(): string {
+    return t('commands.defs.federated.summary');
+  },
   run: accountWindowRun(
     (account, activeKey) => accountWindowOpen('federated', account, activeKey),
     {

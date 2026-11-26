@@ -16,22 +16,26 @@ import type { StoredAccount } from '../../accounts/accountStore';
 import { getOrRegisterApp } from '../../accounts/appCache';
 import { redirectUriFor } from '../../accounts/callback';
 import { findAccount } from '../../accounts/findAccount';
-import { describeApiError } from '../../api/errors';
+import { type ApiError, describeApiError } from '../../api/errors';
 import { revokeToken } from '../../api/oauth';
+import { t } from '../../i18n/translate';
 import { wordsOf } from '../../lib/words';
 import { notSignedInAs } from '../notSignedInAs';
 import { NOT_LOGGED_IN, OK, fail } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** Every form of the command: /help shows it, a bad argument echoes it. */
-const USAGE =
-  '/account [list] | /account switch <n|handle> | /account next | /account logout [n|handle]';
+function usage(): string {
+  return t('commands.defs.account.usage');
+}
 
 /** The refusal shared by every form with nothing to act on. */
 const NO_ACCOUNTS: CommandOutcome = NOT_LOGGED_IN;
 
 /** The argument text matched none of the command's forms. */
-const USAGE_ERROR = fail(`Usage: ${USAGE}`);
+function usageError(): CommandOutcome {
+  return fail(t('commands.defs.account.usage_error', { usage: usage() }));
+}
 
 /** The refusal naming the query nothing matched. */
 function noAccount(query: string | undefined, context: CommandContext): CommandOutcome {
@@ -67,14 +71,14 @@ function syncAccounts(context: CommandContext): void {
 function activate(context: CommandContext, account: StoredAccount): CommandOutcome {
   context.stores.accounts.setActive(account.key);
   syncAccounts(context);
-  context.print(`Active account: @${account.handle}`);
+  context.print(t('commands.defs.account.active', { handle: account.handle }));
   return OK;
 }
 
 /** `switch <n|handle>`: make the account the query names the active one. */
 function switchTo(query: string | undefined, context: CommandContext): CommandOutcome {
   if (query === undefined || query === '') {
-    return USAGE_ERROR;
+    return usageError();
   }
   const found = findAccount(context.stores.accounts.list(), query);
   if (found === null) {
@@ -107,6 +111,11 @@ function logoutTarget(context: CommandContext, query: string | undefined): Store
   return findAccount(stored(), query);
 }
 
+/** The warning that revoking the token failed with {@link error}. */
+function revokeFailed(error: ApiError): string {
+  return t('commands.defs.account.revoke_failed', { reason: describeApiError(error) });
+}
+
 /** Revoke {@link account}'s token as well as the instance will allow. */
 async function revokeQuietly(account: StoredAccount, context: CommandContext): Promise<void> {
   const app = await getOrRegisterApp(context.stores.apps, {
@@ -115,12 +124,12 @@ async function revokeQuietly(account: StoredAccount, context: CommandContext): P
     appName: context.config.appName,
   });
   if (!app.ok) {
-    context.print(`Could not revoke the token: ${describeApiError(app.error)}`, 'warn');
+    context.print(revokeFailed(app.error), 'warn');
     return;
   }
   const revoked = await revokeToken(account.origin, { app: app.value, token: account.token });
   if (!revoked.ok) {
-    context.print(`Could not revoke the token: ${describeApiError(revoked.error)}`, 'warn');
+    context.print(revokeFailed(revoked.error), 'warn');
   }
 }
 
@@ -147,7 +156,7 @@ async function logout(query: string | undefined, context: CommandContext): Promi
   context.stores.sync.forget(account.key);
   syncAccounts(context);
   closeWindowsOf(context, account.key);
-  context.print(`Logged out @${account.handle}`);
+  context.print(t('commands.defs.account.logged_out', { handle: account.handle }));
   return OK;
 }
 
@@ -166,15 +175,19 @@ async function handle(args: string, context: CommandContext): Promise<CommandOut
   if (word === 'logout') {
     return await logout(second, context);
   }
-  return USAGE_ERROR;
+  return usageError();
 }
 
 /** The `/account` (alias `/acc`) definition. */
 export const command: CommandDefinition = {
   name: 'account',
   aliases: ['acc'],
-  usage: USAGE,
-  summary: 'List, switch between and log out of accounts',
+  get usage(): string {
+    return usage();
+  },
+  get summary(): string {
+    return t('commands.defs.account.summary');
+  },
   run: handle,
   bindings: [
     { mode: 'insert', chord: 'Alt+a', args: 'next' },

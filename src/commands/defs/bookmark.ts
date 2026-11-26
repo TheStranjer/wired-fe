@@ -7,14 +7,19 @@
  * the selected post. `/unbookmark` always takes it back.
  */
 
+import { t } from '../../i18n/translate';
 import { toggleRun } from '../statusToggle';
 import type { CommandDefinition } from '../types';
 
 /** The `/bookmark` definition. */
 export const command: CommandDefinition = {
   name: 'bookmark',
-  usage: '/bookmark [label]',
-  summary: 'Bookmark a post, or remove the bookmark',
+  get usage(): string {
+    return t('commands.defs.bookmark.usage');
+  },
+  get summary(): string {
+    return t('commands.defs.bookmark.summary');
+  },
   run: toggleRun('bookmark'),
   bindings: [{ mode: 'navigation', chord: 'Shift+b', args: '' }],
 };

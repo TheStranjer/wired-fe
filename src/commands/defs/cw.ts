@@ -8,12 +8,15 @@
  * and an error string from it comes back as the command's failure.
  */
 
+import { t } from '../../i18n/translate';
 import { fail, postOutcome } from '../outcome';
 import { tokenize } from '../tokenize';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** Every argument is refused with this line: the warning or the text is missing. */
-const USAGE = 'Usage: /cw "warning" text';
+function usageError(): CommandOutcome {
+  return fail(t('commands.defs.cw.usage_error'));
+}
 
 /** Whitespace between tokens, as src/commands/tokenize.ts reads it. */
 const WHITESPACE = /\s/;
@@ -77,7 +80,7 @@ function splitWarning(args: string): Split {
 async function handle(args: string, context: CommandContext): Promise<CommandOutcome> {
   const { warning, text } = splitWarning(args);
   if (warning === '' || text === '') {
-    return fail(USAGE);
+    return usageError();
   }
   return postOutcome(await context.post({ text, spoilerText: warning }));
 }
@@ -85,7 +88,11 @@ async function handle(args: string, context: CommandContext): Promise<CommandOut
 /** The `/cw` definition. */
 export const command: CommandDefinition = {
   name: 'cw',
-  usage: '/cw <warning> <text>',
-  summary: 'Post to the active window behind a content warning',
+  get usage(): string {
+    return t('commands.defs.cw.usage');
+  },
+  get summary(): string {
+    return t('commands.defs.cw.summary');
+  },
   run: handle,
 };

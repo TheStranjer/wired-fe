@@ -6,6 +6,7 @@
  * selected post. `/unfav` always takes it back.
  */
 
+import { t } from '../../i18n/translate';
 import { toggleRun } from '../statusToggle';
 import type { CommandDefinition } from '../types';
 
@@ -13,8 +14,12 @@ import type { CommandDefinition } from '../types';
 export const command: CommandDefinition = {
   name: 'fav',
   aliases: ['f', 'like'],
-  usage: '/fav [label]',
-  summary: 'Favourite a post, or take the favourite back',
+  get usage(): string {
+    return t('commands.defs.fav.usage');
+  },
+  get summary(): string {
+    return t('commands.defs.fav.summary');
+  },
   run: toggleRun('fav'),
   bindings: [{ mode: 'navigation', chord: 'f', args: '' }],
 };

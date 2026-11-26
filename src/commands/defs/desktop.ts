@@ -11,6 +11,7 @@
  * action over.
  */
 
+import { t } from '../../i18n/translate';
 import { wordsOf } from '../../lib/words';
 import { appendRefusal } from '../../windows/desktopAppend';
 import { isEmptyDesktop } from '../../windows/desktopPanes';
@@ -21,10 +22,6 @@ import { desktopNumber } from '../desktopNumber';
 import { OK, fail, syncRun } from '../outcome';
 import { tmuxBindings } from '../tmuxBindings';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
-
-/** Every form of the command: /help shows it, a bad argument echoes it. */
-const USAGE =
-  '/desktop [list] | /desktop <number> | /desktop next | /desktop prev | /desktop new | /desktop close [number] | /desktop prune';
 
 /** The digits whose Alt+N binding jumps straight to desktop N. */
 const DESKTOP_DIGITS: readonly string[] = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
@@ -55,11 +52,15 @@ const BINDINGS: readonly CommandBinding[] = [
   ...TMUX_DIGITS.flatMap((digit) => tmuxBindings(digit, digit === '0' ? '10' : digit)),
 ];
 
-/** The argument text matched none of the command's forms. */
-const USAGE_ERROR = fail(`Usage: ${USAGE}`);
+/** The argument text matched none of the command's forms: /help shows them, a bad argument echoes them. */
+function usageError(): CommandOutcome {
+  return fail(t('commands.defs.desktop.usage_error', { usage: t('commands.defs.desktop.usage') }));
+}
 
 /** The refusal: there is always one desktop to look at. */
-const LAST_DESKTOP = fail("Can't close the last desktop");
+function lastDesktop(): CommandOutcome {
+  return fail(t('commands.defs.desktop.last_desktop'));
+}
 
 /** Ask the layout reducer for {@link action}. */
 function layout(context: CommandContext, action: LayoutAction): CommandOutcome {
@@ -96,18 +97,18 @@ function list(context: CommandContext): CommandOutcome {
 /** Close desktop `word` (the active one without it); the last desktop and unknown numbers are refused. */
 function close(context: CommandContext, word: string | undefined): CommandOutcome {
   const { desktops, active } = context.state.layout;
-  const n = word === undefined ? active + 1 : desktopNumber(word, USAGE_ERROR);
+  const n = word === undefined ? active + 1 : desktopNumber(word, usageError());
   if (typeof n !== 'number') {
     return n;
   }
   if (desktops.length < 2) {
-    return LAST_DESKTOP;
+    return lastDesktop();
   }
   if (n > desktops.length) {
-    return fail(`No desktop ${String(n)}`);
+    return fail(t('commands.defs.desktop.no_desktop', { number: String(n) }));
   }
   layout(context, { type: 'closeDesktop', n });
-  context.print(`closed desktop ${String(n)} (its windows are still open: /win)`);
+  context.print(t('commands.defs.desktop.closed', { number: String(n) }));
   return OK;
 }
 
@@ -116,11 +117,11 @@ function prune(context: CommandContext): CommandOutcome {
   const { desktops, active } = context.state.layout;
   const count = desktops.filter((desktop, i) => i !== active && isEmptyDesktop(desktop)).length;
   if (count === 0) {
-    context.print('no empty desktops');
+    context.print(t('commands.defs.desktop.no_empty'));
     return OK;
   }
   layout(context, { type: 'pruneDesktops' });
-  context.print(`closed ${String(count)} empty desktop${count === 1 ? '' : 's'}`);
+  context.print(t('commands.defs.desktop.closed_empty', { count }));
   return OK;
 }
 
@@ -145,7 +146,7 @@ function handle(args: string, context: CommandContext): CommandOutcome {
   if (word === 'prune') {
     return prune(context);
   }
-  const n = desktopNumber(word, USAGE_ERROR);
+  const n = desktopNumber(word, usageError());
   return typeof n === 'number' ? goTo(context, n) : n;
 }
 
@@ -153,9 +154,12 @@ function handle(args: string, context: CommandContext): CommandOutcome {
 export const command: CommandDefinition = {
   name: 'desktop',
   aliases: ['d'],
-  usage: USAGE,
-  summary:
-    'List, switch (Alt+1..9, Alt+[ and Alt+]), create (only past a desktop with something on it), close (Ctrl+B &, a × or a middle-click on the status line) or prune empty desktops',
+  get usage(): string {
+    return t('commands.defs.desktop.usage');
+  },
+  get summary(): string {
+    return t('commands.defs.desktop.summary');
+  },
   run: syncRun(handle),
   bindings: BINDINGS,
 };

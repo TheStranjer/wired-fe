@@ -8,6 +8,7 @@
  * alt text (WFE-288); the pane menus' `Attach media…` row runs it too.
  */
 
+import { t } from '../../i18n/translate';
 import { OK, syncRun } from '../outcome';
 import { tmuxBindings } from '../tmuxBindings';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
@@ -22,8 +23,12 @@ function handle(args: string, context: CommandContext): CommandOutcome {
 export const command: CommandDefinition = {
   name: 'attach',
   aliases: ['att'],
-  usage: '/attach [alt text]',
-  summary: 'Attach media to your next post',
+  get usage(): string {
+    return t('commands.defs.attach.usage');
+  },
+  get summary(): string {
+    return t('commands.defs.attach.summary');
+  },
   run: syncRun(handle),
   bindings: [...tmuxBindings('Shift+i', ''), { mode: 'navigation', chord: 'Shift+i', args: '' }],
 };

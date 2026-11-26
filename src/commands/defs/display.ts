@@ -10,6 +10,7 @@
  * nothing changes. Completion of keys and values is displayProvider's.
  */
 
+import { t } from '../../i18n/translate';
 import { wordsOf } from '../../lib/words';
 import { resolveDisplay } from '../../state/resolveDisplay';
 import type { DisplayChange } from '../../windows/display';
@@ -26,8 +27,10 @@ import {
 import { OK, fail, syncRun } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
-/** The command's one form. */
-const USAGE = '/display [key [value] | reset [key]]';
+/** The command's usage line, in the language in use. */
+function usage(): string {
+  return t('commands.defs.display.usage');
+}
 
 /** The change that clears each key, back to the reader's setting. */
 const CLEARS: Readonly<Record<DisplayKey, DisplayChange>> = {
@@ -57,7 +60,7 @@ function lineOf(context: CommandContext, key: DisplayKey): string {
   const { display } = activeWindow(context.windows);
   const value = resolveDisplay(context.state.settings, display)[key];
   const source = display[key] === undefined ? 'inherited' : 'overridden';
-  return `  ${key} = ${shown(value)}  (${source})`;
+  return `  ${t('commands.defs.display.line', { key, value: shown(value), source })}`;
 }
 
 /** Ask the window layer to apply {@link overrides} to the active window. */
@@ -70,7 +73,7 @@ function setOne(context: CommandContext, key: DisplayKey, raw: string): CommandO
   const turn = turnOf(key, raw);
   if (turn === null) {
     const list = key === 'density' ? valuesOf(key).join('|') : BOOLEAN_WORDS;
-    return fail(`${key} takes ${list}`);
+    return fail(t('commands.defs.display.takes', { key, values: list }));
   }
   apply(context, turn.change);
   context.print(`${key} = ${turn.word}`);
@@ -81,14 +84,14 @@ function setOne(context: CommandContext, key: DisplayKey, raw: string): CommandO
 function reset(context: CommandContext, key: string | undefined): CommandOutcome {
   if (key === undefined) {
     apply(context, { density: undefined, avatars: undefined, images: undefined });
-    context.print('Display overrides cleared');
+    context.print(t('commands.defs.display.cleared'));
     return OK;
   }
   if (!isDisplayKey(key)) {
-    return fail(`No display key ${key}. Try /display`);
+    return fail(t('commands.defs.display.no_key', { key }));
   }
   apply(context, CLEARS[key]);
-  context.print(`${key} inherited`);
+  context.print(t('commands.defs.display.inherited', { key }));
   return OK;
 }
 
@@ -96,7 +99,7 @@ function reset(context: CommandContext, key: string | undefined): CommandOutcome
 function handle(args: string, context: CommandContext): CommandOutcome {
   const [first, second, third] = wordsOf(args);
   if (third !== undefined) {
-    return fail(`Usage: ${USAGE}`);
+    return fail(t('commands.defs.display.usage_error', { usage: usage() }));
   }
   if (first === undefined) {
     for (const key of DISPLAY_KEYS) {
@@ -108,7 +111,7 @@ function handle(args: string, context: CommandContext): CommandOutcome {
     return reset(context, second);
   }
   if (!isDisplayKey(first)) {
-    return fail(`No display key ${first}. Try /display`);
+    return fail(t('commands.defs.display.no_key', { key: first }));
   }
   if (second === undefined) {
     context.print(lineOf(context, first));
@@ -120,7 +123,11 @@ function handle(args: string, context: CommandContext): CommandOutcome {
 /** The `/display` definition. */
 export const command: CommandDefinition = {
   name: 'display',
-  usage: USAGE,
-  summary: "Show or override this window's density, avatars and images",
+  get usage(): string {
+    return usage();
+  },
+  get summary(): string {
+    return t('commands.defs.display.summary');
+  },
   run: syncRun(handle),
 };

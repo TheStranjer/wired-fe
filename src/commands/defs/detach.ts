@@ -5,13 +5,14 @@
  * is the only target. Already-uploaded posts are untouched.
  */
 
+import { t } from '../../i18n/translate';
 import { OK, contextRun } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** Empty the pending list and echo the confirmation, the way /dm echoes a send. */
 function handle(context: CommandContext): CommandOutcome {
   context.attachments.clear();
-  context.print('attachments cleared');
+  context.print(t('commands.defs.detach.cleared'));
   return OK;
 }
 
@@ -19,6 +20,8 @@ function handle(context: CommandContext): CommandOutcome {
 export const command: CommandDefinition = {
   name: 'detach',
   usage: '/detach',
-  summary: 'Drop every attachment waiting for the next post',
+  get summary(): string {
+    return t('commands.defs.detach.summary');
+  },
   run: contextRun(handle),
 };

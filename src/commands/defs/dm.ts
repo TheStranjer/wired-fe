@@ -16,6 +16,7 @@
 import { createStatus } from '../../api/endpoints/statusWrite';
 import { describeApiError } from '../../api/errors';
 import type { Status } from '../../api/schemas/status';
+import { t } from '../../i18n/translate';
 import { statusesAction } from '../../state/pageActions';
 import { sessionFor } from '../../state/selectors';
 import type { WindowState } from '../../windows/model';
@@ -23,11 +24,10 @@ import { NOT_LOGGED_IN, OK, fail } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 import { splitFirstWord } from '../words';
 
-/** The command's grammar: /help shows it, a bad argument echoes it. */
-const USAGE = '/dm @user@host message';
-
 /** The argument text was not a handle and a message. */
-const USAGE_ERROR = fail(`Usage: ${USAGE}`);
+function usageError(): CommandOutcome {
+  return fail(t('commands.defs.dm.usage_error', { usage: t('commands.defs.dm.usage') }));
+}
 
 /** A handle word: `@user@host`, `user@host`, or `@user` for the local instance. */
 const HANDLE = /^@[\w.~-]+(?:@[\w.~-]+)?$|^[\w.~-]+@[\w.~-]+$/u;
@@ -84,7 +84,7 @@ function addToDmWindow(context: CommandContext, mention: string, status: Status)
 async function handle(args: string, context: CommandContext): Promise<CommandOutcome> {
   const parts = splitHandleAndText(args);
   if (parts === null) {
-    return USAGE_ERROR;
+    return usageError();
   }
   const [word, text] = parts;
   const mention = mentionOf(word);
@@ -109,7 +109,11 @@ async function handle(args: string, context: CommandContext): Promise<CommandOut
 export const command: CommandDefinition = {
   name: 'dm',
   aliases: ['msg'],
-  usage: USAGE,
-  summary: 'Send a direct message in one line',
+  get usage(): string {
+    return t('commands.defs.dm.usage');
+  },
+  get summary(): string {
+    return t('commands.defs.dm.summary');
+  },
   run: handle,
 };
