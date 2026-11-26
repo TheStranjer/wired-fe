@@ -15,6 +15,7 @@ import {
   NodeInfoLinksSchema,
   NodeInfoSchema,
 } from './schemas/nodeinfo';
+import { t } from '../i18n/translate';
 import { type Result, err, ok } from '../lib/result';
 
 /** The NodeInfo 2.1 link relation, the version WiredFE prefers. */
@@ -69,11 +70,11 @@ export async function fetchNodeInfo(
   }
   const href = preferredHref(links.value.links);
   if (href === null) {
-    return err({ kind: 'parse', message: 'No NodeInfo 2.x link' });
+    return err({ kind: 'parse', message: t('api.nodeinfo_no_link') });
   }
   const url = sameOriginUrl(href, origin);
   if (url === null) {
-    return err({ kind: 'parse', message: 'NodeInfo link points to another origin' });
+    return err({ kind: 'parse', message: t('api.nodeinfo_other_origin') });
   }
   const doc = await requestData({
     origin,

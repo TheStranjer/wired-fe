@@ -21,7 +21,7 @@ import type { PostContext } from './windowKind';
 import { editStatus } from '../api/endpoints/statusWrite';
 import { describeApiError } from '../api/errors';
 import type { Status } from '../api/schemas/status';
-import { NOT_LOGGED_IN_MESSAGE } from '../lib/refusal';
+import { t } from '../i18n/translate';
 import { type Result, err } from '../lib/result';
 
 /** What an edit changes: the post, its new draft and the moment it is sent. */
@@ -46,7 +46,7 @@ export async function editPost(
   const { state, dispatch } = context;
   const account = accountByKey(state, accountKey);
   if (account === null) {
-    return err(NOT_LOGGED_IN_MESSAGE);
+    return err(t('state.not_logged_in'));
   }
   const kept = editFields(edit.status, composerLimits(state, account.key).pollLimits, edit.now);
   if (!kept.ok) {

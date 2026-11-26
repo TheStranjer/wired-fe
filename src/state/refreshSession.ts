@@ -15,7 +15,7 @@ import type { AccountStore, StoredAccount } from '../accounts/accountStore';
 import type { ApiError } from '../api/errors';
 import { type AppCredentials, refreshAccessToken } from '../api/oauth';
 import type { ApiSession } from '../api/session';
-import { NOT_LOGGED_IN_MESSAGE } from '../lib/refusal';
+import { t } from '../i18n/translate';
 import { type Result, err } from '../lib/result';
 import { STATUS_WINDOW_ID } from '../windows/model';
 
@@ -57,7 +57,7 @@ function sessionOf(account: StoredAccount): ApiSession {
 /** Mark the account expired and say so, once, in the status window. */
 function expire(deps: RefreshDeps, account: StoredAccount): void {
   deps.dispatch({ type: 'accountExpired', accountKey: account.key });
-  const text = `Session expired for @${account.handle}. Type /connect to log in again.`;
+  const text = t('state.session_expired', { handle: account.handle });
   deps.dispatch(printAction(STATUS_WINDOW_ID, 'error', text));
 }
 
@@ -148,7 +148,7 @@ export async function withFreshToken<T>(
 ): Promise<Result<T, ApiError>> {
   const account = accountOf(deps, accountKey);
   if (account === null) {
-    return err({ kind: 'http', status: 401, message: NOT_LOGGED_IN_MESSAGE });
+    return err({ kind: 'http', status: 401, message: t('state.not_logged_in') });
   }
   const first = await call(sessionOf(account));
   if (!isUnauthorized(first)) {

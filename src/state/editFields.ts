@@ -12,10 +12,8 @@
 import type { NewStatus } from '../api/endpoints/statusWrite';
 import type { PollLimits } from '../api/schemas/pollLimits';
 import type { Status } from '../api/schemas/status';
+import { t } from '../i18n/translate';
 import { type Result, err, ok } from '../lib/result';
-
-/** What an expired poll hears: Mastodon would reopen it on an edit. */
-const POLL_CLOSED = "Can't edit a post whose poll has closed";
 
 /** The fields of an edit other than the text. */
 export type EditFields = Omit<NewStatus, 'status' | 'visibility' | 'inReplyToId' | 'quoteId'>;
@@ -57,7 +55,7 @@ export function editFields(
     return ok(base);
   }
   if (isClosed(poll, now)) {
-    return err(POLL_CLOSED);
+    return err(t('state.poll_closed')); // what an expired poll hears: Mastodon would reopen it on an edit
   }
   return ok({
     ...base,

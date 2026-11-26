@@ -8,6 +8,7 @@
 import * as v from 'valibot';
 
 import type { ApiError, FieldErrors } from './errors';
+import { t } from '../i18n/translate';
 import { type Result, err, ok } from '../lib/result';
 
 /**
@@ -88,7 +89,7 @@ function remoteDetails(body: unknown): FieldErrors | null {
 /** The `http` error of a failed response: the remote message, else the status line, plus any field details. */
 async function httpError(response: Response): Promise<ApiError> {
   const body: unknown = await response.json().catch(() => null);
-  const statusText = response.statusText === '' ? 'Request failed' : response.statusText;
+  const statusText = response.statusText === '' ? t('api.request_failed') : response.statusText;
   const details = remoteDetails(body);
   return {
     kind: 'http',
@@ -126,7 +127,7 @@ async function decodeBody<T>(
   try {
     return validate(JSON.parse(text), schema);
   } catch {
-    return err({ kind: 'parse', message: 'Invalid JSON' });
+    return err({ kind: 'parse', message: t('api.invalid_json') });
   }
 }
 

@@ -11,6 +11,7 @@
  */
 import * as v from 'valibot';
 
+import { t } from '../../i18n/translate';
 import { type Result, err } from '../../lib/result';
 import type { ApiError } from '../errors';
 import { type MediaAttachment, MediaAttachmentSchema } from '../schemas/mediaAttachment';
@@ -39,7 +40,9 @@ const DEFAULT_INTERVAL_MS = 1_000;
 const DEFAULT_MAX_POLLS = 30;
 
 /** The error of an upload whose url stayed empty for every poll. */
-const TIMEOUT_ERROR: ApiError = { kind: 'parse', message: 'Media processing timed out' };
+function timeoutError(): ApiError {
+  return { kind: 'parse', message: t('api.media_timeout') };
+}
 
 /** Mastodon's processing answer carries `"url": null`; read it as `''`. */
 function blankNullUrl(input: unknown): unknown {
@@ -125,7 +128,7 @@ async function pollMedia(
       return polled;
     }
   }
-  return err(TIMEOUT_ERROR);
+  return err(timeoutError());
 }
 
 /**
@@ -136,7 +139,7 @@ async function pollMedia(
  * itself through {@link uploadMedia}'s schema. The first attachment with a
  * non-empty url is returned as is; an upload that answers ready is never
  * polled; a failed poll is returned unchanged; running out of polls answers
- * {@link TIMEOUT_ERROR}.
+ * {@link timeoutError}.
  */
 export async function uploadAndWait(
   session: ApiSession,

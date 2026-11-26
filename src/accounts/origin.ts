@@ -5,6 +5,7 @@
  */
 
 import type { InstancesConfig } from '../config/schema';
+import { t } from '../i18n/translate';
 import { type InstanceChoices, isAllowedInstanceUrl } from '../lib/origin';
 import { type Result, err, ok } from '../lib/result';
 
@@ -12,13 +13,19 @@ import { type Result, err, ok } from '../lib/result';
 const SCHEME_PREFIX = /^[a-zA-Z][a-zA-Z\d+.-]*:\/\//;
 
 /** Shown when the input is empty or does not parse as a host. */
-const NEED_INSTANCE = 'Enter an instance, like wired.example';
+function needInstance(): string {
+  return t('accounts.need_instance');
+}
 
 /** Shown when the parsed URL is not `https:` (or local `http:`). */
-const NEED_HTTPS = 'Only https instances are supported';
+function needHttps(): string {
+  return t('accounts.need_https');
+}
 
 /** Shown on a `list` build when the typed origin is not one of the options. */
-const NOT_LISTED = 'That instance is not available here';
+function notListed(): string {
+  return t('accounts.not_listed');
+}
 
 /** The chosen instance origin, or a message to show the user. */
 export type OriginChoice = Result<string, string>;
@@ -34,33 +41,33 @@ function stripMention(typed: string): string {
 /**
  * Normalizes what the user typed (`wired.example`, `https://wired.example/`,
  * `@me@wired.example`) into a bare origin like `https://wired.example`.
- * Missing input or unparsable hosts get {@link NEED_INSTANCE}; non-`https`
- * hosts that are not local get {@link NEED_HTTPS}.
+ * Missing input or unparsable hosts get {@link needInstance}; non-`https`
+ * hosts that are not local get {@link needHttps}.
  */
 export function normalizeTypedOrigin(typed: string): Result<string, string> {
   const input = stripMention(typed.trim());
   if (input === '') {
-    return err(NEED_INSTANCE);
+    return err(needInstance());
   }
   const candidate = SCHEME_PREFIX.test(input) ? input : `https://${input}`;
   try {
     const url = new URL(candidate);
-    return isAllowedInstanceUrl(url) ? ok(url.origin) : err(NEED_HTTPS);
+    return isAllowedInstanceUrl(url) ? ok(url.origin) : err(needHttps());
   } catch {
-    return err(NEED_INSTANCE);
+    return err(needInstance());
   }
 }
 
 /**
  * On a `list` build a listed origin is accepted; any other valid typed origin
- * only when {@link allowCustom}, otherwise {@link NOT_LISTED}.
+ * only when {@link allowCustom}, otherwise {@link notListed}.
  */
 function fromList(origins: readonly string[], allowCustom: boolean, typed: string): OriginChoice {
   const normalized = normalizeTypedOrigin(typed);
   if (normalized.ok && origins.includes(normalized.value)) {
     return normalized;
   }
-  return allowCustom ? normalized : err(NOT_LISTED);
+  return allowCustom ? normalized : err(notListed());
 }
 
 /**

@@ -9,6 +9,7 @@
 
 import type { AppState } from './appState';
 import type { SyncPrefs } from '../accounts/syncPrefs';
+import { t } from '../i18n/translate';
 
 /** The slice of the app state a choice reads. */
 export type SyncWorld = Pick<AppState, 'accounts' | 'profiles' | 'expired'>;
@@ -21,13 +22,15 @@ export type SyncWorld = Pick<AppState, 'accounts' | 'profiles' | 'expired'>;
 export function skipReason(key: string, world: SyncWorld): string | null {
   const account = world.accounts.find((candidate) => candidate.key === key);
   if (account === undefined) {
-    return 'not signed in';
+    return t('state.skip_not_signed_in');
   }
   if (world.expired.has(key)) {
-    return 'session expired';
+    return t('state.skip_session_expired');
   }
   const profile = world.profiles.get(account.origin);
-  return profile?.capabilities.features.has('settingsStore') === true ? null : 'no settings store';
+  return profile?.capabilities.features.has('settingsStore') === true
+    ? null
+    : t('state.skip_no_settings_store');
 }
 
 /** The key of the account that holds the synced desk, or null when none can. */
