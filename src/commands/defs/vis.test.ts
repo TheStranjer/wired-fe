@@ -6,7 +6,7 @@
  * local-only posts (decision 5) — without the capability, or never detected,
  * the refusal names the server, not the account.
  */
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { command } from './vis';
 import type { StoredAccount } from '../../accounts/accountStore';
@@ -110,7 +110,7 @@ describe('/vis', () => {
     expect(context.print).toHaveBeenCalledWith('New posts are private by default');
   });
 
-  it.each(['nonsense', 'PUBLIC', 'public extra', '"public"'])(
+  it.each(['nonsense', 'PUBLIC', '"public"', 'bogus sup'])(
     'echoes the usage for %s',
     async (args) => {
       const context = settingsContext(DEFAULT_SETTINGS);
@@ -119,12 +119,66 @@ describe('/vis', () => {
 
       expect(outcome).toStrictEqual({
         ok: false,
-        message: 'Usage: /vis [public|unlisted|private|direct|local]',
+        message: 'Usage: /vis [public|unlisted|private|direct|local] [text]',
       });
       expect(context.dispatch).not.toHaveBeenCalled();
       expect(context.print).not.toHaveBeenCalled();
+      expect(context.post).not.toHaveBeenCalled();
     },
   );
+
+  it('posts one line with the audience and leaves the default alone', async () => {
+    const context = settingsContext(DEFAULT_SETTINGS);
+
+    const outcome = await command.run('followers sup', context);
+
+    expect(outcome).toStrictEqual({ ok: true });
+    expect(context.post).toHaveBeenCalledExactlyOnceWith({ text: 'sup', visibility: 'private' });
+    expect(context.dispatch).not.toHaveBeenCalled();
+    expect(context.print).not.toHaveBeenCalled();
+  });
+
+  it('keeps the whole multi-word text', async () => {
+    const context = settingsContext(DEFAULT_SETTINGS);
+
+    await command.run('direct hello there', context);
+
+    expect(context.post).toHaveBeenCalledExactlyOnceWith({
+      text: 'hello there',
+      visibility: 'direct',
+    });
+  });
+
+  it('refuses a local line on a server without the capability', async () => {
+    const context = wiredContext([]);
+
+    const outcome = await command.run('local sup', context);
+
+    expect(outcome).toStrictEqual({
+      ok: false,
+      message: "@lain@wired.example's server (Wired) can't post local-only",
+    });
+    expect(context.post).not.toHaveBeenCalled();
+  });
+
+  it('posts a local line on a server that has the capability', async () => {
+    const context = wiredContext(['localOnlyPosts']);
+
+    const outcome = await command.run('local sup', context);
+
+    expect(outcome).toStrictEqual({ ok: true });
+    expect(context.post).toHaveBeenCalledExactlyOnceWith({ text: 'sup', visibility: 'local' });
+  });
+
+  it('returns the error the post came back with as the failure', async () => {
+    const context = settingsContext(DEFAULT_SETTINGS);
+    vi.mocked(context.post).mockResolvedValue('Nothing to post to');
+
+    const outcome = await command.run('public sup', context);
+
+    expect(outcome).toStrictEqual({ ok: false, message: 'Nothing to post to' });
+    expect(context.dispatch).not.toHaveBeenCalled();
+  });
 
   it('sets local on a server that has the capability', async () => {
     const context = wiredContext(['localOnlyPosts']);

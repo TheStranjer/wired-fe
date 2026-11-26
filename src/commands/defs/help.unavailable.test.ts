@@ -58,7 +58,7 @@ describe('/help on a Mastodon', () => {
 
     await command.run('vis', context);
 
-    expect(printed(context)[0]).toBe('/vis [public|unlisted|private|direct]');
+    expect(printed(context)[0]).toBe('/vis [public|unlisted|private|direct] [text]');
   });
 
   it('says why a hidden command is hidden', async () => {
@@ -84,6 +84,6 @@ describe('/help on a Wired', () => {
     expect(lines).toContain('/react ');
     expect(lines).toContain('/unreact');
     expect(lines).toContain('/forgot');
-    expect(printed(context)).toContain('/vis [public|unlisted|private|direct|local]');
+    expect(printed(context)).toContain('/vis [public|unlisted|private|direct|local] [text]');
   });
 });

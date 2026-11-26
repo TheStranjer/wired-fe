@@ -24,13 +24,17 @@ function contextOn(capabilities: Capabilities): CommandContext {
 
 describe('/vis usage', () => {
   it('lists local on a backend with local-only posts', () => {
-    expect(vis.usageFor?.(WIRED_CAPABILITIES)).toBe('/vis [public|unlisted|private|direct|local]');
-    expect(vis.usage).toBe('/vis [public|unlisted|private|direct|local]');
+    expect(vis.usageFor?.(WIRED_CAPABILITIES)).toBe(
+      '/vis [public|unlisted|private|direct|local] [text]',
+    );
+    expect(vis.usage).toBe('/vis [public|unlisted|private|direct|local] [text]');
   });
 
   it('leaves local out on a Mastodon and while nothing is known', () => {
-    expect(vis.usageFor?.(MASTODON_CAPABILITIES)).toBe('/vis [public|unlisted|private|direct]');
-    expect(vis.usageFor?.(null)).toBe('/vis [public|unlisted|private|direct]');
+    expect(vis.usageFor?.(MASTODON_CAPABILITIES)).toBe(
+      '/vis [public|unlisted|private|direct] [text]',
+    );
+    expect(vis.usageFor?.(null)).toBe('/vis [public|unlisted|private|direct] [text]');
   });
 });
 

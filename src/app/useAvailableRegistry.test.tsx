@@ -62,7 +62,7 @@ describe(useAvailableRegistry, () => {
   it('leaves local out of /vis on a Mastodon', () => {
     const { registry } = renderRegistry(BOTH).result.current;
 
-    expect(registry.byName.get('vis')?.usage).toBe('/vis [public|unlisted|private|direct]');
+    expect(registry.byName.get('vis')?.usage).toBe('/vis [public|unlisted|private|direct] [text]');
   });
 
   it('brings the commands back on a Wired once the account is switched', () => {
@@ -75,7 +75,9 @@ describe(useAvailableRegistry, () => {
 
     expect(registry.byName.has('react')).toBe(true);
     expect(registry.byName.has('forgot')).toBe(true);
-    expect(registry.byName.get('vis')?.usage).toBe('/vis [public|unlisted|private|direct|local]');
+    expect(registry.byName.get('vis')?.usage).toBe(
+      '/vis [public|unlisted|private|direct|local] [text]',
+    );
   });
 
   it('binds Shift+e to /react on a Wired', () => {
