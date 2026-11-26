@@ -14,9 +14,12 @@ import { statusEntries } from './statusEntries';
 import type { Attachments } from './useAttachments';
 import { useClock } from './useClock';
 import type { AppState } from '../state/appState';
+import { postingAccount } from '../state/postingAccount';
 import { accountByKey } from '../state/selectors';
-import { useAppDispatch, useAppState } from '../state/StateContext';
+import { type Dispatch, useAppDispatch, useAppState } from '../state/StateContext';
 import { StatusLine } from '../ui/StatusLine';
+import type { StatusLinePostingAs } from '../ui/statusLineTypes';
+import { activeWindow } from '../windows/model';
 
 /** The account behind {@link key}, named the way the bars show it; null if none. */
 export function accountLabel(state: AppState, key: string | null): string | null {
@@ -30,6 +33,25 @@ function syncMarker(sync: AppState['sync']): 'pending' | 'error' | null {
     return 'error';
   }
   return sync.pending ? 'pending' : null;
+}
+
+/**
+ * The posting-account entry (WFE-285): who plain text posts as in the focused
+ * window, shown only where the window has no account of its own, with a click
+ * that opens the picker (what `/postas` runs).
+ */
+function postingEntry(state: AppState, dispatch: Dispatch): StatusLinePostingAs | null {
+  const win = activeWindow(state.windows);
+  if (win.ref.accountKey !== null) {
+    return null;
+  }
+  const posting = postingAccount(state, win);
+  return {
+    label: posting === null ? '?' : `@${posting.account.handle}`,
+    onPick: () => {
+      dispatch({ type: 'openAccountPick', pick: { purpose: 'default', windowId: win.id } });
+    },
+  };
 }
 
 /** The status line: clock, active account, desktops, hidden windows with activity, pending media, pending keys, sync marker and hotkey mode. */
@@ -46,6 +68,7 @@ export function StatusBar(props: {
     <StatusLine
       clock={clock}
       accountLabel={accountLabel(state, state.activeAccountKey)}
+      postingAs={postingEntry(state, dispatch)}
       desktops={entries.desktops}
       windows={entries.windows}
       mode={state.mode}

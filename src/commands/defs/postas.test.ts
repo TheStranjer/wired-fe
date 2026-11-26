@@ -8,11 +8,15 @@ import { command } from './postas';
 import { ALICE, MAIN, OPEN_HOME, OTHER, desk, openFeed } from '../../test/postasDesk';
 
 describe('/postas', () => {
-  it('declares its name, grammar and summary, and no hotkeys', () => {
+  it('declares its name, grammar and summary, and its picker hotkeys', () => {
     expect(command.name).toBe('postas');
     expect(command.usage).toBe('/postas [--global] [<handle|n>|--clear]');
     expect(command.summary).toBe('Show or set which account feeds post as');
-    expect(command.bindings).toBeUndefined();
+    expect(command.bindings).toStrictEqual([
+      { mode: 'insert', chord: 'Ctrl+b Shift+a', args: '' },
+      { mode: 'navigation', chord: 'Ctrl+b Shift+a', args: '' },
+      { mode: 'navigation', chord: 'Shift+a', args: '' },
+    ]);
   });
 
   it('says a feed window posts as its feed default', async () => {

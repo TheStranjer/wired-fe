@@ -26,3 +26,11 @@ export type StatusLineWindow = {
   /** True when a mention or DM is waiting. */
   readonly highlight: boolean;
 };
+
+/** The account plain text posts as in a window with none of its own, and the way to change it (WFE-285). */
+export type StatusLinePostingAs = {
+  /** `@handle` of who posts, or `?` when nothing decides it. */
+  readonly label: string;
+  /** Called when the entry is clicked: the app opens the account picker. */
+  readonly onPick: () => void;
+};

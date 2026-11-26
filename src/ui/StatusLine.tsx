@@ -9,8 +9,8 @@
 import type { JSX } from 'react';
 
 import styles from './StatusLine.module.css';
-import { Desktops, HiddenWindows } from './StatusLineEntries';
-import type { StatusLineDesktop, StatusLineWindow } from './statusLineTypes';
+import { Desktops, HiddenWindows, PostingAs } from './StatusLineEntries';
+import type { StatusLineDesktop, StatusLinePostingAs, StatusLineWindow } from './statusLineTypes';
 
 /** Props of {@link StatusLine}. */
 export type StatusLineProps = {
@@ -18,6 +18,8 @@ export type StatusLineProps = {
   readonly clock: string;
   /** The active account, e.g. "@lain@wired.example"; null when logged out. */
   readonly accountLabel: string | null;
+  /** Who plain text posts as in a window with no account of its own, and how to change it; absent or null shows nothing (WFE-285). */
+  readonly postingAs?: StatusLinePostingAs | null;
   /** The desktops, in number order. */
   readonly desktops: readonly StatusLineDesktop[];
   /** The hidden windows with activity, in window-number order. */
@@ -118,6 +120,7 @@ export function StatusLine(props: StatusLineProps): JSX.Element {
   return (
     <div className={styles['line']}>
       <span>{`[${clock}]`}</span> <span>{`[${accountLabel ?? NO_ACCOUNT}]`}</span>{' '}
+      <PostingAs posting={props.postingAs ?? null} />
       <span>
         <Desktops
           desktops={props.desktops}
