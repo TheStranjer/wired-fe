@@ -49,12 +49,30 @@ function ownedByDivider(event: KeyboardEvent): boolean {
 }
 
 /**
+ * True when {@link event} is an Escape pressed in a text box that has its
+ * suggestion list open (WFE-302): the box closes the list with it and stays
+ * focused, so it is not the chord that leaves for navigation mode. The box
+ * names its list through `aria-controls`, and the list is on show while
+ * nothing above it is `hidden`.
+ */
+function ownedByList(event: KeyboardEvent): boolean {
+  const { target } = event;
+  if (event.key !== 'Escape' || !(target instanceof HTMLTextAreaElement)) {
+    return false;
+  }
+  const id = target.getAttribute('aria-controls');
+  const list = id === null ? null : document.getElementById(id);
+  return list !== null && list.closest('[hidden]') === null;
+}
+
+/**
  * Listens for global keydowns while mounted and passes each chord to the
  * latest `handler`. Handled chords have their default prevented and their
  * propagation stopped; IME composing events, events without a chord
  * (bare modifiers, unnameable keys), events pressed inside an open modal
- * dialog or dropdown menu — which own their keys (WFE-125, WFE-190) — and
- * the resize keys of a focused pane divider never reach the handler.
+ * dialog or dropdown menu — which own their keys (WFE-125, WFE-190) — the
+ * resize keys of a focused pane divider and the Escape that closes a text
+ * box's suggestion list never reach the handler.
  */
 export function useGlobalKeys(handler: ChordHandler): void {
   const handlerRef = useRef(handler);
@@ -65,7 +83,7 @@ export function useGlobalKeys(handler: ChordHandler): void {
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent): void => {
-      if (event.isComposing || insideDialog(event) || ownedByDivider(event)) {
+      if (event.isComposing || insideDialog(event) || ownedByDivider(event) || ownedByList(event)) {
         return;
       }
       const chord = chordFromEvent(event);

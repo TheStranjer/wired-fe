@@ -12,25 +12,17 @@
 
 import type { CompletionNote } from './completionKit';
 import type { CompletionProvider } from './completionProviders';
-import { plainText } from './quoteView';
+import { BRACKET_WORD, type Labelled, labelledIn, postWords, prefixOf } from './postLabels';
 import type { Status } from '../api/schemas/status';
 import { wordsOf } from '../lib/words';
 import type { AppState } from '../state/appState';
-import { shownQuote } from '../state/bufferPosts';
-import { labelForStatus, statusOfLine } from '../state/bufferSelection';
 import { activeBuffer } from '../state/selectors';
 
 /** The most labels one word may offer. */
 const MAX_LABELS = 50;
 
-/** The most characters of a post's words a description shows; `…` marks a cut. */
-const WORDS_LIMIT = 40;
-
 /** What marks a label typed in brackets. */
 const BRACKET = '[';
-
-/** A bracketed label word while it is typed: `[`, `[a`, `[a3`, `[a3]`. */
-const BRACKET_WORD = /^\[[a-z]*[0-9]?\]?$/iu;
 
 /** A label word while it is typed in an argument: letters, then at most a digit. */
 const LABEL_WORD = /^[a-z]*[0-9]?$/iu;
@@ -38,67 +30,20 @@ const LABEL_WORD = /^[a-z]*[0-9]?$/iu;
 /** The command a line starts with, lowercased and without its slash. */
 const COMMAND_OF = /^\s*\/([a-z][a-z0-9-]*)(?=\s)/iu;
 
-/** One labelled post of the scrollback. */
-type Labelled = {
-  readonly label: string;
-  readonly status: Status;
-};
-
 /** Whether {@link line} starts with a command of {@link commands}. */
 function takesPost(line: string, commands: ReadonlySet<string>): boolean {
   const name = COMMAND_OF.exec(line)?.[1];
   return name !== undefined && commands.has(name.toLowerCase());
 }
 
-/**
- * The labelled posts of the active window, newest line first: for each line
- * that still carries a status, the status and the quote it shows, once per
- * label.
- */
+/** The labelled posts of the active window, newest line first. */
 function labelled(state: AppState): readonly Labelled[] {
-  const buffer = activeBuffer(state);
-  const found = new Map<string, Labelled>();
-  for (const line of buffer.lines.toReversed()) {
-    const status = statusOfLine(line);
-    for (const shown of status === null ? [] : shownOn(status)) {
-      const label = labelForStatus(buffer, shown.id);
-      if (label !== null && !found.has(label)) {
-        found.set(label, { label, status: shown });
-      }
-    }
-  }
-  return [...found.values()];
-}
-
-/** The statuses a line of {@link status} can be named by: itself, then the quote under it. */
-function shownOn(status: Status): readonly Status[] {
-  const quote = shownQuote(status);
-  return quote === null ? [status] : [status, quote];
-}
-
-/** {@link text} on one line, cut to {@link WORDS_LIMIT} characters with `…`. */
-function clipped(text: string): string {
-  const flat = text.replace(/\s+/gu, ' ').trim();
-  return flat.length > WORDS_LIMIT ? `${flat.slice(0, WORDS_LIMIT)}…` : flat;
-}
-
-/** What a post says: its content warning in place of the body, else the body as plain text. */
-function saying(status: Status): string {
-  return status.spoiler_text === '' ? plainText(status.content) : `CW: ${status.spoiler_text}`;
+  return labelledIn(activeBuffer(state));
 }
 
 /** The row of a labelled post: `<@author> words`, with `⟲` in front for a boost. */
 function noteOf(word: string, status: Status): CompletionNote {
-  const original = status.reblog ?? status;
-  const marker = status.reblog === null ? '' : '⟲ ';
-  const said = clipped(saying(original));
-  const who = `<@${original.account.acct}>`;
-  return { word, label: word, description: `${marker}${who} ${said}`.trim() };
-}
-
-/** The label word {@link word} is the start of: no bracket, no closing one, lowercase. */
-function prefixOf(word: string): string {
-  return word.replace(/^\[/u, '').replace(/\]$/u, '').toLowerCase();
+  return { word, label: word, description: postWords(status) };
 }
 
 /** {@link label} as it is completed: bracketed when the word was typed with a bracket. */

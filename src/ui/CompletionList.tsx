@@ -47,7 +47,7 @@ export function CompletionList(props: CompletionListProps): JSX.Element {
             aria-selected={index === active}
             className={index === active ? styles['chosen'] : styles['row']}
             id={rowId(id, index)}
-            key={row.label}
+            key={`${row.label} ${row.description}`}
             onClick={row.pick}
             onMouseDown={(event) => {
               event.preventDefault();

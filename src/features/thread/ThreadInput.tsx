@@ -18,6 +18,7 @@
 import { type JSX, useState } from 'react';
 
 import { replyDefaults } from './threadReply';
+import { useThreadCompletion } from './useThreadCompletion';
 import { useThreadSend } from './useThreadSend';
 import { composerLimits } from '../../state/composerActions';
 import type { ComposerFields } from '../../state/draft';
@@ -39,6 +40,7 @@ export function ThreadInput({ win }: { readonly win: WindowState }): JSX.Element
   const defaults = replyDefaults(state, win);
   const [typed, setTyped] = useState<ComposerFields | null>(null);
   const fields = typed ?? defaults ?? WAITING;
+  const completion = useThreadCompletion(win, fields, setTyped);
 
   return (
     <ComposerForm
@@ -53,6 +55,7 @@ export function ThreadInput({ win }: { readonly win: WindowState }): JSX.Element
         />
       }
       compact
+      completion={completion}
       disabled={defaults === null}
       error={error}
       fields={fields}

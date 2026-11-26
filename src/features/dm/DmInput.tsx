@@ -16,6 +16,7 @@
 
 import { type JSX, useState } from 'react';
 
+import { useDirectCompletion } from './useDirectCompletion';
 import { useDirectSend } from './useDirectSend';
 import { composerLimits } from '../../state/composerActions';
 import type { ComposerFields } from '../../state/draft';
@@ -35,6 +36,7 @@ export function DmInput({ win }: { readonly win: WindowState }): JSX.Element {
   const media = useComposerMedia(win.id, win.ref.accountKey);
   const { sending, error, send } = useDirectSend(win, media.items);
   const [fields, setFields] = useState(EMPTY);
+  const completion = useDirectCompletion(win, fields, setFields);
 
   return (
     <ComposerForm
@@ -49,6 +51,7 @@ export function DmInput({ win }: { readonly win: WindowState }): JSX.Element {
         />
       }
       compact
+      completion={completion}
       error={error}
       fields={fields}
       maxCharacters={composerLimits(state, win.ref.accountKey).maxCharacters}

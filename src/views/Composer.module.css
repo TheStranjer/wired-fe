@@ -8,6 +8,22 @@
   gap: var(--space);
 }
 
+/* The box around the text, which the suggestion list is drawn against
+   (WFE-302): it takes the text's place in the form. */
+.field {
+  position: relative;
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+}
+
+.fieldCompact {
+  position: relative;
+  display: flex;
+  flex: 1;
+  min-width: 0;
+}
+
 /* The text takes whatever height the pane leaves the rows around it, never
    less than three lines. */
 .text {
