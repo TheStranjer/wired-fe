@@ -1,8 +1,8 @@
 /**
  * Tests for the suggestion rows (WFE-297): the list narrows with the typed
  * prefix, matches aliases and shows them beside the main name, takes its
- * descriptions from the registry, caps at eight rows with a count of the
- * rest, closes where the line has no command word under the caret, and
+ * descriptions from the registry, returns every row however many there are
+ * (WFE-306), closes where the line has no command word under the caret, and
  * follows a Tab completion in progress, highlighting the row of the candidate
  * in the line.
  */
@@ -10,7 +10,7 @@ import { describe, expect, it } from 'vitest';
 
 import { commandProvider } from './commandProvider';
 import { type Provider, cycleCompletion, startCompletion } from './complete';
-import { MAX_ROWS, suggestionView } from './suggest';
+import { suggestionView } from './suggest';
 import type { CommandDefinition, CommandOutcome, Registry } from './types';
 
 /** What the fixture commands report: nothing here runs them. */
@@ -48,9 +48,12 @@ const PROVIDER = commandProvider(
   ]),
 );
 
+/** How many commands {@link MANY} has: more than the eight rows the list shows at once. */
+const MANY_COUNT = 10;
+
 /** Ten commands, `c0` to `c9`, to overflow the list. */
 const MANY = commandProvider(
-  registryWith(Array.from({ length: MAX_ROWS + 2 }, (_, index) => command(`c${String(index)}`))),
+  registryWith(Array.from({ length: MANY_COUNT }, (_, index) => command(`c${String(index)}`))),
 );
 
 /** The list for {@link text} with the caret at {@link cursor}, over {@link provider}. */
@@ -148,35 +151,17 @@ describe(suggestionView, () => {
   });
 });
 
-describe('the row cap', () => {
-  it('shows eight rows and counts the rest', () => {
-    const view = viewAt('/c', 2, MANY);
-
-    expect(view?.rows).toHaveLength(MAX_ROWS);
-    expect(view?.more).toBe(2);
+describe('a long list', () => {
+  it('returns every row', () => {
+    expect(viewAt('/c', 2, MANY)?.rows).toHaveLength(MANY_COUNT);
   });
 
-  it('counts nothing when everything fits', () => {
-    const view = viewAt('/c0', 3, MANY);
-
-    expect(view?.rows).toHaveLength(1);
-    expect(view?.more).toBe(0);
-  });
-
-  it('scrolls to keep the highlighted row on show', () => {
+  it('indexes the highlighted row into the full list past the eighth', () => {
     const { view } = tabbed('/c', MANY, -1);
 
-    expect(view?.rows.map((row) => row.word)).toStrictEqual([
-      '/c2',
-      '/c3',
-      '/c4',
-      '/c5',
-      '/c6',
-      '/c7',
-      '/c8',
-      '/c9',
-    ]);
-    expect(view?.active).toBe(MAX_ROWS - 1);
+    expect(view?.rows).toHaveLength(MANY_COUNT);
+    expect(view?.active).toBe(MANY_COUNT - 1);
+    expect(view?.rows[MANY_COUNT - 1]?.word).toBe('/c9');
   });
 });
 

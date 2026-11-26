@@ -55,8 +55,6 @@ export type TextCompletion = {
   readonly listId: string;
   /** The rows to list; none while no list shows. */
   readonly rows: readonly TextRow[];
-  /** Rows that did not fit. */
-  readonly more: number;
   /** The highlighted row, -1 for none. */
   readonly active: number;
 };
@@ -168,7 +166,6 @@ export function useTextCompletion(args: TextCompletionArgs): TextCompletion {
       setShown(null);
       focus();
     }),
-    more: view?.more ?? 0,
     active: view?.active ?? -1,
   };
 }

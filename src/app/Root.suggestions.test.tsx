@@ -8,7 +8,7 @@
  */
 import { fireEvent, render, screen } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { Root } from './Root';
 import { accountKey, type StoredAccount } from '../accounts/accountStore';
@@ -93,6 +93,10 @@ describe('the suggestion list', () => {
     );
   });
 
+  afterEach(() => {
+    Reflect.deleteProperty(HTMLElement.prototype, 'scrollIntoView');
+  });
+
   it('lists a command with its summary as you type, narrowing as you go', () => {
     renderRoot();
 
@@ -117,13 +121,34 @@ describe('the suggestion list', () => {
     expect(screen.getByRole('option', { name: HELP_ROW })).toBeInTheDocument();
   });
 
-  it('shows eight rows and counts the rest', () => {
+  it('lists every command for a bare slash, with no count of the rest', () => {
     renderRoot();
 
     type('/');
 
-    expect(screen.getAllByRole('option')).toHaveLength(8);
-    expect(screen.getByText(/^\+\d+ more$/u)).toBeInTheDocument();
+    expect(screen.getAllByRole('option').length).toBeGreaterThan(8);
+    expect(screen.queryByText(/^\+\d+ more$/u)).not.toBeInTheDocument();
+  });
+
+  it('scrolls the highlighted row into view as Tab cycles past the eighth', () => {
+    const scrollIntoView = vi.fn();
+    Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
+      configurable: true,
+      value: scrollIntoView,
+    });
+    renderRoot();
+
+    type('/');
+    for (let step = 0; step < 40; step += 1) {
+      tab();
+    }
+
+    const options = screen.getAllByRole('option');
+    const chosen = options.findIndex((option) => option.getAttribute('aria-selected') === 'true');
+
+    expect(chosen).toBeGreaterThan(8);
+    expect(scrollIntoView).toHaveBeenLastCalledWith({ block: 'nearest' });
+    expect(scrollIntoView.mock.contexts.at(-1)).toBe(options[chosen]);
   });
 
   it('is not there for a line that is not a command', () => {

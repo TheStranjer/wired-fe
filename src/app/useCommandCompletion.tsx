@@ -32,9 +32,6 @@ import { handleWordAt, useHandleSearch } from '../views/useHandleSearch';
 /** The element id of the suggestion listbox: the app has one command line. */
 const LIST_ID = 'command-suggestions';
 
-/** What an empty list is made of. */
-const CLOSED: Pick<SuggestionView, 'more' | 'active'> = { more: 0, active: -1 };
-
 /** What the command line wires through: the key handler and the props of its input. */
 type CommandCompletion = {
   readonly onKeyDown: CompletionKeyDown;
@@ -63,13 +60,11 @@ function listOf(
             pick(view.pick(row.word));
           },
         }));
-  const { more, active } = view ?? CLOSED;
   return (
     <CompletionList
-      active={active}
+      active={view?.active ?? -1}
       id={LIST_ID}
       label="Command suggestions"
-      more={more}
       rows={rows}
     />
   );

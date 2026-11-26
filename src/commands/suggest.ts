@@ -1,8 +1,8 @@
 /**
  * The rows of the live suggestion list under the command line (WFE-297): what
  * the first provider that accepts the word at the caret would complete it to,
- * one row per described word (a command and its aliases share one), at most
- * {@link MAX_ROWS} of them with a count of the rest. It reads the same
+ * one row per described word (a command and its aliases share one), every one
+ * of them (the list scrolls, WFE-306). It reads the same
  * candidates Tab does (./complete), so the list and the completion cannot
  * disagree, and it only exists for providers that describe their words. While
  * Tab is cycling it follows the completion, not the line, so the list stays
@@ -10,9 +10,6 @@
  */
 
 import { type CompletionState, type Provider, candidatesAt, completeTo } from './complete';
-
-/** How many rows the list shows before it counts the rest. */
-export const MAX_ROWS = 8;
 
 /** One row: {@link words} are every candidate it stands for, {@link word} the one a click completes to. */
 type Suggestion = {
@@ -23,12 +20,10 @@ type Suggestion = {
   readonly words: readonly string[];
 };
 
-/** The list as it is drawn: the rows shown, how many more there are, and the row Tab is on. */
+/** The list as it is drawn: every row, and the row Tab is on. */
 export type SuggestionView = {
   readonly rows: readonly Suggestion[];
-  /** Rows beyond {@link MAX_ROWS}, shown as a count. */
-  readonly more: number;
-  /** The row whose candidate is in the line, -1 for none. */
+  /** The index into {@link rows} of the row whose candidate is in the line, -1 for none. */
   readonly active: number;
   /** The line and caret after completing to {@link Suggestion.word}. */
   readonly pick: (word: string) => { readonly text: string; readonly cursor: number };
@@ -57,9 +52,7 @@ function rowsOf(
  * The list for the word at the caret {@link at} (a cursor offset into a
  * text); null when no provider with descriptions accepts it.
  * {@link completing} is the Tab completion that wrote the text, if one did:
- * the list is then the one of the word that completion started from. A
- * highlighted row beyond {@link MAX_ROWS} scrolls the window of rows so it
- * stays on show.
+ * the list is then the one of the word that completion started from.
  */
 export function suggestionView(
   at: { readonly text: string; readonly cursor: number },
@@ -75,12 +68,5 @@ export function suggestionView(
   const rows = rowsOf(describe, found.candidates);
   const now = showingNow(completing);
   const active = rows.findIndex((row) => now !== undefined && row.words.includes(now));
-  const start = Math.max(0, active - (MAX_ROWS - 1));
-  const shown = rows.slice(start, start + MAX_ROWS);
-  return {
-    rows: shown,
-    more: rows.length - shown.length,
-    active: active - start,
-    pick: (word) => completeTo(found, word),
-  };
+  return { rows, active, pick: (word) => completeTo(found, word) };
 }

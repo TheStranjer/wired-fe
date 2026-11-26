@@ -30,7 +30,6 @@ export type PostCompletion = {
   readonly onCaret: (element: HTMLTextAreaElement) => void;
   readonly listId: string;
   readonly rows: readonly CompletionRow[];
-  readonly more: number;
   readonly active: number;
 };
 
@@ -101,7 +100,6 @@ function Suggestions(props: { readonly completion: PostCompletion }): JSX.Elemen
       active={completion.active}
       id={completion.listId}
       label="Post suggestions"
-      more={completion.more}
       rows={completion.rows}
     />
   );
