@@ -7,6 +7,7 @@
 import type { JSX } from 'react';
 
 import styles from './ViaMark.module.css';
+import { useT } from '../i18n/I18nProvider';
 
 /** The account marker as data: the short text shown, and every account in full. */
 export type Via = {
@@ -27,10 +28,11 @@ export type ViaMarkProps = {
 /** The marker; its accessible name and title carry the full account list. */
 export function ViaMark(props: ViaMarkProps): JSX.Element {
   const { via, form } = props;
+  const t = useT();
   const text = form === 'card' ? `→ @${via.label}` : `→${via.label}`;
   return (
     <span
-      aria-label={`via ${via.full}`}
+      aria-label={t('ui.via_mark.label', { accounts: via.full })}
       className={form === 'card' ? styles['card'] : styles['line']}
       role="note"
       title={via.full}

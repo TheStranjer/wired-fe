@@ -116,7 +116,7 @@ export function BoostButton(props: CountedProps): JSX.Element {
       count={tally(locale, count)}
       glyph="⟳"
       lines={lines}
-      name={`Boost post ${label}`}
+      name={t('ui.post_actions.boost', { label })}
       on={on}
       onAction={onAction}
       title={noun(t, 'format.boost_count', count)}
@@ -135,7 +135,7 @@ export function FavouriteButton(props: CountedProps): JSX.Element {
       count={tally(locale, count)}
       glyph="★"
       lines={lines}
-      name={`Favourite post ${label}`}
+      name={t('ui.post_actions.favourite', { label })}
       on={on}
       onAction={onAction}
       title={noun(t, 'format.favourite_count', count)}

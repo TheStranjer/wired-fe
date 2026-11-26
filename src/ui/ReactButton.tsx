@@ -14,6 +14,7 @@ import styles from './PostActions.module.css';
 import type { PostActionLine, ReactPicker } from './postActionTypes';
 import type { PostReaction } from './ReactionChip';
 import { useOutsideDismiss } from './useOutsideDismiss';
+import { useT } from '../i18n/I18nProvider';
 
 /** Props of {@link ReactButton}. */
 export type ReactButtonProps = {
@@ -57,6 +58,7 @@ function usePopover(): {
 export function ReactButton(props: ReactButtonProps): JSX.Element | null {
   const { label, line, reactions, picker, onAction } = props;
   const { open, toggle, close, buttonRef, rootRef } = usePopover();
+  const t = useT();
   if (line === undefined) {
     return null;
   }
@@ -67,7 +69,7 @@ export function ReactButton(props: ReactButtonProps): JSX.Element | null {
       <button
         aria-expanded={opens ? open : undefined}
         aria-haspopup={opens ? 'dialog' : undefined}
-        aria-label={`React to post ${label}`}
+        aria-label={t('ui.react_button.label', { label })}
         className={styles['button']}
         onClick={() => {
           if (opens) {

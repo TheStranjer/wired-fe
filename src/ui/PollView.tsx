@@ -130,7 +130,7 @@ export function PollView(props: PollViewProps): JSX.Element {
         <div key={line.key}>
           {line.text}
           {line.own ? (
-            <span className={styles['own']} title="you voted for this">
+            <span className={styles['own']} title={t('ui.poll_view.own_vote')}>
               {'  ✓'}
             </span>
           ) : undefined}

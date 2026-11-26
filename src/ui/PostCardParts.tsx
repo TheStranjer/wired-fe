@@ -12,6 +12,7 @@ import { Nick } from './Nick';
 import styles from './PostCard.module.css';
 import type { PostCardProps } from './postCardTypes';
 import { RemoteHtml } from './RemoteHtml';
+import { useT } from '../i18n/I18nProvider';
 import { escapeHtml } from '../lib/escapeHtml';
 
 /** The author's display name (custom emoji included) over their handle, and
@@ -20,6 +21,7 @@ export function CardIdentity(
   props: Pick<PostCardProps, 'author' | 'replyTo' | 'onSelectAuthor' | 'chat'>,
 ): JSX.Element | null {
   const { author, replyTo, onSelectAuthor, chat } = props;
+  const t = useT();
   if (chat?.collapsed === true) {
     return null;
   }
@@ -37,7 +39,9 @@ export function CardIdentity(
           self={author.self}
         />
         {replyTo === null ? undefined : (
-          <span className={styles['reply']}>{` ↳ re ${replyTo}`}</span>
+          <span className={styles['reply']}>
+            {` ${t('ui.post_card_parts.reply_to', { label: replyTo })}`}
+          </span>
         )}
       </div>
     </>

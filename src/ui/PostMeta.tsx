@@ -15,7 +15,8 @@ import styles from './PostMeta.module.css';
 import { ReactionChip } from './ReactionChip';
 import type { PostReaction } from './ReactionChip';
 import { formatNumber } from '../i18n/format';
-import { useLocale } from '../i18n/I18nProvider';
+import { useLocale, useT } from '../i18n/I18nProvider';
+import type { MessageKey, Translate } from '../i18n/messages';
 
 /** The audiences a post can have: the ui twin of api's Visibility, which this
  * layer may not import (AGENTS.md "Layout"). */
@@ -64,16 +65,19 @@ type Token = {
  * text give. Public is not in this map: it shows nothing. */
 type Audience = {
   readonly glyph: string;
-  readonly label: string;
+  readonly label: MessageKey;
 };
 
 /** The glyph and the words of each audience that is not the whole wired. */
 const AUDIENCE: Record<Exclude<PostVisibility, 'public'>, Audience> = {
-  unlisted: { glyph: '~', label: 'unlisted' },
-  private: { glyph: '🔒', label: 'followers only' },
-  direct: { glyph: '✉', label: 'direct' },
-  local: { glyph: '◌', label: 'local only' },
+  unlisted: { glyph: '~', label: 'ui.post_meta.audience_unlisted' },
+  private: { glyph: '🔒', label: 'ui.post_meta.audience_private' },
+  direct: { glyph: '✉', label: 'ui.post_meta.audience_direct' },
+  local: { glyph: '◌', label: 'ui.post_meta.audience_local' },
 };
+
+/** What the suffix needs to speak the language in use: its words and its figures. */
+type Speech = { readonly t: Translate; readonly locale: string };
 
 /** One tally piece that says nothing about the viewer. */
 function plain(key: string, text: ReactNode): Token {
@@ -86,50 +90,55 @@ function own(key: string, text: ReactNode, title: string): Token {
 }
 
 /** The counters, each only above zero, and the viewer's bookmark. */
-function tallyTokens(counts: PostCounts, mine: PostMine, locale: string): readonly Token[] {
+function tallyTokens(speech: Speech, counts: PostCounts, mine: PostMine): readonly Token[] {
+  const { t, locale } = speech;
   const tokens: Token[] = [];
   if (counts.replies > 0) {
     tokens.push(plain('replies', `↩${formatNumber(locale, counts.replies)}`));
   }
   if (counts.boosts > 0) {
     const boosts = `⟳${formatNumber(locale, counts.boosts)}`;
-    tokens.push(mine.boosted ? own('boosts', boosts, 'you boosted this') : plain('boosts', boosts));
+    const you = t('ui.post_meta.you_boosted');
+    tokens.push(mine.boosted ? own('boosts', boosts, you) : plain('boosts', boosts));
   }
   if (counts.favourites > 0) {
     const favourites = `★${formatNumber(locale, counts.favourites)}`;
+    const you = t('ui.post_meta.you_favourited');
     tokens.push(
-      mine.favourited
-        ? own('favourites', favourites, 'you favourited this')
-        : plain('favourites', favourites),
+      mine.favourited ? own('favourites', favourites, you) : plain('favourites', favourites),
     );
   }
   if (mine.bookmarked) {
-    tokens.push(own('bookmark', '🔖', 'you bookmarked this'));
+    tokens.push(own('bookmark', '🔖', t('ui.post_meta.you_bookmarked')));
   }
   return tokens;
 }
 
 /** One reaction as its emoji followed by how many sent it. */
-function reactionToken(reaction: PostReaction): Token {
+function reactionToken(t: Translate, reaction: PostReaction): Token {
   const key = `reaction:${reaction.name}`;
   const text = <ReactionChip reaction={reaction} />;
-  return reaction.me ? own(key, text, `you reacted with ${reaction.name}`) : plain(key, text);
+  const you = t('ui.post_meta.you_reacted', { name: reaction.name });
+  return reaction.me ? own(key, text, you) : plain(key, text);
 }
 
 /** Every piece after the audience in reading order: tallies, reactions, edit. */
-function allTokens(props: PostMetaProps, locale: string): readonly Token[] {
+function allTokens(speech: Speech, props: PostMetaProps): readonly Token[] {
   const { counts, mine, reactions, edited } = props;
-  const tokens = [...tallyTokens(counts, mine, locale), ...reactions.map(reactionToken)];
-  return edited ? [...tokens, plain('edited', '(edited)')] : tokens;
+  const tokens = [
+    ...tallyTokens(speech, counts, mine),
+    ...reactions.map((reaction) => reactionToken(speech.t, reaction)),
+  ];
+  return edited ? [...tokens, plain('edited', speech.t('ui.post_meta.edited'))] : tokens;
 }
 
 /** The audience glyph, with the plain word as its title and its hidden text. */
 function AudienceGlyph(props: { readonly audience: Audience }): JSX.Element {
-  const { audience } = props;
+  const label = useT()(props.audience.label);
   return (
-    <span className={styles['visibility']} title={audience.label}>
-      <span className={styles['visuallyHidden']}>{audience.label}</span>
-      <span aria-hidden="true">{audience.glyph}</span>
+    <span className={styles['visibility']} title={label}>
+      <span className={styles['visuallyHidden']}>{label}</span>
+      <span aria-hidden="true">{props.audience.glyph}</span>
     </span>
   );
 }
@@ -148,7 +157,7 @@ function TallyToken(props: { readonly token: Token }): JSX.Element {
 export function PostMeta(props: PostMetaProps): JSX.Element {
   const { visibility } = props;
   const locale = useLocale();
-  const tokens = allTokens(props, locale);
+  const tokens = allTokens({ t: useT(), locale }, props);
 
   return (
     <>

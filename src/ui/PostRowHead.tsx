@@ -9,6 +9,7 @@ import { Nick } from './Nick';
 import styles from './PostRow.module.css';
 import { Timestamp } from './Timestamp';
 import { type Via, ViaMark } from './ViaMark';
+import { useT } from '../i18n/I18nProvider';
 import type { ClickModifiers } from '../lib/clickModifiers';
 import type { ClockFormat } from '../lib/time';
 
@@ -30,6 +31,7 @@ export type PostRowHeadProps = {
 /** The label, clock, account marker, nick and reply marker of a row. */
 export function PostRowHead(props: PostRowHeadProps): JSX.Element {
   const { label, date, clockFormat, via, author, replyTo, onSelectAuthor } = props;
+  const t = useT();
   return (
     <>
       <span className={styles['label']}>{`[${label}]`}</span>{' '}
@@ -46,7 +48,9 @@ export function PostRowHead(props: PostRowHeadProps): JSX.Element {
         onSelect={onSelectAuthor}
       />{' '}
       {replyTo === null ? undefined : (
-        <span className={styles['reply']}>{`↳ re ${replyTo}: `}</span>
+        <span className={styles['reply']}>
+          {`${t('ui.post_row_head.reply_to', { label: replyTo })} `}
+        </span>
       )}
     </>
   );

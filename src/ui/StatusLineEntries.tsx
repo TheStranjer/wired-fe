@@ -7,28 +7,15 @@ import { Fragment } from 'react';
 import type { JSX } from 'react';
 
 import styles from './StatusLine.module.css';
+import { desktopLabel, windowLabel } from './statusLineLabels';
 import type { StatusLineDesktop, StatusLinePostingAs, StatusLineWindow } from './statusLineTypes';
+import { useT } from '../i18n/I18nProvider';
 
 /** The visible text of one desktop, e.g. "[2*:12]". */
 function desktopText(entry: StatusLineDesktop): string {
   const marker = entry.active ? '*' : '';
   const unread = entry.unread > 0 ? `:${String(entry.unread)}` : '';
   return `[${String(entry.number)}${marker}${unread}]`;
-}
-
-/** The accessible name of one desktop, e.g. "Desktop 2, active, 12 unread". */
-function desktopLabel(entry: StatusLineDesktop): string {
-  const parts = [`Desktop ${String(entry.number)}`];
-  if (entry.active) {
-    parts.push('active');
-  }
-  if (entry.unread > 0) {
-    parts.push(`${String(entry.unread)} unread`);
-  }
-  if (entry.highlight) {
-    parts.push('highlighted');
-  }
-  return parts.join(', ');
 }
 
 /**
@@ -59,18 +46,6 @@ function windowText(entry: StatusLineWindow): string {
   return `${String(entry.number)}:${entry.title}${unread}${marker}`;
 }
 
-/** The accessible name of one window entry, e.g. "Window 7: dm/bob, 2 unread". */
-function windowLabel(entry: StatusLineWindow): string {
-  const parts = [`Window ${String(entry.number)}: ${entry.title}`];
-  if (entry.unread > 0) {
-    parts.push(`${String(entry.unread)} unread`);
-  }
-  if (entry.highlight) {
-    parts.push('highlighted');
-  }
-  return parts.join(', ');
-}
-
 /**
  * The posting-account button, `→@handle` or `→?`, or nothing (WFE-285): a
  * click sends the reader to the account picker.
@@ -79,12 +54,13 @@ export function PostingAs(props: {
   readonly posting: StatusLinePostingAs | null;
 }): JSX.Element | null {
   const { posting } = props;
+  const t = useT();
   if (posting === null) {
     return null;
   }
   const name = posting.label.startsWith('@')
-    ? `Posting as ${posting.label}, change`
-    : 'No posting account, choose';
+    ? t('ui.status_line.posting_as', { label: posting.label })
+    : t('ui.status_line.no_posting_account');
   return (
     <>
       <button
@@ -106,9 +82,10 @@ function CloseDesktop(props: {
   readonly number: number;
   readonly onClose: (number: number) => void;
 }): JSX.Element {
+  const t = useT();
   return (
     <button
-      aria-label={`Close desktop ${String(props.number)}`}
+      aria-label={t('ui.status_line.close_desktop', { number: props.number })}
       className={styles['closeDesktop']}
       onClick={() => {
         props.onClose(props.number);
@@ -130,6 +107,7 @@ export function Desktops(props: {
   readonly onSelect: (number: number) => void;
   readonly onClose: (number: number) => void;
 }): JSX.Element {
+  const t = useT();
   return (
     <>
       {props.desktops.map((entry, index) => (
@@ -137,7 +115,7 @@ export function Desktops(props: {
           {index === 0 ? '' : ' '}
           <button
             aria-current={entry.active ? 'true' : undefined}
-            aria-label={desktopLabel(entry)}
+            aria-label={desktopLabel(t, entry)}
             className={desktopClasses(entry)}
             onAuxClick={(event) => {
               if (event.button === 1) {
@@ -147,7 +125,7 @@ export function Desktops(props: {
             onClick={() => {
               props.onSelect(entry.number);
             }}
-            title={`Desktop ${String(entry.number)}: click to switch, middle-click to close`}
+            title={t('ui.status_line.desktop_title', { number: entry.number })}
             type="button"
           >
             {desktopText(entry)}
@@ -166,6 +144,7 @@ export function HiddenWindows(props: {
   readonly windows: readonly StatusLineWindow[];
   readonly onSelect: (number: number) => void;
 }): JSX.Element | null {
+  const t = useT();
   if (props.windows.length === 0) {
     return null;
   }
@@ -176,7 +155,7 @@ export function HiddenWindows(props: {
         <Fragment key={entry.number}>
           {index === 0 ? '' : ' '}
           <button
-            aria-label={windowLabel(entry)}
+            aria-label={windowLabel(t, entry)}
             className={stateClasses(entry).join(' ')}
             onClick={() => {
               props.onSelect(entry.number);
