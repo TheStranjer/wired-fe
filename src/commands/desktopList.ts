@@ -4,15 +4,11 @@
  * the desktop on screen. Pure: it reads the layout and the window list.
  */
 
+import { t } from '../i18n/translate';
 import type { Desktop } from '../windows/desktopPanes';
 import { shownPanes } from '../windows/desktopPanes';
 import type { DesktopsState } from '../windows/desktops';
 import type { WindowsState } from '../windows/model';
-
-/** `1 pane`, `2 panes`: the count with its noun. */
-function paneCount(count: number): string {
-  return `${String(count)} ${count === 1 ? 'pane' : 'panes'}`;
-}
 
 /** The titles of the windows {@link desktop} shows, each once, in pane order. */
 function shownTitles(desktop: Desktop, windows: WindowsState): readonly string[] {
@@ -24,8 +20,9 @@ function shownTitles(desktop: Desktop, windows: WindowsState): readonly string[]
 function desktopLine(desktop: Desktop, label: string, windows: WindowsState): string {
   const count = shownPanes(desktop).length;
   const titles = shownTitles(desktop, windows);
-  const shown = titles.length === 0 ? '' : `: ${titles.join(', ')}`;
-  return `${label}: ${paneCount(count)}${shown}`;
+  return titles.length === 0
+    ? t('commands.desktop_line', { label, count })
+    : t('commands.desktop_line_titles', { label, count, titles: titles.join(', ') });
 }
 
 /** One line per desktop, in order, `*` on the active one. */

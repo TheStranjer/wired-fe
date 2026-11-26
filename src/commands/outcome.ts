@@ -9,7 +9,7 @@
  */
 
 import type { CommandContext, CommandDefinition, CommandOutcome, PostAnswer } from './types';
-import { NOT_LOGGED_IN_MESSAGE } from '../lib/refusal';
+import { t } from '../i18n/translate';
 
 /** A failure saying {@link message}. */
 export function fail(message: string): CommandOutcome {
@@ -27,8 +27,17 @@ export function postOutcome(answer: PostAnswer): CommandOutcome {
   return typeof answer === 'string' ? fail(answer) : OK;
 }
 
-/** The refusal every command answers with when nobody is signed in. */
-export const NOT_LOGGED_IN: CommandOutcome = { ok: false, message: NOT_LOGGED_IN_MESSAGE };
+/**
+ * The refusal every command answers with when nobody is signed in. Its
+ * message is a getter, so it reads the language in use when it is shown
+ * (decision 19) and not the one at module load.
+ */
+export const NOT_LOGGED_IN: CommandOutcome = {
+  ok: false,
+  get message(): string {
+    return t('commands.not_logged_in');
+  },
+};
 
 /** {@link handle} as a command's run: the answer is immediate; the run resolves it. */
 export function syncRun(

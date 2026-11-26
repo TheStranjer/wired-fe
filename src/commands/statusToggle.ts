@@ -21,6 +21,8 @@ import type { CommandContext, CommandDefinition, CommandOutcome } from './types'
 import { type StatusAction, statusAction } from '../api/endpoints/statusActions';
 import { describeApiError } from '../api/errors';
 import type { ApiSession } from '../api/session';
+import type { MessageKey } from '../i18n/messages';
+import { t } from '../i18n/translate';
 import { type Result, err, ok } from '../lib/result';
 import { accountByKey } from '../state/selectors';
 
@@ -39,7 +41,7 @@ type Toggle = {
   readonly on: StatusAction;
   readonly off: StatusAction;
   readonly mark: string;
-  readonly verb: string;
+  readonly verb: { readonly on: MessageKey; readonly off: MessageKey };
   readonly ownOnly: boolean;
 };
 
@@ -66,7 +68,7 @@ const TOGGLES: Record<ToggleFeature, Toggle> = {
     on: 'favourite',
     off: 'unfavourite',
     mark: '★',
-    verb: 'favourited',
+    verb: { on: 'commands.status_favourited', off: 'commands.status_unfavourited' },
     ownOnly: false,
   },
   boost: {
@@ -74,7 +76,7 @@ const TOGGLES: Record<ToggleFeature, Toggle> = {
     on: 'reblog',
     off: 'unreblog',
     mark: '⟳',
-    verb: 'boosted',
+    verb: { on: 'commands.status_boosted', off: 'commands.status_unboosted' },
     ownOnly: false,
   },
   bookmark: {
@@ -82,7 +84,7 @@ const TOGGLES: Record<ToggleFeature, Toggle> = {
     on: 'bookmark',
     off: 'unbookmark',
     mark: '🔖',
-    verb: 'bookmarked',
+    verb: { on: 'commands.status_bookmarked', off: 'commands.status_unbookmarked' },
     ownOnly: false,
   },
   pin: {
@@ -90,7 +92,7 @@ const TOGGLES: Record<ToggleFeature, Toggle> = {
     on: 'pin',
     off: 'unpin',
     mark: '📌',
-    verb: 'pinned',
+    verb: { on: 'commands.status_pinned', off: 'commands.status_unpinned' },
     ownOnly: true,
   },
 };
@@ -107,9 +109,6 @@ const COMMANDS: Record<ToggleCommand, Route> = {
   unpin: { feature: 'pin', undo: true },
 };
 
-/** What a pin command answers when the post is not the acting account's own. */
-const NOT_MINE = 'You can only pin your own posts';
-
 /**
  * Why {@link toggle} may not move on {@link target}'s post, or null when it
  * may: a toggle only its author moves needs the window's account to be the
@@ -124,7 +123,9 @@ function ownershipProblem(
     return null;
   }
   const account = accountByKey(context.state, target.accountKey);
-  return account !== null && account.accountId === target.status.account.id ? null : NOT_MINE;
+  return account !== null && account.accountId === target.status.account.id
+    ? null
+    : t('commands.pin_own_only');
 }
 
 /**
@@ -147,7 +148,7 @@ function prepare(
   return ok({
     action: on ? toggle.on : toggle.off,
     mark: toggle.mark,
-    word: on ? toggle.verb : `un${toggle.verb}`,
+    word: t(on ? toggle.verb.on : toggle.verb.off),
     label: targetLabel(context, target.status),
     session: target.session,
     id: target.status.id,
@@ -165,7 +166,9 @@ async function apply(move: Move, context: CommandContext): Promise<CommandOutcom
     return fail(describeApiError(answered.error));
   }
   context.dispatch({ type: 'statusUpdated', status: answered.value.reblog ?? answered.value });
-  context.print(`${move.mark} ${move.word} ${move.label}`);
+  context.print(
+    t('commands.status_moved', { mark: move.mark, word: move.word, label: move.label }),
+  );
   return OK;
 }
 

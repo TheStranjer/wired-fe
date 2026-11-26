@@ -4,11 +4,12 @@
  * reader's rebinds). `/help <command>` prints it line by line and the
  * suggestion list shows it as a tooltip and in its strip, so both always agree.
  * The usage is the one the registry holds, which already follows the active
- * account's backend (`usageFor`, ./available). Pure; English for now.
+ * account's backend (`usageFor`, ./available). Its labels follow the language in use (decision 19).
  */
 
 import type { Keymap } from './bindingTypes';
 import type { CommandDefinition, Registry } from './types';
+import { t } from '../i18n/translate';
 
 /** The modes of a keymap, in the order their keys are listed. */
 const MODES = ['insert', 'navigation'] as const;
@@ -26,7 +27,7 @@ function aliasLine(definition: CommandDefinition): string | undefined {
   if (aliases.length === 0) {
     return undefined;
   }
-  return `  Aliases: ${aliases.map((alias) => `/${alias}`).join(', ')}`;
+  return `  ${t('commands.aliases', { aliases: aliases.map((alias) => `/${alias}`).join(', ') })}`;
 }
 
 /** The chords of {@link keymap} that run {@link definition} in {@link mode}. */
@@ -43,9 +44,9 @@ function chordsIn(
 /** The `Keys:` line of {@link definition} in {@link keymap}, or undefined when nothing runs it. */
 function keyLine(definition: CommandDefinition, keymap: Keymap): string | undefined {
   const keys = MODES.flatMap((mode) =>
-    chordsIn(definition, keymap, mode).map((chord) => `${chord} (${mode})`),
+    chordsIn(definition, keymap, mode).map((chord) => t('commands.key_in_mode', { chord, mode })),
   );
-  return keys.length === 0 ? undefined : `  Keys: ${keys.join(', ')}`;
+  return keys.length === 0 ? undefined : `  ${t('commands.keys', { keys: keys.join(', ') })}`;
 }
 
 /** The lines of {@link definition}'s detail block: usage, summary, then aliases and keys when it has them. */
@@ -85,6 +86,7 @@ export function commandTip(action: string, command: string, source: TipSource): 
     definition === undefined
       ? []
       : [...new Set(MODES.flatMap((mode) => chordsIn(definition, source.keymap, mode)))];
-  const keys = chords.length === 0 ? '' : ` (${chords.join(', ')})`;
-  return `${action}: /${command}${keys}`;
+  return chords.length === 0
+    ? t('commands.tip', { action, command })
+    : t('commands.tip_keys', { action, command, keys: chords.join(', ') });
 }

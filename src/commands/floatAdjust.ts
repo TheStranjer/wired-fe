@@ -9,12 +9,15 @@
 import { focusedFloat } from './focusedFloat';
 import { OK, fail } from './outcome';
 import type { CommandContext, CommandOutcome } from './types';
+import { t } from '../i18n/translate';
 
 /** The forms the two words take, for the refusal that echoes them. */
 export const ADJUST_USAGE = 'move <dx> <dy> | size <dw> <dh>';
 
 /** The refusal when the focused pane is not a float. */
-const NOT_A_FLOAT = fail('The focused pane is not a float');
+function notAFloat(): CommandOutcome {
+  return fail(t('commands.not_a_float'));
+}
 
 /** A signed or unsigned percentage, whole or decimal. */
 const PERCENT = /^[+-]?\d+(?:\.\d+)?$/u;
@@ -42,11 +45,11 @@ export function adjustFloat(
 ): CommandOutcome {
   const delta = fractions(words);
   if (delta === null) {
-    return fail(`Usage: /float ${ADJUST_USAGE}`);
+    return fail(t('commands.usage', { usage: `/float ${ADJUST_USAGE}` }));
   }
   const float = focusedFloat(context);
   if (float === null) {
-    return NOT_A_FLOAT;
+    return notAFloat();
   }
   const [x, y] = delta;
   context.dispatch({

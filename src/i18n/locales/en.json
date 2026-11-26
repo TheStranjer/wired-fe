@@ -29,7 +29,23 @@
     "language_list_label": "Choose the interface language",
     "language_row": "Language…"
   },
+  "capabilities": {
+    "cannot": {
+      "custom_emoji_reactions": "{owner, select, handle {@{handle}'s server} other {This server}}{brand} can't react with custom emoji",
+      "editing": "{owner, select, handle {@{handle}'s server} other {This server}}{brand} can't edit posts",
+      "emoji_reactions": "{owner, select, handle {@{handle}'s server} other {This server}}{brand} can't react to posts with emoji",
+      "local_only_posts": "{owner, select, handle {@{handle}'s server} other {This server}}{brand} can't post local-only",
+      "markdown": "{owner, select, handle {@{handle}'s server} other {This server}}{brand} can't format posts with Markdown",
+      "password_reset_api": "{owner, select, handle {@{handle}'s server} other {This server}}{brand} can't reset passwords",
+      "quote_posting": "{owner, select, handle {@{handle}'s server} other {This server}}{brand} can't quote posts",
+      "settings_store": "{owner, select, handle {@{handle}'s server} other {This server}}{brand} can't sync settings"
+    }
+  },
   "commands": {
+    "aliases": "Aliases: {aliases}",
+    "already_in_thread": "Already in this thread",
+    "bad_duration": "Bad duration: {word}",
+    "command_failed": "Command failed: {error}",
     "defs": {
       "about": {
         "backend": "backend: {backend}",
@@ -197,7 +213,79 @@
         "usage": "/lang [code|name|auto]"
       }
     },
-    "not_signed_in_as": "You aren't signed in as {handle}. {count, plural, =0 {No account is signed in.} other {Signed in: {accounts}.}} Type /connect to add an account."
+    "desktop_line": "{label}: {count, plural, one {# pane} other {# panes}}",
+    "desktop_line_titles": "{label}: {count, plural, one {# pane} other {# panes}}: {titles}",
+    "desktops_up_to": "Desktops go up to {max}",
+    "error_with_usage": "{error}. Usage: {usage}",
+    "failed": "Failed: {error}",
+    "feed_deleted": "Deleted ~{name}",
+    "feed_line": "{title} ({id}): {sources}",
+    "feed_line_empty": "{title} ({id}): no sources",
+    "feed_made": "Made ~{name}",
+    "feed_none": "No feeds. Make one with /feed new {name} {source}…",
+    "feed_not_found": "No feed named \"{name}\"",
+    "feed_reads": "~{name} reads {sources}",
+    "feed_reads_no_longer": "~{name} no longer reads {sources}",
+    "feed_reads_none": "~{name} reads none of {sources}",
+    "feed_renamed": "Renamed ~{old} to ~{name}",
+    "feed_reserved": "\"{name}\" is a /feed word; pick another name",
+    "follow_requested": "follow requested",
+    "help_topics": {
+      "feeds": "A feed merges any sources from any signed-in accounts into one stream, newest first, with a post several accounts see shown once. Your first run makes one called stream (home, mentions, DMs and notifications of every account); /feed edit {name}, /feed new or the ✎ button in a feed pane opens the editor. Sources are home, mentions, dms, notifications, local, federated and tag:{name}. Posts show as cards by default; /display density lines switches this window to IRC lines, /display avatars off and /display images off hide those, /display reset clears the overrides, and /set density, /set avatars and /set images change the default for every window. Every post has a short label like [a3]: /fav a3, /reply a3, /pop a3 act on it, as the account that fetched it.",
+      "layout": "The screen is a desktop of panes split side by side (row) or stacked (column); any pane can be torn off into a float, a window you drag around inside the viewport. Keys: Ctrl+B % / \" split, Ctrl+B arrows focus, Ctrl+B x closes the pane, Ctrl+B z keeps only this one, Ctrl+B f / d float and dock; in navigation mode (Esc) w v / w s split, w h j k l focus, w c closes the pane, w o keeps only this one, w = equalizes, w f / w d float and dock. Ctrl+B Space / w Space (or the [≡ wired] button at the left of the status line) opens the start menu, whose rows open a view as a float. Alt+1..9 jump to a desktop, Alt+[ and Alt+] step to the previous and next one. Ctrl+B & (or the × after the active desktop in the status line, or a middle-click on any desktop) closes a desktop and keeps its windows open (/win); /desktop prune closes every empty one. Buttons: ◫▾ and ⊟▾ split with a view, ⧉ floats a pane, ⇲ docks a float, ✕ closes. Shift-drag a float over a pane to dock it against that edge. Ctrl+click opens in a float, Shift+click in a side-by-side split, middle-click hidden; --in here|vsplit|split|float|hidden places any opened window. On a phone one pane shows at a time, with a ‹ 2/4 › switcher in its title bar. Closing a pane keeps its window; /close ends the window.",
+      "sync": "Your desktops, floats, open windows, feeds and settings are saved in this browser and synced through your server, so the desk follows you. A primary account holds the synced copy; ordered fallbacks take over when it has no settings store or its token fails (/sync primary {handle}, /sync fallback add|rm|up {handle}). Desktop browsers (Windows, macOS, Linux, ChromeOS) and mobile ones (Android, iOS, iPadOS) each keep their own layout, and the newer copy wins. A push follows the last change by 3 seconds; /sync now pulls and pushes at once, /sync off and /sync on switch it. The server caps the whole store at 1 MiB, so a desk too big for the 384 KiB budget leaves out hidden windows, empty desktops and extra key overrides from the synced copy only, and says so. Mastodon has no settings store: an account there keeps its desk in this browser alone."
+    },
+    "in_takes": "--in takes {words}",
+    "invalid_name": "Invalid command name: /{name}",
+    "key_in_mode": "{chord} ({mode, select, insert {insert} other {navigation}})",
+    "keys": "Keys: {keys}",
+    "missing_name": "Missing command name after /",
+    "no_account_lookup": "No account {handle}: {error}",
+    "no_post_here": "No post {label} here",
+    "no_window": "No window {number}",
+    "no_window_kind": "No window kind {kind}. Kinds: {kinds}",
+    "not_a_command": "Not a command: {line}",
+    "not_a_float": "The focused pane is not a float",
+    "not_available_here": "/{command} is not available here",
+    "not_logged_in": "Not logged in. Type /connect",
+    "not_signed_in_as": "You aren't signed in as {handle}. {count, plural, =0 {No account is signed in.} other {Signed in: {accounts}.}} Type /connect to add an account.",
+    "opened_no_window": "/{command} opened no window",
+    "own_posts_only": "You can only {verb, select, delete {delete} other {edit}} your own posts",
+    "pin_own_only": "You can only pin your own posts",
+    "placement_takes": "{key} takes {words}",
+    "reaction_done": "{emoji} {kind, select, react {reacted} other {unreacted}} to {label}",
+    "select_post_first": "Select a post first (j/k) or give a label",
+    "status_bookmarked": "bookmarked",
+    "status_boosted": "boosted",
+    "status_favourited": "favourited",
+    "status_moved": "{mark} {word} {label}",
+    "status_pinned": "pinned",
+    "status_unbookmarked": "unbookmarked",
+    "status_unboosted": "unboosted",
+    "status_unfavourited": "unfavourited",
+    "status_unpinned": "unpinned",
+    "sync_fallback": "{skipped, select, yes {Fallback {index}: {account} (skipped: {reason})} other {Fallback {index}: {account}}}",
+    "sync_in_use": "In use: {account}",
+    "sync_in_use_none": "In use: none",
+    "sync_last_error": "Last error: {error}",
+    "sync_last_pull": "Last pull: {time}",
+    "sync_last_push": "Last push: {time}",
+    "sync_off": "Sync: off. Type /sync on to switch it back on",
+    "sync_on": "Sync: on",
+    "sync_primary": "{skipped, select, yes {Primary: {account} (skipped: {reason})} other {Primary: {account}}}",
+    "sync_primary_none": "Primary: none chosen (the first usable account is used)",
+    "that_is_you": "That's you",
+    "tip": "{action}: /{command}",
+    "tip_keys": "{action}: /{command} ({keys})",
+    "toggle_done": "{word} @{acct}",
+    "toggle_done_for": "{word} @{acct} for {duration}",
+    "unknown_command": "Unknown command: /{name}. Try /help",
+    "unknown_command_plain": "Unknown command: /{name}",
+    "usage": "Usage: {usage}",
+    "view_needs_argument": "{word} needs an argument",
+    "view_no_argument": "{word} takes no argument",
+    "view_unknown": "Unknown view: {view}",
+    "view_win_number": "win takes a window number"
   },
   "features": {},
   "format": {
@@ -212,7 +300,15 @@
     "vote_count": "{count, plural, one {# vote} other {# votes}}",
     "whois_counts": "posts {posts, number} · following {following, number} · followers {followers, number} · joined {joined}"
   },
-  "keys": {},
+  "keys": {
+    "already_bound": "/{command}: {chord} already bound to {line}",
+    "conflicts": "/{command}: {chord} conflicts with {other}",
+    "invalid_key": "/{command}: invalid key {chord}",
+    "override_conflicts": "override: {chord} conflicts with {other}",
+    "override_invalid_key": "override: invalid key {chord}",
+    "override_would_block_typing": "override: {chord} would block typing in insert mode",
+    "would_block_typing": "/{command}: {chord} would block typing in insert mode"
+  },
   "state": {
     "dropped_empty_desktops": "{count, plural, one {# empty desktop} other {# empty desktops}}",
     "dropped_hidden_windows": "{count, plural, one {# hidden window} other {# hidden windows}}",
@@ -263,5 +359,8 @@
   },
   "ui": {},
   "views": {},
-  "windows": {}
+  "windows": {
+    "desktop_empty": "Desktop {count} is empty: {last, select, yes {put something on it} other {use it}} before making another",
+    "no_desktop": "No desktop {number}; desktops run 1–{count}"
+  }
 }

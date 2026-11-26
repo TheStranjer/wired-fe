@@ -15,6 +15,7 @@ import { NOT_LOGGED_IN, OK, fail } from './outcome';
 import { type TextPoster, postIntoWindow } from './postIntoWindow';
 import type { CommandContext, CommandDefinition } from './types';
 import type { StoredAccount } from '../accounts/accountStore';
+import { t } from '../i18n/translate';
 import { type Result, err, ok } from '../lib/result';
 import {
   type OpenAction,
@@ -49,7 +50,7 @@ export function splitPlacement(args: string): Result<Placed, string> {
   }
   const word = found[1]?.toLowerCase();
   if (word === undefined || !isPlacement(word)) {
-    return err(`--in takes ${IN_WORDS}`);
+    return err(t('commands.in_takes', { words: IN_WORDS }));
   }
   return ok({ rest: args.slice(0, found.index).trimEnd(), placement: word });
 }

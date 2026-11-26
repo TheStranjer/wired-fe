@@ -19,6 +19,7 @@ import { blocksTyping, parseSequence } from './chord';
 import { conflictingSequence } from './sequence';
 import type { CommandBinding, Keymap, KeymapEntry } from '../commands/bindingTypes';
 import type { CommandDefinition, Registry } from '../commands/types';
+import { t } from '../i18n/translate';
 import type { KeyOverride } from '../lib/keyOverride';
 
 /** The keymap under construction: the finished shape with mutable collections. */
@@ -36,10 +37,10 @@ function commandLine(definition: CommandDefinition, binding: CommandBinding): st
 /** Why {@link binding} cannot be installed, or null when it can. */
 function bindingProblem(definition: CommandDefinition, binding: CommandBinding): string | null {
   if (parseSequence(binding.chord) !== binding.chord) {
-    return `/${definition.name}: invalid key ${binding.chord}`;
+    return t('keys.invalid_key', { command: definition.name, chord: binding.chord });
   }
   if (binding.mode === 'insert' && blocksTyping(binding.chord)) {
-    return `/${definition.name}: ${binding.chord} would block typing in insert mode`;
+    return t('keys.would_block_typing', { command: definition.name, chord: binding.chord });
   }
   return null;
 }
@@ -63,12 +64,20 @@ function addBinding(
   const byMode = modeMap(target, binding.mode);
   const existing = byMode.get(binding.chord);
   if (existing !== undefined) {
-    target.problems.push(`/${definition.name}: ${binding.chord} already bound to ${existing.line}`);
+    target.problems.push(
+      t('keys.already_bound', {
+        command: definition.name,
+        chord: binding.chord,
+        line: existing.line,
+      }),
+    );
     return;
   }
   const conflict = conflictingSequence(byMode.keys(), binding.chord);
   if (conflict !== null) {
-    target.problems.push(`/${definition.name}: ${binding.chord} conflicts with ${conflict}`);
+    target.problems.push(
+      t('keys.conflicts', { command: definition.name, chord: binding.chord, other: conflict }),
+    );
     return;
   }
   byMode.set(binding.chord, {
@@ -80,7 +89,7 @@ function addBinding(
 /** Apply {@link override} over the defaults already in {@link target}: replace, add, or delete. */
 function applyOverride(override: KeyOverride, target: PartialKeymap): void {
   if (parseSequence(override.chord) !== override.chord) {
-    target.problems.push(`override: invalid key ${override.chord}`);
+    target.problems.push(t('keys.override_invalid_key', { chord: override.chord }));
     return;
   }
   const byMode = modeMap(target, override.mode);
@@ -89,12 +98,12 @@ function applyOverride(override: KeyOverride, target: PartialKeymap): void {
     return;
   }
   if (override.mode === 'insert' && blocksTyping(override.chord)) {
-    target.problems.push(`override: ${override.chord} would block typing in insert mode`);
+    target.problems.push(t('keys.override_would_block_typing', { chord: override.chord }));
     return;
   }
   const conflict = conflictingSequence(byMode.keys(), override.chord);
   if (conflict !== null) {
-    target.problems.push(`override: ${override.chord} conflicts with ${conflict}`);
+    target.problems.push(t('keys.override_conflicts', { chord: override.chord, other: conflict }));
     return;
   }
   byMode.set(override.chord, { line: override.line, prefill: false });
