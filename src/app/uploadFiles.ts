@@ -8,6 +8,7 @@
  */
 
 import type { PrintLevel } from '../commands/types';
+import { t } from '../i18n/translate';
 import { type AppState, printAction } from '../state/appState';
 import { COMMAND_LINE_MEDIA, composerMediaOf, heldCount, maxMedia } from '../state/composerMedia';
 import type { Dispatch } from '../state/StateContext';
@@ -35,7 +36,7 @@ async function uploadOne(
   print: ReturnType<typeof printer>,
 ): Promise<boolean> {
   const { state, dispatch, description } = session;
-  print(`uploading ${file.name}…`, 'info');
+  print(t('app.attach_uploading', { file: file.name }), 'info');
   const env = {
     state,
     dispatch,
@@ -63,10 +64,10 @@ export async function uploadFiles(files: readonly File[], session: UploadSession
   let attached = heldCount(composerMediaOf(state, COMMAND_LINE_MEDIA));
   for (const file of files) {
     if (attached >= max) {
-      print(`too many attachments: ${String(max)} per post, skipped ${file.name}`, 'warn');
+      print(t('app.attach_too_many', { max, file: file.name }), 'warn');
     } else if (await uploadOne(file, session, print)) {
       attached += 1;
-      print(`attached ${file.name} (${String(attached)}/${String(max)})`, 'info');
+      print(t('app.attached', { file: file.name, attached, max }), 'info');
     }
   }
 }

@@ -22,6 +22,7 @@ import {
   type RegistrationValues,
   submitRegistration,
 } from '../features/registration/submitRegistration';
+import { useT } from '../i18n/I18nProvider';
 import { localeOf } from '../lib/locale';
 import { parseRegistrationRoute } from '../lib/route';
 import { useAppDispatch } from '../state/StateContext';
@@ -60,6 +61,7 @@ function openFromHash(open: (token: string) => void): void {
 export function useRegistrationOverlay(ready: boolean): JSX.Element | null {
   const dispatch = useAppDispatch();
   const [token, setToken] = useState<string | null>(null);
+  const t = useT();
 
   useEffect(() => {
     if (!ready) {
@@ -82,7 +84,7 @@ export function useRegistrationOverlay(ready: boolean): JSX.Element | null {
     setToken(null);
   };
   return (
-    <Overlay label="Sign up" onClose={close}>
+    <Overlay label={t('app.sign_up')} onClose={close}>
       <RegistrationForm
         askInstance={ASKING_MODES.has(buildConfig.instances.mode)}
         choices={instanceChoices(buildConfig.instances)}

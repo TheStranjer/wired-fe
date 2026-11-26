@@ -5,6 +5,7 @@
  * the click, the hotkey and the command are one path.
  */
 
+import type { Translate } from '../i18n/messages';
 import { resolveDisplay } from '../state/resolveDisplay';
 import type { Settings } from '../state/settings';
 import type { MenuItem } from '../ui/menuNav';
@@ -25,10 +26,13 @@ const RESET_ID = 'reset';
 function row(
   id: string,
   label: string,
-  state: { checked: boolean; overridden: boolean },
+  state: { checked: boolean; overridden: boolean; t: Translate },
 ): MenuItem {
-  const { checked, overridden } = state;
-  const spoken = `${label}, ${checked ? 'on' : 'off'}${overridden ? ', overridden' : ''}`;
+  const { checked, overridden, t } = state;
+  const spoken = t('app.display_row_spoken', {
+    label,
+    state: `${checked ? 'on' : 'off'}${overridden ? '_overridden' : ''}`,
+  });
   return {
     id,
     label: overridden ? `${label} •` : label,
@@ -41,25 +45,36 @@ function row(
 export function displayItems(
   settings: Pick<Settings, 'density' | 'avatars' | 'images'>,
   win: WindowState,
+  t: Translate,
 ): readonly MenuItem[] {
   const { display } = win;
   const effective = resolveDisplay(settings, display);
   const cardsOverride = display.density === 'cards';
   const linesOverride = display.density === 'lines';
   const items: MenuItem[] = [
-    row('cards', 'Cards', { checked: effective.density === 'cards', overridden: cardsOverride }),
-    row('lines', 'Lines', { checked: effective.density === 'lines', overridden: linesOverride }),
-    row('avatars', 'Avatars', {
+    row('cards', t('app.display_cards'), {
+      checked: effective.density === 'cards',
+      overridden: cardsOverride,
+      t,
+    }),
+    row('lines', t('app.display_lines'), {
+      checked: effective.density === 'lines',
+      overridden: linesOverride,
+      t,
+    }),
+    row('avatars', t('app.display_avatars'), {
       checked: effective.avatars,
       overridden: display.avatars !== undefined,
+      t,
     }),
-    row('images', 'Images', {
+    row('images', t('app.display_images'), {
       checked: effective.images,
       overridden: display.images !== undefined,
+      t,
     }),
   ];
   if (Object.keys(display).length > 0) {
-    items.push({ id: RESET_ID, label: 'Reset to defaults' });
+    items.push({ id: RESET_ID, label: t('app.display_reset') });
   }
   return items;
 }

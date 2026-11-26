@@ -11,6 +11,7 @@ import { writeStamp } from './deskStamp';
 import { PUSH_DELAY_MS, createEngine } from './deskSyncEngine';
 import { readSettings, writeSettings } from '../features/sync/settingsAccess';
 import { err, ok } from '../lib/result';
+import { installFakeLocale } from '../test/i18n';
 import { printed, served, syncHarness } from '../test/syncHarness';
 
 vi.mock(import('../features/sync/settingsAccess'), () => ({
@@ -145,6 +146,30 @@ describe('desk sync now', () => {
     await vi.advanceTimersByTimeAsync(PUSH_DELAY_MS * 2);
 
     expect(write).toHaveBeenCalledTimes(1);
+  });
+
+  it('words "up to date" in the language in use', async () => {
+    installFakeLocale({ app: { sync_up_to_date: 'Sync: nothing to do' } });
+    read.mockResolvedValue(ok({}));
+    const harness = syncHarness();
+    const engine = createEngine(harness.io);
+
+    engine.request('now');
+    await vi.advanceTimersByTimeAsync(0);
+
+    expect(printed(harness)).toStrictEqual(['Sync: nothing to do']);
+  });
+
+  it('words "took the newer desk" in the language in use', async () => {
+    installFakeLocale({ app: { sync_took_newer: 'Sync: got newer' } });
+    const harness = syncHarness();
+    read.mockResolvedValue(ok({ desktop: served(harness.state(), 99_000_000) }));
+    const engine = createEngine(harness.io);
+
+    engine.request('now');
+    await vi.advanceTimersByTimeAsync(0);
+
+    expect(printed(harness)).toStrictEqual(['Sync: got newer']);
   });
 
   it('takes a newer server desk and does not push over it', async () => {

@@ -39,7 +39,9 @@ function quoted(draft: Draft): string {
 /** Put the draft's text back on the line, or print it as info when the reader has typed something there since. */
 function giveBack(context: PickerContext, windowId: string, draft: Draft): void {
   if (!context.restore(draft.text)) {
-    context.dispatch(printAction(windowId, 'info', `Not posted: ${draft.text}`));
+    context.dispatch(
+      printAction(windowId, 'info', context.t('app.post_not_posted', { text: draft.text })),
+    );
   }
 }
 
@@ -91,9 +93,12 @@ export function postPicker(
         void send(context, pick, { key, scope, win });
       }}
       scope={ONCE_SCOPE}
-      scopes={[{ value: ONCE_SCOPE, label: 'Just this post' }, ...rememberScopes(feed)]}
+      scopes={[
+        { value: ONCE_SCOPE, label: context.t('app.post_just_this') },
+        ...rememberScopes(feed, context.t),
+      ]}
       selected={selected}
-      title="Post as"
+      title={context.t('app.post_as')}
     />
   );
 }

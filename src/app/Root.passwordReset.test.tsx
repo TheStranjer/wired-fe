@@ -8,12 +8,14 @@
  * real startup runs (it is what turns the path into the hash); the instance
  * is answered over MSW.
  */
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import { Root } from './Root';
+import { I18nProvider } from '../i18n/I18nProvider';
 import { AppStateProvider } from '../state/StateContext';
+import { installFakeLocale } from '../test/i18n';
 import { server } from '../test/server';
 
 /** The origin the page is on; a same-origin build resets here. */
@@ -74,6 +76,23 @@ describe('the reset-letter overlay', () => {
 
     expect(window.location.hash).toBe('');
     expect(window.location.pathname).toBe('/');
+  });
+
+  it('words the overlay in the language in use', async () => {
+    installFakeLocale({ app: { reset_password: 'Nuevo secreto' } });
+    window.history.replaceState(null, '', '/password_reset/tok-9');
+
+    render(
+      <I18nProvider>
+        <AppStateProvider>
+          <Root />
+        </AppStateProvider>
+      </I18nProvider>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByRole('dialog', { name: 'Nuevo secreto' })).toBeVisible();
+    });
   });
 
   it('opens when the hash changes to a reset route, and Escape closes it', async () => {

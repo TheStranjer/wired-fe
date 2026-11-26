@@ -18,6 +18,7 @@ import {
   type PasswordResetValues,
   submitPasswordReset,
 } from '../features/passwordReset/submitPasswordReset';
+import { useT } from '../i18n/I18nProvider';
 import { parsePasswordResetRoute } from '../lib/route';
 import { Overlay } from '../ui/Overlay';
 
@@ -37,6 +38,7 @@ function openFromHash(open: (token: string) => void): void {
 /** The new-password box over the shell while a reset route is open, or null while it is not. */
 export function usePasswordResetOverlay(ready: boolean): JSX.Element | null {
   const [token, setToken] = useState<string | null>(null);
+  const t = useT();
 
   useEffect(() => {
     if (!ready) {
@@ -59,7 +61,7 @@ export function usePasswordResetOverlay(ready: boolean): JSX.Element | null {
     setToken(null);
   };
   return (
-    <Overlay label="Reset password" onClose={close}>
+    <Overlay label={t('app.reset_password')} onClose={close}>
       <PasswordResetForm
         askInstance={ASKING_MODES.has(buildConfig.instances.mode)}
         choices={instanceChoices(buildConfig.instances)}

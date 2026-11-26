@@ -9,11 +9,16 @@
  * windows (`Existing window…`, WFE-270). No row fills the command line. The
  * last row, `Attach media…` (WFE-288), is no view: it only runs `/attach`,
  * which opens the file dialog and opens no pane, and sits apart below the views.
+ * The fixed rows are in ./paneMenuRows; every text is worded in the language
+ * in use by the `t` the builder is given (decision 19).
  */
 
 import { askedArgument } from './paneAsk';
 import type { PaneAsk } from './paneAsk';
+import { headRows, tailRows } from './paneMenuRows';
+import type { Row } from './paneMenuRows';
 import type { Registry } from '../commands/types';
+import type { Translate } from '../i18n/messages';
 import type { Feeds } from '../state/feeds';
 import type { MenuItem } from '../ui/MenuButton';
 
@@ -28,68 +33,6 @@ export type PaneMenuEntry = MenuItem & {
   /** Set for a row that asks for an argument in a dialog, then runs `text` with it. */
   readonly ask: PaneAsk | null;
 };
-
-/** A row of the fixed part of the menu: the command it needs and the view it opens. */
-type Row = {
-  readonly id: string;
-  readonly label: string;
-  /** The command the view needs; null for a row that needs none. */
-  readonly needs: string | null;
-  readonly view: string;
-  readonly pick: 'window' | null;
-  readonly ask: PaneAsk | null;
-};
-
-/** A row that runs `view` at once. */
-function plain(id: string, label: string, view = id): Row {
-  return { id, label, needs: id, view, pick: null, ask: null };
-}
-
-/** A row whose view is finished by the answer to {@link ask}. */
-function asking(row: Pick<Row, 'id' | 'label' | 'needs' | 'ask'>): Row {
-  return { ...row, view: row.id, pick: null };
-}
-
-/** The rows before the saved feeds. */
-const HEAD: readonly Row[] = [
-  { id: 'same', label: 'Same window', needs: null, view: '', pick: null, ask: null },
-];
-
-/** The rows after the saved feeds. */
-const TAIL: readonly Row[] = [
-  plain('composer', 'Composer'),
-  plain('home', 'Home'),
-  plain('notifications', 'Notifications'),
-  plain('local', 'Local'),
-  plain('federated', 'Federated'),
-  plain('dms', 'Direct messages'),
-  plain('people', 'People here', '/people'),
-  asking({
-    id: 'tag',
-    label: 'Hashtag…',
-    needs: 'tag',
-    ask: { title: 'Split with hashtag', placeholder: '#tag', suggest: 'tags' },
-  }),
-  asking({
-    id: 'search',
-    label: 'Search…',
-    needs: 'search',
-    ask: { title: 'Search', placeholder: 'words, @account or #tag', suggest: null },
-  }),
-  asking({
-    id: 'whois',
-    label: 'Profile…',
-    needs: 'whois',
-    ask: { title: 'Open profile', placeholder: '@user@instance', suggest: 'accounts' },
-  }),
-  asking({
-    id: 'dm',
-    label: 'DM…',
-    needs: 'query',
-    ask: { title: 'Direct message', placeholder: '@user@instance', suggest: 'accounts' },
-  }),
-  { id: 'win', label: 'Existing window…', needs: 'win', view: 'win', pick: 'window', ask: null },
-];
 
 /** The entry for {@link row}: a view spec, or a whole line when the view starts with a slash (`/people` opens its own split). */
 function viewEntry(row: Row): PaneMenuEntry {
@@ -110,13 +53,13 @@ function offered(registry: Registry, rows: readonly Row[]): readonly PaneMenuEnt
 }
 
 /** One row per saved feed, then `New feed…`; none without the `/feed` command. */
-function feedEntries(registry: Registry, feeds: Feeds): readonly PaneMenuEntry[] {
+function feedEntries(registry: Registry, feeds: Feeds, t: Translate): readonly PaneMenuEntry[] {
   if (!registry.byName.has('feed')) {
     return [];
   }
   const saved = feeds.map((feed): PaneMenuEntry => ({
     id: `feed:${feed.id}`,
-    label: `Feed: ${feed.name}`,
+    label: t('app.menu_feed', { name: feed.name }),
     text: `feed ${feed.name}`,
     literal: false,
     pick: null,
@@ -124,7 +67,7 @@ function feedEntries(registry: Registry, feeds: Feeds): readonly PaneMenuEntry[]
   }));
   const created: PaneMenuEntry = {
     id: 'feed-new',
-    label: 'New feed…',
+    label: t('app.menu_new_feed'),
     text: '/feed new',
     literal: true,
     pick: null,
@@ -134,14 +77,14 @@ function feedEntries(registry: Registry, feeds: Feeds): readonly PaneMenuEntry[]
 }
 
 /** The `Attach media…` row, set apart from the views: it runs `/attach` and opens no pane; none without the command. */
-function attachEntries(registry: Registry): readonly PaneMenuEntry[] {
+function attachEntries(registry: Registry, t: Translate): readonly PaneMenuEntry[] {
   if (!registry.byName.has('attach')) {
     return [];
   }
   return [
     {
       id: 'attach',
-      label: 'Attach media…',
+      label: t('app.attach_media'),
       text: '/attach',
       literal: true,
       pick: null,
@@ -151,13 +94,17 @@ function attachEntries(registry: Registry): readonly PaneMenuEntry[] {
   ];
 }
 
-/** The menu's rows for the commands in {@link registry} and the saved {@link feeds}, top to bottom. */
-export function paneMenuEntries(registry: Registry, feeds: Feeds): readonly PaneMenuEntry[] {
+/** The menu's rows for the commands in {@link registry} and the saved {@link feeds}, top to bottom, worded by {@link t}. */
+export function paneMenuEntries(
+  registry: Registry,
+  feeds: Feeds,
+  t: Translate,
+): readonly PaneMenuEntry[] {
   return [
-    ...offered(registry, HEAD),
-    ...feedEntries(registry, feeds),
-    ...offered(registry, TAIL),
-    ...attachEntries(registry),
+    ...offered(registry, headRows(t)),
+    ...feedEntries(registry, feeds, t),
+    ...offered(registry, tailRows(t)),
+    ...attachEntries(registry, t),
   ];
 }
 

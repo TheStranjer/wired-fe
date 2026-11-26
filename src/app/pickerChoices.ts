@@ -6,6 +6,7 @@
  */
 
 import type { LineRestorer } from './useLineRestoreApi';
+import type { Translate } from '../i18n/messages';
 import type { AppState } from '../state/appState';
 import { type FeedSpec, feedById } from '../state/feeds';
 import { postingAccount } from '../state/postingAccount';
@@ -20,6 +21,8 @@ export type PickerContext = {
   readonly dispatch: Dispatch;
   readonly refresh: RefreshDeps;
   readonly restore: LineRestorer;
+  /** Words the box in the language in use. */
+  readonly t: Translate;
 };
 
 /** The scope value that posts this one draft and remembers nothing. */
@@ -51,10 +54,15 @@ export function accountChoices(state: AppState): readonly { key: string; label: 
 }
 
 /** The remember scopes for {@link feed}: the feed's own when there is one, and everywhere. */
-export function rememberScopes(feed: FeedSpec | null): readonly { value: string; label: string }[] {
+export function rememberScopes(
+  feed: FeedSpec | null,
+  t: Translate,
+): readonly { value: string; label: string }[] {
   return [
-    ...(feed === null ? [] : [{ value: FEED_SCOPE, label: `For this feed (~${feed.name})` }]),
-    { value: GLOBAL_SCOPE, label: 'Everywhere' },
+    ...(feed === null
+      ? []
+      : [{ value: FEED_SCOPE, label: t('app.scope_this_feed', { name: feed.name }) }]),
+    { value: GLOBAL_SCOPE, label: t('app.scope_everywhere') },
   ];
 }
 

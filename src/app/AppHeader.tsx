@@ -8,19 +8,18 @@ import type { JSX } from 'react';
 
 import styles from './AppHeader.module.css';
 import { accountLabel } from './StatusBar';
+import { useT } from '../i18n/I18nProvider';
 import { useAppState } from '../state/StateContext';
 
-/** Shown in place of a handle while no account is signed in. */
-const NO_ACCOUNT = 'no account';
-
-/** The header line: the product name and the active account. */
+/** The header line: the product name and the active account, or `no account` while none is signed in. */
 export function AppHeader(): JSX.Element {
   const state = useAppState();
+  const t = useT();
   const handle = accountLabel(state, state.activeAccountKey);
   return (
     <div className={styles['bar']}>
       <span className={styles['name']}>WIRED</span>
-      <span className={styles['account']}>{handle ?? NO_ACCOUNT}</span>
+      <span className={styles['account']}>{handle ?? t('app.account_none')}</span>
     </div>
   );
 }
