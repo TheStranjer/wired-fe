@@ -5,9 +5,12 @@
  * with Ctrl, Alt or Meta, and digits past the last choice, are left alone. The
  * listener sits on the form itself, as the Overlay's does, because the strict
  * jsx-a11y gate forbids a keydown handler on a non-interactive element in JSX.
+ * It is attached in a layout effect, so it is listening from the commit that
+ * shows the box: a digit pressed at once is never lost to a passive effect
+ * that has not run yet.
  * {@link useChosenFocus}: focus the checked account radio as the form mounts.
  */
-import { type RefObject, useEffect, useLayoutEffect } from 'react';
+import { type RefObject, useLayoutEffect } from 'react';
 
 /** The radios of the accounts group. */
 const ACCOUNT_RADIOS = 'input[name="account"]';
@@ -26,7 +29,7 @@ export function useDigitSelect(
   keys: readonly string[],
   choose: (key: string) => void,
 ): void {
-  useEffect(() => {
+  useLayoutEffect(() => {
     const box = form.current;
     if (box === null) {
       return;
