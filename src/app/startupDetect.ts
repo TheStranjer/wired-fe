@@ -72,3 +72,21 @@ export async function detectOrigins(deps: DetectDeps, origins: readonly string[]
     reportDetection(deps, origin, outcome);
   }
 }
+
+/**
+ * Detects one origin like {@link detectOrigins} and reports it the same way,
+ * and answers what it turned out to be; null when it could not be read. The
+ * signed-out route (./publicRoute) asks this of the instance it may open a
+ * link on: no account stands behind it.
+ */
+export async function detectProfile(
+  deps: DetectDeps,
+  origin: string,
+): Promise<InstanceProfile | null> {
+  const detect = cachedDetect(deps.stores.profiles, deps.detect ?? detectInstance, () =>
+    deps.now().getTime(),
+  );
+  const outcome = await detect(origin);
+  reportDetection(deps, origin, outcome);
+  return outcome.ok ? outcome.value : null;
+}

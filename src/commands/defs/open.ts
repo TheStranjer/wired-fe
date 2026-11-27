@@ -53,7 +53,7 @@ function handle(args: string, context: CommandContext): CommandOutcome {
   if (SCHEMED.test(word)) {
     return HTTP.test(word) ? openUrl(word) : notHttp();
   }
-  const target = resolveStatusTarget(args, context);
+  const target = resolveStatusTarget(args, context, 'read');
   if (!target.ok) {
     return fail(target.error);
   }

@@ -23,7 +23,7 @@ function unavailable(): CommandOutcome {
 
 /** Resolve the target, write its link, and print what was copied. */
 async function handle(args: string, context: CommandContext): Promise<CommandOutcome> {
-  const target = resolveStatusTarget(args, context);
+  const target = resolveStatusTarget(args, context, 'read');
   if (!target.ok) {
     return fail(target.error);
   }

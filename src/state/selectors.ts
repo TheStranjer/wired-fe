@@ -7,6 +7,7 @@
  * itself where it can, so callers can compare results by identity.
  */
 
+import { anonSession, isAnonKey } from './anonAccount';
 import type { AppState } from './appState';
 import { type Buffer, EMPTY_BUFFER } from './buffer';
 import { resolveDisplay, type ResolvedDisplay } from './resolveDisplay';
@@ -45,8 +46,15 @@ export function activeAccount(state: AppState): StoredAccount | null {
   return accountByKey(state, state.activeAccountKey);
 }
 
-/** The account's connection to its instance: its origin and bearer token. */
+/**
+ * The account's connection to its instance: its origin and bearer token. A
+ * signed-out key (./anonAccount) has the origin and no token.
+ */
 export function sessionFor(state: AppState, accountKey: string | null): ApiSession | null {
+  const anon = anonSession(accountKey);
+  if (anon !== null) {
+    return anon;
+  }
   const account = accountByKey(state, accountKey);
   if (account === null) {
     return null;
@@ -90,4 +98,13 @@ export function windowAccountKey(state: AppState, windowId: string): string | nu
     return null;
   }
   return win.ref.accountKey ?? state.activeAccountKey;
+}
+
+/**
+ * The key a window's loads sign with: its account's, when that account is
+ * signed in, or its signed-out key (./anonAccount); null when it has neither.
+ */
+export function loadKeyFor(state: AppState, windowId: string): string | null {
+  const key = windowAccountKey(state, windowId);
+  return isAnonKey(key) ? key : (accountByKey(state, key)?.key ?? null);
 }

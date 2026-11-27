@@ -9,7 +9,8 @@
  */
 import { describe, expect, it } from 'vitest';
 
-import { resolveOwnStatusTarget, resolveStatusTarget } from './targets';
+import { resolveOwnStatusTarget } from './ownTarget';
+import { resolveStatusTarget } from './targets';
 import type { CommandContext } from './types';
 import type { StoredAccount } from '../accounts/accountStore';
 import type { Status } from '../api/schemas/status';

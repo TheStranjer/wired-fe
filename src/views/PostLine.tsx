@@ -33,9 +33,11 @@ import { postView } from './postView';
 import { usePostConfirm } from './usePostConfirm';
 import { usePostPicker } from './usePostPicker';
 import { useLocale } from '../i18n/I18nProvider';
+import { isAnonKey } from '../state/anonAccount';
 import { labelForStatus } from '../state/bufferSelection';
 import { bufferFor, displayFor, windowAccountKey } from '../state/selectors';
 import { useAppDispatch, useAppState } from '../state/StateContext';
+import type { PostActionLine } from '../ui/postActionTypes';
 import { PostCard } from '../ui/PostCard';
 import { PostRow } from '../ui/PostRow';
 
@@ -82,6 +84,23 @@ function openMediaOf(actions: PostActions, label: string): ((index: number) => v
   };
 }
 
+/**
+ * What a press on a card's action bar does: {@link normal}, except on a card of
+ * a signed-out window (WFE-340), where it runs its line outright — never a
+ * prefill or a confirm dialog — so the command's own refusal answers it.
+ */
+function pressOf(
+  signedOut: boolean,
+  normal: (line: PostActionLine) => void,
+  actions: PostActions,
+): (line: PostActionLine) => void {
+  return signedOut
+    ? (action) => {
+        actions.run({ line: action.line, prefill: false });
+      }
+    : normal;
+}
+
 /** One post: the card or the row its status maps onto, as the window's account sees it. */
 export function PostLine(props: PostLineTarget): JSX.Element {
   useLocale();
@@ -95,6 +114,7 @@ export function PostLine(props: PostLineTarget): JSX.Element {
   const picker = usePostPicker(windowAccountKey(state, windowId), shared.label, actions.run);
   const confirm = usePostConfirm(actions, shared.label, view);
   const display = displayFor(state, windowId);
+  const signedOut = isAnonKey(windowAccountKey(state, windowId));
   if (display.density === 'lines') {
     return (
       <PostRow
@@ -107,19 +127,19 @@ export function PostLine(props: PostLineTarget): JSX.Element {
       />
     );
   }
-  const author = { ...view.author, ...cardName(status) };
   return (
     <>
       <PostCard
         {...shared}
-        author={author}
+        author={{ ...view.author, ...cardName(status) }}
         boostedBy={view.boostedBy}
         onOpenMedia={openMediaOf(actions, shared.label)}
         onPop={popOf(actions, shared.label)}
         ref={rowRef}
         actionLines={actions.linesFor(shared.label)}
-        onAction={confirm.onAction}
+        onAction={pressOf(signedOut, confirm.onAction, actions)}
         reactPicker={picker}
+        readOnly={signedOut}
         showAvatar={display.avatars}
         showImages={display.images}
         {...dmCardProps(state, props, view)}

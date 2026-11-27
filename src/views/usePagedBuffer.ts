@@ -21,7 +21,7 @@ import type { BufferLoad } from '../state/buffer';
 import { loadAction } from '../state/pageActions';
 import { useRefreshDeps } from '../state/RefreshContext';
 import type { RefreshDeps } from '../state/refreshSession';
-import { accountByKey, bufferFor, windowAccountKey } from '../state/selectors';
+import { bufferFor, loadKeyFor } from '../state/selectors';
 import { type Dispatch, useAppDispatch, useAppState } from '../state/StateContext';
 
 /** What the newest render would fetch with, kept live for the effects. */
@@ -141,7 +141,7 @@ export function usePagedBuffer<T>(windowId: string, loader: PageLoader<T>): void
   const state = useAppState();
   const dispatch = useAppDispatch();
   const refresh = useRefreshDeps();
-  const accountKey = accountByKey(state, windowAccountKey(state, windowId))?.key ?? null;
+  const accountKey = loadKeyFor(state, windowId);
   const { exhausted, load, olderCursor, olderRequests } = bufferFor(state, windowId);
   const liveRef = useLive({ dispatch, loader, refresh, accountKey });
   useNoAccountNotice(windowId, accountKey);

@@ -32,7 +32,7 @@ export async function popInPlace(
   context: CommandContext,
 ): Promise<CommandOutcome | null> {
   if (activeWindow(context.state.windows).ref.kind === 'thread') {
-    const target = resolveStatusTarget(args, context);
+    const target = resolveStatusTarget(args, context, 'read');
     if (!target.ok) {
       return fail(target.error);
     }

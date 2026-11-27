@@ -18,7 +18,7 @@ import type { LineLevel } from '../state/buffer';
 import { loadAction } from '../state/pageActions';
 import { useRefreshDeps } from '../state/RefreshContext';
 import { type WithToken, withFreshToken } from '../state/refreshSession';
-import { accountByKey, bufferFor, windowAccountKey } from '../state/selectors';
+import { bufferFor, loadKeyFor } from '../state/selectors';
 import type { Dispatch } from '../state/StateContext';
 import { useAppDispatch, useAppState } from '../state/StateContext';
 
@@ -63,7 +63,7 @@ export function useOneShotLoad(windowId: string, run: OneShotRun): void {
   const dispatch = useAppDispatch();
   const refresh = useRefreshDeps();
   const target = state.windows.windows.find((win) => win.id === windowId)?.ref.target ?? null;
-  const ownerKey = accountByKey(state, windowAccountKey(state, windowId))?.key ?? null;
+  const ownerKey = loadKeyFor(state, windowId);
   const { load } = bufferFor(state, windowId);
   const inflightRef = useRef<AbortController | null>(null);
 

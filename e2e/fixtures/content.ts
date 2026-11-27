@@ -50,6 +50,9 @@ const SLEEP = 'AhZst4tus00000000000000005';
 const CALL = 'AhZst4tus00000000000000006';
 const DM = 'AhZst4tus00000000000000007';
 
+/** The id of the post whose conversation is served: what a permalink to the thread names. */
+export const THREAD_ROOT_ID = HERE;
+
 /** The posts, in conversation order: the thread first, then the rest of home. */
 const POSTS: readonly Post[] = [
   { id: EYES, who: LAIN, html: '<p>close the world. open your eyes.</p>', at: moment('08:55') },

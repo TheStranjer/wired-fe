@@ -32,6 +32,14 @@
   outline: var(--border-width-focus) solid var(--color-accent);
 }
 
+/* A signed-out card's bar: dimmed and not clickable-looking, yet still a press target that
+   hands on the line whose command refuses. */
+.button[aria-disabled='true'] {
+  border-color: var(--color-dim);
+  color: var(--color-dim);
+  cursor: not-allowed;
+}
+
 .on {
   background: var(--color-accent);
   color: var(--color-bg);

@@ -12,6 +12,7 @@ import { viaFor } from './via';
 import type { Account } from '../api/schemas/account';
 import type { Status } from '../api/schemas/status';
 import type { ClickModifiers } from '../lib/clickModifiers';
+import { anonOrigin } from '../state/anonAccount';
 import type { AppState } from '../state/appState';
 import { labelForStatus } from '../state/bufferSelection';
 import { clickOpen } from '../state/placementFromClick';
@@ -23,9 +24,10 @@ import type { PostRowProps } from '../ui/PostRow';
 
 /** The viewer of a window's lines: the account it belongs to, or nobody. */
 export function viewerFor(state: AppState, windowId: string): Viewer {
-  const account = accountByKey(state, windowAccountKey(state, windowId));
+  const key = windowAccountKey(state, windowId);
+  const account = accountByKey(state, key);
   if (account === null) {
-    return { origin: '', accountId: null };
+    return { origin: anonOrigin(key) ?? '', accountId: null };
   }
   return { origin: account.origin, accountId: account.accountId };
 }

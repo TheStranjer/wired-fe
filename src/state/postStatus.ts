@@ -11,6 +11,7 @@
  * refreshed and the create retried (./refreshSession).
  */
 
+import { isAnonKey } from './anonAccount';
 import { type Draft, draftToNewStatus } from './draft';
 import { statusesAction } from './pageActions';
 import { withFreshToken } from './refreshSession';
@@ -56,6 +57,9 @@ export async function createPost(
   draft: Draft,
 ): Promise<Result<Status, string>> {
   const { state, dispatch } = context;
+  if (isAnonKey(accountKey)) {
+    return err(t('commands.sign_in_to_act'));
+  }
   const account = accountByKey(state, accountKey);
   if (account === null) {
     return err(t('state.not_logged_in'));

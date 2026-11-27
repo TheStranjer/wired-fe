@@ -622,6 +622,7 @@
     "placement_takes": "{key} takes {words}",
     "reaction_done": "{emoji} {kind, select, react {reacted} other {unreacted}} to {label}",
     "select_post_first": "Select a post first (j/k) or give a label",
+    "sign_in_to_act": "Sign in to do that: this window is read-only. Type /connect to log in.",
     "status_bookmarked": "bookmarked",
     "status_boosted": "boosted",
     "status_favourited": "favourited",
@@ -832,7 +833,8 @@
     "route": {
       "follow_hint": "Type /follow to follow @{acct}",
       "no_account": "Not signed in to {host}. Type /connect to log in there.",
-      "not_found": "Could not find {value}"
+      "not_found": "Could not find {value}",
+      "public_view_conflict": "publicView is forced on for {host}, but the instance restricts this read for signed-out visitors."
     },
     "search": {
       "account_line": "  @{acct} — {name}  (/whois @{acct})",
@@ -851,7 +853,8 @@
     "thread": {
       "loading": "Loading thread…",
       "log_label": "thread",
-      "nothing_to_answer": "Nothing to reply to in this window"
+      "nothing_to_answer": "Nothing to reply to in this window",
+      "sign_in_to_reply": "Sign in to reply. Type /connect to log in."
     }
   },
   "format": {
@@ -1027,7 +1030,8 @@
       "bookmark": "Bookmark post {label}",
       "boost": "Boost post {label}",
       "favourite": "Favourite post {label}",
-      "group": "Actions for post {label}"
+      "group": "Actions for post {label}",
+      "sign_in": "Sign in to use this action"
     },
     "post_actions_more": {
       "block": "Block author",

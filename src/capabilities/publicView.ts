@@ -10,6 +10,9 @@ import type {
 } from '../api/schemas/anonymousReads';
 import type { PublicViewSetting } from '../lib/publicViewSetting';
 
+/** The kinds of read and what an instance publishes about them, for the layers that may not reach src/api. */
+export type { AnonymousReadArea, AnonymousReads } from '../api/schemas/anonymousReads';
+
 /** Whether the read is allowed, and whether the build forced it against the backend's `false`. */
 type PublicViewDecision = {
   readonly allowed: boolean;

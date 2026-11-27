@@ -40,4 +40,6 @@ export type PostCardProps = Omit<PostRowProps, 'author' | 'boostedBy'> & {
   readonly onAction: (line: PostActionLine) => void;
   /** The `☺` button's emoji picker: its emoji, and what choosing one does (WFE-265). */
   readonly reactPicker: ReactPicker;
+  /** True on a card of a signed-out window: the action bar is disabled and says to sign in (WFE-340). */
+  readonly readOnly?: boolean | undefined;
 };

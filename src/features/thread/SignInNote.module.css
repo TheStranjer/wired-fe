@@ -1,0 +1,6 @@
+/* The reply box's stand-in in a signed-out thread: one dim line. */
+
+.note {
+  margin: 0;
+  color: var(--color-dim);
+}

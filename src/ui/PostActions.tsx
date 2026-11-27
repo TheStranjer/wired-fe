@@ -10,8 +10,11 @@
  * line and so no button. The `☺` button is the one click that does not hand its
  * line on (WFE-265): where the registry's react line says so it opens the emoji
  * picker (./ReactButton) over the post's reactions and the emoji the app lends
- * it, and the choice is reported to the app, not run here. Purely
- * presentational: it knows no commands itself.
+ * it, and the choice is reported to the app, not run here. On a signed-out
+ * card (WFE-340, `readOnly`) every button is `aria-disabled` with a note that
+ * says to sign in; the name stays, and a press still hands its line on, so the
+ * command's own refusal is what the visitor hears. Purely presentational: it
+ * knows no commands itself.
  */
 import type { JSX } from 'react';
 
@@ -35,35 +38,28 @@ export type PostActionsProps = Pick<PostMetaProps, 'counts' | 'mine' | 'reaction
   readonly onAction: (line: PostActionLine) => void;
   /** The react button's picker: its emoji, and what choosing one does. */
   readonly picker: ReactPicker;
+  /** True on a card of a signed-out window: the bar is disabled and says to sign in. */
+  readonly readOnly?: boolean | undefined;
 };
 
 /** The action bar of one post card. */
 export function PostActions(props: PostActionsProps): JSX.Element {
   const { label, counts, mine, own, lines, onAction } = props;
   const t = useT();
+  const readOnly = props.readOnly === true ? t('ui.post_actions.sign_in') : undefined;
+  const shared = { label, lines, onAction, readOnly };
   return (
     <div aria-label={t('ui.post_actions.group', { label })} className={styles['bar']} role="group">
-      <ReplyButton count={counts.replies} label={label} lines={lines} onAction={onAction} />
-      <BoostButton
-        count={counts.boosts}
-        label={label}
-        lines={lines}
-        on={mine.boosted}
-        onAction={onAction}
-      />
-      <FavouriteButton
-        count={counts.favourites}
-        label={label}
-        lines={lines}
-        on={mine.favourited}
-        onAction={onAction}
-      />
+      <ReplyButton {...shared} count={counts.replies} />
+      <BoostButton {...shared} count={counts.boosts} on={mine.boosted} />
+      <FavouriteButton {...shared} count={counts.favourites} on={mine.favourited} />
       <ReactButton
         label={label}
         line={lines['react']}
         onAction={onAction}
         picker={props.picker}
         reactions={props.reactions}
+        readOnly={readOnly}
       />
       <ToggleButton
         commands={['bookmark', 'unbookmark']}
@@ -72,8 +68,9 @@ export function PostActions(props: PostActionsProps): JSX.Element {
         name={t('ui.post_actions.bookmark', { label })}
         on={mine.bookmarked}
         onAction={onAction}
+        readOnly={readOnly}
       />
-      <PostActionsMore label={label} lines={lines} onAction={onAction} own={own} />
+      <PostActionsMore {...shared} own={own} />
     </div>
   );
 }

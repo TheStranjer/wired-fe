@@ -12,7 +12,9 @@
 import type { JSX } from 'react';
 
 import { MenuButton } from './MenuButton';
+import styles from './PostActions.module.css';
 import type { PostActionLine, PostActionLines } from './postActionTypes';
+import { readOnlyProps } from './readOnlyProps';
 import { useT } from '../i18n/I18nProvider';
 import type { MessageKey } from '../i18n/messages';
 
@@ -49,6 +51,8 @@ export type PostActionsMoreProps = {
   readonly lines: PostActionLines;
   /** Called with the line of the chosen row. */
   readonly onAction: (line: PostActionLine) => void;
+  /** The sign-in note of a signed-out card, which turns the menu into a disabled button. */
+  readonly readOnly?: string | undefined;
 };
 
 /** The rows that apply to this post and whose command exists, with their lines. */
@@ -60,13 +64,52 @@ function rowsFor(lines: PostActionLines, own: boolean): readonly Row[] {
   });
 }
 
+/**
+ * The more-menu of a signed-out card (WFE-340): a disabled button that opens
+ * nothing; a press hands on the quote line, so the command's refusal says to
+ * sign in.
+ */
+function ReadOnlyMore(props: {
+  readonly name: string;
+  readonly note: string;
+  readonly line: PostActionLine | undefined;
+  readonly onAction: (line: PostActionLine) => void;
+}): JSX.Element {
+  const { name, note, line, onAction } = props;
+  return (
+    <button
+      {...readOnlyProps(note)}
+      aria-label={name}
+      className={styles['button']}
+      onClick={() => {
+        if (line !== undefined) {
+          onAction(line);
+        }
+      }}
+      type="button"
+    >
+      ⋯
+    </button>
+  );
+}
+
 /** The more-menu, or nothing when no command is left for it. */
 export function PostActionsMore(props: PostActionsMoreProps): JSX.Element | null {
-  const { label, own, lines, onAction } = props;
+  const { label, own, lines, onAction, readOnly } = props;
   const t = useT();
   const rows = rowsFor(lines, own);
   if (rows.length === 0) {
     return null;
+  }
+  if (readOnly !== undefined) {
+    return (
+      <ReadOnlyMore
+        line={lines['quote']}
+        name={t('ui.post_actions_more.menu', { label })}
+        note={readOnly}
+        onAction={onAction}
+      />
+    );
   }
   return (
     <MenuButton
