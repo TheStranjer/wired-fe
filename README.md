@@ -268,3 +268,14 @@ With the proxy up and an account on the instance:
 ## Contributing
 
 Read [AGENTS.md](AGENTS.md) (rules, allowed commands, conventions) and [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) (numbered decisions).
+
+
+## Models used
+
+So far, these LLMs have been used:
+
+* Opus 5.5
+* Sonnet 5.5
+* Qwen3.8 Flash next
+* DeepSeek V4 Pro
+
