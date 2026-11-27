@@ -1,7 +1,17 @@
 /** Tests for flattening a nested catalog into dot paths. */
 import { describe, expect, it } from 'vitest';
 
-import { flatten } from './messages';
+import { flatten, literals } from './messages';
+
+describe(literals, () => {
+  it('maps each word to itself', () => {
+    expect(literals('now', 'off')).toStrictEqual({ now: 'now', off: 'off' });
+  });
+
+  it('is empty for no words', () => {
+    expect(literals()).toStrictEqual({});
+  });
+});
 
 describe(flatten, () => {
   it('turns nested objects into dot paths', () => {

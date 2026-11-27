@@ -39,7 +39,14 @@ export function parseSource(
   const colon = text.indexOf(':');
   const source = text.slice(colon + 1);
   if (colon < 1 || !isFeedSource(source)) {
-    return err(t('state.not_a_source', { text }));
+    return err(
+      t('state.not_a_source', {
+        text,
+        home: '@me@host:home',
+        mentions: '*:mentions',
+        tag: '@me@host:tag:rust',
+      }),
+    );
   }
   const keys = accountsNamed(text.slice(0, colon), accounts);
   if (!keys.ok) {

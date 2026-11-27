@@ -9,7 +9,10 @@
  * typed.
  */
 
+import { literals } from '../i18n/messages';
 import { t } from '../i18n/translate';
+import { PLAIN_SOURCES } from '../state/feeds';
+import { PLACEMENTS } from '../state/placement';
 
 /** One help topic. */
 export type HelpTopic = {
@@ -31,9 +34,9 @@ const LAYOUT: HelpTopic = {
       t('commands.help_topics.layout.navigation_keys'),
       t('commands.help_topics.layout.start_menu'),
       t('commands.help_topics.layout.desktop_keys'),
-      t('commands.help_topics.layout.desktop_close'),
+      t('commands.help_topics.layout.desktop_close', literals('prune')),
       t('commands.help_topics.layout.buttons'),
-      t('commands.help_topics.layout.placement'),
+      t('commands.help_topics.layout.placement', { placements: PLACEMENTS.join('|') }),
       t('commands.help_topics.layout.phone'),
       t('commands.help_topics.layout.close'),
     ];
@@ -63,12 +66,17 @@ const LAYOUT: HelpTopic = {
 const FEEDS: HelpTopic = {
   name: 'feeds',
   get lines(): readonly string[] {
-    const name = { name: '<name>' };
     return [
       t('commands.help_topics.feeds.merge'),
-      t('commands.help_topics.feeds.editor', name),
-      t('commands.help_topics.feeds.sources', name),
-      t('commands.help_topics.feeds.display'),
+      t('commands.help_topics.feeds.editor', { ...literals('edit', 'new'), name: '<name>' }),
+      t('commands.help_topics.feeds.sources', {
+        sources: PLAIN_SOURCES.join(', '),
+        tag: 'tag:<name>',
+      }),
+      t(
+        'commands.help_topics.feeds.display',
+        literals('density', 'lines', 'avatars', 'images', 'off', 'reset'),
+      ),
       t('commands.help_topics.feeds.labels'),
     ];
   },
@@ -92,9 +100,13 @@ const SYNC: HelpTopic = {
   get lines(): readonly string[] {
     return [
       t('commands.help_topics.sync.saved'),
-      t('commands.help_topics.sync.accounts', { handle: '<handle>' }),
+      t('commands.help_topics.sync.accounts', {
+        ...literals('primary', 'fallback'),
+        change: 'add|rm|up',
+        handle: '<handle>',
+      }),
       t('commands.help_topics.sync.devices'),
-      t('commands.help_topics.sync.push'),
+      t('commands.help_topics.sync.push', literals('now', 'off', 'on')),
       t('commands.help_topics.sync.budget'),
       t('commands.help_topics.sync.mastodon'),
     ];

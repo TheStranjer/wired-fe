@@ -82,14 +82,22 @@ describe('the command layer in another language', () => {
     installFakeLocale({
       commands: {
         help_topics: {
-          feeds: { sources: 'XX sources {name}' },
-          sync: { saved: 'XX saved', accounts: 'XX sync {handle}' },
+          feeds: { sources: 'XX sources {sources} {tag}' },
+          sync: {
+            saved: 'XX saved',
+            accounts: 'XX sync {primary} {fallback} {change} {handle}',
+          },
         },
       },
     });
 
-    expect(lookupTopic('sync')?.lines.slice(0, 2)).toStrictEqual(['XX saved', 'XX sync <handle>']);
-    expect(lookupTopic('feeds')?.lines[2]).toBe('XX sources <name>');
+    expect(lookupTopic('sync')?.lines.slice(0, 2)).toStrictEqual([
+      'XX saved',
+      'XX sync primary fallback add|rm|up <handle>',
+    ]);
+    expect(lookupTopic('feeds')?.lines[2]).toBe(
+      'XX sources home, mentions, dms, notifications, local, federated tag:<name>',
+    );
   });
 
   it('words the usage and refusal sentences from the catalog', () => {

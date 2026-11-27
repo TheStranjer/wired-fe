@@ -10,6 +10,7 @@
 import { bareName, feedUsage, findFeed, reservedName, saveFeeds } from './feedArgs';
 import { OK, fail } from './outcome';
 import type { CommandContext, CommandOutcome } from './types';
+import { literals } from '../i18n/messages';
 import { t } from '../i18n/translate';
 import { type Result, err } from '../lib/result';
 import { editsFeed, feedEditorOpen, feedEditorTitle } from '../state/feedEditorWindow';
@@ -67,7 +68,9 @@ export function feedEdit(words: readonly string[], context: CommandContext): Com
 export function feedList(_words: readonly string[], context: CommandContext): CommandOutcome {
   const { feeds } = context.state.settings;
   if (feeds.length === 0) {
-    context.print(t('commands.feed_none', { name: '<name>', source: '<source>' }));
+    context.print(
+      t('commands.feed_none', { ...literals('new'), name: '<name>', source: '<source>' }),
+    );
   }
   for (const feed of feeds) {
     context.print(feedLine(feed, context));

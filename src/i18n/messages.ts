@@ -21,6 +21,16 @@ export type MessageKey = Paths<typeof english>;
 /** The values a message's arguments take. */
 export type MessageValues = Readonly<Record<string, string | number>>;
 
+/**
+ * The arguments that hand each of {@link words} to a message as itself, e.g.
+ * `literals('now')` is `{ now: 'now' }` for `/sync {now}`. A command word, a
+ * subcommand word or a setting value the reader types goes in as an argument,
+ * never as message text, so no translation can change it (decision 19).
+ */
+export function literals(...words: readonly string[]): MessageValues {
+  return Object.fromEntries(words.map((word) => [word, word]));
+}
+
 /** The shape of `t()` and of what `useT()` returns: a builder that must follow a language change takes one. */
 export type Translate = (key: MessageKey, values?: MessageValues) => string;
 
