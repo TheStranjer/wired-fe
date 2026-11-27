@@ -11,7 +11,11 @@ import { assert } from 'vitest';
 
 import { LAIN, WIRED, openedComposer } from './composerSession';
 import { ComposerWindow } from './ComposerWindow';
-import { DEFAULT_POLL_LIMITS, type FeatureFlag } from '../../capabilities/capabilities';
+import {
+  DEFAULT_POLL_LIMITS,
+  NO_ANONYMOUS_READS,
+  type FeatureFlag,
+} from '../../capabilities/capabilities';
 import type { AppState } from '../../state/appState';
 import { composerWindowOpen } from '../../state/composerWindow';
 import { appReducer } from '../../state/reducer';
@@ -105,6 +109,7 @@ export function cappedAt(max: number): AppState {
           maxMediaAttachments: max,
           pollLimits: DEFAULT_POLL_LIMITS,
           features: new Set<FeatureFlag>(['localOnlyPosts']),
+          anonymousReads: NO_ANONYMOUS_READS,
         },
       },
     },

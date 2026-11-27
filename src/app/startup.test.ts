@@ -11,8 +11,8 @@ import { type Detect, type StartupDeps, runStartup } from './startup';
 import type { AppStores } from './stores';
 import { accountKey, type StoredAccount } from '../accounts/accountStore';
 import { createSyncStore } from '../accounts/syncPrefs';
-import { DEFAULT_POLL_LIMITS } from '../capabilities/capabilities';
 import type { InstanceProfile } from '../capabilities/detect';
+import { capabilitiesOn } from '../capabilities/testCapabilities';
 import type { InstancesConfig, WiredConfig } from '../config/schema';
 import { ok } from '../lib/result';
 import type { AppAction } from '../state/reducer';
@@ -63,13 +63,7 @@ function lounge(origin: string): InstanceProfile {
   return {
     origin,
     title: TITLES.get(origin) ?? origin,
-    capabilities: {
-      backend: 'wired',
-      maxCharacters: 500,
-      maxMediaAttachments: 4,
-      pollLimits: DEFAULT_POLL_LIMITS,
-      features: new Set(),
-    },
+    capabilities: capabilitiesOn('wired', []),
   };
 }
 

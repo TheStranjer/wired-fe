@@ -5,7 +5,7 @@
  */
 import { describe, expect, it } from 'vitest';
 
-import { type Capabilities, DEFAULT_POLL_LIMITS } from './capabilities';
+import { type Capabilities, DEFAULT_POLL_LIMITS, NO_ANONYMOUS_READS } from './capabilities';
 import { requireFeature } from './requireFeature';
 import { installFakeLocale } from '../test/i18n';
 
@@ -18,6 +18,7 @@ const BARE: Capabilities = {
   maxMediaAttachments: 4,
   pollLimits: DEFAULT_POLL_LIMITS,
   features: new Set(),
+  anonymousReads: NO_ANONYMOUS_READS,
 };
 
 /** The gate's context with alice signed in, or nobody when {@link signedIn} is false. */

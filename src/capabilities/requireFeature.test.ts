@@ -6,7 +6,12 @@
 import { describe, expect, it } from 'vitest';
 
 import type { Backend } from './backend';
-import { type Capabilities, DEFAULT_POLL_LIMITS, type FeatureFlag } from './capabilities';
+import {
+  type Capabilities,
+  DEFAULT_POLL_LIMITS,
+  NO_ANONYMOUS_READS,
+  type FeatureFlag,
+} from './capabilities';
 import { requireFeature } from './requireFeature';
 
 const ORIGIN = 'https://mastodon.test';
@@ -33,6 +38,7 @@ function capsOf(backend: Backend, flags: readonly FeatureFlag[]): Capabilities {
     maxMediaAttachments: 4,
     pollLimits: DEFAULT_POLL_LIMITS,
     features: new Set(flags),
+    anonymousReads: NO_ANONYMOUS_READS,
   };
 }
 

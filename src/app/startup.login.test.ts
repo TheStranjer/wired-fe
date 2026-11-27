@@ -14,7 +14,7 @@ import type { AppStores } from './stores';
 import { createAccountStore } from '../accounts/accountStore';
 import { type PendingLogin, savePendingLogin } from '../accounts/pendingLogin';
 import { createSyncStore } from '../accounts/syncPrefs';
-import { DEFAULT_POLL_LIMITS } from '../capabilities/capabilities';
+import { DEFAULT_POLL_LIMITS, NO_ANONYMOUS_READS } from '../capabilities/capabilities';
 import type { InstanceProfile } from '../capabilities/detect';
 import type { WiredConfig } from '../config/schema';
 import { ok } from '../lib/result';
@@ -93,6 +93,7 @@ const LOUNGE: InstanceProfile = {
     maxMediaAttachments: 4,
     pollLimits: DEFAULT_POLL_LIMITS,
     features: new Set(),
+    anonymousReads: NO_ANONYMOUS_READS,
   },
 };
 

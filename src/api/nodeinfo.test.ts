@@ -10,6 +10,7 @@ import { describe, expect, it } from 'vitest';
 
 import type { ApiError } from './errors';
 import { NODEINFO_REL_20, NODEINFO_REL_21, fetchNodeInfo } from './nodeinfo';
+import { NO_ANONYMOUS_READS } from './schemas/anonymousReads';
 import type { NodeInfo } from './schemas/nodeinfo';
 import { type Result, ok } from '../lib/result';
 import { server } from '../test/server';
@@ -31,6 +32,7 @@ const DOC_21: NodeInfo = {
   openRegistrations: null,
   features: ['pleroma_api', 'mastodon_api'],
   nodeName: null,
+  anonymousReads: NO_ANONYMOUS_READS,
 };
 
 /** Serves {@link links} on the well-known discovery path. */
@@ -87,6 +89,7 @@ describe(fetchNodeInfo, () => {
         openRegistrations: false,
         features: [],
         nodeName: null,
+        anonymousReads: NO_ANONYMOUS_READS,
       }),
     );
   });

@@ -14,6 +14,7 @@ import * as v from 'valibot';
 import { BACKENDS } from './backend';
 import { type Capabilities, FEATURE_FLAGS } from './capabilities';
 import type { Detect, InstanceProfile } from './detect';
+import { AnonymousReadsWireSchema, NO_ANONYMOUS_READS } from '../api/schemas/anonymousReads';
 import { ok } from '../lib/result';
 
 /** The slice of the app's store this module uses, so it never imports storage. */
@@ -41,6 +42,8 @@ const CapabilitiesWireSchema = v.object({
   maxMediaAttachments: v.number(),
   pollLimits: PollLimitsWireSchema,
   features: v.array(v.picklist(FEATURE_FLAGS)),
+  /** Absent in an entry cached before the field existed: read as nothing published. */
+  anonymousReads: v.optional(AnonymousReadsWireSchema),
 });
 
 /** An {@link InstanceProfile} as stored. */
@@ -57,7 +60,11 @@ const CachedProfileSchema: v.GenericSchema<unknown, CachedProfile> = v.pipe(
     detectedAt,
     profile: {
       ...profile,
-      capabilities: { ...profile.capabilities, features: new Set(profile.capabilities.features) },
+      capabilities: {
+        ...profile.capabilities,
+        features: new Set(profile.capabilities.features),
+        anonymousReads: profile.capabilities.anonymousReads ?? NO_ANONYMOUS_READS,
+      },
     },
   })),
 );

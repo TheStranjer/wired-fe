@@ -12,7 +12,7 @@ import { type Detect, type StartupDeps, runStartup } from './startup';
 import type { AppStores } from './stores';
 import { accountKey, type StoredAccount } from '../accounts/accountStore';
 import { createSyncStore } from '../accounts/syncPrefs';
-import { DEFAULT_POLL_LIMITS } from '../capabilities/capabilities';
+import { DEFAULT_POLL_LIMITS, NO_ANONYMOUS_READS } from '../capabilities/capabilities';
 import type { InstanceProfile } from '../capabilities/detect';
 import type { InstancesConfig, WiredConfig } from '../config/schema';
 import { err, ok } from '../lib/result';
@@ -72,6 +72,7 @@ function profileOf(origin: string, title: string): InstanceProfile {
       maxMediaAttachments: 4,
       pollLimits: DEFAULT_POLL_LIMITS,
       features: new Set(),
+      anonymousReads: NO_ANONYMOUS_READS,
     },
   };
 }

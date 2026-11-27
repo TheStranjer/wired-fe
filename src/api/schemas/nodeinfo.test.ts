@@ -8,6 +8,7 @@
 import * as v from 'valibot';
 import { describe, expect, it } from 'vitest';
 
+import { NO_ANONYMOUS_READS } from './anonymousReads';
 import { type NodeInfo, type NodeInfoLinks, NodeInfoLinksSchema, NodeInfoSchema } from './nodeinfo';
 
 const REL_21 = 'http://nodeinfo.diaspora.software/ns/schema/2.1';
@@ -75,6 +76,7 @@ describe('NodeInfo schema', () => {
       openRegistrations: true,
       features: ['pleroma_api', 'mastodon_api', 'emoji_reactions'],
       nodeName: 'Wired example',
+      anonymousReads: NO_ANONYMOUS_READS,
     });
   });
 
@@ -92,6 +94,7 @@ describe('NodeInfo schema', () => {
       openRegistrations: false,
       features: [],
       nodeName: null,
+      anonymousReads: NO_ANONYMOUS_READS,
     });
   });
 
@@ -108,6 +111,7 @@ describe('NodeInfo schema', () => {
       openRegistrations: null,
       features: ['chat', 'pleroma_api'],
       nodeName: null,
+      anonymousReads: NO_ANONYMOUS_READS,
     });
   });
 
@@ -118,6 +122,7 @@ describe('NodeInfo schema', () => {
       openRegistrations: null,
       features: [],
       nodeName: null,
+      anonymousReads: NO_ANONYMOUS_READS,
     });
   });
 

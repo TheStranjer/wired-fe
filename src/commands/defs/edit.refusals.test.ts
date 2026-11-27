@@ -15,6 +15,7 @@ import type { Status } from '../../api/schemas/status';
 import {
   type Capabilities,
   DEFAULT_POLL_LIMITS,
+  NO_ANONYMOUS_READS,
   type FeatureFlag,
 } from '../../capabilities/capabilities';
 import type { InstanceProfile } from '../../capabilities/detect';
@@ -74,6 +75,7 @@ function capsWith(...flags: readonly FeatureFlag[]): Capabilities {
     maxMediaAttachments: 4,
     pollLimits: DEFAULT_POLL_LIMITS,
     features: new Set<FeatureFlag>(flags),
+    anonymousReads: NO_ANONYMOUS_READS,
   };
 }
 

@@ -14,6 +14,7 @@ import type { StoredAccount } from '../../accounts/accountStore';
 import {
   type Capabilities,
   DEFAULT_POLL_LIMITS,
+  NO_ANONYMOUS_READS,
   type FeatureFlag,
 } from '../../capabilities/capabilities';
 import type { InstanceProfile } from '../../capabilities/detect';
@@ -42,6 +43,7 @@ function capsWith(limits: Capabilities['pollLimits']): Capabilities {
     maxMediaAttachments: 6,
     pollLimits: limits,
     features: new Set<FeatureFlag>(['emojiReactions']),
+    anonymousReads: NO_ANONYMOUS_READS,
   };
 }
 

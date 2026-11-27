@@ -12,7 +12,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Root } from './Root';
 import { accountKey, type StoredAccount } from '../accounts/accountStore';
 import type { Capabilities, FeatureFlag } from '../capabilities/capabilities';
-import { DEFAULT_POLL_LIMITS } from '../capabilities/capabilities';
+import { DEFAULT_POLL_LIMITS, NO_ANONYMOUS_READS } from '../capabilities/capabilities';
 import { initialAppState } from '../state/appState';
 import type { AppState } from '../state/appState';
 import { type AppAction, appReducer } from '../state/reducer';
@@ -57,6 +57,7 @@ const CAPS: Capabilities = {
   maxMediaAttachments: 4,
   pollLimits: DEFAULT_POLL_LIMITS,
   features: new Set<FeatureFlag>([]),
+  anonymousReads: NO_ANONYMOUS_READS,
 };
 
 /** A signed-in, detected session with its home window open and active. */

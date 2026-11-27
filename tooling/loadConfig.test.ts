@@ -84,6 +84,26 @@ describe(loadConfig, () => {
     ).toThrow(/instances: an empty origins list needs allowCustom: true/);
   });
 
+  it('keeps a publicView object that names the fixed origin', () => {
+    const config = loadConfig(
+      '/srv/app/wired.config.json',
+      reader(
+        '{ "appName": "WIRED", "instances": { "mode": "fixed", "origin": "https://wired.example" }, "publicView": { "https://wired.example": true } }',
+      ),
+    );
+
+    expect(config.publicView).toStrictEqual({ 'https://wired.example': true });
+  });
+
+  it('fails the build on a publicView the instances mode cannot honour', () => {
+    expect(() =>
+      loadConfig(
+        '/srv/app/wired.config.json',
+        reader('{ "appName": "WIRED", "instances": { "mode": "open" }, "publicView": true }'),
+      ),
+    ).toThrow(/publicView: true is not allowed with instances.mode "open"/);
+  });
+
   it('keeps a supported defaultLocale', () => {
     const config = loadConfig(
       '/srv/app/wired.config.json',

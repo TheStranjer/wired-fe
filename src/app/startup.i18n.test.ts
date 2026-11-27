@@ -10,7 +10,7 @@ import { type Detect, runStartup } from './startup';
 import type { AppStores } from './stores';
 import { accountKey, type StoredAccount } from '../accounts/accountStore';
 import { createSyncStore } from '../accounts/syncPrefs';
-import { DEFAULT_POLL_LIMITS } from '../capabilities/capabilities';
+import { DEFAULT_POLL_LIMITS, NO_ANONYMOUS_READS } from '../capabilities/capabilities';
 import { ok } from '../lib/result';
 import type { Dispatch } from '../state/StateContext';
 import { createStore } from '../storage/store';
@@ -75,6 +75,7 @@ const detect: Detect = async () =>
         maxMediaAttachments: 4,
         pollLimits: DEFAULT_POLL_LIMITS,
         features: new Set(),
+        anonymousReads: NO_ANONYMOUS_READS,
       },
     }),
   );

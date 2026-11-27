@@ -12,6 +12,7 @@ import {
   type Capabilities,
   type FeatureFlag,
   DEFAULT_POLL_LIMITS,
+  NO_ANONYMOUS_READS,
 } from '../../capabilities/capabilities';
 import type { InstanceProfile } from '../../capabilities/detect';
 import { type AppState, coreReducer, initialAppState } from '../../state/appState';
@@ -43,6 +44,7 @@ const WIRED: Capabilities = {
     maxExpiration: 31_536_000,
   },
   features: new Set<FeatureFlag>(['emojiReactions', 'localOnlyPosts', 'markdown']),
+  anonymousReads: NO_ANONYMOUS_READS,
 };
 
 /** A Mastodon.org-style instance: the defaults, and editing as its only flag. */
@@ -52,6 +54,7 @@ const MASTODON: Capabilities = {
   maxMediaAttachments: 4,
   pollLimits: DEFAULT_POLL_LIMITS,
   features: new Set<FeatureFlag>(['editing']),
+  anonymousReads: NO_ANONYMOUS_READS,
 };
 
 /** A pleroma that advertises nothing: no flags, an hour of polls from zero. */
@@ -61,6 +64,7 @@ const PLEROMA: Capabilities = {
   maxMediaAttachments: 2,
   pollLimits: { maxOptions: 4, maxCharactersPerOption: 50, minExpiration: 0, maxExpiration: 3_600 },
   features: new Set<FeatureFlag>([]),
+  anonymousReads: NO_ANONYMOUS_READS,
 };
 
 /** What the account's instance turned out to be: {@link capabilities}, titled. */
