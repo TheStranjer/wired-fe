@@ -1,0 +1,1212 @@
+{
+  "commands": {
+    "help_topics": {
+      "feeds": {
+        "display": "Сообщения по умолчанию отображаются в виде карточек; команда /display density lines переключает это окно на построчный вид IRC, /display avatars off и /display images off скрывают аватары и изображения соответственно, /display reset сбрасывает переопределения, а /set density, /set avatars и /set images меняют настройки по умолчанию для всех окон.",
+        "editor": "При первом запуске создаётся один под названием stream (главная, упоминания, личные сообщения и уведомления всех аккаунтов); /feed edit {name}, /feed new или кнопка ✎ в панели лент открывает редактор.",
+        "labels": "У каждого поста есть короткая метка, например [a3]: /fav a3, /reply a3, /pop a3 — выполняйте действия с ним от имени аккаунта, который его получил.",
+        "merge": "Лента объединяет любые источники всех вошедших в систему аккаунтов в один поток, сначала самые новые; публикация, которую видят несколько аккаунтов, показывается только один раз.",
+        "sources": "Источники: главная, упоминания, личные сообщения, уведомления, локальные, федеративные и тег:{name}."
+      },
+      "layout": {
+        "buttons": "Кнопки: ◫▾ и ⊟▾ разделяют вид, ⧉ переносит панель в плавающее состояние, ⇲ прикрепляет плавающее окно, ✕ закрывает. Удерживайте Shift и перетащите плавающее окно на панель, чтобы заякорить его у этого края.",
+        "close": "Закрытие панели оставляет окно; /close закрывает окно.",
+        "desktop_close": "Ctrl+B & (или × после активного рабочего стола в строке состояния, или средний клик по любому рабочему столу) закрывает рабочий стол, оставляя его окна открытыми (/win); /desktop prune закрывает все пустые рабочие столы.",
+        "desktop_keys": "Alt+1..9 переключаются на рабочий стол, Alt+[ и Alt+] переходят к предыдущему и следующему.",
+        "navigation_keys": "В режиме навигации (Esc): w v / w s разделить, w h j k l переключить фокус, w c закрывает панель, w o оставить только эту, w = выровнять размеры, w f / w d плавающий режим и прикрепление.",
+        "panes": "Экран — это рабочий стол из панелей, разделённых бок о бок (ряд) или уложенных стопкой (столбец); любую панель можно оторвать в плавающее окно, которое вы перетаскиваете внутри области просмотра.",
+        "phone": "На телефоне отображается по одной панели, с переключателем ‹ 2/4 › в строке заголовка.",
+        "placement": "Ctrl+click открывает во всплывающем окне, Shift+click в боковом сплите (side-by-side), средний клик скрывает; --in here|vsplit|split|float|hidden размещает любое открытое окно.",
+        "prefix_keys": "Клавиши: Ctrl+B % / \" split, Ctrl+B стрелки для фокуса, Ctrl+B x закрывает панель, Ctrl+B z оставляет только эту, Ctrl+B f / d плавающий и закрепить.",
+        "start_menu": "Ctrl+B Пробел / w Пробел (или кнопка [≡ wired] слева от строки состояния) открывает меню «Пуск», строки которого открывают представление в виде плавающего окна."
+      },
+      "sync": {
+        "accounts": "Основная учётная запись хранит синхронизированную копию; упорядоченные резервные аккаунты берут на себя управление, когда у неё нет хранилища настроек или её токен не работает (/sync primary {handle}, /sync fallback add|rm|up {handle}).",
+        "budget": "Сервер ограничивает общий объём хранилища до 1 МиБ, поэтому рабочий стол, слишком большой для бюджета в 384 КиБ, исключает только из синхронизированной копии скрытые окна, пустые рабочие столы и дополнительные переопределения клавиш, и сообщает об этом.",
+        "devices": "Настольные браузеры (Windows, macOS, Linux, ChromeOS) и мобильные (Android, iOS, iPadOS) хранят свои собственные макеты, и побеждает более новая копия.",
+        "mastodon": "У Mastodon нет хранилища настроек: аккаунт там хранит своё рабочее место только в этом браузере.",
+        "push": "Push выполняется через 3 секунды после последнего изменения; /sync теперь одновременно выполняет pull и push, /sync off и /sync on переключают это.",
+        "saved": "Ваши рабочие столы, плавающие панели, открытые окна, ленты и настройки сохраняются в этом браузере и синхронизируются через ваш сервер, поэтому рабочее пространство следует за вами."
+      }
+    },
+    "aliases": "Псевдонимы: {aliases}",
+    "already_in_thread": "Уже в этой теме",
+    "bad_duration": "Неверная длительность: {word}",
+    "command_failed": "Команда не выполнена: {error}",
+    "defs": {
+      "about": {
+        "backend": "бэкенд: {backend}",
+        "device": "устройство: {device}",
+        "features": "функции: {count, plural, =0 {нет} other {{names}}}",
+        "not_connected": "Не подключено. Введите /connect.",
+        "polls": "опросы: {options, plural, one {# вариант} other {# вариантов}} из {characters} символов, {span}",
+        "posts": "посты: до {characters} символов, {attachments, plural, one {# вложение} other {# вложений}}",
+        "summary": "Покажи, что это за экземпляр и что он умеет",
+        "title_at": "{title} в {origin}"
+      },
+      "account": {
+        "active": "Активный аккаунт: @{handle}",
+        "logged_out": "Вы вышли из системы @{handle}",
+        "revoke_failed": "Не удалось отозвать токен: {reason}",
+        "summary": "Перечислять аккаунты, переключаться между ними и выходить из них",
+        "usage": "/account [список] | /account переключить '<n|handle>' | /account следующий | /account выйти [n|handle]",
+        "usage_error": "Использование: {usage}"
+      },
+      "as": {
+        "posted": "опубликовано как @{handle}",
+        "summary": "Опубликовать одну строку от имени другой учётной записи",
+        "usage": "/как '<handle|n> <text>'",
+        "usage_error": "Использование: {usage}"
+      },
+      "attach": {
+        "summary": "Прикрепите медиа к вашему следующему посту",
+        "usage": "/прикрепить [alt text]"
+      },
+      "bind": {
+        "blocks_typing": "{chord} будет блокировать ввод в режиме вставки",
+        "must_start_with_slash": "Командная строка должна начинаться с /",
+        "not_a_key": "Не является ключом: {chords}",
+        "summary": "Привязать клавишу к командной строке",
+        "usage": "/bind '<insert|navigation> <chord> <command line>'",
+        "usage_error": "Использование: {usage}"
+      },
+      "binds": {
+        "mode_header": "Ключи ({mode} режим):",
+        "none": "(нет)",
+        "not_a_mode": "Не является режимом: {word}. Попробуйте /binds",
+        "prefill": "(предзаполнить)",
+        "summary": "Показать действующие сочетания клавиш",
+        "usage_error": "Использование: {usage}"
+      },
+      "block": {
+        "summary": "Заблокировать аккаунт",
+        "usage": "/заблокировать [target]"
+      },
+      "bookmark": {
+        "summary": "Добавить закладку к публикации или удалить закладку.",
+        "usage": "/закладка [label]"
+      },
+      "boost": {
+        "summary": "Продвиньте публикацию или отмените продвижение",
+        "usage": "/усилить [label]"
+      },
+      "clear": {
+        "summary": "Очистить активное окно"
+      },
+      "close": {
+        "cannot_close_status": "Невозможно закрыть окно состояния.",
+        "summary": "Закрыть активное окно"
+      },
+      "compose": {
+        "summary": "Открыть окно Composer",
+        "usage": "/compose [text] [--in '<placement>']"
+      },
+      "connect": {
+        "could_not_start": "Не удалось начать вход: {reason}",
+        "opening": "Открывается {origin} для входа…",
+        "summary": "Войти в экземпляр",
+        "usage": "/подключиться [instance]"
+      },
+      "copy": {
+        "copied": "Скопировано {link}",
+        "summary": "Скопировать ссылку на запись в буфер обмена",
+        "unavailable": "Буфер обмена недоступен",
+        "usage": "/копировать [label]"
+      },
+      "cw": {
+        "summary": "Опубликовать в активном окне за предупреждением о содержании",
+        "usage": "/cw '<warning> <text>'",
+        "usage_error": "Использование: /cw \"предупреждение\" текст"
+      },
+      "delete": {
+        "deleted": "✗ удалено [{label}]",
+        "summary": "Удалите один из своих постов",
+        "usage": "/удалить [label]"
+      },
+      "desktop": {
+        "closed": "рабочий стол {number} закрыт (его окна всё ещё открыты: /win)",
+        "closed_empty": "{count, plural, one {закрыт # пустой рабочий стол} other {закрыты # пустых рабочих столов}}",
+        "last_desktop": "Нельзя закрыть последний рабочий стол",
+        "no_desktop": "Нет рабочего стола {number}",
+        "no_empty": "Нет пустых рабочих столов",
+        "summary": "Список, переключение (Alt+1..9, Alt+[ и Alt+]), создание (только после рабочего стола с чем‑то на нём), закрыть (Ctrl+B &, × или средний клик на строке состояния) или удалить пустые рабочие столы",
+        "usage": "/desktop [list] | /desktop '<number>' | /desktop следующий | /desktop предыдущий | /desktop новый | /desktop закрыть [number] | /desktop очистить",
+        "usage_error": "Использование: {usage}"
+      },
+      "detach": {
+        "cleared": "вложения удалены",
+        "summary": "Удалите все вложения, ожидающие следующего сообщения"
+      },
+      "display": {
+        "cleared": "Переопределения отображения удалены.",
+        "inherited": "{key} унаследовано",
+        "line": "{key} = {value}  ({source, select, inherited {inherited} other {overridden}})",
+        "no_key": "Нет ключа отображения {key}. Попробуйте /display",
+        "summary": "Показать или переопределить плотность, аватары и изображения этого окна",
+        "takes": "{key} принимает {values}",
+        "usage": "/display [ключ [значение] | сбросить [ключ]]",
+        "usage_error": "Использование: {usage}"
+      },
+      "dm": {
+        "summary": "Отправьте личное сообщение в одну строку",
+        "usage": "/dm @user@host сообщение",
+        "usage_error": "Использование: {usage}"
+      },
+      "dock": {
+        "not_a_float": "Фокусная панель не является плавающей",
+        "summary": "Пришпилить сфокусированный плавающий элемент в панели с плиткой"
+      },
+      "edit": {
+        "edited": "✎ отредактировано [{label}]",
+        "summary": "Отредактируй один из своих постов; если текста нет, открой редактор (клавиша e предварительно заполняет его)",
+        "usage": "/edit [label] [text]; при отсутствии текста открывает редактор"
+      },
+      "equalize": {
+        "summary": "Дайте каждой панели равную долю рабочего стола."
+      },
+      "fav": {
+        "summary": "Добавьте пост в избранное или уберите его из избранного",
+        "usage": "/избранное [label]"
+      },
+      "federated": {
+        "summary": "Открыть федеративную ленту",
+        "usage": "/federated [text] [--in '<placement>']"
+      },
+      "feed": {
+        "summary": "Создать, изменить и открыть ленты ({subcommands})",
+        "usage": "/feed [список] | /feed '<name>' | /feed редактировать '<name>' | /feed новый ['<name> <source>'…] | /feed добавить|удалить '<name> <source>'… | /feed переименовать '<old> <new>' | /feed удалить '<name>'"
+      },
+      "float": {
+        "already_floating": "Сфокусированная панель уже является плавающей.",
+        "no_pane": "На этом рабочем столе нет панели, которую можно сделать плавающей.",
+        "summary": "Отделить выделенную панель в плавающее окно или открыть представление в новой панели."
+      },
+      "focus": {
+        "summary": "Сфокусируйте панель в нужном направлении или переключайтесь между панелями.",
+        "usage_error": "Использование: {usage}"
+      },
+      "follow": {
+        "summary": "Подписаться на аккаунт",
+        "usage": "/подписаться [target]"
+      },
+      "forgot": {
+        "letter": "Если такая учетная запись существует, письмо для сброса пароля уже в пути.",
+        "summary": "Отправить по почте письмо для сброса пароля",
+        "usage": "/forgot '<email|nick>' [instance]",
+        "usage_error": "Использование: /forgot '<email|nick>'"
+      },
+      "help": {
+        "footer": "Введите /help '<command>' для подробностей.",
+        "header": "Команды:",
+        "no_such_command": "Нет такой команды: /{subject}",
+        "summary": "Перечислить команды или показать справку для одной из них",
+        "topics": "Темы: {topics}. Введите /help '<topic>'.",
+        "usage": "/помощь [команда | тема]"
+      },
+      "home": {
+        "summary": "Откройте свою домашнюю ленту",
+        "usage": "/home [текст] [--in '<размещение>']"
+      },
+      "lang": {
+        "auto_hint": "Сначала следуйте настройке по умолчанию экземпляра, затем настройке браузера",
+        "available": "Доступные языки:",
+        "cleared": "Настройка языка сброшена: теперь {name} ({code}), из {source, select, user {ваша настройка} instance {значение по умолчанию инстанса} browser {браузер} other {резервный вариант}}",
+        "current": "Язык: {name} ({code}), из {source, select, user {ваша настройка} instance {значение по умолчанию экземпляра} browser {браузер} other {резервный вариант}}",
+        "set": "Язык установлен: {name} ({code})",
+        "summary": "Показать или выбрать язык интерфейса",
+        "unknown": "Язык {input} не найден. Выберите auto или один из: {choices}",
+        "usage": "/lang [код|имя|авто]"
+      },
+      "local": {
+        "summary": "Открыть локальную временную шкалу",
+        "usage": "/local [text] [--in '<placement>']"
+      },
+      "media": {
+        "few_attachments": "Публикация {label} содержит {count, plural, one {# вложение} other {# вложений}}",
+        "no_attachments": "У записи {label} нет вложений",
+        "summary": "Показать вложение публикации в полном размере в окне",
+        "usage": "/media [label] [n]",
+        "usage_error": "Использование: /media [label] [n]"
+      },
+      "more": {
+        "no_older": "Нет более старых записей",
+        "summary": "Загрузить следующую страницу более старых записей"
+      },
+      "mute": {
+        "summary": "Отключить звук аккаунта",
+        "usage": "/заглушить [target] [duration]"
+      },
+      "mvd": {
+        "already_on": "Уже на рабочем столе {number}",
+        "no_pane": "Нет панели для перемещения",
+        "summary": "Переместить сфокусированную панель на другой рабочий стол",
+        "usage": "/mvd '<number>' [следовать]",
+        "usage_error": "Использование: /mvd '<number>' [follow]"
+      },
+      "notifications": {
+        "summary": "Открой свои уведомления",
+        "usage": "/notifications [text] [--in '<placement>']"
+      },
+      "only": {
+        "no_panes": "На этом рабочем столе нет панелей",
+        "summary": "Закрыть все остальные панели и сделать плавающими; их окна остаются открытыми (в отличие от /close)"
+      },
+      "open": {
+        "not_http": "Можно открывать только ссылки http(s)",
+        "summary": "Открыть запись или URL в новой вкладке браузера",
+        "usage": "/открыть [label | url]"
+      },
+      "people": {
+        "nothing_to_list": "Окно «люди» не содержит собственных людей.",
+        "summary": "Показать или скрыть, кто находится в этом окне"
+      },
+      "pin": {
+        "summary": "Закрепите один из ваших собственных постов, или открепите его",
+        "usage": "/закрепить [label]"
+      },
+      "poll": {
+        "hours_wants": "--hours требует положительного количества часов",
+        "not_connected": "Не подключено. Введите /connect",
+        "option_count": "Опрос требует {min}–{max} вариантов",
+        "option_too_long": "Опция \"{option}\" длиннее, чем {max, plural, one {# символ} other {# символов}}",
+        "posted": "опрос опубликован",
+        "run_span": "Опрос должен длиться от {min} до {max}",
+        "summary": "Опубликовать опрос в активном окне",
+        "unknown_flag": "Неизвестный флаг: {flag}",
+        "usage": "/poll \"'<question>'\" \"'<option>'\" \"'<option>'\" [...] [--multiple] [--hours N]",
+        "usage_error": "Использование: /poll \"'<question>'\" \"'<option>'\" \"'<option>'\" [...] [--multiple] [--hours N]"
+      },
+      "pop": {
+        "summary": "Вынести ветку сообщения в плавающее окно или сфокусировать её в том месте, где она отображается; если вы уже находитесь внутри этой ветки, ничего не делать (горячая клавиша p или двойной щелчок)",
+        "usage": "/pop [label]"
+      },
+      "postas": {
+        "feed_cleared": "~{feed} значение по умолчанию очищено",
+        "global_cleared": "Глобальная учётная запись для публикаций очищена",
+        "global_own": "{line}; у этого окна есть собственная учетная запись, поэтому оно является глобальным по умолчанию",
+        "no_default": "Не настроена учетная запись для публикации: /postas '<handle|n>'",
+        "summary": "Показать или задать, от какого аккаунта публикуются ленты",
+        "usage": "/postas [--global] ['<handle|n>'|--clear]",
+        "usage_error": "Использование: {usage}"
+      },
+      "query": {
+        "summary": "Открыть окно приватного разговора",
+        "usage": "/запрос '<@handle>'",
+        "usage_error": "Использование: {usage}"
+      },
+      "quote": {
+        "quoted": "❝ в кавычках {label}",
+        "summary": "Цитировать пост; при отсутствии текста открыть редактор (q предварительно заполняет, Shift+c создаёт сообщение)",
+        "usage": "/цитата [label] [text]"
+      },
+      "raise": {
+        "no_pane": "На этом рабочем столе нет панели, которую можно поднять.",
+        "summary": "Поднять сфокусированное плавающее окно наверх"
+      },
+      "react": {
+        "summary": "Отреагируйте на пост с помощью эмодзи",
+        "usage": "/реагировать [label] '<emoji>'"
+      },
+      "reply": {
+        "replied": "↳ ответил(а) {label}",
+        "summary": "Ответьте в одну строку; без текста откройте окно создания (r предварительно заполняет, Shift+r создаёт)",
+        "usage": "/ответить [label] [text]"
+      },
+      "resize": {
+        "nothing_to_resize": "Нет объектов для изменения размера",
+        "summary": "Изменить размер фокусируемой панели в процентных пунктах или задать её долю",
+        "usage": "/resize ширина|высота +N|-N|N",
+        "usage_error": "Использование: {usage}"
+      },
+      "search": {
+        "summary": "Искать аккаунты, публикации и теги",
+        "usage": "/поиск '<query>'",
+        "usage_error": "Использование: {usage}"
+      },
+      "select": {
+        "no_post": "Здесь нет поста {label}",
+        "summary": "Переместить или установить выбранный пост",
+        "usage": "/select следующий | предыдущий | первый | последний | нет | '<label>'",
+        "usage_error": "Использование: {usage}"
+      },
+      "set": {
+        "listed": "  {key} = {value}  — {description}",
+        "no_setting": "Нет настройки {key}. Попробуйте /set",
+        "summary": "Показать или изменить ваши настройки",
+        "takes": "{key} принимает {words}",
+        "usage": "/set [ключ [значение]]",
+        "usage_error": "Использование: {usage}"
+      },
+      "split": {
+        "summary": "Разделить активную панель в виде стопки",
+        "usage": "/разделить {views}"
+      },
+      "start": {
+        "summary": "Откройте меню «Пуск», чтобы открыть представление в плавающем окне"
+      },
+      "swap": {
+        "summary": "Поменять окно сфокусированной панели с соседним",
+        "usage": "/swap '<left|right|up|down>'",
+        "usage_error": "Использование: {usage}"
+      },
+      "sync": {
+        "accounts": "Синхронизировать аккаунты: {accounts}",
+        "already_listed": "Уже в списке синхронизации",
+        "already_primary": "Уже основной",
+        "no_holder": "Ни один аккаунт не может хранить синхронизированный рабочий стол. Введите /sync, чтобы узнать, почему",
+        "no_primary": "Основной ещё не установлен. Сначала введите /sync primary '<handle>'",
+        "not_listed": "Не в списке синхронизации",
+        "summary": "Выберите учетную запись, в которой синхронизирован ваш рабочий стол",
+        "switched_off": "Синхронизация: выкл.",
+        "switched_on": "Синхронизация: включена",
+        "syncing": "Синхронизируется…",
+        "usage": "/sync | /sync primary '<handle>' | /sync fallback add|rm|up '<handle>' | /sync off | /sync on | /sync now",
+        "usage_error": "Использование: {usage}"
+      },
+      "tag": {
+        "not_a_hashtag": "Не хэштег: {input}",
+        "summary": "Открыть ленту по хэштегу",
+        "usage": "/тег '<name>'"
+      },
+      "theme": {
+        "current": "{name} (текущий)",
+        "list_header": "Темы:",
+        "no_theme": "Тема {name} не найдена. Попробуйте /theme",
+        "summary": "Перечислить или выбрать цветовую тему",
+        "usage": "/тема [name]",
+        "usage_error": "Использование: {usage}"
+      },
+      "thread": {
+        "summary": "Открыть окно ветки поста",
+        "usage": "/тема [label]"
+      },
+      "unbind": {
+        "not_a_key": "Не является тональностью: {chord}",
+        "summary": "Удалить назначение клавиши",
+        "unbound": "{mode} {chord} не назначено",
+        "usage": "/отвязать '<insert|navigation>' '<chord>'",
+        "usage_error": "Использование: {usage}"
+      },
+      "unblock": {
+        "summary": "Верни блок",
+        "usage": "/разблокировать [target]"
+      },
+      "unbookmark": {
+        "summary": "Удалите свою закладку с поста.",
+        "usage": "/удалить_закладку [label]"
+      },
+      "unboost": {
+        "summary": "Отмени продвижение своей публикации",
+        "usage": "/отменить_усиление [label]"
+      },
+      "unfav": {
+        "summary": "Отменить отметку «Избранное» у публикации",
+        "usage": "Убрать из избранного [label]"
+      },
+      "unfollow": {
+        "summary": "Подписаться в ответ",
+        "usage": "/отписаться [target]"
+      },
+      "unmute": {
+        "summary": "Снять заглушение",
+        "usage": "/включить звук [target]"
+      },
+      "unpin": {
+        "summary": "Открепите один из ваших собственных постов",
+        "usage": "/открепить [label]"
+      },
+      "unreact": {
+        "summary": "Удалите свою реакцию-эмодзи с публикации",
+        "usage": "/unreact [label] '<emoji>'"
+      },
+      "unsplit": {
+        "no_pane": "На этом рабочем столе нет панели для закрытия.",
+        "summary": "Закрыть сфокусированную панель; её окно остаётся открытым (в отличие от /close)"
+      },
+      "vis": {
+        "report": "Новые публикации по умолчанию {visibility}.",
+        "summary": "Показать или задать аудиторию по умолчанию, либо опубликовать одну строку с указанием аудитории",
+        "usage": "/vis [публичный|не в списке|приватный|прямой|локальный] [текст]",
+        "usage_error": "Использование: {usage}",
+        "usage_for": "/vis [{audiences}] [text]"
+      },
+      "vote": {
+        "already_voted": "Вы уже голосовали.",
+        "closed": "Этот опрос закрыт.",
+        "no_poll": "Нет опроса на {label}",
+        "options_range": "Варианты: 1–{last}",
+        "pick_one": "Выберите один вариант (1–{last})",
+        "summary": "Проголосовать в опросе публикации",
+        "usage": "/vote [метка] '<n>' [n…]",
+        "voted": "проголосовал(а) за {choices} в {label}"
+      },
+      "vsplit": {
+        "summary": "Разделить выделенную панель бок о бок",
+        "usage": "/vsplit {views}"
+      },
+      "whois": {
+        "summary": "Открыть окно профиля аккаунта",
+        "usage": "/whois [метка | @user@host]"
+      },
+      "win": {
+        "cannot_move": "Не удаётся переместить это окно туда",
+        "no_window": "Нет окна {number}",
+        "summary": "Переключать, перебирать, переупорядочивать или перечислять окна (рабочие столы: /desktop)",
+        "unread": "({count, plural, one {{count} непрочитанное} other {{count} непрочитанных}})",
+        "usage": "/win '<number>' | /win следующий | /win предыдущий | /win переместить '<number>' | /win список",
+        "usage_error": "Использование: {usage}"
+      }
+    },
+    "desktop_line": "{label}: {count, plural, one {# панель} other {# панелей}}",
+    "desktop_line_titles": "{label}: {count, plural, one {# панель} other {# панелей}}: {titles}",
+    "desktops_up_to": "Доступно до {max} рабочих столов",
+    "error_with_usage": "{error}. Использование: {usage}",
+    "failed": "Не удалось: {error}",
+    "feed_deleted": "Удалён ~{name}",
+    "feed_line": "{title} ({id}): {sources}",
+    "feed_line_empty": "{title} ({id}): нет источников",
+    "feed_made": "Создано ~{name}",
+    "feed_none": "Нет фидов. Создайте один с помощью /feed new {name} {source}…",
+    "feed_not_found": "Нет фида с именем \"{name}\"",
+    "feed_reads": "~{name} читает {sources}",
+    "feed_reads_no_longer": "~{name} больше не читает {sources}",
+    "feed_reads_none": "~{name} не читает ни один из {sources}",
+    "feed_renamed": "Переименовано ~{old} в ~{name}",
+    "feed_reserved": "\"{name}\" — слово /feed; выберите другое имя",
+    "follow_requested": "запрос на подписку",
+    "in_takes": "--in принимает {words}",
+    "invalid_name": "Недопустимое имя команды: /{name}",
+    "key_in_mode": "{chord} ({mode, select, insert {insert} other {навигация}})",
+    "keys": "Ключи: {keys}",
+    "missing_name": "Отсутствует имя команды после /",
+    "no_account_lookup": "Учетная запись {handle} не найдена: {error}",
+    "no_post_here": "Здесь нет записи {label}",
+    "no_window": "Нет окна {number}",
+    "no_window_kind": "Тип окна {kind} не найден. Типы: {kinds}",
+    "not_a_command": "Это не команда: {line}",
+    "not_a_float": "Выделённая панель не является плавающей.",
+    "not_available_here": "/{command} недоступна здесь",
+    "not_logged_in": "Вы не вошли в систему. Введите /connect",
+    "not_signed_in_as": "Вы не вошли как {handle}. {count, plural, =0 {Ни одна учётная запись не авторизована.} other {Выполнен вход: {accounts}.}} Введите /connect, чтобы добавить аккаунт.",
+    "opened_no_window": "/{command} не открыло ни одного окна",
+    "own_posts_only": "Вы можете {verb, select, delete {удалять} other {редактировать}} только свои сообщения",
+    "pin_own_only": "Вы можете закреплять только свои сообщения.",
+    "placement_takes": "{key} занимает {words}",
+    "reaction_done": "{emoji} {kind, select, react {поставил реакцию на} other {удалил реакцию с}} {label}",
+    "select_post_first": "Сначала выберите сообщение (j/k) или укажите метку",
+    "status_bookmarked": "Добавлено в закладки",
+    "status_boosted": "усиленный",
+    "status_favourited": "добавлен в избранное",
+    "status_moved": "{mark} {word} {label}",
+    "status_pinned": "закреплено",
+    "status_unbookmarked": "убрано из закладок",
+    "status_unboosted": "не усиленный",
+    "status_unfavourited": "убрано из избранного",
+    "status_unpinned": "Откреплено",
+    "sync_fallback": "{skipped, select, yes {Запасной {index}: {account} (пропущено: {reason})} other {Запасной {index}: {account}}}",
+    "sync_in_use": "Используется: {account}",
+    "sync_in_use_none": "В использовании: нет",
+    "sync_last_error": "Последняя ошибка: {error}",
+    "sync_last_pull": "Последнее обновление: {time}",
+    "sync_last_push": "Последний пуш: {time}",
+    "sync_off": "Синхронизация: отключена. Введите /sync on, чтобы снова включить её.",
+    "sync_on": "Синхронизация: включена",
+    "sync_primary": "{skipped, select, yes {Основной: {account} (пропущено: {reason})} other {Основной: {account}}}",
+    "sync_primary_none": "Основной: не выбрано (используется первый доступный аккаунт)",
+    "that_is_you": "Это ты",
+    "tip": "{action}: /{command}",
+    "tip_keys": "{action}: /{command} ({keys})",
+    "toggle_done": "{word} @{acct}",
+    "toggle_done_for": "{word} @{acct} в течение {duration}",
+    "unknown_command": "Неизвестная команда: /{name}. Попробуйте /help",
+    "unknown_command_plain": "Неизвестная команда: /{name}",
+    "usage": "Использование: {usage}",
+    "view_needs_argument": "{word} требует аргумента",
+    "view_no_argument": "{word} не принимает аргументов.",
+    "view_unknown": "Неизвестное представление: {view}",
+    "view_win_number": "win принимает номер окна"
+  },
+  "accounts": {
+    "login_expired": "Вход истёк или не был начат здесь. Попробуйте ещё раз.",
+    "login_failed": "Не удалось войти: {reason}",
+    "login_mismatch": "Состояние входа не совпадает. Пожалуйста, попробуйте снова.",
+    "login_refused": "Вход отклонён",
+    "login_refused_code": "Вход отклонён ({code})",
+    "need_https": "Поддерживаются только экземпляры https",
+    "need_instance": "Введите экземпляр, например wired.example",
+    "not_listed": "Этот экземпляр здесь недоступен",
+    "registered_login_failed": "Регистрация выполнена, но вход не выполнен: {reason}",
+    "registration_failed": "Регистрация не удалась: {reason}"
+  },
+  "api": {
+    "http_error": "HTTP {status}: {message}",
+    "invalid_json": "Неверный JSON",
+    "media_timeout": "Время обработки медиа истекло.",
+    "network_error": "Ошибка сети: {message}",
+    "nodeinfo_no_link": "Нет ссылки на NodeInfo 2.x",
+    "nodeinfo_other_origin": "Ссылка NodeInfo указывает на другой origin",
+    "rate_limited": "Превышен лимит запросов",
+    "rate_limited_until": "Ограничение запросов до {time}",
+    "request_cancelled": "Запрос отменён",
+    "request_failed": "Запрос не выполнен",
+    "unexpected_response": "Неожиданный ответ: {message}"
+  },
+  "app": {
+    "account_none": "нет аккаунта",
+    "ask_dm_title": "Личное сообщение",
+    "ask_handle_placeholder": "@user@instance",
+    "ask_hashtag_placeholder": "#тег",
+    "ask_hashtag_title": "Разделить с хэштегом",
+    "ask_profile_title": "Открыть профиль",
+    "ask_search_placeholder": "слова, @аккаунт или #тег",
+    "ask_search_title": "Поиск",
+    "attach_media": "Прикрепить медиа…",
+    "attach_refused": "Невозможно прикрепить {file}: это не изображение, не видео и не аудиофайл",
+    "attach_too_many": "слишком много вложений: {max} на сообщение, пропущено {file}",
+    "attach_uploading": "загружаю {file}…",
+    "attached": "прикреплено {file} ({attached}/{max})",
+    "authorize_app": "Авторизовать приложение",
+    "close_pane": "Закрыть панель {title}",
+    "command_line_not_ready": "Командная строка не готова",
+    "command_suggestions": "Подсказки команд",
+    "connect_hint_list": "Не подключено. Введите /connect '<'instance'>'. Доступно: {origins}",
+    "connect_hint_list_custom": "Не подключено. Введите /connect '<'instance'>'. Доступно: {origins}. Любой другой экземпляр тоже подходит.",
+    "connect_hint_log_in": "Не подключено. Введите /connect, чтобы войти.",
+    "connect_hint_open": "Не подключено. Введите /connect '<'instance'>', например /connect wired.example",
+    "connected_to": "Подключено к {title} ({backend}) по адресу {origin}",
+    "could_not_reach": "Не удалось подключиться к {origin}: {reason}",
+    "desktop_label": "Рабочий стол {number}",
+    "display_avatars": "Аватары",
+    "display_cards": "Карточки",
+    "display_images": "Изображения",
+    "display_lines": "Строки",
+    "display_options": "Показать параметры для {title}",
+    "display_reset": "Сбросить настройки по умолчанию",
+    "display_row_spoken": "{label}, {state, select, on {включено} on_overridden {включено, переопределено} off_overridden {выключено, переопределено} other {выключено}}",
+    "dock_announce": "Прикрепить {edge, select, left {слева от} right {справа от} top {над} other {под}} #{title}",
+    "dock_window": "Закрепить {title}",
+    "edit_feed": "Редактировать ленту {title}",
+    "empty_desktop_hint": "пустой рабочий стол — /vsplit, /split или Ctrl+B %",
+    "finish_registration": "Завершить регистрацию",
+    "float_window": "Плавающий {title}",
+    "language_auto": "Автоматический",
+    "language_list_label": "Выберите язык интерфейса",
+    "language_row": "Язык…",
+    "logged_in_as": "Вход выполнен как @{handle}",
+    "logged_in_as_active": "Выполнен вход как @{handle} (активен)",
+    "logged_in_to": "Выполнен вход в {origin} как @{handle}",
+    "menu_composer": "Композитор",
+    "menu_dm": "Личное сообщение…",
+    "menu_dms": "Личные сообщения",
+    "menu_existing_window": "Существующее окно…",
+    "menu_federated": "Федеративный",
+    "menu_feed": "Лента: {name}",
+    "menu_hashtag": "Хэштег…",
+    "menu_home": "Главная",
+    "menu_local": "Локальный",
+    "menu_new_feed": "Новая лента…",
+    "menu_notifications": "Уведомления",
+    "menu_people": "Люди здесь",
+    "menu_profile": "Профиль…",
+    "menu_same_window": "В том же окне",
+    "menu_search": "Поиск…",
+    "no_view": "Нет представления для этого окна",
+    "open_view": "Открыть представление",
+    "open_view_float": "Открыть представление как плавающее окно",
+    "pane_next": "Следующая панель",
+    "pane_previous": "Предыдущая панель",
+    "pane_switch": "Переключить панель, {count}",
+    "pending_media": "Ожидающие медиа",
+    "post_as": "Опубликовать как",
+    "post_just_this": "Только этот пост",
+    "post_no_account": "Не задана учётная запись для публикации",
+    "post_not_posted": "Не опубликовано: {text}",
+    "reset_password": "Сбросить пароль",
+    "resize_window": "Изменить размер окна",
+    "scope_everywhere": "Везде",
+    "scope_this_feed": "Для этой ленты (~{name})",
+    "select_post_first": "Сначала выберите запись (j/k)",
+    "sign_up": "Зарегистрироваться",
+    "split_side_by_side": "Разделить бок о бок",
+    "split_side_by_side_tip": "Разделить бок о бок с видом",
+    "split_stacked": "Разделить сложенные",
+    "split_stacked_tip": "Разделённый вид в стопке",
+    "start_menu_label": "[≡ wired] меню «Пуск»",
+    "sync_took_newer": "Синхронизация: получен более новый рабочий стол с сервера",
+    "sync_up_to_date": "Синхронизация: актуально",
+    "tagline": "Настоящий день. Настоящее время.",
+    "tip_close": "Закрыть эту панель",
+    "tip_display": "Как отображаются публикации",
+    "tip_dock": "Пристыковаться к плиткам",
+    "tip_edit_feed": "Редактировать эту ленту",
+    "tip_float": "Открепить в отдельное плавающее окно"
+  },
+  "capabilities": {
+    "cannot": {
+      "custom_emoji_reactions": "{owner, select, handle {@{handle}'s server} other {Этот сервер}}{brand} не может реагировать с пользовательскими эмодзи",
+      "editing": "{owner, select, handle {сервер @{handle}} other {Этот сервер}}{brand} не может редактировать сообщения",
+      "emoji_reactions": "{owner, select, handle {@{handle}'s server} other {This server}}{brand} не может реагировать на посты с эмодзи",
+      "local_only_posts": "{owner, select, handle {сервер @{handle}} other {Этот сервер}}{brand} не может публиковать только локальные сообщения",
+      "markdown": "{owner, select, handle {@{handle}'s server} other {Этот сервер}}{brand} не может форматировать сообщения с помощью Markdown",
+      "password_reset_api": "{owner, select, handle {@{handle}'s server} other {This server}}{brand} не может сбросить пароли",
+      "quote_posting": "{owner, select, handle {@{handle}'s server} other {This server}}{brand} не может цитировать сообщения",
+      "settings_store": "{owner, select, handle {@{handle}'s server} other {Этот сервер}}{brand} не может синхронизировать настройки"
+    }
+  },
+  "features": {
+    "authorize": {
+      "as_handle": "От имени @{handle}, это приложение сможет:",
+      "authorize_button": "[ авторизовать ]",
+      "cancel_button": "[ отменить ]",
+      "close_button": "[ закрыть ]",
+      "code_intro": "Авторизовано. Передайте этот код приложению:",
+      "copied": "Скопировано в буфер обмена.",
+      "copy_button": "[ копировать ]",
+      "copy_failed": "Не удалось скопировать. Выделите код и скопируйте его вручную.",
+      "deny_button": "[ отклонить ]",
+      "done": "Готово. Вы можете закрыть это окно.",
+      "failed": "Не удалось авторизовать: {reason}",
+      "form_label": "Войти",
+      "instance": "Экземпляр",
+      "loading": "Загрузка запроса…",
+      "log_in_button": "[ войти ]",
+      "log_in_intro": "Войдите, чтобы авторизовать приложение.",
+      "narrow_follow": "Управляйте своим {noun}",
+      "narrow_push": "Push-уведомления для вашего {noun}",
+      "narrow_read": "Прочитай свой {noun}",
+      "narrow_write": "Измените свой {noun}",
+      "not_trusted": "Этот экземпляр не пометил WiredFE как доверенное приложение, поэтому он не может авторизовать другие приложения. Попросите администратора экземпляра пометить WiredFE как доверенное.",
+      "password": "Пароль",
+      "refused": "Экземпляр отказал в этом запросе авторизации: {message}",
+      "returning": "Возвращаемся в приложение…",
+      "scope_admin": "В качестве администратора: {words} ({scope})",
+      "scope_plain": "{words} ({scope})",
+      "scope_unknown": "Неизвестное разрешение ({scope})",
+      "title": "Авторизовать {name}?",
+      "unsafe_redirect": "Экземпляр вернул адрес перенаправления, по которому небезопасно переходить. Ничего не было отправлено.",
+      "username": "Имя пользователя",
+      "website": "Веб-сайт: {website}",
+      "whole_follow": "Подписаться, отписаться, заблокировать и отключить звук у аккаунтов",
+      "whole_push": "Отправлять вам push-уведомления",
+      "whole_read": "Читай всё, что видишь",
+      "whole_write": "Публикуйте, редактируйте и удаляйте по своему усмотрению"
+    },
+    "composer": {
+      "attachments_removed": "вложения удалены: они принадлежат старому аккаунту",
+      "editing": "Редактирование [{label}]: {excerpt}",
+      "log_label": "Написать",
+      "post_as": "Опубликовать как",
+      "posted_as": "Опубликовано как @{author}",
+      "quoted": "❝ цитата @{author}",
+      "quoting": "Цитирую @{author}: {excerpt}",
+      "replied": "↳ ответил(а) @{author}",
+      "replying": "Ответ @{author}: {excerpt}",
+      "topic": "композитор",
+      "topic_as": "редактор, публикует как @{handle}"
+    },
+    "dm": {
+      "log_label": "личное сообщение",
+      "no_messages": "С @{target} ещё нет сообщений. Начните печатать, чтобы отправить первое.",
+      "topic": "личное сообщение (DM)",
+      "topic_with": "частный разговор с {mention}"
+    },
+    "external": {
+      "asks_for": "Это приложение запрашивает:",
+      "authorize_button": "[ авторизовать ]",
+      "cancel_button": "[ отмена ]",
+      "close_button": "[ закрыть ]",
+      "continuing": "Продолжается…",
+      "deny_button": "[ отклонить ]",
+      "email": "Электронная почта",
+      "form_label": "Зарегистрироваться",
+      "intro": "Вход выполнен через {provider}{named, select, yes { как {name}} other {}}. Выберите, как вы здесь будете отображаться.",
+      "loading": "Загрузка запроса…",
+      "loading_details": "Загрузка ваших данных…",
+      "nickname": "Псевдоним",
+      "password_optional": "Пароль (необязательно)",
+      "register_button": "[ зарегистрироваться ]",
+      "title": "Авторизовать {name}?",
+      "unsafe_redirect": "Экземпляр вернул адрес перенаправления, по которому небезопасно переходить. Ничего не было отправлено.",
+      "waiting_approval": "Учетная запись создана. Ожидает одобрения модератором.",
+      "waiting_confirmation": "Учетная запись создана. Проверьте свою электронную почту, чтобы подтвердить адрес, затем войдите в систему.",
+      "website": "Веб-сайт: {website}",
+      "your_provider": "ваш провайдер"
+    },
+    "federated": {
+      "log_label": "федеративный",
+      "topic": "федеративная лента"
+    },
+    "feed": {
+      "log_label": "лента",
+      "missing": "Эта лента больше не существует",
+      "source_failed": "{source} завершился с ошибкой: {reason}",
+      "topic_posting": "{title}, публикуется от имени @{handle}"
+    },
+    "feed_editor": {
+      "add_button": "[ добавить ]",
+      "add_button_label": "Добавить тег для @{handle}",
+      "add_label": "добавить тег для @{handle}",
+      "add_placeholder": "добавить тег",
+      "cancel_button": "[ Отмена ]",
+      "cell_name": "{source} от @{handle}",
+      "cell_name_blocked": "{source} от @{handle} ({reason})",
+      "column_account": "учётная запись",
+      "confirm_delete_label": "Подтвердите удаление ленты",
+      "delete_button": "[ удалить ленту ]",
+      "delete_question": "Удалить эту ленту?",
+      "delete_yes": "[ да, удалить ]",
+      "feed_name": "Название ленты",
+      "gone": "Эта лента больше не существует.",
+      "name_has_spaces": "Имя фида не должно содержать пробелов.",
+      "not_a_tag": "Не тег: \"{text}\"",
+      "remove_tag": "Удалить тег {tag} у @{handle}",
+      "save_button": "[ сохранить ]",
+      "saved": "Сохранено",
+      "sign_in_expired": "вход истёк",
+      "sources_label": "Источники по учетной записи",
+      "tags_label": "Теги @{handle}"
+    },
+    "hashtag": {
+      "log_label": "хэштег"
+    },
+    "home": {
+      "log_label": "Главная",
+      "topic": "Главная лента"
+    },
+    "local": {
+      "log_label": "местный",
+      "topic": "локальная лента"
+    },
+    "media": {
+      "loading": "загрузка…",
+      "next": "Следующее вложение",
+      "no_attachment": "У этого сообщения нет вложений {n}",
+      "no_description": "Изображение без описания",
+      "no_link": "[нет пригодной ссылки]",
+      "nothing": "Нечего показать",
+      "open_original": "Открыть оригинал ↗",
+      "previous": "Предыдущее вложение",
+      "sensitive_cover": "[ ЧУВСТВИТЕЛЬНОЕ — показать ]"
+    },
+    "notifications": {
+      "log_label": "уведомления",
+      "topic": "уведомления"
+    },
+    "password_reset": {
+      "close_button": "[ закрыть ]",
+      "confirm_password": "Подтвердите новый пароль",
+      "done": "Пароль изменён. Теперь вы можете войти, используя его.",
+      "empty": "Введите новый пароль.",
+      "form_label": "Сбросить пароль",
+      "instance": "Экземпляр",
+      "mismatch": "Пароли не совпадают.",
+      "new_password": "Новый пароль",
+      "reset_button": "[ сбросить пароль ]"
+    },
+    "people": {
+      "in_conversation": "в разговоре",
+      "in_thread": "в теме",
+      "nobody": "Здесь никто не собрался.",
+      "recently_here": "недавно здесь",
+      "window_closed": "окно закрыто"
+    },
+    "profile": {
+      "log_label": "профиль"
+    },
+    "registration": {
+      "agreement": "Я соглашаюсь с правилами и условиями этого инстанса.",
+      "close_button": "[ закрыть ]",
+      "email": "Электронная почта",
+      "form_label": "Зарегистрироваться",
+      "instance": "Экземпляр",
+      "logged_in": "Выполнен вход на {origin} как @{handle}",
+      "password": "Пароль",
+      "reason": "Причина (необязательно)",
+      "register_button": "[ зарегистрироваться ]",
+      "unreachable": "Не удалось связаться с {origin}: {reason}",
+      "username": "Имя пользователя",
+      "waiting_approval": "Учетная запись создана. Ожидает одобрения модератором.",
+      "waiting_confirmation": "Учетная запись создана. Проверьте свою электронную почту, чтобы подтвердить адрес, затем войдите."
+    },
+    "route": {
+      "follow_hint": "Введите /follow, чтобы подписаться на @{acct}",
+      "not_found": "Не удалось найти {value}"
+    },
+    "search": {
+      "account_line": "  @{acct} — {name}  (/whois @{acct})",
+      "accounts": "Учетные записи:",
+      "log_label": "поиск",
+      "no_results": "Нет результатов для \"{query}\"",
+      "tag_line": "  #{name}  (/join #{name})",
+      "tags": "Теги:",
+      "topic": "поиск",
+      "topic_query": "поиск: {query}"
+    },
+    "status": {
+      "log_label": "статус",
+      "topic": "{appName} — Настоящий день. Настоящее время."
+    },
+    "thread": {
+      "loading": "Загрузка темы…",
+      "log_label": "тема",
+      "nothing_to_answer": "В этом окне нечего отвечать"
+    }
+  },
+  "format": {
+    "boost_count": "{count, plural, one {# буст} other {# бустов}}",
+    "closed": "закрыто",
+    "closes": "закрывается в {time}",
+    "favourite_count": "{count, plural, one {# избранный} other {# избранных}}",
+    "multiple_choice": "(множественный выбор)",
+    "reaction_label": "{name}, {count, plural, one {# реакция} few {# реакции} many {# реакций} other {# реакций}}",
+    "reply_to": "Ответить на сообщение {label}",
+    "reply_to_counted": "Ответить на публикацию {label} ({count, plural, one {# ответ} other {# ответов}})",
+    "vote_count": "{count, plural, one {# голос} other {# голосов}}",
+    "whois_counts": "постов {posts, number} · подписки {following, number} · подписчики {followers, number} · на сайте с {joined}"
+  },
+  "keys": {
+    "already_bound": "/{command}: {chord} уже назначен на {line}",
+    "conflicts": "/{command}: {chord} конфликтует с {other}",
+    "invalid_key": "/{command}: недопустимая клавиша {chord}",
+    "override_conflicts": "переопределение: {chord} конфликтует с {other}",
+    "override_invalid_key": "override: недопустимый ключ {chord}",
+    "override_would_block_typing": "override: {chord} заблокировал бы ввод в режиме вставки",
+    "would_block_typing": "/{command}: {chord} заблокировало бы ввод в режиме вставки"
+  },
+  "state": {
+    "dropped_empty_desktops": "{count, plural, one {# пустой рабочий стол} other {# пустых рабочих столов}}",
+    "dropped_hidden_windows": "{count, plural, one {# скрытое окно} other {# скрытых окон}}",
+    "dropped_key_overrides": "{count, plural, one {# переопределение ключа} other {# переопределений ключа}}",
+    "duration_days": "{count} дней",
+    "duration_hours": "{count} ч",
+    "duration_minutes": "{count} мин",
+    "feed_id_taken": "Фид с id {id} уже существует",
+    "feed_name_length": "Имя фида должно содержать от 1 до {max} символов",
+    "feed_name_taken": "Лента с именем \"{name}\" уже существует",
+    "mentioned_you": "@{handle} упомянул(а) вас [see notifs]",
+    "no_account_signed_in": "Ни одна учётная запись не вошла в систему",
+    "no_feed_with_id": "Нет фида с id {id}",
+    "no_post_here": "Вы не можете публиковать в этом окне",
+    "no_signed_in_account": "Нет вошедшей в систему учётной записи @{handle}",
+    "not_a_source": "Не является источником: \"{text}\" (попробуйте @me@host:home, *:mentions или @me@host:tag:rust)",
+    "not_logged_in": "Не выполнен вход. Введите /connect",
+    "poll_closed": "Нельзя редактировать сообщение, в котором опрос закрыт.",
+    "poll_option_empty": "Опция {n} пуста",
+    "poll_option_repeats": "Опция {n} повторяет опцию {first}",
+    "poll_option_too_long": "Опция {n} превышает {max} символов",
+    "posted_as": "Опубликовано как @{handle}",
+    "posting_line": "{subject, select, feed {{title} публикации} other {публикации}} как @{handle} ({source, select, window {аккаунт окна} feed {стандартная лента} global {глобальный по умолчанию} other {только аккаунт}})",
+    "posting_set_feed": "~{feed} публикует как @{handle} (по умолчанию ленты)",
+    "posting_set_global": "публикует как @{handle} (глобальное значение по умолчанию)",
+    "session_expired": "Сеанс @{handle} истёк. Введите /connect, чтобы войти снова.",
+    "setting_avatars": "Показывать аватары авторов в публикациях",
+    "setting_clock_format": "Как отображаются метки времени: в 24‑часовом или 12‑часовом формате?",
+    "setting_default_visibility": "Аудитория, на которую нацелены новые публикации по умолчанию",
+    "setting_density": "Как отображаются посты: в виде карточек или в виде строк IRC",
+    "setting_effects": "Эффекты CRT/глитч (они никогда не мигают)",
+    "setting_expand_media": "Медиа за предупреждением о содержании изначально открыты.",
+    "setting_images": "Показывать вложения встроенными вместо строк [IMG …]",
+    "setting_open_in": "Где открываются новые окна: here, vsplit, split, float или hidden",
+    "setting_reply_in": "Где открывается редактор ответа: здесь, vsplit, split, float или hidden",
+    "setting_theme": "Цвета, в которые окрашена ракушка",
+    "skip_no_settings_store": "нет хранилища настроек",
+    "skip_not_signed_in": "не вошли в систему",
+    "skip_session_expired": "Сессия истекла",
+    "stream_edited_hint": "~{name} был отредактирован, поэтому @{handle} в нём нет: /feed add {name} {sources}",
+    "sync_failed": "Синхронизация не удалась. {reason}",
+    "sync_forbidden": "Синхронизация: этот вход может не иметь доступа к хранилищу настроек. Войдите снова, чтобы предоставить доступ.",
+    "sync_invalid_remote": "Синхронизация: рабочий стол, сохранённый на сервере, нечитаем и был проигнорирован; сохраняется локальный.",
+    "sync_paused": "Синхронизация приостановлена: рабочий стол слишком большой для синхронизации (более {size} KiB даже без скрытых окон, пустых рабочих столов и дополнительных переопределений клавиш); он сохранён здесь",
+    "sync_too_large": "Синхронизация: сервер сообщает, что рабочий стол слишком велик для сохранения",
+    "sync_trimmed": "Синхронизация: стол большой, поэтому копия на сервере пропускает {dropped}; это устройство сохраняет их.",
+    "sync_unsupported": "Синхронизация: на сервере нет хранилища настроек; синхронизация остановлена"
+  },
+  "ui": {
+    "account_picker_dialog": {
+      "accounts": "Аккаунты",
+      "cancel": "Отменить",
+      "ok": "Хорошо",
+      "remember": "Запомнить"
+    },
+    "attach_button": {
+      "label": "Прикрепить медиа"
+    },
+    "avatar": {
+      "alt": "Аватар {handle}"
+    },
+    "boost_line": {
+      "boosted": "усиленный"
+    },
+    "card_dm": {
+      "you": "ты"
+    },
+    "card_head": {
+      "dm_strip": "✉ Личное сообщение  {from}{count, plural, =0 {} other { → {to}}}"
+    },
+    "confirm_dialog": {
+      "cancel": "Отменить"
+    },
+    "divider": {
+      "resize": "Изменить размер панелей"
+    },
+    "drop_highlight": {
+      "text": "-- отпустите, чтобы прикрепить --"
+    },
+    "emoji_picker": {
+      "dialog": "Отреагируйте на [{label}]",
+      "search_label": "Поиск эмодзи",
+      "search_placeholder": "искать эмодзи…"
+    },
+    "emoji_picker_model": {
+      "custom": "пользовательский",
+      "custom_category": "пользовательский: {category}",
+      "emoji": "эмодзи",
+      "emoji_group": "эмодзи: {group}",
+      "loading": "загрузка…",
+      "on_this_post": "в этом посте"
+    },
+    "emoji_section": {
+      "no_matches": "нет совпадений"
+    },
+    "error_alert": {
+      "count": "(×{count})",
+      "label": "Ошибка",
+      "ok": "Хорошо"
+    },
+    "input_line": {
+      "label": "Командная строка"
+    },
+    "instance_choices": {
+      "legend": "Экземпляр",
+      "other": "Другой экземпляр"
+    },
+    "media_grid": {
+      "alt_line": "[Альтернативный текст {number}] {text}",
+      "more": "Показать ещё {count} вложений",
+      "sensitive_show": "[ ЧУВСТВИТЕЛЬНОЕ — показать ]"
+    },
+    "media_list": {
+      "kind_audio": "австралийский доллар (AUD)",
+      "kind_file": "Файл",
+      "kind_gif": "GIF-изображение",
+      "kind_image": "Изображение",
+      "kind_video": "VID",
+      "no_description": "нет описания",
+      "no_usable_link": "[нет пригодной ссылки]",
+      "placeholder": "[{kind} {number}/{total}: {description}]",
+      "sensitive": "[КОНФИДЕНЦИАЛЬНО]"
+    },
+    "media_review_dialog": {
+      "attachments": "Вложения",
+      "cancel": "Отменить",
+      "description_for": "Описание для {name}",
+      "missing": "без описания",
+      "submit": "Отправить",
+      "summary": "У {missing} из {total} вложений нет описания",
+      "title": "Опишите медиа"
+    },
+    "media_tile": {
+      "alt": "ALT",
+      "alt_label": "ALT: описание вложения {number}",
+      "no_description": "Изображение без описания",
+      "no_usable_link": "[нет пригодной ссылки]"
+    },
+    "mute_durations": {
+      "days": "{count, plural, one {# день} other {# дней}}",
+      "forever": "Навсегда",
+      "group": "Отключить звук на",
+      "hours": "{count, plural, one {# час} other {# часов}}",
+      "minutes": "{count, plural, one {# минута} other {# минут}}"
+    },
+    "poll_view": {
+      "own_vote": "вы проголосовали за это"
+    },
+    "post_actions": {
+      "bookmark": "Добавить в закладки публикацию {label}",
+      "boost": "Продвинуть публикацию {label}",
+      "favourite": "Избранная публикация {label}",
+      "group": "Действия для публикации {label}"
+    },
+    "post_actions_more": {
+      "block": "Заблокировать автора",
+      "copy": "Копировать ссылку",
+      "delete": "Удалить",
+      "edit": "Редактировать",
+      "menu": "Дополнительные действия для публикации {label}",
+      "mute": "Отключить автора",
+      "open": "Открыть в браузере",
+      "pin": "Закрепить",
+      "quote": "Цитата",
+      "thread": "Открыть тему",
+      "unpin": "Открепить"
+    },
+    "post_article": {
+      "direct": "Прямое сообщение {label} от {handle}",
+      "post": "Публикация {label} от {handle}"
+    },
+    "post_body": {
+      "content_warning": "[ПРЕДУПРЕЖДЕНИЕ: {text}]"
+    },
+    "post_card_parts": {
+      "reply_to": "↳ о {label}"
+    },
+    "post_meta": {
+      "audience_direct": "прямой",
+      "audience_local": "только локально",
+      "audience_private": "только для подписчиков",
+      "audience_unlisted": "не в списке",
+      "edited": "(отредактировано)",
+      "you_bookmarked": "Вы добавили это в закладки",
+      "you_boosted": "Вы продвинули это",
+      "you_favourited": "Вы добавили это в избранное",
+      "you_reacted": "Вы отреагировали реакцией {name}"
+    },
+    "post_row_head": {
+      "reply_to": "↳ по поводу {label}:"
+    },
+    "prompt_dialog": {
+      "cancel": "Отменить",
+      "ok": "Хорошо",
+      "suggestions": "Предложения для {title}"
+    },
+    "react_button": {
+      "label": "Отреагировать на публикацию {label}"
+    },
+    "status_line": {
+      "close_desktop": "Закрыть рабочий стол {number}",
+      "desktop": "Рабочий стол {number}{active, select, true {, активный} other {}}{unread, plural, =0 {} other {, {unread} непрочитанных}}{highlight, select, true {, выделен} other {}}",
+      "desktop_title": "Рабочий стол {number}: щёлкните, чтобы переключиться, средним кликом — закрыть",
+      "media_pending": "[+{count} медиа]",
+      "media_waiting": "{count} медиа в ожидании, показать",
+      "no_posting_account": "Нет аккаунта для публикации, выберите",
+      "posting_as": "Публикую как {label}, изменить",
+      "sync_failed": "Синхронизация не удалась",
+      "sync_pending": "Синхронизация ожидается",
+      "window": "Окно {number}: {title}{unread, plural, =0 {} other {, {unread} непрочитанных}}{highlight, select, true {, выделено} other {}}"
+    },
+    "via_mark": {
+      "label": "через {accounts}"
+    },
+    "whois_block": {
+      "blocked": "заблокировано",
+      "followed_by": "они подписаны на вас",
+      "following": "Вы следите за ними.",
+      "muted": "заглушён",
+      "verified": "подтверждено",
+      "verified_title": "проверенная ссылка"
+    }
+  },
+  "views": {
+    "attachments": {
+      "description": "Описание для {name}",
+      "failed": "не удалось: {error}",
+      "ready": "Готов",
+      "remove": "Удалить {name}",
+      "uploading": "загружается…"
+    },
+    "composer": {
+      "content_warning": "Предупреждение о содержании",
+      "post_suggestions": "Предложения для публикаций",
+      "post_text": "Текст записи",
+      "send": "[ отправить ]"
+    },
+    "confirm": {
+      "block": "Заблокировать",
+      "block_message": "Они не смогут подписываться на вашу учётную запись или взаимодействовать с ней, а их публикации скрыты от вас.",
+      "block_title": "Заблокировать {handle}?",
+      "delete": "Удалить",
+      "delete_message": "Это нельзя отменить.",
+      "delete_message_excerpt": "Это нельзя отменить. \"{excerpt}\"",
+      "delete_title": "Удалить запись [{label}]?",
+      "mute": "Отключить звук",
+      "mute_message": "Их публикации скрыты от вас на тот срок, который вы выберете.",
+      "mute_title": "Отключить звук {handle}?"
+    },
+    "excerpt": {
+      "attachments": "({count, plural, one {# вложение} few {# вложения} many {# вложений} other {# вложения}})",
+      "no_text": "(нет текста)"
+    },
+    "media": {
+      "attach": "Прикрепить медиафайлы",
+      "attach_button": "[ 📎 Прикрепить ]",
+      "attach_short": "[📎]",
+      "attachments": "Вложения",
+      "files": "Медиафайлы",
+      "not_media": "Невозможно прикрепить {name}: это не файл изображения, видео или аудио.",
+      "too_many": "слишком много вложений: {max} на сообщение, пропущено {name}"
+    },
+    "notification": {
+      "annual_report": "ваш годовой отчёт готов",
+      "chat_mention": "{actor} отправил вам сообщение в чате: {excerpt}",
+      "favourite": "{actor} добавил в избранное {label} {excerpt}",
+      "follow": "{actor} подписался на вас",
+      "follow_request": "{actor} хочет подписаться на вас (/accept или /reject появятся позже)",
+      "mention": "{actor} упомянул вас в {label}: {excerpt}",
+      "moderation_warning": "Вы получили предупреждение модерации",
+      "move": "{actor} переместился",
+      "other": "{actor}: {type} уведомление",
+      "poll_own": "Опрос, который вы создали, завершился {label}",
+      "poll_voted": "Опрос, в котором вы голосовали, закончился {label}",
+      "quote": "{actor} процитировал {label}: {excerpt}",
+      "quoted_update": "{actor} отредактировал сообщение, которое цитирует ваше",
+      "reaction": "{actor} отреагировал(а) {emoji} на {label} {excerpt}",
+      "reblog": "{actor} продвинул {label} {excerpt}",
+      "report": "{actor} подал жалобу{target, select, none {} other { на {target}}} {comment}",
+      "severed_relationships": "Действие модерации разорвало часть ваших подписок или подписчиков.",
+      "sign_up": "{actor} зарегистрировался",
+      "status": "{actor} опубликовал {label}",
+      "update": "{actor} изменил {label} {excerpt}"
+    },
+    "notification_card": {
+      "favourite": "добавил(а) ваш пост в избранное",
+      "mention": "упомянул вас",
+      "poll": "опрос закончился",
+      "quote": "цитировал(а) тебя",
+      "reaction": "отреагировал(а) на ваш пост",
+      "reblog": "продвинули вашу публикацию",
+      "reply": "ответил вам",
+      "status": "опубликовано",
+      "update": "отредактировал(а) сообщение"
+    },
+    "paging": {
+      "no_account": "Нет учетной записи для этого окна"
+    },
+    "poll": {
+      "add_option": "[+ опция]",
+      "duration": "Продолжительность",
+      "hide_totals": "Скрыть итоги",
+      "media_conflict": "Публикация не может одновременно содержать и медиа, и опрос.",
+      "multiple_choice": "Множественный выбор",
+      "option": "Вариант {number}",
+      "remove_option": "Удалить опцию {number}",
+      "toggle": "[ ☰ опрос ]"
+    },
+    "post": {
+      "a_thread": "тема",
+      "content_warning": "Предупреждение: {warning}"
+    },
+    "quote": {
+      "content_warning": "[Предупреждение о содержании: {warning}]"
+    },
+    "runner": {
+      "unavailable": "Командная строка недоступна"
+    },
+    "stream": {
+      "live": "Транслирую в прямом эфире для @{handle}",
+      "restored": "Трансляция восстановлена для @{handle}",
+      "unavailable": "Трансляция недоступна для @{handle}; опрос выполняется каждую минуту"
+    },
+    "visibility": {
+      "direct": "прямой",
+      "label": "Видимость",
+      "local": "локальный",
+      "private": "частный",
+      "public": "публичный",
+      "unlisted": "не в списке"
+    }
+  },
+  "windows": {
+    "desktop_empty": "Рабочий стол {count} пуст: {last, select, yes {положите на него что-нибудь} other {используйте его}} перед созданием другого",
+    "no_desktop": "Нет рабочего стола {number}; рабочие столы пронумерованы 1–{count}"
+  }
+}

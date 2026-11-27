@@ -1,0 +1,1212 @@
+{
+  "commands": {
+    "help_topics": {
+      "feeds": {
+        "display": "帖子默认以卡片形式显示；/display density lines 会将此窗口切换为 IRC 行式显示，/display avatars off 和 /display images off 会隐藏这些内容，/display reset 会清除覆盖设置，而 /set density、/set avatars 和 /set images 则更改所有窗口的默认设置。",
+        "editor": "首次运行会创建一个名为 stream 的（主页、提及、私信和所有账号的通知）；/feed edit {name}、/feed new 或 feed 窗格中的 ✎ 按钮会打开编辑器。",
+        "labels": "每条帖子都有类似 [a3] 的短标签：/fav a3、/reply a3、/pop a3——以获取该帖子的账号身份对其执行操作。",
+        "merge": "信息流将任何已登录账户的来源合并为一个流，按最新优先，并且多个账户看到的同一条帖子只显示一次。",
+        "sources": "来源有主页、提及、私信、通知、本地、联邦和标签:{name}。"
+      },
+      "layout": {
+        "buttons": "按钮：◫▾ 和 ⊟▾ 将视图分割，⧉ 使窗格浮动，⇲ 将浮动窗口停靠，✕ 关闭。按住 Shift 并将浮动窗口拖到窗格上，以将其停靠到该边缘。",
+        "close": "关闭窗格会保留其窗口；/close 会结束窗口。",
+        "desktop_close": "Ctrl+B & (或状态栏中活动桌面后的 ×，或在任意桌面上中键点击) 会关闭一个桌面并保持其窗口打开 (/win); /desktop prune 会关闭所有空的桌面。",
+        "desktop_keys": "Alt+1..9 跳转到某个桌面，Alt+[ 和 Alt+] 切换到上一个和下一个。",
+        "navigation_keys": "在导航模式（Esc）：w v / w s 分割，w h j k l 切换焦点，w c 关闭窗格，w o 仅保留此窗格，w = 使大小相等，w f / w d 浮动与停靠。",
+        "panes": "屏幕是由面板组成的桌面，这些面板并排分割（行）或堆叠（列）；任何面板都可以拆分成浮动窗口，即在视口内可以拖动的窗口。",
+        "phone": "在手机上一次只显示一个窗格，标题栏中带有 ‹ 2/4 › 切换器。",
+        "placement": "Ctrl+click 在浮动窗口打开，Shift+click 在并排分割中打开，鼠标中键隐藏；--in here|vsplit|split|float|hidden 放置任何打开的窗口。",
+        "prefix_keys": "按键: Ctrl+B % / \" split，Ctrl+B 方向键聚焦，Ctrl+B x 关闭窗格，Ctrl+B z 仅保留此窗格，Ctrl+B f / d 浮动和停靠。",
+        "start_menu": "Ctrl+B 空格 / w 空格（或状态行左侧的 [≡ wired] 按钮）打开开始菜单，其各行会以浮动窗口的形式打开视图。"
+      },
+      "sync": {
+        "accounts": "主账户保存已同步的副本；当其没有设置存储或其令牌失效时，按顺序的回退账户将接管 (/sync primary {handle}, /sync fallback add|rm|up {handle}).",
+        "budget": "服务器将整个存储上限设为1 MiB，因此超过384 KiB预算的桌面只会从已同步的副本中省略隐藏窗口、空桌面和额外的按键覆盖，并会提示这一点。",
+        "devices": "桌面浏览器（Windows、macOS、Linux、ChromeOS）和移动浏览器（Android、iOS、iPadOS）各自保留其布局，较新的副本优先。",
+        "mastodon": "Mastodon 没有设置存储：那里的账户将其桌面仅保存在此浏览器中。",
+        "push": "push 在最后一次更改后延迟 3 秒执行；/sync 现在同时执行 pull 和 push，/sync off 和 /sync on 用于切换它。",
+        "saved": "你的桌面、浮动窗口、打开的窗口、订阅和设置保存在此浏览器中，并通过你的服务器进行同步，因此桌面会随你而动。"
+      }
+    },
+    "aliases": "别名: {aliases}",
+    "already_in_thread": "已在此线程中",
+    "bad_duration": "无效的持续时间: {word}",
+    "command_failed": "命令失败: {error}",
+    "defs": {
+      "about": {
+        "backend": "后端: {backend}",
+        "device": "设备: {device}",
+        "features": "功能: {count, plural, =0 {无} other {{names}}}",
+        "not_connected": "未连接。请输入 /connect。",
+        "polls": "投票：{options, plural, one {# 个选项} other {# 个选项}}，共 {characters} 个字符，{span}",
+        "posts": "帖子：最多 {characters} 个字符，{attachments, plural, one {# 个附件} other {# 个附件}}",
+        "summary": "展示这个实例是什么以及它能做什么",
+        "title_at": "{title} 在 {origin}"
+      },
+      "account": {
+        "active": "活跃账户: @{handle}",
+        "logged_out": "已登出 @{handle}",
+        "revoke_failed": "无法撤销令牌: {reason}",
+        "summary": "列出账户、在账户之间切换并注销",
+        "usage": "/account [列出] | /account 切换 '<n|handle>' | /account 下一个 | /account 注销 [n|handle]",
+        "usage_error": "用法: {usage}"
+      },
+      "as": {
+        "posted": "以 @{handle} 发布",
+        "summary": "以另一个账户的身份发布一行",
+        "usage": "/作为 '<handle|n> <text>'",
+        "usage_error": "用法: {usage}"
+      },
+      "attach": {
+        "summary": "将媒体附加到你的下一条帖子",
+        "usage": "/附加 [alt text]"
+      },
+      "bind": {
+        "blocks_typing": "{chord} 会阻止在插入模式下输入",
+        "must_start_with_slash": "命令行必须以 / 开头",
+        "not_a_key": "不是键: {chords}",
+        "summary": "将按键绑定到命令行",
+        "usage": "/bind '<insert|navigation> <chord> <command line>'",
+        "usage_error": "用法: {usage}"
+      },
+      "binds": {
+        "mode_header": "密钥 ({mode} 模式):",
+        "none": "(无)",
+        "not_a_mode": "不是模式: {word}. 试试 /binds",
+        "prefill": "(预填充)",
+        "summary": "显示有效的键绑定",
+        "usage_error": "用法: {usage}"
+      },
+      "block": {
+        "summary": "封禁账户",
+        "usage": "/屏蔽 [target]"
+      },
+      "bookmark": {
+        "summary": "为帖子添加书签或移除书签。",
+        "usage": "/书签 [label]"
+      },
+      "boost": {
+        "summary": "推广帖子，或撤回推广",
+        "usage": "/提升 [label]"
+      },
+      "clear": {
+        "summary": "清除活动窗口"
+      },
+      "close": {
+        "cannot_close_status": "无法关闭状态窗口。",
+        "summary": "关闭活动窗口"
+      },
+      "compose": {
+        "summary": "打开 Composer 窗口",
+        "usage": "/compose [text] [--in '<placement>']"
+      },
+      "connect": {
+        "could_not_start": "无法开始登录: {reason}",
+        "opening": "正在打开 {origin} 以登录…",
+        "summary": "登录到实例",
+        "usage": "/连接 [instance]"
+      },
+      "copy": {
+        "copied": "已复制 {link}",
+        "summary": "将帖子链接复制到剪贴板",
+        "unavailable": "剪贴板不可用",
+        "usage": "/复制 [label]"
+      },
+      "cw": {
+        "summary": "将帖子发布到活动窗口，置于内容警告之后",
+        "usage": "/cw '<warning> <text>'",
+        "usage_error": "用法: /cw \"警告\" 文本"
+      },
+      "delete": {
+        "deleted": "✗ 已删除 [{label}]",
+        "summary": "删除你自己的其中一条帖子",
+        "usage": "/删除 [label]"
+      },
+      "desktop": {
+        "closed": "已关闭桌面 {number}（其窗口仍然打开：/win）",
+        "closed_empty": "{count, plural, one {已关闭 # 个空桌面} other {已关闭 # 个空桌面}}",
+        "last_desktop": "无法关闭最后一个桌面",
+        "no_desktop": "没有桌面{number}",
+        "no_empty": "没有空的桌面",
+        "summary": "列出、切换（Alt+1..9、Alt+[ 和 Alt+]）、创建（仅在有内容的桌面之后）、关闭（Ctrl+B &、× 或状态栏中键点击）或清理空桌面",
+        "usage": "/desktop [list] | /desktop '<number>' | /desktop 下一个 | /desktop 上一个 | /desktop 新建 | /desktop 关闭 [number] | /desktop 清理",
+        "usage_error": "用法: {usage}"
+      },
+      "detach": {
+        "cleared": "附件已清除",
+        "summary": "删除所有等待下一次发布的附件"
+      },
+      "display": {
+        "cleared": "显示覆盖已清除。",
+        "inherited": "{key} 已继承",
+        "line": "{key} = {value}  ({source, select, inherited {inherited} other {overridden}})",
+        "no_key": "未找到显示键 {key}。请尝试 /display",
+        "summary": "显示或覆盖此窗口的密度、头像和图像",
+        "takes": "{key} 接受 {values}",
+        "usage": "/display [键 [值] | 重置 [键]]",
+        "usage_error": "用法: {usage}"
+      },
+      "dm": {
+        "summary": "以一行发送私信",
+        "usage": "/dm @user@host 消息",
+        "usage_error": "用法: {usage}"
+      },
+      "dock": {
+        "not_a_float": "聚焦的窗格不是浮动的",
+        "summary": "将焦点浮动窗口停靠到平铺窗格中"
+      },
+      "edit": {
+        "edited": "✎ 已编辑 [{label}]",
+        "summary": "编辑你自己的某条帖子；如果没有文本，打开撰写器（按 e 键会预填）",
+        "usage": "/edit [label] [text]; 如果没有文本，则打开编辑器"
+      },
+      "equalize": {
+        "summary": "将桌面平均分配给每个窗格。"
+      },
+      "fav": {
+        "summary": "将帖子加入收藏，或取消收藏",
+        "usage": "/收藏 [label]"
+      },
+      "federated": {
+        "summary": "打开联邦时间线",
+        "usage": "/federated [text] [--in '<placement>']"
+      },
+      "feed": {
+        "summary": "创建、修改和打开订阅源 ({subcommands})",
+        "usage": "/feed [列表] | /feed '<name>' | /feed 编辑 '<name>' | /feed 新建 ['<name> <source>'…] | /feed 添加|删除 '<name> <source>'… | /feed 重命名 '<old> <new>' | /feed 删除 '<name>'"
+      },
+      "float": {
+        "already_floating": "焦点窗格已是浮动状态。",
+        "no_pane": "在此桌面上没有可浮动的窗格。",
+        "summary": "将当前聚焦的窗格分离为浮动窗口，或在新的窗格中打开视图。"
+      },
+      "focus": {
+        "summary": "将焦点移到某个方向的窗格，或在窗格之间循环切换。",
+        "usage_error": "用法: {usage}"
+      },
+      "follow": {
+        "summary": "关注账号",
+        "usage": "/关注 [target]"
+      },
+      "forgot": {
+        "letter": "如果该账号存在，重置邮件即将送达。",
+        "summary": "邮寄一封密码重置信",
+        "usage": "/forgot '<email|nick>' [instance]",
+        "usage_error": "用法: /forgot '<email|nick>'"
+      },
+      "help": {
+        "footer": "键入 /help '<command>' 以获取详细信息。",
+        "header": "命令:",
+        "no_such_command": "没有这样的命令: /{subject}",
+        "summary": "列出命令，或显示某个命令的帮助",
+        "topics": "主题: {topics}. 输入 /help '<topic>'.",
+        "usage": "/帮助 [命令 | 主题]"
+      },
+      "home": {
+        "summary": "打开你的首页时间线",
+        "usage": "/home [文本] [--in '<位置>']"
+      },
+      "lang": {
+        "auto_hint": "先遵循实例的默认设置，然后遵循浏览器设置",
+        "available": "可用语言:",
+        "cleared": "语言设置已清除：现在 {name} ({code})，来源 {source, select, user {你的设置} instance {实例的默认设置} browser {浏览器} other {备用}}",
+        "current": "语言: {name} ({code}), 来自 {source, select, user {你的设置} instance {实例默认值} browser {浏览器} other {备用值}}",
+        "set": "语言已设置为 {name} ({code})",
+        "summary": "显示或选择界面语言",
+        "unknown": "没有语言 {input}。请选择 auto 或下列之一：{choices}",
+        "usage": "/lang [代码|名称|自动]"
+      },
+      "local": {
+        "summary": "打开本地时间线",
+        "usage": "/local [text] [--in '<placement>']"
+      },
+      "media": {
+        "few_attachments": "帖子 {label} 有 {count, plural, one {# 个附件} other {# 个附件}}",
+        "no_attachments": "帖子 {label} 没有附件",
+        "summary": "在窗口中以全尺寸显示帖子附件",
+        "usage": "/media [label] [n]",
+        "usage_error": "用法: /media [label] [n]"
+      },
+      "more": {
+        "no_older": "没有更早的帖子",
+        "summary": "加载下一页更早的帖子"
+      },
+      "mute": {
+        "summary": "将该账号静音",
+        "usage": "/禁言 [target] [duration]"
+      },
+      "mvd": {
+        "already_on": "已在桌面上 {number}",
+        "no_pane": "没有可移动的窗格",
+        "summary": "将当前聚焦的窗格移动到另一个桌面",
+        "usage": "/mvd '<number>' [跟随]",
+        "usage_error": "用法: /mvd '<number>' [follow]"
+      },
+      "notifications": {
+        "summary": "打开你的通知",
+        "usage": "/notifications [text] [--in '<placement>']"
+      },
+      "only": {
+        "no_panes": "此桌面上没有窗格",
+        "summary": "关闭所有其他窗格并浮动；它们的窗口保持打开（不同于 /close）"
+      },
+      "open": {
+        "not_http": "只能打开 http(s) 链接",
+        "summary": "在新的浏览器标签页中打开帖子或 URL",
+        "usage": "/打开 [label | url]"
+      },
+      "people": {
+        "nothing_to_list": "“人员”窗口本身不包含任何人员。",
+        "summary": "显示或隐藏此窗口中的人"
+      },
+      "pin": {
+        "summary": "把你自己的某条帖子置顶，或取消置顶",
+        "usage": "/固定 [label]"
+      },
+      "poll": {
+        "hours_wants": "--hours 需要一个正数的小时数",
+        "not_connected": "未连接。请输入 /connect",
+        "option_count": "投票需要 {min}–{max} 个选项",
+        "option_too_long": "选项 \"{option}\" 长于 {max, plural, one {# 个字符} other {# 个字符}}",
+        "posted": "投票已发布",
+        "run_span": "投票必须在{min}和{max}之间进行",
+        "summary": "在活动窗口发布投票",
+        "unknown_flag": "未知标志: {flag}",
+        "usage": "/poll \"'<question>'\" \"'<option>'\" \"'<option>'\" [...] [--multiple] [--hours N]",
+        "usage_error": "用法: /poll \"'<question>'\" \"'<option>'\" \"'<option>'\" [...] [--multiple] [--hours N]"
+      },
+      "pop": {
+        "summary": "将帖子的线程弹出到浮动窗口，或在其显示的位置聚焦它；如果已在该线程内，则不执行任何操作（快捷键 p，或双击）",
+        "usage": "/pop [label]"
+      },
+      "postas": {
+        "feed_cleared": "~{feed} 的默认已清除",
+        "global_cleared": "全局发布账号已清除",
+        "global_own": "{line}; 此窗口有其自己的账户，因此它是全局默认",
+        "no_default": "未设置发布账号: /postas '<handle|n>'",
+        "summary": "显示或设置哪个帐户用于发布订阅源",
+        "usage": "/postas [--global] ['<handle|n>'|--clear]",
+        "usage_error": "用法: {usage}"
+      },
+      "query": {
+        "summary": "打开私人会话窗口",
+        "usage": "/查询 '<@handle>'",
+        "usage_error": "用法: {usage}"
+      },
+      "quote": {
+        "quoted": "❝ 被引用的 {label}",
+        "summary": "引用一条帖子；若无文本，则打开撰写窗口（q 预填，Shift+c 撰写）",
+        "usage": "/引用 [label] [text]"
+      },
+      "raise": {
+        "no_pane": "此桌面上没有可提升的窗格。",
+        "summary": "将聚焦的浮动窗口置于最前面"
+      },
+      "react": {
+        "summary": "用表情对帖子进行反应",
+        "usage": "/反应 [label] '<emoji>'"
+      },
+      "reply": {
+        "replied": "↳ 回复了 {label}",
+        "summary": "用一行回复；不输入文本时打开撰写窗口（r 预填，Shift+r 撰写）",
+        "usage": "/回复 [label] [text]"
+      },
+      "resize": {
+        "nothing_to_resize": "没有可调整大小的内容",
+        "summary": "按百分点调整焦点窗格的大小，或设置其占比",
+        "usage": "/resize 宽度|高度 +N|-N|N",
+        "usage_error": "用法: {usage}"
+      },
+      "search": {
+        "summary": "搜索帐户、帖子和标签",
+        "usage": "/搜索 '<query>'",
+        "usage_error": "用法: {usage}"
+      },
+      "select": {
+        "no_post": "这里没有{label}的帖子",
+        "summary": "移动或设置所选帖子",
+        "usage": "/select 下一个 | 上一个 | 第一个 | 最后一个 | 无 | '<label>'",
+        "usage_error": "用法: {usage}"
+      },
+      "set": {
+        "listed": "  {key} = {value}  — {description}",
+        "no_setting": "没有设置 {key}。试试 /set",
+        "summary": "显示或更改你的设置",
+        "takes": "{key} 接受 {words}",
+        "usage": "/set [键 [值]]",
+        "usage_error": "使用: {usage}"
+      },
+      "split": {
+        "summary": "将焦点窗格以堆叠方式拆分",
+        "usage": "/拆分 {views}"
+      },
+      "start": {
+        "summary": "打开“开始”菜单，以浮动窗口方式打开视图"
+      },
+      "swap": {
+        "summary": "将焦点窗格的窗口与其相邻窗口互换",
+        "usage": "/swap '<left|right|up|down>'",
+        "usage_error": "用法: {usage}"
+      },
+      "sync": {
+        "accounts": "同步账户: {accounts}",
+        "already_listed": "已在同步列表中",
+        "already_primary": "已设为主要",
+        "no_holder": "没有任何账户可以持有已同步的桌面。输入 /sync 查看原因",
+        "no_primary": "尚未设置主设备。请先输入 /sync primary '<handle>'",
+        "not_listed": "不在同步列表中",
+        "summary": "选择哪个帐户保存您的已同步桌面",
+        "switched_off": "同步: 关闭",
+        "switched_on": "同步: 已开启",
+        "syncing": "正在同步…",
+        "usage": "/sync | /sync primary '<handle>' | /sync fallback add|rm|up '<handle>' | /sync off | /sync on | /sync now",
+        "usage_error": "使用: {usage}"
+      },
+      "tag": {
+        "not_a_hashtag": "不是话题标签: {input}",
+        "summary": "打开话题标签的时间线",
+        "usage": "/标签 '<name>'"
+      },
+      "theme": {
+        "current": "{name} (当前)",
+        "list_header": "主题:",
+        "no_theme": "未找到主题 {name}。试试 /theme",
+        "summary": "列出或选择配色主题",
+        "usage": "/主题 [name]",
+        "usage_error": "用法: {usage}"
+      },
+      "thread": {
+        "summary": "打开帖子的线程窗口",
+        "usage": "/线程 [label]"
+      },
+      "unbind": {
+        "not_a_key": "不是调: {chord}",
+        "summary": "取消按键绑定",
+        "unbound": "{mode} {chord} 未绑定",
+        "usage": "/取消绑定 '<insert|navigation>' '<chord>'",
+        "usage_error": "用法: {usage}"
+      },
+      "unblock": {
+        "summary": "取回一个区块",
+        "usage": "/取消屏蔽 [target]"
+      },
+      "unbookmark": {
+        "summary": "删除你对该帖子的收藏。",
+        "usage": "/取消书签 [label]"
+      },
+      "unboost": {
+        "summary": "撤回你对该帖子的推广",
+        "usage": "/取消提升 [label]"
+      },
+      "unfav": {
+        "summary": "取消你对帖子的收藏",
+        "usage": "从收藏中移除 [label]"
+      },
+      "unfollow": {
+        "summary": "回关",
+        "usage": "/取消关注 [target]"
+      },
+      "unmute": {
+        "summary": "取消静音",
+        "usage": "/取消静音 [target]"
+      },
+      "unpin": {
+        "summary": "取消固定你自己的某个帖子",
+        "usage": "/取消固定 [label]"
+      },
+      "unreact": {
+        "summary": "从帖子中移除你的表情反应",
+        "usage": "/unreact [label] '<emoji>'"
+      },
+      "unsplit": {
+        "no_pane": "此桌面上没有可关闭的窗格。",
+        "summary": "关闭聚焦的窗格；其窗口保持打开（不同于 /close）"
+      },
+      "vis": {
+        "report": "新帖子默认是{visibility}。",
+        "summary": "显示或设置默认受众，或发布一行并指定受众",
+        "usage": "/vis [公开|未列出|私密|直接|本地] [文本]",
+        "usage_error": "用法: {usage}",
+        "usage_for": "/vis [{audiences}] [text]"
+      },
+      "vote": {
+        "already_voted": "您已投过票。",
+        "closed": "该投票已关闭。",
+        "no_poll": "在 {label} 上没有投票",
+        "options_range": "选项为1–{last}",
+        "pick_one": "请选择一个选项 (1–{last})",
+        "summary": "为帖子中的投票投票",
+        "usage": "/vote [标签] '<n>' [n…]",
+        "voted": "在{label}上为{choices}投票"
+      },
+      "vsplit": {
+        "summary": "将焦点窗格并排分割",
+        "usage": "/vsplit {views}"
+      },
+      "whois": {
+        "summary": "打开账户的个人资料窗口",
+        "usage": "/whois [标签 | @user@host]"
+      },
+      "win": {
+        "cannot_move": "无法将此窗口移动到那里",
+        "no_window": "没有窗口 {number}",
+        "summary": "切换、循环、重新排列或列出窗口（桌面：/desktop）",
+        "unread": "({count, plural, one {{count} 未读} other {{count} 未读}})",
+        "usage": "/win '<number>' | /win 下一个 | /win 上一个 | /win 移动 '<number>' | /win 列表",
+        "usage_error": "使用量: {usage}"
+      }
+    },
+    "desktop_line": "{label}: {count, plural, one {# 窗格} other {# 窗格}}",
+    "desktop_line_titles": "{label}: {count, plural, one {# 窗格} other {# 窗格}}: {titles}",
+    "desktops_up_to": "桌面最多可达{max}",
+    "error_with_usage": "{error}。 用法：{usage}",
+    "failed": "失败: {error}",
+    "feed_deleted": "~{name} 已删除",
+    "feed_line": "{title} ({id}): {sources}",
+    "feed_line_empty": "{title} ({id}): 没有来源",
+    "feed_made": "由 ~{name} 制作",
+    "feed_none": "没有订阅。使用 /feed new {name} {source}… 创建一个",
+    "feed_not_found": "没有名为 \"{name}\" 的订阅源",
+    "feed_reads": "~{name}阅读{sources}",
+    "feed_reads_no_longer": "~{name}不再阅读{sources}",
+    "feed_reads_none": "~{name}没有阅读{sources}中的任何一项",
+    "feed_renamed": "已将~{old}重命名为~{name}",
+    "feed_reserved": "\"{name}\" 是一个 /feed 词；请换一个名字",
+    "follow_requested": "关注请求已发送",
+    "in_takes": "--in 接受 {words}",
+    "invalid_name": "无效的命令名: /{name}",
+    "key_in_mode": "{chord} ({mode, select, insert {insert} other {导航}})",
+    "keys": "键: {keys}",
+    "missing_name": "在 / 之后缺少命令名",
+    "no_account_lookup": "找不到账户 {handle}: {error}",
+    "no_post_here": "此处没有{label}的帖子",
+    "no_window": "没有窗口 {number}",
+    "no_window_kind": "没有名为 {kind} 的窗口类型。类型: {kinds}",
+    "not_a_command": "不是命令: {line}",
+    "not_a_float": "聚焦的窗格不是浮动的。",
+    "not_available_here": "/{command} 在此不可用",
+    "not_logged_in": "未登录。输入 /connect",
+    "not_signed_in_as": "您未以 {handle} 登录。{count, plural, =0 {没有任何帐户已登录。} other {已登录: {accounts}.}} 输入 /connect 以添加一个帐户。",
+    "opened_no_window": "/{command} 未打开任何窗口",
+    "own_posts_only": "您只能{verb, select, delete {删除} other {编辑}}您自己的帖子",
+    "pin_own_only": "您只能固定自己的帖子。",
+    "placement_takes": "{key} 需要 {words}",
+    "reaction_done": "{emoji} {kind, select, react {已对 {label} 做出反应} other {已取消对 {label} 的反应}}",
+    "select_post_first": "请先选择一篇帖子 (j/k) 或指定一个标签",
+    "status_bookmarked": "已加入书签",
+    "status_boosted": "已提升",
+    "status_favourited": "已加入收藏",
+    "status_moved": "{mark} {word} {label}",
+    "status_pinned": "已置顶",
+    "status_unbookmarked": "已从书签中移除",
+    "status_unboosted": "未提升",
+    "status_unfavourited": "已取消收藏",
+    "status_unpinned": "已取消固定",
+    "sync_fallback": "{skipped, select, yes {回退 {index}: {account} (跳过: {reason})} other {回退 {index}: {account}}}",
+    "sync_in_use": "正在使用: {account}",
+    "sync_in_use_none": "使用中: 无",
+    "sync_last_error": "最后的错误: {error}",
+    "sync_last_pull": "上次拉取: {time}",
+    "sync_last_push": "最后一次推送: {time}",
+    "sync_off": "同步：已关闭。输入 /sync on 可将其重新打开。",
+    "sync_on": "同步: 已开启",
+    "sync_primary": "{skipped, select, yes {主要: {account} (跳过: {reason})} other {主要: {account}}}",
+    "sync_primary_none": "主账户：未选择（使用第一个可用账户）",
+    "that_is_you": "那是你",
+    "tip": "{action}: /{command}",
+    "tip_keys": "{action}: /{command} ({keys})",
+    "toggle_done": "{word} @{acct}",
+    "toggle_done_for": "{word} @{acct} 为期 {duration}",
+    "unknown_command": "未知命令: /{name}. 试试 /help",
+    "unknown_command_plain": "未知命令: /{name}",
+    "usage": "用法: {usage}",
+    "view_needs_argument": "{word} 需要一个参数",
+    "view_no_argument": "{word} 不接受参数。",
+    "view_unknown": "未知视图: {view}",
+    "view_win_number": "win 接受一个窗口编号"
+  },
+  "accounts": {
+    "login_expired": "登录已过期或未在此处启动。请重试。",
+    "login_failed": "登录失败: {reason}",
+    "login_mismatch": "登录状态不匹配。请再试一次。",
+    "login_refused": "登录被拒绝",
+    "login_refused_code": "登录被拒绝 ({code})",
+    "need_https": "仅支持 https 实例",
+    "need_instance": "请输入一个实例，例如 wired.example",
+    "not_listed": "该实例在此不可用",
+    "registered_login_failed": "已注册，但登录失败: {reason}",
+    "registration_failed": "注册失败: {reason}"
+  },
+  "api": {
+    "http_error": "HTTP {status}: {message}",
+    "invalid_json": "无效的 JSON",
+    "media_timeout": "媒体处理超时。",
+    "network_error": "网络错误: {message}",
+    "nodeinfo_no_link": "没有 NodeInfo 2.x 链接",
+    "nodeinfo_other_origin": "NodeInfo 链接指向另一个源",
+    "rate_limited": "已达到速率限制",
+    "rate_limited_until": "已被限速，直到{time}",
+    "request_cancelled": "请求已取消",
+    "request_failed": "请求失败",
+    "unexpected_response": "意外的响应: {message}"
+  },
+  "app": {
+    "account_none": "没有账户",
+    "ask_dm_title": "私信",
+    "ask_handle_placeholder": "@user@instance",
+    "ask_hashtag_placeholder": "#标签",
+    "ask_hashtag_title": "使用话题标签拆分",
+    "ask_profile_title": "打开个人资料",
+    "ask_search_placeholder": "词、@账号或#标签",
+    "ask_search_title": "搜索",
+    "attach_media": "添加媒体…",
+    "attach_refused": "无法附加 {file}：这不是图像、视频或音频文件",
+    "attach_too_many": "附件过多：每个帖子最多 {max} 个，已跳过 {file}",
+    "attach_uploading": "正在上传 {file}…",
+    "attached": "已附加 {file} ({attached}/{max})",
+    "authorize_app": "授权应用",
+    "close_pane": "关闭窗格 {title}",
+    "command_line_not_ready": "命令行尚未就绪",
+    "command_suggestions": "命令建议",
+    "connect_hint_list": "未连接。输入 /connect '<'instance'>'。可用：{origins}",
+    "connect_hint_list_custom": "未连接。输入 /connect '<'instance'>'。可用：{origins}。其他实例也可以。",
+    "connect_hint_log_in": "未连接。输入 /connect 以登录。",
+    "connect_hint_open": "未连接。输入 /connect '<'instance'>'，例如 /connect wired.example",
+    "connected_to": "已连接到 {title} ({backend})，位于 {origin}",
+    "could_not_reach": "无法连接到 {origin}: {reason}",
+    "desktop_label": "桌面 {number}",
+    "display_avatars": "头像",
+    "display_cards": "卡片",
+    "display_images": "图片",
+    "display_lines": "行",
+    "display_options": "显示 {title} 的选项",
+    "display_reset": "重置为默认设置",
+    "display_row_spoken": "{label}, {state, select, on {开启} on_overridden {开启, 已覆盖} off_overridden {关闭, 已覆盖} other {关闭}}",
+    "dock_announce": "将 {edge, select, left {左侧} right {右侧} top {顶部} other {底部}} 停靠在 #{title}",
+    "dock_window": "停靠 {title}",
+    "edit_feed": "编辑提要 {title}",
+    "empty_desktop_hint": "空桌面 — /vsplit、/split 或 Ctrl+B %",
+    "finish_registration": "完成注册",
+    "float_window": "浮动 {title}",
+    "language_auto": "自动",
+    "language_list_label": "请选择界面语言",
+    "language_row": "语言…",
+    "logged_in_as": "以 @{handle} 登录",
+    "logged_in_as_active": "已以 @{handle} 登录 (活跃)",
+    "logged_in_to": "已以 @{handle} 登录到 {origin}",
+    "menu_composer": "作曲家",
+    "menu_dm": "私信…",
+    "menu_dms": "私信",
+    "menu_existing_window": "现有窗口…",
+    "menu_federated": "联邦的",
+    "menu_feed": "订阅源: {name}",
+    "menu_hashtag": "话题标签…",
+    "menu_home": "首页",
+    "menu_local": "本地",
+    "menu_new_feed": "新的订阅源…",
+    "menu_notifications": "通知",
+    "menu_people": "这里的人",
+    "menu_profile": "个人资料…",
+    "menu_same_window": "在同一窗口",
+    "menu_search": "搜索…",
+    "no_view": "此窗口没有视图",
+    "open_view": "打开视图",
+    "open_view_float": "以浮动窗口打开视图",
+    "pane_next": "下一个窗格",
+    "pane_previous": "上一个窗格",
+    "pane_switch": "切换窗格, {count}",
+    "pending_media": "待处理的媒体",
+    "post_as": "以...身份发布",
+    "post_just_this": "仅此帖子",
+    "post_no_account": "未设置发布账号",
+    "post_not_posted": "未发布: {text}",
+    "reset_password": "重置密码",
+    "resize_window": "调整窗口大小",
+    "scope_everywhere": "到处",
+    "scope_this_feed": "针对此订阅源 (~{name})",
+    "select_post_first": "请先选择一条帖子 (j/k)",
+    "sign_up": "注册",
+    "split_side_by_side": "并排分屏",
+    "split_side_by_side_tip": "与视图并排拆分",
+    "split_stacked": "拆分堆叠",
+    "split_stacked_tip": "分割堆叠视图",
+    "start_menu_label": "[≡ wired] 开始菜单",
+    "sync_took_newer": "同步：已从服务器获取较新的桌面",
+    "sync_up_to_date": "同步：已是最新",
+    "tagline": "现在的日子。现在的时间。",
+    "tip_close": "关闭此面板",
+    "tip_display": "帖子如何显示",
+    "tip_dock": "停靠到磁贴",
+    "tip_edit_feed": "编辑此订阅源",
+    "tip_float": "弹出到浮动窗口"
+  },
+  "capabilities": {
+    "cannot": {
+      "custom_emoji_reactions": "{owner, select, handle {@{handle}'s server} other {此服务器}}{brand} 无法使用自定义表情反应",
+      "editing": "{owner, select, handle {@{handle} 的服务器} other {此服务器}}{brand} 无法编辑帖子",
+      "emoji_reactions": "{owner, select, handle {@{handle}'s server} other {This server}}{brand} 无法对帖子使用表情反应",
+      "local_only_posts": "{owner, select, handle {@{handle}的服务器} other {此服务器}}{brand}无法仅发布本地内容",
+      "markdown": "{owner, select, handle {@{handle}'s server} other {此服务器}}{brand} 无法使用 Markdown 格式化帖子",
+      "password_reset_api": "{owner, select, handle {@{handle}'s server} other {This server}}{brand} 无法重置密码",
+      "quote_posting": "{owner, select, handle {@{handle}'s server} other {This server}}{brand} 无法引用帖子",
+      "settings_store": "{owner, select, handle {@{handle}'s server} other {此服务器}}{brand} 无法同步设置"
+    }
+  },
+  "features": {
+    "authorize": {
+      "as_handle": "作为 @{handle}，此应用将能够：",
+      "authorize_button": "[ 授权 ]",
+      "cancel_button": "[ 取消 ]",
+      "close_button": "[ 关闭 ]",
+      "code_intro": "已授权。将此代码提供给应用：",
+      "copied": "已复制到剪贴板。",
+      "copy_button": "[ 复制 ]",
+      "copy_failed": "无法复制。请选择代码并手动复制。",
+      "deny_button": "[ 拒绝 ]",
+      "done": "完成。你可以关闭此框。",
+      "failed": "无法授权: {reason}",
+      "form_label": "登录",
+      "instance": "实例",
+      "loading": "正在加载请求…",
+      "log_in_button": "[ 登录 ]",
+      "log_in_intro": "登录以授权该应用。",
+      "narrow_follow": "管理你的{noun}",
+      "narrow_push": "针对您的{noun}的推送通知",
+      "narrow_read": "阅读你的{noun}",
+      "narrow_write": "更改你的{noun}",
+      "not_trusted": "此实例尚未将 WiredFE 标记为受信任的应用程序，因此无法授权其他应用。请请求实例管理员将 WiredFE 标记为受信任。",
+      "password": "密码",
+      "refused": "该实例拒绝了此授权请求: {message}",
+      "returning": "返回应用…",
+      "scope_admin": "作为管理员: {words} ({scope})",
+      "scope_plain": "{words} ({scope})",
+      "scope_unknown": "未知的权限 ({scope})",
+      "title": "是否授权 {name}？",
+      "unsafe_redirect": "实例返回了一个不安全的重定向地址，无法跟随。未发送任何内容。",
+      "username": "用户名",
+      "website": "网站: {website}",
+      "whole_follow": "关注、取关、屏蔽和静音帐户",
+      "whole_push": "向您发送推送通知",
+      "whole_read": "阅读你能看到的一切",
+      "whole_write": "请随意发布、编辑和删除"
+    },
+    "composer": {
+      "attachments_removed": "附件已删除: 它们属于旧账户",
+      "editing": "正在编辑 [{label}]: {excerpt}",
+      "log_label": "撰写",
+      "post_as": "作为...发布",
+      "posted_as": "以 @{author} 发布",
+      "quoted": "❝ 引用 @{author}",
+      "quoting": "引用 @{author}: {excerpt}",
+      "replied": "↳ 回复了 @{author}",
+      "replying": "回复 @{author}: {excerpt}",
+      "topic": "作曲家",
+      "topic_as": "撰写器，以 @{handle} 发布"
+    },
+    "dm": {
+      "log_label": "私信",
+      "no_messages": "还没有与 @{target} 的消息。输入以开始对话。",
+      "topic": "私信（DM）",
+      "topic_with": "与 {mention} 的私人对话"
+    },
+    "external": {
+      "asks_for": "此应用请求:",
+      "authorize_button": "[ 授权 ]",
+      "cancel_button": "[ 取消 ]",
+      "close_button": "[ 关闭 ]",
+      "continuing": "继续…",
+      "deny_button": "[ 拒绝 ]",
+      "email": "电子邮件",
+      "form_label": "注册",
+      "intro": "使用 {provider}{named, select, yes { 显示为 {name}} other {}} 登录。选择您在此处的显示方式。",
+      "loading": "正在加载请求…",
+      "loading_details": "正在加载您的详细信息…",
+      "nickname": "昵称",
+      "password_optional": "密码 (可选)",
+      "register_button": "[ 注册 ]",
+      "title": "是否授权 {name}？",
+      "unsafe_redirect": "该实例返回了一个不安全的重定向地址，不应跟随。未发送任何内容。",
+      "waiting_approval": "账户已创建。正在等待版主批准。",
+      "waiting_confirmation": "账户已创建。请检查您的电子邮件以确认地址，然后登录。",
+      "website": "网站: {website}",
+      "your_provider": "您的提供者"
+    },
+    "federated": {
+      "log_label": "联邦的",
+      "topic": "联邦时间线"
+    },
+    "feed": {
+      "log_label": "订阅源",
+      "missing": "此订阅源已不存在",
+      "source_failed": "{source} 失败: {reason}",
+      "topic_posting": "{title}, 以 @{handle} 的身份发布"
+    },
+    "feed_editor": {
+      "add_button": "[ 添加 ]",
+      "add_button_label": "为 @{handle} 添加标签",
+      "add_label": "为 @{handle} 添加标签",
+      "add_placeholder": "添加标签",
+      "cancel_button": "[ 取消 ]",
+      "cell_name": "@{handle}的{source}",
+      "cell_name_blocked": "{source} 的 @{handle} ({reason})",
+      "column_account": "账户",
+      "confirm_delete_label": "确认删除订阅源",
+      "delete_button": "[ 删除订阅源 ]",
+      "delete_question": "要删除此订阅源吗？",
+      "delete_yes": "[ 是的, 删除 ]",
+      "feed_name": "订阅源名称",
+      "gone": "此订阅源已不存在。",
+      "name_has_spaces": "订阅源名称不能包含空格。",
+      "not_a_tag": "不是标签: \"{text}\"",
+      "remove_tag": "移除 @{handle} 的标签 {tag}",
+      "save_button": "[ 保存 ]",
+      "saved": "已保存",
+      "sign_in_expired": "登录已过期",
+      "sources_label": "按账户的来源",
+      "tags_label": "@{handle}的标签"
+    },
+    "hashtag": {
+      "log_label": "话题标签"
+    },
+    "home": {
+      "log_label": "首页",
+      "topic": "首页时间线"
+    },
+    "local": {
+      "log_label": "本地",
+      "topic": "本地时间线"
+    },
+    "media": {
+      "loading": "加载中…",
+      "next": "下一个附件",
+      "no_attachment": "此帖子没有附件 {n}",
+      "no_description": "图片没有描述",
+      "no_link": "[没有可用的链接]",
+      "nothing": "没有可显示的内容",
+      "open_original": "打开原文 ↗",
+      "previous": "上一个附件",
+      "sensitive_cover": "[ 敏感 — 显示 ]"
+    },
+    "notifications": {
+      "log_label": "通知",
+      "topic": "通知"
+    },
+    "password_reset": {
+      "close_button": "[ 关闭 ]",
+      "confirm_password": "确认新密码",
+      "done": "密码已更改。您现在可以使用它登录。",
+      "empty": "请输入新密码。",
+      "form_label": "重置密码",
+      "instance": "实例",
+      "mismatch": "两个密码不匹配。",
+      "new_password": "新密码",
+      "reset_button": "[ 重置密码 ]"
+    },
+    "people": {
+      "in_conversation": "对话中",
+      "in_thread": "在讨论串中",
+      "nobody": "这里没有人聚集。",
+      "recently_here": "最近在这里",
+      "window_closed": "窗口已关闭"
+    },
+    "profile": {
+      "log_label": "个人资料"
+    },
+    "registration": {
+      "agreement": "我同意该实例的规则和条款。",
+      "close_button": "[ 关闭 ]",
+      "email": "电子邮件",
+      "form_label": "注册",
+      "instance": "实例",
+      "logged_in": "已在 {origin} 以 @{handle} 登录",
+      "password": "密码",
+      "reason": "原因（可选）",
+      "register_button": "[ 注册 ]",
+      "unreachable": "无法连接到 {origin}: {reason}",
+      "username": "用户名",
+      "waiting_approval": "账户已创建。正在等待版主的批准。",
+      "waiting_confirmation": "账户已创建。请检查您的电子邮件以确认您的地址，然后登录。"
+    },
+    "route": {
+      "follow_hint": "输入 /follow 来关注 @{acct}",
+      "not_found": "找不到 {value}"
+    },
+    "search": {
+      "account_line": "  @{acct} — {name}  (/whois @{acct})",
+      "accounts": "账户:",
+      "log_label": "搜索",
+      "no_results": "未找到与 \"{query}\" 匹配的结果",
+      "tag_line": "  #{name}  (/join #{name})",
+      "tags": "标签:",
+      "topic": "搜索",
+      "topic_query": "搜索: {query}"
+    },
+    "status": {
+      "log_label": "状态",
+      "topic": "{appName} — 当前日期。当前时间。"
+    },
+    "thread": {
+      "loading": "正在加载帖子…",
+      "log_label": "主题",
+      "nothing_to_answer": "此窗口没有可回复的内容"
+    }
+  },
+  "format": {
+    "boost_count": "{count, plural, one {# 次推广} other {# 次推广}}",
+    "closed": "已关闭",
+    "closes": "在{time}关门",
+    "favourite_count": "{count, plural, one {# 个收藏} other {# 个收藏}}",
+    "multiple_choice": "(多项选择)",
+    "reaction_label": "{name}, {count, plural, one {# 个反应} other {# 个反应}}",
+    "reply_to": "回复帖子 {label}",
+    "reply_to_counted": "回复帖子 {label} ({count, plural, one {# 条回复} other {# 条回复}})",
+    "vote_count": "{count, plural, one {#票} other {#票}}",
+    "whois_counts": "帖子 {posts, number} · 关注 {following, number} · 关注者 {followers, number} · 加入于 {joined}"
+  },
+  "keys": {
+    "already_bound": "/{command}: {chord} 已经绑定到 {line}",
+    "conflicts": "/{command}: {chord} 与 {other} 冲突",
+    "invalid_key": "/{command}: 无效的按键 {chord}",
+    "override_conflicts": "覆盖: {chord} 与 {other} 冲突",
+    "override_invalid_key": "override: 无效的键 {chord}",
+    "override_would_block_typing": "override: {chord} 会阻止在插入模式下输入",
+    "would_block_typing": "/{command}: {chord} 会阻止在插入模式下输入"
+  },
+  "state": {
+    "dropped_empty_desktops": "{count, plural, one {# 个空桌面} other {# 个空桌面}}",
+    "dropped_hidden_windows": "{count, plural, one {# 个隐藏窗口} other {# 个隐藏窗口}}",
+    "dropped_key_overrides": "{count, plural, one {# 键覆盖} other {# 键覆盖}}",
+    "duration_days": "{count}天",
+    "duration_hours": "{count} 小时",
+    "duration_minutes": "{count}分",
+    "feed_id_taken": "{id} 的订阅源已存在",
+    "feed_name_length": "提要名称应为1到{max}个字符",
+    "feed_name_taken": "名为\"{name}\"的订阅源已存在",
+    "mentioned_you": "@{handle} 提到你 [see notifs]",
+    "no_account_signed_in": "未登录任何账户",
+    "no_feed_with_id": "没有 id 为 {id} 的订阅源",
+    "no_post_here": "您无法在此窗口发布",
+    "no_signed_in_account": "没有已登录的账户 @{handle}",
+    "not_a_source": "不是来源: \"{text}\" (试试 @me@host:home，*:mentions 或 @me@host:tag:rust)",
+    "not_logged_in": "未登录。请输入 /connect",
+    "poll_closed": "无法编辑投票已结束的帖子。",
+    "poll_option_empty": "选项 {n} 为空",
+    "poll_option_repeats": "选项 {n} 与选项 {first} 重复",
+    "poll_option_too_long": "选项 {n} 超过了 {max} 个字符",
+    "posted_as": "以 @{handle} 发布",
+    "posting_line": "{subject, select, feed {{title} 帖子} other {帖子}} 作为 @{handle} ({source, select, window {窗口的账户} feed {订阅源默认} global {全局默认} other {仅账户}})",
+    "posting_set_feed": "~{feed} 以 @{handle} 发布 (默认 feed)",
+    "posting_set_global": "以 @{handle} 发布 (全局默认)",
+    "session_expired": "@{handle} 的会话已过期。输入 /connect 重新登录。",
+    "setting_avatars": "在帖子中显示作者头像",
+    "setting_clock_format": "时间戳如何显示：24 小时制还是 12 小时制？",
+    "setting_default_visibility": "默认情况下新帖子面向的受众",
+    "setting_density": "帖子如何呈现: 作为卡片还是作为 IRC 行",
+    "setting_effects": "CRT/故障效果（它们不会闪烁）",
+    "setting_expand_media": "带有内容警告的媒体默认处于打开状态。",
+    "setting_images": "将附件以内联显示，而不是以 [IMG …] 行显示",
+    "setting_open_in": "新窗口在哪里打开：here、vsplit、split、float 或 hidden",
+    "setting_reply_in": "回复编辑器打开位置：这里、vsplit、split、float 或 hidden",
+    "setting_theme": "外壳被涂成的颜色",
+    "skip_no_settings_store": "没有设置存储",
+    "skip_not_signed_in": "未登录",
+    "skip_session_expired": "会话已过期",
+    "stream_edited_hint": "~{name} 已被编辑，因此 @{handle} 不在其中: /feed add {name} {sources}",
+    "sync_failed": "同步失败。{reason}",
+    "sync_forbidden": "同步：此登录可能无法使用设置存储。请重新登录以授予访问权限。",
+    "sync_invalid_remote": "同步：服务器上保存的桌面无法读取，已被忽略；保留此项。",
+    "sync_paused": "同步已暂停：桌面过大，无法同步（即使没有隐藏窗口、空桌面和额外的按键覆盖，也超过 {size} KiB）；它保留在此处",
+    "sync_too_large": "同步：服务器表示该桌面太大，无法存储",
+    "sync_trimmed": "同步：桌面很大，所以服务器上的副本省略了 {dropped}；此设备会保留它们。",
+    "sync_unsupported": "同步：服务器没有设置存储；已停止同步"
+  },
+  "ui": {
+    "account_picker_dialog": {
+      "accounts": "账户",
+      "cancel": "取消",
+      "ok": "好的",
+      "remember": "记住"
+    },
+    "attach_button": {
+      "label": "添加媒体"
+    },
+    "avatar": {
+      "alt": "{handle}的头像"
+    },
+    "boost_line": {
+      "boosted": "已提升"
+    },
+    "card_dm": {
+      "you": "你"
+    },
+    "card_head": {
+      "dm_strip": "✉ 私信  {from}{count, plural, =0 {} other { → {to}}}"
+    },
+    "confirm_dialog": {
+      "cancel": "取消"
+    },
+    "divider": {
+      "resize": "调整窗格大小"
+    },
+    "drop_highlight": {
+      "text": "-- 拖放以附加 --"
+    },
+    "emoji_picker": {
+      "dialog": "对 [{label}] 做出反应",
+      "search_label": "搜索表情",
+      "search_placeholder": "搜索表情…"
+    },
+    "emoji_picker_model": {
+      "custom": "自定义",
+      "custom_category": "自定义: {category}",
+      "emoji": "表情符号",
+      "emoji_group": "表情: {group}",
+      "loading": "加载中…",
+      "on_this_post": "在这篇帖子上"
+    },
+    "emoji_section": {
+      "no_matches": "没有匹配项"
+    },
+    "error_alert": {
+      "count": "(×{count})",
+      "label": "错误",
+      "ok": "好的"
+    },
+    "input_line": {
+      "label": "命令行"
+    },
+    "instance_choices": {
+      "legend": "实例",
+      "other": "其他实例"
+    },
+    "media_grid": {
+      "alt_line": "[替代文本 {number}] {text}",
+      "more": "显示另外{count}个附件",
+      "sensitive_show": "[ 敏感 — 显示 ]"
+    },
+    "media_list": {
+      "kind_audio": "澳大利亚元 (AUD)",
+      "kind_file": "文件",
+      "kind_gif": "GIF 图像",
+      "kind_image": "图片",
+      "kind_video": "VID",
+      "no_description": "无描述",
+      "no_usable_link": "[无可用链接]",
+      "placeholder": "[{kind} {number}/{total}: {description}]",
+      "sensitive": "[敏感]"
+    },
+    "media_review_dialog": {
+      "attachments": "附件",
+      "cancel": "取消",
+      "description_for": "{name} 的描述",
+      "missing": "无描述",
+      "submit": "提交",
+      "summary": "{total} 个附件中有 {missing} 个没有描述",
+      "title": "请描述媒体"
+    },
+    "media_tile": {
+      "alt": "ALT",
+      "alt_label": "ALT: 附件 {number} 的描述",
+      "no_description": "无描述的图片",
+      "no_usable_link": "[没有可用的链接]"
+    },
+    "mute_durations": {
+      "days": "{count, plural, one {# 天} other {# 天}}",
+      "forever": "永远",
+      "group": "静音持续",
+      "hours": "{count, plural, one {# 小时} other {# 小时}}",
+      "minutes": "{count, plural, one {# 分钟} other {# 分钟}}"
+    },
+    "poll_view": {
+      "own_vote": "你为此投了票"
+    },
+    "post_actions": {
+      "bookmark": "收藏帖子 {label}",
+      "boost": "推广帖子 {label}",
+      "favourite": "收藏的帖子 {label}",
+      "group": "帖子 {label} 的操作"
+    },
+    "post_actions_more": {
+      "block": "屏蔽作者",
+      "copy": "复制链接",
+      "delete": "删除",
+      "edit": "编辑",
+      "menu": "帖子 {label} 的更多操作",
+      "mute": "屏蔽作者",
+      "open": "在浏览器中打开",
+      "pin": "固定",
+      "quote": "引用",
+      "thread": "打开主题",
+      "unpin": "取消固定"
+    },
+    "post_article": {
+      "direct": "来自{handle}的直接消息 {label}",
+      "post": "{handle} 发布的 {label}"
+    },
+    "post_body": {
+      "content_warning": "[内容警告: {text}]"
+    },
+    "post_card_parts": {
+      "reply_to": "↳ 关于 {label}"
+    },
+    "post_meta": {
+      "audience_direct": "直接",
+      "audience_local": "仅限本地",
+      "audience_private": "仅限关注者",
+      "audience_unlisted": "未列出",
+      "edited": "(已编辑)",
+      "you_bookmarked": "你已将此加入书签",
+      "you_boosted": "你已推广此内容",
+      "you_favourited": "你已将其加入收藏",
+      "you_reacted": "你用{name}做了反应"
+    },
+    "post_row_head": {
+      "reply_to": "↳ 关于 {label}:"
+    },
+    "prompt_dialog": {
+      "cancel": "取消",
+      "ok": "好的",
+      "suggestions": "{title}的建议"
+    },
+    "react_button": {
+      "label": "对帖子 {label} 做出反应"
+    },
+    "status_line": {
+      "close_desktop": "关闭桌面 {number}",
+      "desktop": "桌面 {number}{active, select, true {, 活跃} other {}}{unread, plural, =0 {} other {, {unread} 未读}}{highlight, select, true {, 高亮} other {}}",
+      "desktop_title": "桌面 {number}: 单击切换，中键单击关闭",
+      "media_pending": "[+{count} 个媒体]",
+      "media_waiting": "{count} 个媒体正在等待，显示",
+      "no_posting_account": "没有发布账户，请选择",
+      "posting_as": "以 {label} 身份发布, 更改",
+      "sync_failed": "同步失败",
+      "sync_pending": "同步等待中",
+      "window": "窗口 {number}: {title}{unread, plural, =0 {} other {, {unread} 未读}}{highlight, select, true {, 已突出显示} other {}}"
+    },
+    "via_mark": {
+      "label": "通过 {accounts}"
+    },
+    "whois_block": {
+      "blocked": "已阻止",
+      "followed_by": "他们关注你",
+      "following": "你关注他们。",
+      "muted": "已静音",
+      "verified": "已验证",
+      "verified_title": "已验证的链接"
+    }
+  },
+  "views": {
+    "attachments": {
+      "description": "{name}的描述",
+      "failed": "失败: {error}",
+      "ready": "准备好了",
+      "remove": "删除 {name}",
+      "uploading": "正在上传…"
+    },
+    "composer": {
+      "content_warning": "内容警告",
+      "post_suggestions": "帖子建议",
+      "post_text": "帖子文本",
+      "send": "[ 发送 ]"
+    },
+    "confirm": {
+      "block": "屏蔽",
+      "block_message": "他们将无法关注或与您的账户互动，并且他们的帖子对您隐藏。",
+      "block_title": "要屏蔽 {handle}？",
+      "delete": "删除",
+      "delete_message": "此操作无法撤销。",
+      "delete_message_excerpt": "此操作无法撤销。\"{excerpt}\"",
+      "delete_title": "删除帖子 [{label}]？",
+      "mute": "静音",
+      "mute_message": "他们的帖子会在您选择的时间内对您隐藏。",
+      "mute_title": "要将{handle}静音吗?"
+    },
+    "excerpt": {
+      "attachments": "({count, plural, one {# 个附件} other {# 个附件}})",
+      "no_text": "(无文本)"
+    },
+    "media": {
+      "attach": "添加媒体",
+      "attach_button": "[ 📎 添加附件 ]",
+      "attach_short": "[📎]",
+      "attachments": "附件",
+      "files": "媒体文件",
+      "not_media": "无法附加 {name}：这不是图像、视频或音频文件。",
+      "too_many": "附件过多：每个帖子最多 {max}，已跳过 {name}"
+    },
+    "notification": {
+      "annual_report": "您的年度报告已准备好",
+      "chat_mention": "{actor} 给你发送了一条聊天消息：{excerpt}",
+      "favourite": "{actor} 收藏了 {label} {excerpt}",
+      "follow": "{actor} 关注了你",
+      "follow_request": "{actor} 想关注你（/accept 或 /reject 稍后可用）",
+      "mention": "{actor} 在 {label} 提到你：{excerpt}",
+      "moderation_warning": "您收到了一条审核警告",
+      "move": "{actor} 已移动",
+      "other": "{actor}: {type} 通知",
+      "poll_own": "您创建的投票已于{label}结束",
+      "poll_voted": "您参与的投票已于{label}结束",
+      "quote": "{actor} 引用了 {label}: {excerpt}",
+      "quoted_update": "{actor} 编辑了引用了你的帖子的帖子",
+      "reaction": "{actor} 对 {label} {excerpt} 做出 {emoji} 的反应",
+      "reblog": "{actor} 提升了 {label} {excerpt}",
+      "report": "{actor} 提交了报告{target, select, none {} other { 关于 {target}}} {comment}",
+      "severed_relationships": "一次管理操作导致你的一些关注或粉丝被移除了。",
+      "sign_up": "{actor} 已注册",
+      "status": "{actor} 发布了 {label}",
+      "update": "{actor} 编辑了 {label} {excerpt}"
+    },
+    "notification_card": {
+      "favourite": "收藏了你的帖子",
+      "mention": "提到你了",
+      "poll": "投票已结束",
+      "quote": "引用了你",
+      "reaction": "对你的帖子做出了反应",
+      "reblog": "推广了你的帖子",
+      "reply": "回复了你",
+      "status": "已发布",
+      "update": "已编辑了帖子"
+    },
+    "paging": {
+      "no_account": "此窗口没有账户"
+    },
+    "poll": {
+      "add_option": "[+ 选项]",
+      "duration": "持续时间",
+      "hide_totals": "隐藏总计",
+      "media_conflict": "一条帖子不能同时包含媒体和投票。",
+      "multiple_choice": "多项选择",
+      "option": "选项 {number}",
+      "remove_option": "删除选项 {number}",
+      "toggle": "[ ☰ 投票 ]"
+    },
+    "post": {
+      "a_thread": "一个线程",
+      "content_warning": "内容警告: {warning}"
+    },
+    "quote": {
+      "content_warning": "[内容警告: {warning}]"
+    },
+    "runner": {
+      "unavailable": "命令行不可用"
+    },
+    "stream": {
+      "live": "正在为 @{handle} 直播",
+      "restored": "@{handle} 的直播已恢复",
+      "unavailable": "无法为 @{handle} 提供流媒体; 每分钟轮询一次"
+    },
+    "visibility": {
+      "direct": "直接",
+      "label": "可见性",
+      "local": "本地",
+      "private": "私有",
+      "public": "公开",
+      "unlisted": "未列出"
+    }
+  },
+  "windows": {
+    "desktop_empty": "桌面 {count} 为空: {last, select, yes {在上面放点东西} other {使用它}} 在创建另一个之前",
+    "no_desktop": "没有桌面 {number}; 桌面编号为 1–{count}"
+  }
+}

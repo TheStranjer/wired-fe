@@ -1,0 +1,1212 @@
+{
+  "commands": {
+    "help_topics": {
+      "feeds": {
+        "display": "投稿はデフォルトでカード表示です。/display density lines はこのウィンドウを IRC の行表示に切り替え、/display avatars off と /display images off はそれぞれアバターと画像を非表示にします。/display reset は上書きをクリアし、/set density、/set avatars、/set images はすべてのウィンドウのデフォルトを変更します。",
+        "editor": "初回実行時に「stream」というものが作成されます（ホーム、メンション、DM、すべてのアカウントの通知）；/feed edit {name}、/feed new、またはフィードペインの✎ボタンでエディタが開きます。",
+        "labels": "各投稿には [a3] のような短いラベルがあります: /fav a3、/reply a3、/pop a3 — それを取得したアカウントとして操作します。",
+        "merge": "フィードは、サインインしているすべてのアカウントのソースを新しい順に1つのストリームに統合し、複数のアカウントが見る投稿は一度だけ表示されます。",
+        "sources": "ソースはホーム、メンション、DM、通知、ローカル、フェデレーテッド、タグ:{name}です。"
+      },
+      "layout": {
+        "buttons": "ボタン: ◫▾ と ⊟▾ はビューを分割し、⧉ はペインをフロート（浮動）させ、⇲ はフロートをドックし、✕ は閉じます。Shiftキーを押しながらフロートをペイン上にドラッグすると、そのエッジにドックできます。",
+        "close": "ペインを閉じてもウィンドウは残ります。/close はウィンドウを閉じます。",
+        "desktop_close": "Ctrl+B & (またはステータスラインのアクティブなデスクトップの後ろにある ×、または任意のデスクトップでのミドルクリック) はデスクトップを閉じ、ウィンドウを開いたままにします (/win); /desktop prune は空のデスクトップをすべて閉じます。",
+        "desktop_keys": "Alt+1..9はデスクトップにジャンプし、Alt+[ と Alt+] は前と次のデスクトップに移動します。",
+        "navigation_keys": "ナビゲーションモード（Esc）：w v / w s で分割、w h j k l でフォーカス移動、w c でペインを閉じる、w o でこれだけ残す、w = でサイズを等しくする、w f / w d でフロートとドック。",
+        "panes": "画面はペインが左右に分割された（行）または積み重なった（列）デスクトップです。任意のペインはフロート（ビューポート内をドラッグして移動できるウィンドウ）として切り離すことができます。",
+        "phone": "スマートフォンでは一度に1つのペインが表示され、タイトルバーに ‹ 2/4 › の切り替えが表示されます。",
+        "placement": "Ctrl+click はフロートで開き、Shift+click は横並びの分割で開き、middle-click は非表示にします; --in here|vsplit|split|float|hidden は開いたウィンドウを配置します。",
+        "prefix_keys": "キー: Ctrl+B % / \" split、Ctrl+B 矢印でフォーカス、Ctrl+B x でペインを閉じる、Ctrl+B z でこれだけを残す、Ctrl+B f / d でフロートとドック。",
+        "start_menu": "Ctrl+B スペース / w スペース（またはステータス行の左にある [≡ wired] ボタン）でスタートメニューを開き、その行はビューをフロートとして開きます。"
+      },
+      "sync": {
+        "accounts": "プライマリアカウントは同期されたコピーを保持します。設定ストアがないかトークンが失敗した場合、順番にフォールバックが引き継ぎます (/sync primary {handle}, /sync fallback add|rm|up {handle}).",
+        "budget": "サーバーはストア全体を1 MiBに制限しているため、384 KiBの予算を超えるデスクは、同期されたコピーからのみ隠しウィンドウ、空のデスクトップ、および追加のキー上書きを除外し、その旨を通知します。",
+        "devices": "デスクトップブラウザ（Windows、macOS、Linux、ChromeOS）とモバイルブラウザ（Android、iOS、iPadOS）はそれぞれ独自のレイアウトを保持し、新しい方のコピーが優先されます。",
+        "mastodon": "Mastodonには設定を保存するストアがありません: そこのアカウントはその作業スペースをこのブラウザのみに保持します。",
+        "push": "push は最後の変更から3秒後に行われます; /sync は現在 pull と push を同時に実行します。/sync off と /sync on で切り替えます。",
+        "saved": "デスクトップ、フロート、開いているウィンドウ、フィード、設定はこのブラウザに保存され、サーバーを通じて同期されるため、デスクはあなたに付いてきます。"
+      }
+    },
+    "aliases": "エイリアス: {aliases}",
+    "already_in_thread": "既にこのスレッドにいます",
+    "bad_duration": "不正な期間: {word}",
+    "command_failed": "コマンドの実行に失敗しました: {error}",
+    "defs": {
+      "about": {
+        "backend": "バックエンド: {backend}",
+        "device": "デバイス: {device}",
+        "features": "機能: {count, plural, =0 {なし} other {{names}}}",
+        "not_connected": "接続されていません。/connect を入力してください。",
+        "polls": "アンケート: {options, plural, one {# オプション} other {# オプション}} は {characters}文字中、{span}",
+        "posts": "投稿: 最大{characters}文字、{attachments, plural, one {# 添付ファイル} other {# 添付ファイル}}",
+        "summary": "このインスタンスが何で、何ができるかを示してください",
+        "title_at": "{origin}の{title}"
+      },
+      "account": {
+        "active": "アクティブなアカウント: @{handle}",
+        "logged_out": "ログアウトしました @{handle}",
+        "revoke_failed": "トークンを取り消せませんでした: {reason}",
+        "summary": "アカウントを一覧表示し、切り替え、ログアウトする",
+        "usage": "/account [一覧] | /account 切り替え '<n|handle>' | /account 次へ | /account ログアウト [n|handle]",
+        "usage_error": "使用方法: {usage}"
+      },
+      "as": {
+        "posted": "@{handle}として投稿",
+        "summary": "別のアカウントとして1行投稿する",
+        "usage": "/として '<handle|n> <text>'",
+        "usage_error": "使用方法: {usage}"
+      },
+      "attach": {
+        "summary": "次の投稿にメディアを添付してください",
+        "usage": "/添付 [alt text]"
+      },
+      "bind": {
+        "blocks_typing": "{chord} は挿入モードでの入力を妨げます",
+        "must_start_with_slash": "コマンドラインは / で始める必要があります",
+        "not_a_key": "キーではありません: {chords}",
+        "summary": "キーをコマンドラインに割り当てる",
+        "usage": "/bind '<insert|navigation> <chord> <command line>'",
+        "usage_error": "使用法: {usage}"
+      },
+      "binds": {
+        "mode_header": "キー ({mode} モード):",
+        "none": "(なし)",
+        "not_a_mode": "モードではありません: {word}。/binds を試してください",
+        "prefill": "(事前入力)",
+        "summary": "有効なキー割り当てを表示",
+        "usage_error": "使用法: {usage}"
+      },
+      "block": {
+        "summary": "アカウントをブロックする",
+        "usage": "/ブロック [target]"
+      },
+      "bookmark": {
+        "summary": "投稿をブックマークするか、ブックマークを解除する。",
+        "usage": "/ブックマーク [label]"
+      },
+      "boost": {
+        "summary": "投稿をブーストするか、ブーストを取り消す",
+        "usage": "/ブースト [label]"
+      },
+      "clear": {
+        "summary": "アクティブウィンドウをクリアする"
+      },
+      "close": {
+        "cannot_close_status": "ステータスウィンドウを閉じることができません。",
+        "summary": "アクティブなウィンドウを閉じる"
+      },
+      "compose": {
+        "summary": "Composerウィンドウを開く",
+        "usage": "/compose [text] [--in '<placement>']"
+      },
+      "connect": {
+        "could_not_start": "ログインを開始できませんでした: {reason}",
+        "opening": "{origin} を開いてログインしています…",
+        "summary": "インスタンスにログイン",
+        "usage": "/接続 [instance]"
+      },
+      "copy": {
+        "copied": "{link}をコピーしました",
+        "summary": "投稿のリンクをクリップボードにコピーする",
+        "unavailable": "クリップボードを利用できません",
+        "usage": "/コピー [label]"
+      },
+      "cw": {
+        "summary": "コンテンツ警告の背後に隠してアクティブウィンドウに投稿する",
+        "usage": "/cw '<warning> <text>'",
+        "usage_error": "使い方: /cw \"警告\" テキスト"
+      },
+      "delete": {
+        "deleted": "✗ 削除済み [{label}]",
+        "summary": "自分の投稿のうちの1つを削除してください",
+        "usage": "/削除 [label]"
+      },
+      "desktop": {
+        "closed": "デスクトップ {number} を閉じました（ウィンドウはまだ開いています: /win）",
+        "closed_empty": "{count, plural, one {閉じた # 空のデスクトップ} other {閉じた # 空のデスクトップ}}",
+        "last_desktop": "最後のデスクトップは閉じられません",
+        "no_desktop": "デスクトップ{number}がありません",
+        "no_empty": "空のデスクトップはありません",
+        "summary": "一覧表示、切り替え（Alt+1..9、Alt+[ および Alt+]）、作成（内容があるデスクトップの後にのみ）、閉じる（Ctrl+B &、× またはステータス行のミドルクリック）または空のデスクトップを整理",
+        "usage": "/desktop [list] | /desktop '<number>' | /desktop 次へ | /desktop 前へ | /desktop 新規 | /desktop 閉じる [number] | /desktop 整理",
+        "usage_error": "使用法: {usage}"
+      },
+      "detach": {
+        "cleared": "添付ファイルが削除されました",
+        "summary": "次の投稿を待っているすべての添付ファイルを破棄してください"
+      },
+      "display": {
+        "cleared": "表示のオーバーライドがクリアされました。",
+        "inherited": "{key} を継承しました",
+        "line": "{key} = {value}  ({source, select, inherited {inherited} other {overridden}})",
+        "no_key": "表示キー {key} が見つかりません。/display を試してください",
+        "summary": "このウィンドウの密度、アバター、画像を表示または上書きする",
+        "takes": "{key} は {values} を受け取ります",
+        "usage": "/display [キー [値] | リセット [キー]]",
+        "usage_error": "使用方法: {usage}"
+      },
+      "dm": {
+        "summary": "ダイレクトメッセージを1行で送信する",
+        "usage": "/dm @user@host メッセージ",
+        "usage_error": "使用法: {usage}"
+      },
+      "dock": {
+        "not_a_float": "フォーカスされているペインはフロートではありません",
+        "summary": "フォーカスされたフロートをタイル状のペインにドッキングする"
+      },
+      "edit": {
+        "edited": "✎ 編集済み [{label}]",
+        "summary": "自分の投稿のひとつを編集する; テキストがない場合、コンポーザーを開く（eキーで事前に入力される）",
+        "usage": "/edit [label] [text]; テキストがない場合、作成ウィンドウを開きます"
+      },
+      "equalize": {
+        "summary": "各ペインにデスクトップを均等に割り当てる。"
+      },
+      "fav": {
+        "summary": "投稿をお気に入りに追加するか、お気に入りを解除する",
+        "usage": "/お気に入り [label]"
+      },
+      "federated": {
+        "summary": "連合タイムラインを開く",
+        "usage": "/federated [text] [--in '<placement>']"
+      },
+      "feed": {
+        "summary": "フィードを作成、変更、開く ({subcommands})",
+        "usage": "/feed [一覧] | /feed '<name>' | /feed 編集 '<name>' | /feed 新規 ['<name> <source>'…] | /feed 追加|削除 '<name> <source>'… | /feed 名前変更 '<old> <new>' | /feed 削除 '<name>'"
+      },
+      "float": {
+        "already_floating": "フォーカスされたペインは既にフロートになっています。",
+        "no_pane": "このデスクトップにはフロートできるペインがありません。",
+        "summary": "フォーカスされているペインをフロートとして切り離す、またはビューを新しいペインで開く。"
+      },
+      "focus": {
+        "summary": "ペインをある方向にフォーカスするか、ペインを順に切り替えます。",
+        "usage_error": "使用方法: {usage}"
+      },
+      "follow": {
+        "summary": "アカウントをフォロー",
+        "usage": "/フォロー [target]"
+      },
+      "forgot": {
+        "letter": "そのアカウントが存在する場合、リセット用のメールがまもなく届きます。",
+        "summary": "パスワードリセットの案内を郵送する",
+        "usage": "/forgot '<email|nick>' [instance]",
+        "usage_error": "使用法: /forgot '<email|nick>'"
+      },
+      "help": {
+        "footer": "詳細については /help '<command>' と入力してください。",
+        "header": "コマンド:",
+        "no_such_command": "そのようなコマンドはありません: /{subject}",
+        "summary": "コマンドを一覧表示する、または特定のコマンドのヘルプを表示する",
+        "topics": "トピック: {topics}. /help '<topic>' と入力してください.",
+        "usage": "/ヘルプ [コマンド | トピック]"
+      },
+      "home": {
+        "summary": "ホームタイムラインを開く",
+        "usage": "/home [テキスト] [--in '<配置>']"
+      },
+      "lang": {
+        "auto_hint": "インスタンスのデフォルトに従い、その後ブラウザに従う",
+        "available": "利用可能な言語:",
+        "cleared": "言語設定がクリアされました: 現在 {name} ({code})、由来: {source, select, user {あなたの設定} instance {インスタンスのデフォルト} browser {ブラウザ} other {フォールバック}}",
+        "current": "言語: {name} ({code}), 取得元: {source, select, user {あなたの設定} instance {インスタンスのデフォルト} browser {ブラウザ} other {フォールバック}}",
+        "set": "言語が {name} ({code}) に設定されました",
+        "summary": "インターフェースの言語を表示または選択",
+        "unknown": "{input}という言語はありません。autoを選択するか、次のいずれかを選んでください: {choices}",
+        "usage": "/lang [コード|名前|自動]"
+      },
+      "local": {
+        "summary": "ローカルタイムラインを開く",
+        "usage": "/local [text] [--in '<placement>']"
+      },
+      "media": {
+        "few_attachments": "投稿 {label} には {count, plural, one {# 件の添付ファイル} other {# 件の添付ファイル}}",
+        "no_attachments": "投稿 {label} には添付ファイルがありません",
+        "summary": "投稿の添付ファイルをウィンドウでフルサイズ表示する",
+        "usage": "/media [label] [n]",
+        "usage_error": "使用法: /media [label] [n]"
+      },
+      "more": {
+        "no_older": "これより古い投稿はありません",
+        "summary": "古い投稿の次のページを読み込む"
+      },
+      "mute": {
+        "summary": "アカウントをミュート",
+        "usage": "/ミュート [target] [duration]"
+      },
+      "mvd": {
+        "already_on": "すでにデスクトップに{number}があります",
+        "no_pane": "移動するペインがありません",
+        "summary": "フォーカスされているペインを別のデスクトップに移動する",
+        "usage": "/mvd '<number>' [フォロー]",
+        "usage_error": "使用法: /mvd '<number>' [follow]"
+      },
+      "notifications": {
+        "summary": "通知を開く",
+        "usage": "/notifications [text] [--in '<placement>']"
+      },
+      "only": {
+        "no_panes": "このデスクトップにはペインがありません",
+        "summary": "他のすべてのペインを閉じてフロート化します。ウィンドウは開いたままです（/closeとは異なります）"
+      },
+      "open": {
+        "not_http": "開くことができるのは http(s) リンクのみです",
+        "summary": "投稿またはURLを新しいブラウザタブで開く",
+        "usage": "/開く [label | url]"
+      },
+      "people": {
+        "nothing_to_list": "People ウィンドウには独自の人物がいません。",
+        "summary": "このウィンドウにいる人を表示または非表示にする"
+      },
+      "pin": {
+        "summary": "自分の投稿の一つをピン留めするか、ピン留めを解除する",
+        "usage": "/ピン留め [label]"
+      },
+      "poll": {
+        "hours_wants": "--hours には正の時間数が必要です",
+        "not_connected": "接続されていません。/connect と入力してください。",
+        "option_count": "アンケートには{min}–{max}の選択肢が必要です",
+        "option_too_long": "オプション \"{option}\" は {max, plural, one {# 文字} other {# 文字}} より長い",
+        "posted": "アンケートが投稿されました",
+        "run_span": "投票は{min}から{max}の間で実施する必要があります",
+        "summary": "アクティブなウィンドウにアンケートを投稿する",
+        "unknown_flag": "不明なフラグ: {flag}",
+        "usage": "/poll \"'<question>'\" \"'<option>'\" \"'<option>'\" [...] [--multiple] [--hours N]",
+        "usage_error": "使用法: /poll \"'<question>'\" \"'<option>'\" \"'<option>'\" [...] [--multiple] [--hours N]"
+      },
+      "pop": {
+        "summary": "投稿のスレッドをフローティングウィンドウにポップアウトする、または表示されている場所でフォーカスする。すでにそのスレッド内にいる場合は何もしない（ホットキー: p、またはダブルクリック）",
+        "usage": "/pop [label]"
+      },
+      "postas": {
+        "feed_cleared": "~{feed} のデフォルトがクリアされました",
+        "global_cleared": "グローバル投稿アカウントがクリアされました",
+        "global_own": "{line}; このウィンドウには独自のアカウントがあるため、グローバルのデフォルトです",
+        "no_default": "投稿用アカウントが設定されていません: /postas '<handle|n>'",
+        "summary": "フィードがどのアカウントとして投稿するかを表示または設定する",
+        "usage": "/postas [--global] ['<handle|n>'|--clear]",
+        "usage_error": "使用法: {usage}"
+      },
+      "query": {
+        "summary": "プライベートな会話ウィンドウを開く",
+        "usage": "/クエリ '<@handle>'",
+        "usage_error": "使用法: {usage}"
+      },
+      "quote": {
+        "quoted": "❝ 引用された {label}",
+        "summary": "投稿を引用する。テキストがない場合は作成画面を開く（qは事前入力、Shift+cで作成）",
+        "usage": "/引用 [label] [text]"
+      },
+      "raise": {
+        "no_pane": "このデスクトップには持ち上げられるペインがありません。",
+        "summary": "フォーカスされているフロートを最前面に移動する"
+      },
+      "react": {
+        "summary": "投稿に絵文字でリアクションする",
+        "usage": "/反応 [label] '<emoji>'"
+      },
+      "reply": {
+        "replied": "↳ {label} に返信しました",
+        "summary": "1行で返信してください；テキストなしで作成ウィンドウを開く（r は事前入力、Shift+r は作成）",
+        "usage": "/返信 [label] [text]"
+      },
+      "resize": {
+        "nothing_to_resize": "サイズを変更するものがありません",
+        "summary": "フォーカスされているペインのサイズをパーセンテージポイント単位で変更するか、その比率を設定する",
+        "usage": "/resize 幅|高さ +N|-N|N",
+        "usage_error": "使用法: {usage}"
+      },
+      "search": {
+        "summary": "アカウント、投稿、タグを検索",
+        "usage": "/検索 '<query>'",
+        "usage_error": "使用法: {usage}"
+      },
+      "select": {
+        "no_post": "ここに{label}の投稿はありません",
+        "summary": "選択した投稿を移動または設定する",
+        "usage": "/select 次 | 前 | 先頭 | 末尾 | なし | '<label>'",
+        "usage_error": "使用法: {usage}"
+      },
+      "set": {
+        "listed": "  {key} = {value}  — {description}",
+        "no_setting": "設定 {key} がありません。/set を試してください",
+        "summary": "設定を表示または変更する",
+        "takes": "{key} は {words} を受け取ります",
+        "usage": "/set [キー [値]]",
+        "usage_error": "使用: {usage}"
+      },
+      "split": {
+        "summary": "フォーカス中のペインをスタックで分割",
+        "usage": "/分割 {views}"
+      },
+      "start": {
+        "summary": "スタートメニューを開いて、ビューをフロート表示してください"
+      },
+      "swap": {
+        "summary": "フォーカスされているペインのウィンドウを隣のウィンドウと入れ替える",
+        "usage": "/swap '<left|right|up|down>'",
+        "usage_error": "使用方法: {usage}"
+      },
+      "sync": {
+        "accounts": "アカウントを同期する: {accounts}",
+        "already_listed": "既に同期リストにあります",
+        "already_primary": "既にプライマリです",
+        "no_holder": "どのアカウントも同期されたデスクを保持できません。理由を確認するには /sync と入力してください",
+        "no_primary": "まだプライマリが設定されていません。まず /sync primary '<handle>' と入力してください",
+        "not_listed": "同期リストにありません",
+        "summary": "同期されたデスクを保持するアカウントを選択してください",
+        "switched_off": "同期: オフ",
+        "switched_on": "同期: オン",
+        "syncing": "同期中…",
+        "usage": "/sync | /sync primary '<handle>' | /sync fallback add|rm|up '<handle>' | /sync off | /sync on | /sync now",
+        "usage_error": "使用量: {usage}"
+      },
+      "tag": {
+        "not_a_hashtag": "ハッシュタグではありません: {input}",
+        "summary": "ハッシュタグのタイムラインを開く",
+        "usage": "/タグ '<name>'"
+      },
+      "theme": {
+        "current": "{name} (現在)",
+        "list_header": "テーマ:",
+        "no_theme": "テーマ {name} が見つかりません。/theme を試してください",
+        "summary": "カラーテーマを一覧表示または選択",
+        "usage": "/テーマ [name]",
+        "usage_error": "使用法: {usage}"
+      },
+      "thread": {
+        "summary": "投稿のスレッドウィンドウを開く",
+        "usage": "/スレッド [label]"
+      },
+      "unbind": {
+        "not_a_key": "キーではありません: {chord}",
+        "summary": "キーの割り当てを解除",
+        "unbound": "{mode} {chord} は未割り当てです",
+        "usage": "/バインド解除 '<insert|navigation>' '<chord>'",
+        "usage_error": "使用法: {usage}"
+      },
+      "unblock": {
+        "summary": "ブロックを取り戻す",
+        "usage": "/ブロック解除 [target]"
+      },
+      "unbookmark": {
+        "summary": "投稿のブックマークを削除してください。",
+        "usage": "/ブックマーク解除 [label]"
+      },
+      "unboost": {
+        "summary": "投稿へのブーストを取り消す",
+        "usage": "/ブースト解除 [label]"
+      },
+      "unfav": {
+        "summary": "投稿のお気に入りを取り消す",
+        "usage": "お気に入りから外す [label]"
+      },
+      "unfollow": {
+        "summary": "フォローバックする",
+        "usage": "/フォロー解除 [target]"
+      },
+      "unmute": {
+        "summary": "ミュートを解除する",
+        "usage": "/ミュート解除 [target]"
+      },
+      "unpin": {
+        "summary": "自分の投稿のピンを1つ外す",
+        "usage": "/ピンを外す [label]"
+      },
+      "unreact": {
+        "summary": "投稿から自分の絵文字リアクションを削除する",
+        "usage": "/unreact [label] '<emoji>'"
+      },
+      "unsplit": {
+        "no_pane": "このデスクトップには閉じるペインがありません。",
+        "summary": "フォーカスされたペインを閉じる; ウィンドウは開いたままです（/closeとは異なります）"
+      },
+      "vis": {
+        "report": "新しい投稿はデフォルトで{visibility}です。",
+        "summary": "既定の公開対象を表示または設定する、または公開対象を指定して一行を投稿する",
+        "usage": "/vis [公開|未掲載|非公開|ダイレクト|ローカル] [テキスト]",
+        "usage_error": "使用法: {usage}",
+        "usage_for": "/vis [{audiences}] [text]"
+      },
+      "vote": {
+        "already_voted": "すでに投票済みです。",
+        "closed": "その投票は締め切られています。",
+        "no_poll": "{label}にアンケートはありません",
+        "options_range": "選択肢: 1–{last}",
+        "pick_one": "オプションを1つ選んでください (1–{last})",
+        "summary": "投稿のアンケートに投票する",
+        "usage": "/vote [ラベル] '<n>' [n…]",
+        "voted": "{label}で{choices}に投票しました"
+      },
+      "vsplit": {
+        "summary": "フォーカス中のペインを左右に分割",
+        "usage": "/vsplit {views}"
+      },
+      "whois": {
+        "summary": "アカウントのプロフィールウィンドウを開く",
+        "usage": "/whois [ラベル | @user@host]"
+      },
+      "win": {
+        "cannot_move": "このウィンドウをそこに移動できません",
+        "no_window": "ウィンドウ {number} がありません",
+        "summary": "ウィンドウを切り替え、順に移動、並べ替える、または一覧表示する（デスクトップ: /desktop）",
+        "unread": "({count, plural, one {{count} 未読} other {{count} 未読}})",
+        "usage": "/win '<number>' | /win 次へ | /win 前へ | /win 移動 '<number>' | /win 一覧",
+        "usage_error": "使用量: {usage}"
+      }
+    },
+    "desktop_line": "{label}: {count, plural, one {# ペイン} other {# ペイン}}",
+    "desktop_line_titles": "{label}: {count, plural, one {# ペイン} other {# ペイン}}: {titles}",
+    "desktops_up_to": "デスクトップは最大{max}までです",
+    "error_with_usage": "{error}。 使用方法: {usage}",
+    "failed": "失敗: {error}",
+    "feed_deleted": "~{name}を削除しました",
+    "feed_line": "{title} ({id}): {sources}",
+    "feed_line_empty": "{title} ({id}): ソースがありません",
+    "feed_made": "~{name}によって作成",
+    "feed_none": "フィードがありません。/feed new {name} {source}… で作成してください",
+    "feed_not_found": "\"{name}\" という名前のフィードはありません",
+    "feed_reads": "~{name}は{sources}を読む",
+    "feed_reads_no_longer": "~{name}はもう{sources}を読んでいません",
+    "feed_reads_none": "~{name}は{sources}のどれも読んでいません",
+    "feed_renamed": "~{old}を~{name}に名前を変更しました",
+    "feed_reserved": "\"{name}\" は /feed ワードです。別の名前を選んでください",
+    "follow_requested": "フォローリクエスト送信済み",
+    "in_takes": "--in は {words} を受け取ります",
+    "invalid_name": "無効なコマンド名: /{name}",
+    "key_in_mode": "{chord} ({mode, select, insert {insert} other {ナビゲーション}})",
+    "keys": "キー: {keys}",
+    "missing_name": "「/」の後にコマンド名がありません",
+    "no_account_lookup": "アカウント {handle} が見つかりません: {error}",
+    "no_post_here": "ここには{label}の投稿がありません",
+    "no_window": "ウィンドウ {number} がありません",
+    "no_window_kind": "ウィンドウ種別 {kind} は存在しません。種類: {kinds}",
+    "not_a_command": "コマンドではありません: {line}",
+    "not_a_float": "フォーカス中のペインはフローティングではありません。",
+    "not_available_here": "/{command} はここでは利用できません",
+    "not_logged_in": "ログインしていません。/connect と入力してください。",
+    "not_signed_in_as": "{handle}としてサインインしていません。{count, plural, =0 {サインインしているアカウントはありません。} other {サインイン中: {accounts}.}} アカウントを追加するには /connect と入力してください。",
+    "opened_no_window": "/{command} はウィンドウを開きませんでした",
+    "own_posts_only": "自分の投稿は{verb, select, delete {削除する} other {編集する}}ことしかできません",
+    "pin_own_only": "自分の投稿のみピン留めできます。",
+    "placement_takes": "{key} は {words} を取ります",
+    "reaction_done": "{label}に{emoji}{kind, select, react {が反応しました} other {の反応を解除しました}}",
+    "select_post_first": "まず投稿を選択してください (j/k) またはラベルを指定してください",
+    "status_bookmarked": "ブックマーク済み",
+    "status_boosted": "強化済み",
+    "status_favourited": "お気に入りに登録済み",
+    "status_moved": "{mark} {word} {label}",
+    "status_pinned": "ピン留め済み",
+    "status_unbookmarked": "ブックマークが解除されました",
+    "status_unboosted": "ブーストされていない",
+    "status_unfavourited": "お気に入りから削除されました",
+    "status_unpinned": "固定を解除しました",
+    "sync_fallback": "{skipped, select, yes {フォールバック {index}: {account} (スキップ: {reason})} other {フォールバック {index}: {account}}}",
+    "sync_in_use": "使用中: {account}",
+    "sync_in_use_none": "使用中: なし",
+    "sync_last_error": "最後のエラー: {error}",
+    "sync_last_pull": "最終取得: {time}",
+    "sync_last_push": "最後のプッシュ: {time}",
+    "sync_off": "同期：オフです。再びオンにするには /sync on と入力してください。",
+    "sync_on": "同期: オン",
+    "sync_primary": "{skipped, select, yes {プライマリ: {account} (スキップ: {reason})} other {プライマリ: {account}}}",
+    "sync_primary_none": "プライマリ: 未選択（最初に使用可能なアカウントが使用されます）",
+    "that_is_you": "それはあなたです",
+    "tip": "{action}: /{command}",
+    "tip_keys": "{action}: /{command} ({keys})",
+    "toggle_done": "{word} @{acct}",
+    "toggle_done_for": "{word} @{acct} を{duration}間",
+    "unknown_command": "不明なコマンド: /{name}. /help を試してください",
+    "unknown_command_plain": "不明なコマンド: /{name}",
+    "usage": "使用法: {usage}",
+    "view_needs_argument": "{word}は引数が必要です",
+    "view_no_argument": "{word} は引数を取りません。",
+    "view_unknown": "不明なビュー: {view}",
+    "view_win_number": "win はウィンドウ番号を受け取ります"
+  },
+  "accounts": {
+    "login_expired": "ログインの有効期限が切れたか、ここでログインが開始されていません。再度お試しください。",
+    "login_failed": "ログインに失敗しました: {reason}",
+    "login_mismatch": "ログイン状態が一致しませんでした。もう一度お試しください。",
+    "login_refused": "ログインが拒否されました",
+    "login_refused_code": "ログインが拒否されました ({code})",
+    "need_https": "httpsインスタンスのみがサポートされています",
+    "need_instance": "インスタンスを入力してください。例: wired.example",
+    "not_listed": "そのインスタンスはここでは利用できません",
+    "registered_login_failed": "登録は完了しましたが、ログインに失敗しました: {reason}",
+    "registration_failed": "登録に失敗しました: {reason}"
+  },
+  "api": {
+    "http_error": "HTTP {status}: {message}",
+    "invalid_json": "無効な JSON",
+    "media_timeout": "メディアの処理がタイムアウトしました。",
+    "network_error": "ネットワークエラー: {message}",
+    "nodeinfo_no_link": "NodeInfo 2.x のリンクがありません",
+    "nodeinfo_other_origin": "NodeInfo のリンクが別のオリジンを指しています",
+    "rate_limited": "レート制限",
+    "rate_limited_until": "レート制限は{time}まで",
+    "request_cancelled": "リクエストがキャンセルされました",
+    "request_failed": "リクエストに失敗しました",
+    "unexpected_response": "予期しない応答: {message}"
+  },
+  "app": {
+    "account_none": "アカウントがありません",
+    "ask_dm_title": "ダイレクトメッセージ",
+    "ask_handle_placeholder": "@user@instance",
+    "ask_hashtag_placeholder": "#タグ",
+    "ask_hashtag_title": "ハッシュタグで分割",
+    "ask_profile_title": "プロフィールを開く",
+    "ask_search_placeholder": "単語、@アカウントまたは#タグ",
+    "ask_search_title": "検索",
+    "attach_media": "メディアを添付…",
+    "attach_refused": "{file} を添付できません: 画像、動画、音声ファイルではありません",
+    "attach_too_many": "添付ファイルが多すぎます: 投稿あたり {max} 件、{file} はスキップされました",
+    "attach_uploading": "{file} をアップロード中…",
+    "attached": "添付された {file} ({attached}/{max})",
+    "authorize_app": "アプリを承認する",
+    "close_pane": "{title}のパネルを閉じる",
+    "command_line_not_ready": "コマンドラインが準備できていません",
+    "command_suggestions": "コマンドの提案",
+    "connect_hint_list": "接続されていません。/connect '<'instance'>' と入力してください。利用可能: {origins}",
+    "connect_hint_list_custom": "接続されていません。/connect '<'instance'>' と入力してください。利用可能: {origins}。他のインスタンスでも動作します。",
+    "connect_hint_log_in": "接続されていません。ログインするには /connect を入力してください。",
+    "connect_hint_open": "接続されていません。/connect '<'instance'>' と入力してください。例: /connect wired.example",
+    "connected_to": "{title} ({backend}) に接続しました ({origin})",
+    "could_not_reach": "{origin} に到達できませんでした: {reason}",
+    "desktop_label": "デスクトップ {number}",
+    "display_avatars": "アバター",
+    "display_cards": "カード",
+    "display_images": "画像",
+    "display_lines": "行",
+    "display_options": "{title}のオプションを表示",
+    "display_reset": "デフォルトにリセット",
+    "display_row_spoken": "{label}, {state, select, on {オン} on_overridden {オン、上書き} off_overridden {オフ、上書き} other {オフ}}",
+    "dock_announce": "#{title}の{edge, select, left {左} right {右} top {上} other {下}}にドッキング",
+    "dock_window": "ドッキングする {title}",
+    "edit_feed": "{title} のフィードを編集",
+    "empty_desktop_hint": "空のデスクトップ — /vsplit、/split または Ctrl+B %",
+    "finish_registration": "登録を完了する",
+    "float_window": "フロート {title}",
+    "language_auto": "自動",
+    "language_list_label": "インターフェースの言語を選択してください",
+    "language_row": "言語…",
+    "logged_in_as": "@{handle}としてログインしました",
+    "logged_in_as_active": "@{handle} としてログイン中 (アクティブ)",
+    "logged_in_to": "{origin}に@{handle}としてログインしました",
+    "menu_composer": "作曲家",
+    "menu_dm": "ダイレクトメッセージ…",
+    "menu_dms": "ダイレクトメッセージ",
+    "menu_existing_window": "既存のウィンドウ…",
+    "menu_federated": "フェデレーテッド",
+    "menu_feed": "フィード: {name}",
+    "menu_hashtag": "ハッシュタグ…",
+    "menu_home": "ホーム",
+    "menu_local": "ローカル",
+    "menu_new_feed": "新しいフィード…",
+    "menu_notifications": "通知",
+    "menu_people": "ここにいる人々",
+    "menu_profile": "プロフィール…",
+    "menu_same_window": "同じウィンドウ",
+    "menu_search": "検索…",
+    "no_view": "このウィンドウには表示がありません",
+    "open_view": "ビューを開く",
+    "open_view_float": "ビューをフロートとして開く",
+    "pane_next": "次のペイン",
+    "pane_previous": "前のペイン",
+    "pane_switch": "ペインを切り替える, {count}",
+    "pending_media": "保留中のメディア",
+    "post_as": "として投稿する",
+    "post_just_this": "この投稿だけ",
+    "post_no_account": "投稿用アカウントが設定されていません",
+    "post_not_posted": "未投稿: {text}",
+    "reset_password": "パスワードをリセット",
+    "resize_window": "ウィンドウのサイズを変更",
+    "scope_everywhere": "どこでも",
+    "scope_this_feed": "このフィード (~{name}) 用",
+    "select_post_first": "まず投稿を選択してください (j/k)",
+    "sign_up": "サインアップ",
+    "split_side_by_side": "左右に分割",
+    "split_side_by_side_tip": "ビューで左右に分割",
+    "split_stacked": "スタックを分割",
+    "split_stacked_tip": "分割スタックビュー",
+    "start_menu_label": "[≡ wired] スタートメニュー",
+    "sync_took_newer": "同期: サーバーから新しいデスクを取得しました",
+    "sync_up_to_date": "同期: 最新の状態",
+    "tagline": "現在の日。現在の時間。",
+    "tip_close": "このペインを閉じる",
+    "tip_display": "投稿がどのように表示されるか",
+    "tip_dock": "タイルにドッキングする",
+    "tip_edit_feed": "このフィードを編集",
+    "tip_float": "フローティングウィンドウに切り離す"
+  },
+  "capabilities": {
+    "cannot": {
+      "custom_emoji_reactions": "{owner, select, handle {@{handle}'s server} other {このサーバー}}{brand}はカスタム絵文字でリアクションできません",
+      "editing": "{owner, select, handle {@{handle}のサーバー} other {このサーバー}}{brand}は投稿を編集できません",
+      "emoji_reactions": "{owner, select, handle {@{handle}'s server} other {This server}}{brand} は投稿に絵文字でリアクションできません",
+      "local_only_posts": "{owner, select, handle {@{handle}のサーバー} other {このサーバー}}{brand}はローカル限定の投稿を行えません",
+      "markdown": "{owner, select, handle {@{handle}'s server} other {このサーバー}}{brand} は Markdown で投稿をフォーマットできません",
+      "password_reset_api": "{owner, select, handle {@{handle}'s server} other {This server}}{brand}はパスワードをリセットできません",
+      "quote_posting": "{owner, select, handle {@{handle}'s server} other {This server}}{brand} は投稿を引用できません",
+      "settings_store": "{owner, select, handle {@{handle}'s server} other {このサーバー}}{brand} は設定を同期できません"
+    }
+  },
+  "features": {
+    "authorize": {
+      "as_handle": "@{handle}として、このアプリは以下のことができる:",
+      "authorize_button": "[ 承認する ]",
+      "cancel_button": "[ キャンセル ]",
+      "close_button": "[ 閉じる ]",
+      "code_intro": "承認されました。このコードをアプリに渡してください:",
+      "copied": "クリップボードにコピーされました。",
+      "copy_button": "[ コピー ]",
+      "copy_failed": "コピーできませんでした。コードを選択して手動でコピーしてください。",
+      "deny_button": "[ 拒否 ]",
+      "done": "完了しました。ボックスを閉じても構いません。",
+      "failed": "承認できませんでした: {reason}",
+      "form_label": "ログイン",
+      "instance": "インスタンス",
+      "loading": "リクエストを読み込み中…",
+      "log_in_button": "[ ログイン ]",
+      "log_in_intro": "アプリを認可するにはログインしてください。",
+      "narrow_follow": "あなたの{noun}を管理する",
+      "narrow_push": "あなたの{noun}へのプッシュ通知",
+      "narrow_read": "あなたの{noun}を読んでください",
+      "narrow_write": "あなたの{noun}を変更してください",
+      "not_trusted": "このインスタンスは WiredFE を信頼されたアプリとしてマークしていないため、他のアプリを認可できません。インスタンス管理者に WiredFE を信頼済みとしてマークするよう依頼してください。",
+      "password": "パスワード",
+      "refused": "インスタンスはこの認可リクエストを拒否しました: {message}",
+      "returning": "アプリに戻ります…",
+      "scope_admin": "管理者として: {words} ({scope})",
+      "scope_plain": "{words} ({scope})",
+      "scope_unknown": "不明な権限 ({scope})",
+      "title": "{name}を承認しますか？",
+      "unsafe_redirect": "インスタンスは、たどるには安全でないリダイレクト先のアドレスで応答しました。何も送信されませんでした。",
+      "username": "ユーザー名",
+      "website": "ウェブサイト: {website}",
+      "whole_follow": "アカウントをフォロー、フォロー解除、ブロック、ミュートする",
+      "whole_push": "プッシュ通知を送信する",
+      "whole_read": "見えるものをすべて読んでください",
+      "whole_write": "投稿・編集・削除はご自由にどうぞ"
+    },
+    "composer": {
+      "attachments_removed": "添付ファイルは削除されました: 古いアカウントに属しています",
+      "editing": "編集中 [{label}]: {excerpt}",
+      "log_label": "作成",
+      "post_as": "として投稿",
+      "posted_as": "@{author}として投稿",
+      "quoted": "❝ 引用 @{author}",
+      "quoting": "@{author} の引用: {excerpt}",
+      "replied": "↳ @{author}に返信しました",
+      "replying": "返信先 @{author}: {excerpt}",
+      "topic": "作曲家",
+      "topic_as": "作成者、@{handle}として投稿"
+    },
+    "dm": {
+      "log_label": "ダイレクトメッセージ",
+      "no_messages": "まだ@{target}とのメッセージはありません。入力してメッセージを開始してください。",
+      "topic": "ダイレクトメッセージ（DM）",
+      "topic_with": "{mention}とのプライベートな会話"
+    },
+    "external": {
+      "asks_for": "このアプリは次のことを求めます:",
+      "authorize_button": "[ 承認する ]",
+      "cancel_button": "[ キャンセル ]",
+      "close_button": "[ 閉じる ]",
+      "continuing": "継続中…",
+      "deny_button": "[ 拒否 ]",
+      "email": "メールアドレス",
+      "form_label": "登録する",
+      "intro": "{provider}{named, select, yes { として {name}} other {}}でサインインしました。ここでの表示名を選んでください。",
+      "loading": "リクエストを読み込み中…",
+      "loading_details": "あなたの詳細を読み込んでいます…",
+      "nickname": "ニックネーム",
+      "password_optional": "パスワード (任意)",
+      "register_button": "[ 登録 ]",
+      "title": "{name}を承認しますか？",
+      "unsafe_redirect": "インスタンスは、安全にアクセスできないリダイレクト先のアドレスを返しました。何も送信されませんでした。",
+      "waiting_approval": "アカウントが作成されました。モデレーターの承認を待っています。",
+      "waiting_confirmation": "アカウントが作成されました。メールを確認してメールアドレスを確認したら、ログインしてください。",
+      "website": "ウェブサイト: {website}",
+      "your_provider": "あなたのプロバイダー"
+    },
+    "federated": {
+      "log_label": "フェデレーテッド",
+      "topic": "連合タイムライン"
+    },
+    "feed": {
+      "log_label": "フィード",
+      "missing": "このフィードはもう存在しません",
+      "source_failed": "{source} が失敗しました: {reason}",
+      "topic_posting": "{title}, @{handle}として投稿"
+    },
+    "feed_editor": {
+      "add_button": "[ 追加 ]",
+      "add_button_label": "@{handle} のタグを追加",
+      "add_label": "@{handle} のタグを追加",
+      "add_placeholder": "タグを追加",
+      "cancel_button": "[ キャンセル ]",
+      "cell_name": "@{handle}の{source}",
+      "cell_name_blocked": "{source} の @{handle} ({reason})",
+      "column_account": "アカウント",
+      "confirm_delete_label": "フィードの削除を確認しますか？",
+      "delete_button": "[ フィードを削除 ]",
+      "delete_question": "このフィードを削除しますか？",
+      "delete_yes": "[ はい, 削除 ]",
+      "feed_name": "フィード名",
+      "gone": "このフィードはもう存在しません。",
+      "name_has_spaces": "フィード名に空白を含めることはできません。",
+      "not_a_tag": "タグではありません: \"{text}\"",
+      "remove_tag": "@{handle} のタグ {tag} を削除する",
+      "save_button": "[ 保存 ]",
+      "saved": "保存しました",
+      "sign_in_expired": "サインインの有効期限が切れました",
+      "sources_label": "アカウント別のソース",
+      "tags_label": "@{handle}のタグ"
+    },
+    "hashtag": {
+      "log_label": "ハッシュタグ"
+    },
+    "home": {
+      "log_label": "ホーム",
+      "topic": "ホームタイムライン"
+    },
+    "local": {
+      "log_label": "ローカル",
+      "topic": "ローカルタイムライン"
+    },
+    "media": {
+      "loading": "読み込み中…",
+      "next": "次の添付ファイル",
+      "no_attachment": "この投稿には添付ファイルがありません {n}",
+      "no_description": "説明のない画像",
+      "no_link": "[使用可能なリンクがありません]",
+      "nothing": "表示するものはありません",
+      "open_original": "オリジナルを開く ↗",
+      "previous": "前の添付ファイル",
+      "sensitive_cover": "[ センシティブ — 表示 ]"
+    },
+    "notifications": {
+      "log_label": "通知",
+      "topic": "通知"
+    },
+    "password_reset": {
+      "close_button": "[ 閉じる ]",
+      "confirm_password": "新しいパスワードを確認する",
+      "done": "パスワードが変更されました。今すぐそのパスワードでログインできます。",
+      "empty": "新しいパスワードを入力してください。",
+      "form_label": "パスワードをリセット",
+      "instance": "インスタンス",
+      "mismatch": "2つのパスワードが一致しません。",
+      "new_password": "新しいパスワード",
+      "reset_button": "[ パスワードをリセット ]"
+    },
+    "people": {
+      "in_conversation": "会話中",
+      "in_thread": "スレッド内",
+      "nobody": "ここには誰も集まっていない。",
+      "recently_here": "最近ここにいました",
+      "window_closed": "ウィンドウが閉じられました"
+    },
+    "profile": {
+      "log_label": "プロフィール"
+    },
+    "registration": {
+      "agreement": "このインスタンスのルールと利用規約に同意します。",
+      "close_button": "[ 閉じる ]",
+      "email": "メール",
+      "form_label": "登録",
+      "instance": "インスタンス",
+      "logged_in": "{origin}に@{handle}としてログインしました",
+      "password": "パスワード",
+      "reason": "理由（任意）",
+      "register_button": "[ 登録 ]",
+      "unreachable": "{origin} に接続できませんでした: {reason}",
+      "username": "ユーザー名",
+      "waiting_approval": "アカウントが作成されました。モデレーターの承認を待っています。",
+      "waiting_confirmation": "アカウントが作成されました。メールを確認してメールアドレスを確認したら、ログインしてください。"
+    },
+    "route": {
+      "follow_hint": "「/follow」と入力して @{acct} をフォローしてください",
+      "not_found": "{value}が見つかりませんでした"
+    },
+    "search": {
+      "account_line": "  @{acct} — {name}  (/whois @{acct})",
+      "accounts": "アカウント:",
+      "log_label": "検索",
+      "no_results": "\"{query}\"に一致する結果はありません",
+      "tag_line": "  #{name}  (/join #{name})",
+      "tags": "タグ:",
+      "topic": "検索",
+      "topic_query": "検索: {query}"
+    },
+    "status": {
+      "log_label": "ステータス",
+      "topic": "{appName} — 現在の日。現在の時刻。"
+    },
+    "thread": {
+      "loading": "スレッドを読み込み中…",
+      "log_label": "スレッド",
+      "nothing_to_answer": "このウィンドウには返信するものがありません"
+    }
+  },
+  "format": {
+    "boost_count": "{count, plural, one {# ブースト} other {# ブースト}}",
+    "closed": "閉じている",
+    "closes": "{time}に閉まります",
+    "favourite_count": "{count, plural, one {# お気に入り} other {# お気に入り}}",
+    "multiple_choice": "(複数選択)",
+    "reaction_label": "{name}, {count, plural, one {# リアクション} other {# リアクション}}",
+    "reply_to": "投稿{label}に返信する",
+    "reply_to_counted": "投稿 {label} に返信する ({count, plural, one {# 件の返信} other {# 件の返信}})",
+    "vote_count": "{count, plural, one {#票} other {#票}}",
+    "whois_counts": "投稿 {posts, number} · フォロー中 {following, number} · フォロワー {followers, number} · 登録日 {joined}"
+  },
+  "keys": {
+    "already_bound": "/{command}: {chord} は既に {line} に割り当てられています",
+    "conflicts": "/{command}: {chord} が {other} と競合しています",
+    "invalid_key": "/{command}: 無効なキー {chord}",
+    "override_conflicts": "上書き: {chord} が {other} と競合しています",
+    "override_invalid_key": "override: 無効なキー {chord}",
+    "override_would_block_typing": "override: {chord} は挿入モードでの入力を妨げる可能性があります",
+    "would_block_typing": "/{command}: {chord} は挿入モードでの入力を妨げる可能性があります"
+  },
+  "state": {
+    "dropped_empty_desktops": "{count, plural, one {# 個の空のデスクトップ} other {# 個の空のデスクトップ}}",
+    "dropped_hidden_windows": "{count, plural, one {# 非表示ウィンドウ} other {# 非表示ウィンドウ}}",
+    "dropped_key_overrides": "{count, plural, one {# キーのオーバーライド} other {# キーのオーバーライド}}",
+    "duration_days": "{count}日",
+    "duration_hours": "{count}時間",
+    "duration_minutes": "{count}分",
+    "feed_id_taken": "{id} のフィードは既に存在します",
+    "feed_name_length": "フィード名は1〜{max}文字である必要があります",
+    "feed_name_taken": "\"{name}\"という名前のフィードは既に存在します",
+    "mentioned_you": "@{handle}があなたをメンションしました [see notifs]",
+    "no_account_signed_in": "サインインしているアカウントはありません",
+    "no_feed_with_id": "{id} のフィードが見つかりません",
+    "no_post_here": "このウィンドウでは投稿できません",
+    "no_signed_in_account": "サインインしているアカウント @{handle} はありません",
+    "not_a_source": "ソースではありません: \"{text}\" (@me@host:home、*:mentions または @me@host:tag:rust を試してください)",
+    "not_logged_in": "ログインしていません。/connect を入力してください",
+    "poll_closed": "投票が締め切られた投稿は編集できません。",
+    "poll_option_empty": "オプション {n} は空です",
+    "poll_option_repeats": "オプション{n}はオプション{first}と重複しています",
+    "poll_option_too_long": "オプション {n} は {max} 文字を超えています",
+    "posted_as": "@{handle}として投稿しました",
+    "posting_line": "{subject, select, feed {{title} 投稿} other {投稿}} として @{handle} ({source, select, window {ウィンドウのアカウント} feed {フィードの既定} global {グローバルの既定} other {アカウントのみ}})",
+    "posting_set_feed": "~{feed} を @{handle} として投稿します (フィードのデフォルト)",
+    "posting_set_global": "@{handle}として投稿 (グローバルデフォルト)",
+    "session_expired": "@{handle} のセッションの有効期限が切れました。再度ログインするには /connect を入力してください。",
+    "setting_avatars": "投稿に投稿者のアバターを表示する",
+    "setting_clock_format": "タイムスタンプはどのように表示されますか：24時間表記ですか、それとも12時間表記ですか？",
+    "setting_default_visibility": "新しい投稿がデフォルトで向けられる対象読者",
+    "setting_density": "投稿はどのように表示されますか: カードとしてですか、それともIRCの行としてですか",
+    "setting_effects": "CRT/グリッチ効果（点滅しません）",
+    "setting_expand_media": "コンテンツ警告のあるメディアは最初から開いた状態になります。",
+    "setting_images": "添付ファイルを [IMG …] のような行ではなくインラインで表示する",
+    "setting_open_in": "新しいウィンドウを開く場所: here、vsplit、split、float、または hidden",
+    "setting_reply_in": "返信作成コンポーザーを開く場所: ここ、vsplit、split、float または hidden",
+    "setting_theme": "殻に塗られている色",
+    "skip_no_settings_store": "設定ストアがありません",
+    "skip_not_signed_in": "サインインしていません",
+    "skip_session_expired": "セッションの有効期限が切れました",
+    "stream_edited_hint": "~{name} が編集されたため、@{handle} は含まれていません: /feed add {name} {sources}",
+    "sync_failed": "同期に失敗しました。{reason}",
+    "sync_forbidden": "同期: このログインは設定ストアを使用できない可能性があります。アクセスを許可するには、再度ログインしてください。",
+    "sync_invalid_remote": "同期: サーバーに保存されたデスクは読み取れず無視されました。こちらが保持されます。",
+    "sync_paused": "同期が一時停止しました: デスクは同期するには大きすぎます（隠しウィンドウ、空のデスクトップ、追加のキー上書きを除いても {size} KiB を超えています）；ここに保存されています",
+    "sync_too_large": "同期: サーバーはそのデスクが保存できないほど大きいと言っています",
+    "sync_trimmed": "同期: デスクが大きいため、サーバー上のコピーは {dropped} を省きます。こちらの端末はそれらを保持します。",
+    "sync_unsupported": "同期: サーバーに設定ストアがありません; 同期が停止しました"
+  },
+  "ui": {
+    "account_picker_dialog": {
+      "accounts": "アカウント",
+      "cancel": "キャンセル",
+      "ok": "了解しました",
+      "remember": "記憶する"
+    },
+    "attach_button": {
+      "label": "メディアを添付"
+    },
+    "avatar": {
+      "alt": "{handle}のアバター"
+    },
+    "boost_line": {
+      "boosted": "ブースト済み"
+    },
+    "card_dm": {
+      "you": "あなた"
+    },
+    "card_head": {
+      "dm_strip": "✉ ダイレクトメッセージ  {from}{count, plural, =0 {} other { → {to}}}"
+    },
+    "confirm_dialog": {
+      "cancel": "キャンセル"
+    },
+    "divider": {
+      "resize": "ペインのサイズを変更する"
+    },
+    "drop_highlight": {
+      "text": "-- ドロップして添付 --"
+    },
+    "emoji_picker": {
+      "dialog": "[{label}] に反応してください",
+      "search_label": "絵文字を検索",
+      "search_placeholder": "絵文字を検索…"
+    },
+    "emoji_picker_model": {
+      "custom": "カスタム",
+      "custom_category": "カスタム: {category}",
+      "emoji": "絵文字",
+      "emoji_group": "絵文字: {group}",
+      "loading": "読み込み中…",
+      "on_this_post": "この投稿に"
+    },
+    "emoji_section": {
+      "no_matches": "一致する項目がありません"
+    },
+    "error_alert": {
+      "count": "(×{count})",
+      "label": "エラー",
+      "ok": "了解"
+    },
+    "input_line": {
+      "label": "コマンドライン"
+    },
+    "instance_choices": {
+      "legend": "インスタンス",
+      "other": "別のインスタンス"
+    },
+    "media_grid": {
+      "alt_line": "[代替テキスト {number}] {text}",
+      "more": "さらに{count}件の添付ファイルを表示",
+      "sensitive_show": "[ センシティブ — 表示 ]"
+    },
+    "media_list": {
+      "kind_audio": "オーストラリアドル (AUD)",
+      "kind_file": "ファイル",
+      "kind_gif": "GIF画像",
+      "kind_image": "画像",
+      "kind_video": "VID",
+      "no_description": "説明なし",
+      "no_usable_link": "[使用可能なリンクはありません]",
+      "placeholder": "[{kind} {number}/{total}: {description}]",
+      "sensitive": "[機密]"
+    },
+    "media_review_dialog": {
+      "attachments": "添付ファイル",
+      "cancel": "キャンセル",
+      "description_for": "{name} の説明",
+      "missing": "説明なし",
+      "submit": "送信",
+      "summary": "{total} 件中 {missing} 件の添付ファイルに説明がありません",
+      "title": "メディアを説明してください"
+    },
+    "media_tile": {
+      "alt": "ALT",
+      "alt_label": "ALT: 添付ファイル {number} の説明",
+      "no_description": "説明のない画像",
+      "no_usable_link": "[利用可能なリンクがありません]"
+    },
+    "mute_durations": {
+      "days": "{count, plural, one {#日} other {#日}}",
+      "forever": "永遠に",
+      "group": "ミュートする期間",
+      "hours": "{count, plural, one {# 時間} other {# 時間}}",
+      "minutes": "{count, plural, one {# 分} other {# 分}}"
+    },
+    "poll_view": {
+      "own_vote": "これに投票しました"
+    },
+    "post_actions": {
+      "bookmark": "投稿 {label} をブックマーク",
+      "boost": "{label} の投稿を宣伝する",
+      "favourite": "お気に入りの投稿 {label}",
+      "group": "投稿 {label} の操作"
+    },
+    "post_actions_more": {
+      "block": "投稿者をブロック",
+      "copy": "リンクをコピー",
+      "delete": "削除",
+      "edit": "編集",
+      "menu": "投稿 {label} のその他の操作",
+      "mute": "投稿者をミュート",
+      "open": "ブラウザで開く",
+      "pin": "ピン留めする",
+      "quote": "引用",
+      "thread": "スレッドを開く",
+      "unpin": "ピン留めを解除"
+    },
+    "post_article": {
+      "direct": "ダイレクトメッセージ {label}（{handle}から）",
+      "post": "投稿 {label} — {handle}"
+    },
+    "post_body": {
+      "content_warning": "[注意: {text}]"
+    },
+    "post_card_parts": {
+      "reply_to": "↳ {label}について"
+    },
+    "post_meta": {
+      "audience_direct": "直接",
+      "audience_local": "ローカルのみ",
+      "audience_private": "フォロワーのみ",
+      "audience_unlisted": "非公開",
+      "edited": "(編集済み)",
+      "you_bookmarked": "これをブックマークしました",
+      "you_boosted": "これをブーストしました",
+      "you_favourited": "これをお気に入りにしました",
+      "you_reacted": "あなたは{ name }で反応しました"
+    },
+    "post_row_head": {
+      "reply_to": "↳ {label}について:"
+    },
+    "prompt_dialog": {
+      "cancel": "キャンセル",
+      "ok": "了解しました",
+      "suggestions": "{title}の提案"
+    },
+    "react_button": {
+      "label": "投稿 {label} にリアクションする"
+    },
+    "status_line": {
+      "close_desktop": "デスクトップ {number} を閉じる",
+      "desktop": "デスクトップ {number}{active, select, true {, アクティブ} other {}}{unread, plural, =0 {} other {, {unread}件の未読}}{highlight, select, true {, ハイライト} other {}}",
+      "desktop_title": "デスクトップ{number}: 切り替えるにはクリック、中クリックで閉じる",
+      "media_pending": "[+{count} メディア]",
+      "media_waiting": "{count} 件のメディアが待機中、表示",
+      "no_posting_account": "投稿アカウントがありません。選択してください",
+      "posting_as": "{label}として投稿中, 変更",
+      "sync_failed": "同期に失敗しました",
+      "sync_pending": "同期保留中",
+      "window": "ウィンドウ {number}: {title}{unread, plural, =0 {} other {, {unread}件の未読}}{highlight, select, true {, 強調表示} other {}}"
+    },
+    "via_mark": {
+      "label": "{accounts}経由"
+    },
+    "whois_block": {
+      "blocked": "ブロック済み",
+      "followed_by": "彼らがあなたをフォローしています",
+      "following": "あなたは彼らをフォローしています。",
+      "muted": "ミュート",
+      "verified": "確認済み",
+      "verified_title": "確認済みのリンク"
+    }
+  },
+  "views": {
+    "attachments": {
+      "description": "{name}の説明",
+      "failed": "失敗: {error}",
+      "ready": "準備完了",
+      "remove": "{name}を削除",
+      "uploading": "アップロード中…"
+    },
+    "composer": {
+      "content_warning": "コンテンツに関する警告",
+      "post_suggestions": "投稿の提案",
+      "post_text": "投稿のテキスト",
+      "send": "[ 送信 ]"
+    },
+    "confirm": {
+      "block": "ブロックする",
+      "block_message": "相手はあなたのアカウントをフォローしたりやり取りしたりすることはできず、その人の投稿はあなたからは表示されません。",
+      "block_title": "{handle}をブロックしますか？",
+      "delete": "削除",
+      "delete_message": "この操作は元に戻せません。",
+      "delete_message_excerpt": "これは元に戻せません。\"{excerpt}\"",
+      "delete_title": "投稿 [{label}] を削除しますか？",
+      "mute": "ミュート",
+      "mute_message": "そのユーザーの投稿は、あなたが選ぶ期間だけあなたからは非表示になります。",
+      "mute_title": "{handle}をミュートしますか?"
+    },
+    "excerpt": {
+      "attachments": "({count, plural, one {# 添付ファイル} other {# 添付ファイル}})",
+      "no_text": "(テキストなし)"
+    },
+    "media": {
+      "attach": "メディアを添付",
+      "attach_button": "[ 📎 添付 ]",
+      "attach_short": "[📎]",
+      "attachments": "添付ファイル",
+      "files": "メディアファイル",
+      "not_media": "{name} を添付できません：画像、動画、または音声ファイルではありません。",
+      "too_many": "添付ファイルが多すぎます：投稿あたり{max}、{name}はスキップされました"
+    },
+    "notification": {
+      "annual_report": "あなたの年次報告書が準備できました",
+      "chat_mention": "{actor}がチャットでメッセージを送信しました: {excerpt}",
+      "favourite": "{actor}が{label} {excerpt}をお気に入りにしました",
+      "follow": "{actor}があなたをフォローしました",
+      "follow_request": "{actor}があなたをフォローしたいです（/accept または /reject は後で）",
+      "mention": "{actor}が{label}であなたをメンションしました：{excerpt}",
+      "moderation_warning": "モデレーションによる警告を受け取りました",
+      "move": "{actor}が移動しました",
+      "other": "{actor}: {type} 通知",
+      "poll_own": "あなたが作成した投票は{label}で終了しました",
+      "poll_voted": "あなたが投票したアンケートは{label}に終了しました",
+      "quote": "{actor}が{label}を引用しました: {excerpt}",
+      "quoted_update": "{actor}があなたの投稿を引用している投稿を編集しました",
+      "reaction": "{actor} が {label} {excerpt} に {emoji} で反応しました",
+      "reblog": "{actor}が{label}{excerpt}をブーストしました",
+      "report": "{actor}が報告を提出しました{target, select, none {} other {について{target}}} {comment}",
+      "severed_relationships": "モデレーションの処置により、あなたの一部のフォローまたはフォロワーが解除されました。",
+      "sign_up": "{actor}が登録しました",
+      "status": "{actor}が{label}を投稿しました",
+      "update": "{actor} が {label} の {excerpt} を編集しました"
+    },
+    "notification_card": {
+      "favourite": "あなたの投稿がお気に入りに追加されました",
+      "mention": "あなたがメンションされました",
+      "poll": "アンケートが終了しました",
+      "quote": "あなたを引用しました",
+      "reaction": "あなたの投稿に反応しました",
+      "reblog": "あなたの投稿をブーストしました",
+      "reply": "あなたに返信しました",
+      "status": "投稿済み",
+      "update": "投稿を編集しました"
+    },
+    "paging": {
+      "no_account": "このウィンドウにはアカウントがありません"
+    },
+    "poll": {
+      "add_option": "[+ オプション]",
+      "duration": "継続時間",
+      "hide_totals": "合計を非表示",
+      "media_conflict": "投稿はメディアと投票を同時に含めることはできません。",
+      "multiple_choice": "多肢選択",
+      "option": "オプション {number}",
+      "remove_option": "オプション {number} を削除",
+      "toggle": "[ ☰ 投票 ]"
+    },
+    "post": {
+      "a_thread": "スレッド",
+      "content_warning": "コンテンツ警告: {warning}"
+    },
+    "quote": {
+      "content_warning": "[コンテンツ警告: {warning}]"
+    },
+    "runner": {
+      "unavailable": "コマンドラインは利用できません"
+    },
+    "stream": {
+      "live": "@{handle}のためにライブ配信中",
+      "restored": "@{handle} の配信が復旧しました",
+      "unavailable": "@{handle} のストリーミングは利用できません; 1分ごとにポーリングしています"
+    },
+    "visibility": {
+      "direct": "直接",
+      "label": "表示",
+      "local": "ローカル",
+      "private": "プライベート",
+      "public": "公開",
+      "unlisted": "未掲載"
+    }
+  },
+  "windows": {
+    "desktop_empty": "デスクトップ {count} は空です: {last, select, yes {何か置いてください} other {使ってください}} 別のものを作る前に",
+    "no_desktop": "デスクトップ {number} はありません; デスクトップは 1–{count} までです"
+  }
+}

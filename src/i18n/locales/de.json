@@ -1,0 +1,1212 @@
+{
+  "commands": {
+    "help_topics": {
+      "feeds": {
+        "display": "Beiträge werden standardmäßig als Karten angezeigt; /display density lines schaltet dieses Fenster auf IRC‑Zeilenanzeige um, /display avatars off und /display images off verbergen diese, /display reset entfernt die Überschreibungen, und /set density, /set avatars und /set images ändern die Standardeinstellungen für alle Fenster.",
+        "editor": "Beim ersten Start wird eines namens stream erstellt (Home, Erwähnungen, DMs und Benachrichtigungen aller Konten); /feed edit {name}, /feed new oder die ✎-Schaltfläche in einem Feed-Bereich öffnen den Editor.",
+        "labels": "Jeder Beitrag hat ein kurzes Label wie [a3]: /fav a3, /reply a3, /pop a3 — führe Aktionen daran aus, als das Konto, das ihn abgerufen hat.",
+        "merge": "Ein Feed führt beliebige Quellen aller angemeldeten Konten in einen Stream zusammen, neueste zuerst; ein Beitrag, den mehrere Konten sehen, wird nur einmal angezeigt.",
+        "sources": "Quellen sind Startseite, Erwähnungen, Direktnachrichten, Benachrichtigungen, lokal, föderiert und Tag:{name}."
+      },
+      "layout": {
+        "buttons": "Schaltflächen: ◫▾ und ⊟▾ teilen eine Ansicht, ⧉ lässt ein Bereich schweben, ⇲ dockt ein Schwebefenster an, ✕ schließt. Halten Sie Shift gedrückt und ziehen Sie ein Schwebefenster über einen Bereich, um es an dieser Kante anzudocken.",
+        "close": "Das Schließen eines Panels lässt das Fenster bestehen; /close beendet das Fenster.",
+        "desktop_close": "Ctrl+B & (oder das × nach dem aktiven Desktop in der Statuszeile, oder ein Mittelklick auf einen beliebigen Desktop) schließt einen Desktop und lässt dessen Fenster geöffnet (/win); /desktop prune schließt alle leeren Desktops.",
+        "desktop_keys": "Alt+1..9 springen zu einem Desktop, Alt+[ und Alt+] wechseln zum vorherigen und nächsten.",
+        "navigation_keys": "Im Navigationsmodus (Esc): w v / w s teilen, w h j k l Fokus wechseln, w c schließt das Panel, w o nur dieses behalten, w = Größen angleichen, w f / w d floaten und andocken.",
+        "panes": "Der Bildschirm ist ein Desktop aus Panels, die nebeneinander angeordnet sind (Reihe) oder gestapelt (Spalte); jedes Panel kann in ein schwebendes Fenster abgetrennt werden, ein Fenster, das du innerhalb des Viewports herumziehen kannst.",
+        "phone": "Auf einem Telefon wird jeweils ein Bereich angezeigt, mit einem Umschalter ‹ 2/4 › in der Titelleiste.",
+        "placement": "Ctrl+click öffnet in einem Float, Shift+click in einem nebeneinander Split, middle-click versteckt; --in here|vsplit|split|float|hidden platziert ein geöffnetes Fenster.",
+        "prefix_keys": "Tasten: Ctrl+B % / \" split, Ctrl+B Pfeiltasten fokussieren, Ctrl+B x schließt das Pane, Ctrl+B z lässt nur dieses, Ctrl+B f / d float und docken.",
+        "start_menu": "Ctrl+B Leertaste / w Leertaste (oder die [≡ wired]-Schaltfläche links in der Statuszeile) öffnet das Startmenü, dessen Zeilen eine Ansicht in einem schwebenden Fenster öffnen."
+      },
+      "sync": {
+        "accounts": "Ein Primärkonto enthält die synchronisierte Kopie; geordnete Fallbacks übernehmen, wenn es keinen Speicher für Einstellungen hat oder sein Token fehlschlägt (/sync primary {handle}, /sync fallback add|rm|up {handle}).",
+        "budget": "Der Server begrenzt den gesamten Speicher auf 1 MiB, sodass ein für das 384 KiB-Budget zu großer Schreibtisch in der synchronisierten Kopie nur versteckte Fenster, leere Desktops und zusätzliche Tastenüberschreibungen weglässt und dies meldet.",
+        "devices": "Desktop-Browser (Windows, macOS, Linux, ChromeOS) und mobile Browser (Android, iOS, iPadOS) behalten jeweils ihr eigenes Layout, und die neuere Kopie gewinnt.",
+        "mastodon": "Mastodon hat keinen Einstellungs-Speicher: ein Konto dort speichert seinen Arbeitsbereich ausschließlich in diesem Browser.",
+        "push": "Ein Push erfolgt 3 Sekunden nach der letzten Änderung; /sync führt jetzt Pull und Push gleichzeitig aus, /sync off und /sync on schalten das um.",
+        "saved": "Deine Desktops, Floats, offenen Fenster, Feeds und Einstellungen werden in diesem Browser gespeichert und über deinen Server synchronisiert, sodass dein Desktop dir folgt."
+      }
+    },
+    "aliases": "Aliase: {aliases}",
+    "already_in_thread": "Bereits in diesem Thread",
+    "bad_duration": "Ungültige Dauer: {word}",
+    "command_failed": "Befehl fehlgeschlagen: {error}",
+    "defs": {
+      "about": {
+        "backend": "Backend: {backend}",
+        "device": "Gerät: {device}",
+        "features": "Funktionen: {count, plural, =0 {keine} other {{names}}}",
+        "not_connected": "Nicht verbunden. Geben Sie /connect ein.",
+        "polls": "Umfragen: {options, plural, one {# Option} other {# Optionen}} von {characters} Zeichen, {span}",
+        "posts": "Beiträge: bis zu {characters} Zeichen, {attachments, plural, one {# Anhang} other {# Anhänge}}",
+        "summary": "Zeige, was diese Instanz ist und was sie tun kann.",
+        "title_at": "{title} in {origin}"
+      },
+      "account": {
+        "active": "Aktives Konto: @{handle}",
+        "logged_out": "Abgemeldet @{handle}",
+        "revoke_failed": "Das Token konnte nicht widerrufen werden: {reason}",
+        "summary": "Konten auflisten, zwischen ihnen wechseln und sich abmelden",
+        "usage": "/account [auflisten] | /account wechseln '<n|handle>' | /account weiter | /account abmelden [n|handle]",
+        "usage_error": "Verwendung: {usage}"
+      },
+      "as": {
+        "posted": "veröffentlicht als @{handle}",
+        "summary": "Eine Zeile als anderes Konto posten",
+        "usage": "/als '<handle|n> <text>'",
+        "usage_error": "Verwendung: {usage}"
+      },
+      "attach": {
+        "summary": "Füge Medien zu deinem nächsten Beitrag hinzu",
+        "usage": "/anhängen [alt text]"
+      },
+      "bind": {
+        "blocks_typing": "{chord} würde das Tippen im Einfügemodus blockieren",
+        "must_start_with_slash": "Die Befehlszeile muss mit / beginnen",
+        "not_a_key": "Kein Schlüssel: {chords}",
+        "summary": "Einer Taste eine Befehlszeile zuordnen",
+        "usage": "/bind '<insert|navigation> <chord> <command line>'",
+        "usage_error": "Verwendung: {usage}"
+      },
+      "binds": {
+        "mode_header": "Schlüssel ({mode} Modus):",
+        "none": "(keine)",
+        "not_a_mode": "Kein Modus: {word}. Versuche /binds",
+        "prefill": "(vorab ausfüllen)",
+        "summary": "Aktive Tastenkombinationen anzeigen",
+        "usage_error": "Verwendung: {usage}"
+      },
+      "block": {
+        "summary": "Konto sperren",
+        "usage": "/sperren [target]"
+      },
+      "bookmark": {
+        "summary": "Einen Beitrag mit Lesezeichen versehen oder das Lesezeichen entfernen.",
+        "usage": "/lesezeichen [label]"
+      },
+      "boost": {
+        "summary": "Einen Beitrag boosten oder den Boost zurücknehmen",
+        "usage": "/verstärken [label]"
+      },
+      "clear": {
+        "summary": "Aktives Fenster leeren"
+      },
+      "close": {
+        "cannot_close_status": "Das Statusfenster kann nicht geschlossen werden.",
+        "summary": "Aktives Fenster schließen"
+      },
+      "compose": {
+        "summary": "Composer-Fenster öffnen",
+        "usage": "/compose [text] [--in '<placement>']"
+      },
+      "connect": {
+        "could_not_start": "Anmeldung konnte nicht gestartet werden: {reason}",
+        "opening": "Öffne {origin}, um dich anzumelden…",
+        "summary": "Bei einer Instanz anmelden",
+        "usage": "/verbinden [instance]"
+      },
+      "copy": {
+        "copied": "Kopiert {link}",
+        "summary": "Beitragslink in die Zwischenablage kopieren",
+        "unavailable": "Zwischenablage nicht verfügbar",
+        "usage": "/kopieren [label]"
+      },
+      "cw": {
+        "summary": "Im aktiven Fenster hinter einer Inhaltswarnung posten",
+        "usage": "/cw '<warning> <text>'",
+        "usage_error": "Verwendung: /cw \"Warnung\" Text"
+      },
+      "delete": {
+        "deleted": "✗ gelöscht [{label}]",
+        "summary": "Lösche einen deiner eigenen Beiträge",
+        "usage": "/löschen [label]"
+      },
+      "desktop": {
+        "closed": "Desktop {number} geschlossen (seine Fenster sind noch geöffnet: /win)",
+        "closed_empty": "{count, plural, one {geschlossen # leerer Desktop} other {geschlossen # leere Desktops}}",
+        "last_desktop": "Der letzte Desktop kann nicht geschlossen werden",
+        "no_desktop": "Kein Desktop {number}",
+        "no_empty": "Keine leeren Desktops",
+        "summary": "Auflisten, wechseln (Alt+1..9, Alt+[ und Alt+]), erstellen (nur nach einem Desktop, auf dem etwas ist), schließen (Ctrl+B &, ein × oder ein Mittelklick auf die Statuszeile) oder leere Desktops bereinigen",
+        "usage": "/desktop [list] | /desktop '<number>' | /desktop weiter | /desktop zurück | /desktop neu | /desktop schließen [number] | /desktop aufräumen",
+        "usage_error": "Verwendung: {usage}"
+      },
+      "detach": {
+        "cleared": "Anhänge gelöscht",
+        "summary": "Verwerfen Sie alle Anhänge, die auf den nächsten Beitrag warten"
+      },
+      "display": {
+        "cleared": "Anzeigeüberschreibungen wurden gelöscht.",
+        "inherited": "{key} vererbt",
+        "line": "{key} = {value}  ({source, select, inherited {inherited} other {overridden}})",
+        "no_key": "Anzeige-Schlüssel {key} nicht gefunden. Versuchen Sie /display",
+        "summary": "Die Dichte, Avatare und Bilder dieses Fensters anzeigen oder überschreiben",
+        "takes": "{key} nimmt {values}",
+        "usage": "/display [Schlüssel [Wert] | zurücksetzen [Schlüssel]]",
+        "usage_error": "Verwendung: {usage}"
+      },
+      "dm": {
+        "summary": "Sende eine Direktnachricht in einer Zeile",
+        "usage": "/dm @user@host Nachricht",
+        "usage_error": "Verwendung: {usage}"
+      },
+      "dock": {
+        "not_a_float": "Das fokussierte Teilfenster ist nicht schwebend",
+        "summary": "Das fokussierte Float in die geteilten Bereiche andocken"
+      },
+      "edit": {
+        "edited": "✎ bearbeitet [{label}]",
+        "summary": "Bearbeite einen deiner eigenen Beiträge; wenn kein Text vorhanden ist, öffne den Editor (Taste e füllt ihn vorab)",
+        "usage": "/edit [label] [text]; wenn kein Text vorhanden ist, öffnet einen Editor"
+      },
+      "equalize": {
+        "summary": "Weise jedem Bereich den gleichen Anteil des Bildschirms zu."
+      },
+      "fav": {
+        "summary": "Markiere einen Beitrag als Favorit oder entferne die Favoritmarkierung",
+        "usage": "/favorit [label]"
+      },
+      "federated": {
+        "summary": "Föderierte Timeline öffnen",
+        "usage": "/federated [text] [--in '<placement>']"
+      },
+      "feed": {
+        "summary": "Feeds erstellen, ändern und öffnen ({subcommands})",
+        "usage": "/feed [Liste] | /feed '<name>' | /feed bearbeiten '<name>' | /feed neu ['<name> <source>'…] | /feed hinzufügen|entfernen '<name> <source>'… | /feed umbenennen '<old> <new>' | /feed löschen '<name>'"
+      },
+      "float": {
+        "already_floating": "Der fokussierte Bereich ist bereits schwebend.",
+        "no_pane": "Auf diesem Desktop gibt es kein Panel, das man schwebend anzeigen kann.",
+        "summary": "Den fokussierten Bereich in ein schwebendes Fenster auskoppeln oder eine Ansicht in einem neuen Bereich öffnen."
+      },
+      "focus": {
+        "summary": "Fokussiere den Bereich in eine Richtung oder wechsle zyklisch durch die Bereiche.",
+        "usage_error": "Verwendung: {usage}"
+      },
+      "follow": {
+        "summary": "Einem Konto folgen",
+        "usage": "/folgen [target]"
+      },
+      "forgot": {
+        "letter": "Wenn dieses Konto existiert, ist eine Zurücksetzungs-E-Mail unterwegs.",
+        "summary": "Einen Passwort-Zurücksetzungsbrief per Post senden",
+        "usage": "/forgot '<email|nick>' [instance]",
+        "usage_error": "Verwendung: /forgot '<email|nick>'"
+      },
+      "help": {
+        "footer": "Geben Sie /help '<command>' ein, um Details zu erhalten.",
+        "header": "Befehle:",
+        "no_such_command": "Kein solcher Befehl: /{subject}",
+        "summary": "Befehle auflisten oder die Hilfe für einen Befehl anzeigen",
+        "topics": "Themen: {topics}. Geben Sie /help '<topic>' ein.",
+        "usage": "/hilfe [Befehl | Thema]"
+      },
+      "home": {
+        "summary": "Öffne deine Start-Timeline",
+        "usage": "/home [Text] [--in '<Platzierung>']"
+      },
+      "lang": {
+        "auto_hint": "Zuerst der Standardeinstellung der Instanz folgen, dann der des Browsers",
+        "available": "Verfügbare Sprachen:",
+        "cleared": "Spracheinstellung zurückgesetzt: jetzt {name} ({code}), von {source, select, user {deine Einstellung} instance {der Standard der Instanz} browser {dem Browser} other {der Fallback}}",
+        "current": "Sprache: {name} ({code}), von {source, select, user {Ihre Einstellung} instance {die Standardeinstellung der Instanz} browser {der Browser} other {die Fallback-Option}}",
+        "set": "Sprache auf {name} ({code}) eingestellt",
+        "summary": "Die Sprache der Benutzeroberfläche anzeigen oder auswählen",
+        "unknown": "Keine Sprache {input}. Wählen Sie auto oder eine der folgenden: {choices}",
+        "usage": "/lang [Code|Name|Automatisch]"
+      },
+      "local": {
+        "summary": "Lokale Zeitleiste öffnen",
+        "usage": "/local [text] [--in '<placement>']"
+      },
+      "media": {
+        "few_attachments": "Beitrag {label} hat {count, plural, one {# Anhang} other {# Anhänge}}",
+        "no_attachments": "Beitrag {label} hat keine Anhänge",
+        "summary": "Den Anhang eines Beitrags in voller Größe in einem Fenster anzeigen",
+        "usage": "/media [label] [n]",
+        "usage_error": "Verwendung: /media [label] [n]"
+      },
+      "more": {
+        "no_older": "Keine älteren Beiträge",
+        "summary": "Nächste Seite älterer Beiträge laden"
+      },
+      "mute": {
+        "summary": "Konto stummschalten",
+        "usage": "/stummschalten [target] [duration]"
+      },
+      "mvd": {
+        "already_on": "Bereits auf dem Desktop {number}",
+        "no_pane": "Kein Bereich zum Verschieben vorhanden",
+        "summary": "Das fokussierte Teilfenster auf einen anderen Desktop verschieben",
+        "usage": "/mvd '<number>' [folgen]",
+        "usage_error": "Verwendung: /mvd '<number>' [follow]"
+      },
+      "notifications": {
+        "summary": "Öffne deine Benachrichtigungen",
+        "usage": "/notifications [text] [--in '<placement>']"
+      },
+      "only": {
+        "no_panes": "Auf diesem Desktop sind keine Bereiche vorhanden",
+        "summary": "Alle anderen Bereiche schließen und als schwebend anzeigen; deren Fenster bleiben geöffnet (im Gegensatz zu /close)"
+      },
+      "open": {
+        "not_http": "Es können nur http(s)-Links geöffnet werden",
+        "summary": "Einen Beitrag oder eine URL in einem neuen Browser-Tab öffnen",
+        "usage": "/öffnen [label | url]"
+      },
+      "people": {
+        "nothing_to_list": "Ein Personenfenster hat keine eigenen Personen.",
+        "summary": "Anzeigen oder Ausblenden, wer sich in diesem Fenster befindet"
+      },
+      "pin": {
+        "summary": "Pinne einen deiner eigenen Beiträge, oder hebe die Anheftung auf",
+        "usage": "/anpinnen [label]"
+      },
+      "poll": {
+        "hours_wants": "--hours benötigt eine positive Anzahl von Stunden",
+        "not_connected": "Nicht verbunden. Geben Sie /connect ein.",
+        "option_count": "Eine Umfrage benötigt {min}–{max} Optionen",
+        "option_too_long": "Option \"{option}\" ist länger als {max, plural, one {# Zeichen} other {# Zeichen}}",
+        "posted": "Umfrage veröffentlicht",
+        "run_span": "Die Umfrage muss zwischen {min} und {max} laufen",
+        "summary": "Eine Umfrage im aktiven Fenster posten",
+        "unknown_flag": "Unbekannte Option: {flag}",
+        "usage": "/poll \"'<question>'\" \"'<option>'\" \"'<option>'\" [...] [--multiple] [--hours N]",
+        "usage_error": "Verwendung: /poll \"'<question>'\" \"'<option>'\" \"'<option>'\" [...] [--multiple] [--hours N]"
+      },
+      "pop": {
+        "summary": "Die Thread-Zugehörigkeit eines Beitrags in ein schwebendes Fenster auslagern oder sie dort fokussieren, wo sie angezeigt wird; wenn Sie sich bereits in diesem Thread befinden, nichts tun (Hotkey p oder Doppelklick)",
+        "usage": "/pop [label]"
+      },
+      "postas": {
+        "feed_cleared": "~{feed} Standard zurückgesetzt",
+        "global_cleared": "Globales Posting-Konto gelöscht",
+        "global_own": "{line}; dieses Fenster hat ein eigenes Konto, daher ist es die globale Standardeinstellung",
+        "no_default": "Kein Posting-Konto festgelegt: /postas '<handle|n>'",
+        "summary": "Anzeigen oder Festlegen, mit welchem Konto Feeds gepostet werden",
+        "usage": "/postas [--global] ['<handle|n>'|--clear]",
+        "usage_error": "Verwendung: {usage}"
+      },
+      "query": {
+        "summary": "Ein privates Chatfenster öffnen",
+        "usage": "/abfrage '<@handle>'",
+        "usage_error": "Verwendung: {usage}"
+      },
+      "quote": {
+        "quoted": "❝ zitiert {label}",
+        "summary": "Einen Beitrag zitieren; bei leerem Text den Composer öffnen (q füllt vorab aus, Shift+c erstellt)",
+        "usage": "/zitat [label] [text]"
+      },
+      "raise": {
+        "no_pane": "Auf diesem Desktop gibt es keinen Bereich, den man anheben kann.",
+        "summary": "Das fokussierte schwebende Fenster in den Vordergrund bringen"
+      },
+      "react": {
+        "summary": "Auf einen Beitrag mit einem Emoji reagieren",
+        "usage": "/reagieren [label] '<emoji>'"
+      },
+      "reply": {
+        "replied": "↳ hat auf {label} geantwortet",
+        "summary": "Antworte in einer Zeile; ohne Text das Erstellungsfenster öffnen (r füllt voraus, Shift+r erstellt)",
+        "usage": "/antworten [label] [text]"
+      },
+      "resize": {
+        "nothing_to_resize": "Nichts zum Ändern der Größe",
+        "summary": "Die Größe des fokussierten Bereichs um Prozentpunkte ändern oder dessen Anteil festlegen",
+        "usage": "/resize Breite|Höhe +N|-N|N",
+        "usage_error": "Verwendung: {usage}"
+      },
+      "search": {
+        "summary": "Konten, Beiträge und Tags durchsuchen",
+        "usage": "/suche '<query>'",
+        "usage_error": "Verwendung: {usage}"
+      },
+      "select": {
+        "no_post": "Hier gibt es keinen Beitrag {label}",
+        "summary": "Verschiebe oder setze den ausgewählten Beitrag",
+        "usage": "/select nächste | vorige | erste | letzte | keine | '<label>'",
+        "usage_error": "Verwendung: {usage}"
+      },
+      "set": {
+        "listed": "  {key} = {value}  — {description}",
+        "no_setting": "Keine Einstellung {key}. Versuchen Sie /set",
+        "summary": "Ihre Einstellungen anzeigen oder ändern",
+        "takes": "{key} nimmt {words}",
+        "usage": "/set [Schlüssel [Wert]]",
+        "usage_error": "Verwendung: {usage}"
+      },
+      "split": {
+        "summary": "Den fokussierten Bereich gestapelt teilen",
+        "usage": "/teilen {views}"
+      },
+      "start": {
+        "summary": "Öffne das Startmenü, um eine Ansicht als schwebendes Fenster zu öffnen"
+      },
+      "swap": {
+        "summary": "Das Fenster des fokussierten Bereichs mit dem benachbarten Fenster tauschen",
+        "usage": "/swap '<left|right|up|down>'",
+        "usage_error": "Verwendung: {usage}"
+      },
+      "sync": {
+        "accounts": "Konten synchronisieren: {accounts}",
+        "already_listed": "Bereits in der Synchronisierungsliste",
+        "already_primary": "Bereits als primär festgelegt",
+        "no_holder": "Kein Konto kann den synchronisierten Desktop halten. Tippe /sync, um zu erfahren, warum",
+        "no_primary": "Noch kein Primary vorhanden. Gib zuerst /sync primary '<handle>' ein",
+        "not_listed": "Nicht in der Synchronisierungsliste",
+        "summary": "Wählen Sie aus, welches Konto Ihren synchronisierten Schreibtisch enthält",
+        "switched_off": "Synchronisierung: aus",
+        "switched_on": "Synchronisierung: aktiviert",
+        "syncing": "Wird synchronisiert…",
+        "usage": "/sync | /sync primary '<handle>' | /sync fallback add|rm|up '<handle>' | /sync off | /sync on | /sync now",
+        "usage_error": "Verwendung: {usage}"
+      },
+      "tag": {
+        "not_a_hashtag": "Kein Hashtag: {input}",
+        "summary": "Öffne eine Hashtag-Timeline",
+        "usage": "/etikett '<name>'"
+      },
+      "theme": {
+        "current": "{name} (aktuell)",
+        "list_header": "Themen:",
+        "no_theme": "Thema {name} nicht gefunden. Versuche /theme",
+        "summary": "Farbschema auflisten oder auswählen",
+        "usage": "/thema [name]",
+        "usage_error": "Verwendung: {usage}"
+      },
+      "thread": {
+        "summary": "Das Thread-Fenster eines Beitrags öffnen",
+        "usage": "/thema [label]"
+      },
+      "unbind": {
+        "not_a_key": "Keine Tonart: {chord}",
+        "summary": "Tastenzuordnung entfernen",
+        "unbound": "{mode} {chord} nicht zugewiesen",
+        "usage": "/bindung aufheben '<insert|navigation>' '<chord>'",
+        "usage_error": "Verwendung: {usage}"
+      },
+      "unblock": {
+        "summary": "Nimm einen Block zurück",
+        "usage": "/entsperren [target]"
+      },
+      "unbookmark": {
+        "summary": "Entferne dein Lesezeichen von einem Beitrag.",
+        "usage": "/lesezeichen_entfernen [label]"
+      },
+      "unboost": {
+        "summary": "Nimm deinen Boost für einen Beitrag zurück",
+        "usage": "/boost_entfernen [label]"
+      },
+      "unfav": {
+        "summary": "Entferne deine Favoritenmarkierung bei einem Beitrag",
+        "usage": "Aus Favoriten entfernen [label]"
+      },
+      "unfollow": {
+        "summary": "Zurückfolgen",
+        "usage": "/entfolgen [target]"
+      },
+      "unmute": {
+        "summary": "Stummschaltung aufheben",
+        "usage": "/stummschaltung aufheben [target]"
+      },
+      "unpin": {
+        "summary": "Die Anheftung eines deiner eigenen Beiträge entfernen",
+        "usage": "/entpinnen [label]"
+      },
+      "unreact": {
+        "summary": "Entferne deine Emoji-Reaktion von einem Beitrag",
+        "usage": "/unreact [label] '<emoji>'"
+      },
+      "unsplit": {
+        "no_pane": "Auf diesem Desktop gibt es keinen Bereich zum Schließen.",
+        "summary": "Das fokussierte Paneel schließen; sein Fenster bleibt geöffnet (anders als /close)"
+      },
+      "vis": {
+        "report": "Neue Beiträge sind standardmäßig {visibility}.",
+        "summary": "Standardzielgruppe anzeigen oder festlegen, oder eine Zeile mit einer Zielgruppe posten",
+        "usage": "/vis [öffentlich|nicht gelistet|privat|direkt|lokal] [text]",
+        "usage_error": "Verwendung: {usage}",
+        "usage_for": "/vis [{audiences}] [text]"
+      },
+      "vote": {
+        "already_voted": "Sie haben bereits abgestimmt.",
+        "closed": "Diese Umfrage ist geschlossen.",
+        "no_poll": "Keine Umfrage für {label}",
+        "options_range": "Optionen: 1–{last}",
+        "pick_one": "Wählen Sie eine Option (1–{last})",
+        "summary": "In der Umfrage eines Beitrags abstimmen",
+        "usage": "/vote [Bezeichnung] '<n>' [n…]",
+        "voted": "hat für {choices} bei {label} gestimmt"
+      },
+      "vsplit": {
+        "summary": "Das fokussierte Teilfenster nebeneinander teilen",
+        "usage": "/vsplit {views}"
+      },
+      "whois": {
+        "summary": "Profilfenster eines Kontos öffnen",
+        "usage": "/whois [Bezeichnung | @user@host]"
+      },
+      "win": {
+        "cannot_move": "Dieses Fenster kann dort nicht verschoben werden.",
+        "no_window": "Fenster {number} nicht vorhanden",
+        "summary": "Fenster wechseln, durchschalten, neu anordnen oder auflisten (Desktops: /desktop)",
+        "unread": "({count, plural, one {{count} ungelesen} other {{count} ungelesen}})",
+        "usage": "/win '<number>' | /win nächste | /win vorherige | /win verschiebe '<number>' | /win liste",
+        "usage_error": "Nutzung: {usage}"
+      }
+    },
+    "desktop_line": "{label}: {count, plural, one {# Bereich} other {# Bereiche}}",
+    "desktop_line_titles": "{label}: {count, plural, one {# Bereich} other {# Bereiche}}: {titles}",
+    "desktops_up_to": "Desktops sind bis zu {max} verfügbar",
+    "error_with_usage": "{error}. Verwendung: {usage}",
+    "failed": "Fehlgeschlagen: {error}",
+    "feed_deleted": "Gelöscht ~{name}",
+    "feed_line": "{title} ({id}): {sources}",
+    "feed_line_empty": "{title} ({id}): keine Quellen",
+    "feed_made": "Erstellt von ~{name}",
+    "feed_none": "Keine Feeds. Erstelle einen mit /feed new {name} {source}…",
+    "feed_not_found": "Kein Feed mit dem Namen \"{name}\"",
+    "feed_reads": "~{name} liest {sources}",
+    "feed_reads_no_longer": "~{name} liest {sources} nicht mehr",
+    "feed_reads_none": "~{name} liest keine der {sources}",
+    "feed_renamed": "~{old} wurde in ~{name} umbenannt",
+    "feed_reserved": "\"{name}\" ist ein /feed-Wort; wähle einen anderen Namen",
+    "follow_requested": "Folgeanfrage gesendet",
+    "in_takes": "--in akzeptiert {words}",
+    "invalid_name": "Ungültiger Befehlsname: /{name}",
+    "key_in_mode": "{chord} ({mode, select, insert {insert} other {Navigation}})",
+    "keys": "Schlüssel: {keys}",
+    "missing_name": "Nach / fehlt der Befehlsname",
+    "no_account_lookup": "Kein Konto {handle}: {error}",
+    "no_post_here": "Hier gibt es keinen Beitrag {label}",
+    "no_window": "Kein Fenster {number}",
+    "no_window_kind": "Fenstertyp {kind} nicht gefunden. Typen: {kinds}",
+    "not_a_command": "Kein Befehl: {line}",
+    "not_a_float": "Das fokussierte Teilfenster ist nicht schwebend.",
+    "not_available_here": "/{command} ist hier nicht verfügbar",
+    "not_logged_in": "Nicht angemeldet. Tippe /connect",
+    "not_signed_in_as": "Sie sind nicht angemeldet als {handle}. {count, plural, =0 {Es ist kein Konto angemeldet.} other {Angemeldet: {accounts}.}} Geben Sie /connect ein, um ein Konto hinzuzufügen.",
+    "opened_no_window": "/{command} hat kein Fenster geöffnet",
+    "own_posts_only": "Sie können {verb, select, delete {löschen} other {bearbeiten}} nur Ihre eigenen Beiträge",
+    "pin_own_only": "Sie können nur Ihre eigenen Beiträge anpinnen.",
+    "placement_takes": "{key} benötigt {words}",
+    "reaction_done": "{emoji} {kind, select, react {hat auf {label} reagiert} other {hat die Reaktion auf {label} entfernt}}",
+    "select_post_first": "Wähle zuerst einen Beitrag (j/k) oder gib ein Label an",
+    "status_bookmarked": "Als Lesezeichen gespeichert",
+    "status_boosted": "verstärkt",
+    "status_favourited": "als Favorit markiert",
+    "status_moved": "{mark} {word} {label}",
+    "status_pinned": "angeheftet",
+    "status_unbookmarked": "aus den Lesezeichen entfernt",
+    "status_unboosted": "nicht geboostet",
+    "status_unfavourited": "aus den Favoriten entfernt",
+    "status_unpinned": "Anheftung aufgehoben",
+    "sync_fallback": "{skipped, select, yes {Fallback {index}: {account} (übersprungen: {reason})} other {Fallback {index}: {account}}}",
+    "sync_in_use": "In Verwendung: {account}",
+    "sync_in_use_none": "In Gebrauch: keine",
+    "sync_last_error": "Letzter Fehler: {error}",
+    "sync_last_pull": "Letzter Abruf: {time}",
+    "sync_last_push": "Letzter Push: {time}",
+    "sync_off": "Synchronisierung: aus. Tippe /sync on, um sie wieder einzuschalten.",
+    "sync_on": "Synchronisierung: aktiviert",
+    "sync_primary": "{skipped, select, yes {Primär: {account} (übersprungen: {reason})} other {Primär: {account}}}",
+    "sync_primary_none": "Primär: keine ausgewählt (das erste verwendbare Konto wird verwendet)",
+    "that_is_you": "Das bist du",
+    "tip": "{action}: /{command}",
+    "tip_keys": "{action}: /{command} ({keys})",
+    "toggle_done": "{word} @{acct}",
+    "toggle_done_for": "{word} @{acct} für {duration}",
+    "unknown_command": "Unbekannter Befehl: /{name}. Versuchen Sie /help",
+    "unknown_command_plain": "Unbekannter Befehl: /{name}",
+    "usage": "Verwendung: {usage}",
+    "view_needs_argument": "{word} benötigt ein Argument",
+    "view_no_argument": "{word} nimmt keine Argumente an.",
+    "view_unknown": "Unbekannte Ansicht: {view}",
+    "view_win_number": "win nimmt eine Fensternummer an"
+  },
+  "accounts": {
+    "login_expired": "Die Anmeldung ist abgelaufen oder wurde hier nicht gestartet. Bitte versuchen Sie es erneut.",
+    "login_failed": "Anmeldung fehlgeschlagen: {reason}",
+    "login_mismatch": "Der Anmeldestatus stimmt nicht überein. Bitte versuchen Sie es erneut.",
+    "login_refused": "Anmeldung verweigert",
+    "login_refused_code": "Anmeldung verweigert ({code})",
+    "need_https": "Nur https-Instanzen werden unterstützt",
+    "need_instance": "Geben Sie eine Instanz ein, z. B. wired.example",
+    "not_listed": "Diese Instanz ist hier nicht verfügbar",
+    "registered_login_failed": "Registriert, aber Anmeldung fehlgeschlagen: {reason}",
+    "registration_failed": "Registrierung fehlgeschlagen: {reason}"
+  },
+  "api": {
+    "http_error": "HTTP {status}: {message}",
+    "invalid_json": "Ungültiges JSON",
+    "media_timeout": "Die Medienverarbeitung hat das Zeitlimit überschritten.",
+    "network_error": "Netzwerkfehler: {message}",
+    "nodeinfo_no_link": "Kein Link zu NodeInfo 2.x",
+    "nodeinfo_other_origin": "Der NodeInfo-Link zeigt auf eine andere Origin",
+    "rate_limited": "Rate-Limit erreicht",
+    "rate_limited_until": "Rate-Limit bis {time}",
+    "request_cancelled": "Anfrage abgebrochen",
+    "request_failed": "Anfrage fehlgeschlagen",
+    "unexpected_response": "Unerwartete Antwort: {message}"
+  },
+  "app": {
+    "account_none": "kein Konto",
+    "ask_dm_title": "Direktnachricht",
+    "ask_handle_placeholder": "@user@instance",
+    "ask_hashtag_placeholder": "#schlagwort",
+    "ask_hashtag_title": "Mit Hashtag aufteilen",
+    "ask_profile_title": "Profil öffnen",
+    "ask_search_placeholder": "Wörter, @Account oder #Tag",
+    "ask_search_title": "Suchen",
+    "attach_media": "Medien anhängen…",
+    "attach_refused": "Kann {file} nicht anhängen: keine Bild-, Video- oder Audiodatei",
+    "attach_too_many": "zu viele Anhänge: {max} pro Beitrag, {file} übersprungen",
+    "attach_uploading": "lade {file} hoch…",
+    "attached": "angehängt {file} ({attached}/{max})",
+    "authorize_app": "App autorisieren",
+    "close_pane": "Bereich {title} schließen",
+    "command_line_not_ready": "Die Befehlszeile ist nicht bereit",
+    "command_suggestions": "Befehlsvorschläge",
+    "connect_hint_list": "Nicht verbunden. Geben Sie /connect '<'instance'>' ein. Verfügbar: {origins}",
+    "connect_hint_list_custom": "Nicht verbunden. Geben Sie /connect '<'instance'>' ein. Verfügbar: {origins}. Jede andere Instanz funktioniert ebenfalls.",
+    "connect_hint_log_in": "Nicht verbunden. Geben Sie /connect ein, um sich anzumelden.",
+    "connect_hint_open": "Nicht verbunden. Geben Sie /connect '<'instance'>' ein, z. B. /connect wired.example",
+    "connected_to": "Verbunden mit {title} ({backend}) unter {origin}",
+    "could_not_reach": "Konnte {origin} nicht erreichen: {reason}",
+    "desktop_label": "Desktop {number}",
+    "display_avatars": "Avatare",
+    "display_cards": "Karten",
+    "display_images": "Bilder",
+    "display_lines": "Zeilen",
+    "display_options": "Optionen für {title} anzeigen",
+    "display_reset": "Auf Standardeinstellungen zurücksetzen",
+    "display_row_spoken": "{label}, {state, select, on {Ein} on_overridden {Ein, überschrieben} off_overridden {Aus, überschrieben} other {Aus}}",
+    "dock_announce": "Andocken {edge, select, left {links} right {rechts} top {oben} other {unten}} an #{title}",
+    "dock_window": "Andocken {title}",
+    "edit_feed": "Feed {title} bearbeiten",
+    "empty_desktop_hint": "leerer Desktop — /vsplit, /split oder Ctrl+B %",
+    "finish_registration": "Registrierung abschließen",
+    "float_window": "Schweben {title}",
+    "language_auto": "Automatisch",
+    "language_list_label": "Wählen Sie die Sprache der Benutzeroberfläche",
+    "language_row": "Sprache…",
+    "logged_in_as": "Angemeldet als @{handle}",
+    "logged_in_as_active": "Angemeldet als @{handle} (aktiv)",
+    "logged_in_to": "Bei {origin} als @{handle} angemeldet",
+    "menu_composer": "Komponist",
+    "menu_dm": "Direktnachricht…",
+    "menu_dms": "Direktnachrichten",
+    "menu_existing_window": "Vorhandenes Fenster…",
+    "menu_federated": "Föderiert",
+    "menu_feed": "Feed: {name}",
+    "menu_hashtag": "Hashtag…",
+    "menu_home": "Startseite",
+    "menu_local": "Lokal",
+    "menu_new_feed": "Neuer Feed…",
+    "menu_notifications": "Benachrichtigungen",
+    "menu_people": "Personen hier",
+    "menu_profile": "Profil…",
+    "menu_same_window": "Im selben Fenster",
+    "menu_search": "Suchen…",
+    "no_view": "Für dieses Fenster ist keine Ansicht vorhanden",
+    "open_view": "Ansicht öffnen",
+    "open_view_float": "Ansicht als schwebendes Fenster öffnen",
+    "pane_next": "Nächstes Bedienfeld",
+    "pane_previous": "Vorheriges Bedienfeld",
+    "pane_switch": "Bereich wechseln, {count}",
+    "pending_media": "Ausstehende Medien",
+    "post_as": "Posten als",
+    "post_just_this": "Nur dieser Beitrag",
+    "post_no_account": "Kein Konto zum Posten festgelegt",
+    "post_not_posted": "Nicht veröffentlicht: {text}",
+    "reset_password": "Passwort zurücksetzen",
+    "resize_window": "Fenstergröße ändern",
+    "scope_everywhere": "Überall",
+    "scope_this_feed": "Für diesen Feed (~{name})",
+    "select_post_first": "Wähle zuerst einen Beitrag aus (j/k)",
+    "sign_up": "Registrieren",
+    "split_side_by_side": "Nebeneinander anzeigen",
+    "split_side_by_side_tip": "Nebeneinander mit einer Ansicht teilen",
+    "split_stacked": "Gestapelt aufteilen",
+    "split_stacked_tip": "Geteilte gestapelte Ansicht",
+    "start_menu_label": "[≡ wired] Startmenü",
+    "sync_took_newer": "Synchronisierung: den neueren Schreibtisch vom Server übernommen",
+    "sync_up_to_date": "Synchronisierung: auf dem neuesten Stand",
+    "tagline": "Gegenwärtiger Tag. Gegenwärtige Zeit.",
+    "tip_close": "Dieses Bedienfeld schließen",
+    "tip_display": "Wie Beiträge dargestellt werden",
+    "tip_dock": "An die Kacheln andocken",
+    "tip_edit_feed": "Diesen Feed bearbeiten",
+    "tip_float": "In ein schwebendes Fenster abtrennen"
+  },
+  "capabilities": {
+    "cannot": {
+      "custom_emoji_reactions": "{owner, select, handle {@{handle}'s server} other {Dieser Server}}{brand} kann nicht mit benutzerdefinierten Emojis reagieren",
+      "editing": "{owner, select, handle {der Server von @{handle}} other {Dieser Server}}{brand} kann Beiträge nicht bearbeiten",
+      "emoji_reactions": "{owner, select, handle {@{handle}'s server} other {This server}}{brand} kann nicht mit Emojis auf Beiträge reagieren",
+      "local_only_posts": "{owner, select, handle {der Server von @{handle}} other {Dieser Server}}{brand} kann keine ausschließlich lokalen Beiträge veröffentlichen",
+      "markdown": "{owner, select, handle {@{handle}'s server} other {Dieser Server}}{brand} kann Beiträge nicht mit Markdown formatieren",
+      "password_reset_api": "{owner, select, handle {@{handle}'s server} other {This server}}{brand} kann Passwörter nicht zurücksetzen",
+      "quote_posting": "{owner, select, handle {@{handle}'s server} other {This server}}{brand} kann keine Beiträge zitieren",
+      "settings_store": "{owner, select, handle {@{handle}'s server} other {Dieser Server}}{brand} kann Einstellungen nicht synchronisieren"
+    }
+  },
+  "features": {
+    "authorize": {
+      "as_handle": "Als @{handle} kann diese App Folgendes:",
+      "authorize_button": "[ autorisieren ]",
+      "cancel_button": "[ abbrechen ]",
+      "close_button": "[ schließen ]",
+      "code_intro": "Autorisierung erteilt. Geben Sie diesen Code an die App:",
+      "copied": "In die Zwischenablage kopiert.",
+      "copy_button": "[ kopieren ]",
+      "copy_failed": "Konnte nicht kopiert werden. Wählen Sie den Code aus und kopieren Sie ihn manuell.",
+      "deny_button": "[ ablehnen ]",
+      "done": "Fertig. Sie können dieses Fenster schließen.",
+      "failed": "Autorisierung fehlgeschlagen: {reason}",
+      "form_label": "Anmelden",
+      "instance": "Instanz",
+      "loading": "Anfrage wird geladen…",
+      "log_in_button": "[ anmelden ]",
+      "log_in_intro": "Melden Sie sich an, um die App zu autorisieren.",
+      "narrow_follow": "Verwalte dein {noun}",
+      "narrow_push": "Push-Benachrichtigungen für Ihr {noun}",
+      "narrow_read": "Lies dein {noun}",
+      "narrow_write": "Ändere dein {noun}",
+      "not_trusted": "Diese Instanz hat WiredFE nicht als vertrauenswürdige Anwendung markiert, daher kann die Instanz keine anderen Anwendungen autorisieren. Bitten Sie den Instanzadministrator, WiredFE als vertrauenswürdig zu markieren.",
+      "password": "Passwort",
+      "refused": "Die Instanz hat diese Autorisierungsanfrage abgelehnt: {message}",
+      "returning": "Zurück zur App…",
+      "scope_admin": "Als Administrator: {words} ({scope})",
+      "scope_plain": "{words} ({scope})",
+      "scope_unknown": "Unbekannte Berechtigung ({scope})",
+      "title": "Autorisieren Sie {name}?",
+      "unsafe_redirect": "Die Instanz lieferte eine Weiterleitungsadresse, der man nicht sicher folgen kann. Es wurde nichts gesendet.",
+      "username": "Benutzername",
+      "website": "Website: {website}",
+      "whole_follow": "Konten folgen, entfolgen, blockieren und stummschalten",
+      "whole_push": "Ihnen Push-Benachrichtigungen senden",
+      "whole_read": "Lies alles, was du sehen kannst",
+      "whole_write": "Poste, bearbeite und lösche nach Belieben"
+    },
+    "composer": {
+      "attachments_removed": "Anhänge entfernt: sie gehören zum alten Konto",
+      "editing": "Bearbeitung [{label}]: {excerpt}",
+      "log_label": "Verfassen",
+      "post_as": "Posten als",
+      "posted_as": "Veröffentlicht als @{author}",
+      "quoted": "❝ zitiert @{author}",
+      "quoting": "Zitat von @{author}: {excerpt}",
+      "replied": "↳ hat @{author} geantwortet",
+      "replying": "Antwort an @{author}: {excerpt}",
+      "topic": "Komponist",
+      "topic_as": "Ersteller, postet als @{handle}"
+    },
+    "dm": {
+      "log_label": "Direktnachricht",
+      "no_messages": "Noch keine Nachrichten mit @{target}. Tippe, um eine zu beginnen.",
+      "topic": "Direktnachricht (DM)",
+      "topic_with": "Privates Gespräch mit {mention}"
+    },
+    "external": {
+      "asks_for": "Diese App fragt nach:",
+      "authorize_button": "[ autorisieren ]",
+      "cancel_button": "[ Abbrechen ]",
+      "close_button": "[ schließen ]",
+      "continuing": "Wird fortgesetzt…",
+      "deny_button": "[ ablehnen ]",
+      "email": "E-Mail",
+      "form_label": "Registrieren",
+      "intro": "Angemeldet mit {provider}{named, select, yes { als {name}} other {}}. Wählen Sie, wie Sie hier angezeigt werden.",
+      "loading": "Anfrage wird geladen…",
+      "loading_details": "Ihre Daten werden geladen…",
+      "nickname": "Spitzname",
+      "password_optional": "Passwort (optional)",
+      "register_button": "[ registrieren ]",
+      "title": "Autorisieren Sie {name}?",
+      "unsafe_redirect": "Die Instanz antwortete mit einer Weiterleitungsadresse, der nicht sicher zu folgen ist. Es wurde nichts gesendet.",
+      "waiting_approval": "Konto erstellt. Es wartet auf die Genehmigung durch einen Moderator.",
+      "waiting_confirmation": "Konto erstellt. Überprüfen Sie Ihre E-Mails, um Ihre Adresse zu bestätigen, und melden Sie sich dann an.",
+      "website": "Webseite: {website}",
+      "your_provider": "Ihr Anbieter"
+    },
+    "federated": {
+      "log_label": "föderiert",
+      "topic": "föderierte Timeline"
+    },
+    "feed": {
+      "log_label": "Feed",
+      "missing": "Dieser Feed existiert nicht mehr",
+      "source_failed": "{source} ist fehlgeschlagen: {reason}",
+      "topic_posting": "{title}, veröffentlicht als @{handle}"
+    },
+    "feed_editor": {
+      "add_button": "[ hinzufügen ]",
+      "add_button_label": "Tag für @{handle} hinzufügen",
+      "add_label": "Tag für @{handle} hinzufügen",
+      "add_placeholder": "Tag hinzufügen",
+      "cancel_button": "[ Abbrechen ]",
+      "cell_name": "{source} von @{handle}",
+      "cell_name_blocked": "{source} von @{handle} ({reason})",
+      "column_account": "Konto",
+      "confirm_delete_label": "Löschen des Feeds bestätigen",
+      "delete_button": "[ Feed löschen ]",
+      "delete_question": "Diesen Feed löschen?",
+      "delete_yes": "[ ja, löschen ]",
+      "feed_name": "Name des Feeds",
+      "gone": "Dieser Feed existiert nicht mehr.",
+      "name_has_spaces": "Ein Feed-Name darf keine Leerzeichen enthalten.",
+      "not_a_tag": "Kein Tag: \"{text}\"",
+      "remove_tag": "Entferne Tag {tag} von @{handle}",
+      "save_button": "[ speichern ]",
+      "saved": "Gespeichert",
+      "sign_in_expired": "Anmeldung abgelaufen",
+      "sources_label": "Quellen nach Konto",
+      "tags_label": "Tags von @{handle}"
+    },
+    "hashtag": {
+      "log_label": "Hashtag"
+    },
+    "home": {
+      "log_label": "Startseite",
+      "topic": "Startseiten-Timeline"
+    },
+    "local": {
+      "log_label": "lokal",
+      "topic": "Lokale Timeline"
+    },
+    "media": {
+      "loading": "Wird geladen…",
+      "next": "Nächster Anhang",
+      "no_attachment": "Dieser Beitrag hat keinen Anhang {n}",
+      "no_description": "Bild ohne Beschreibung",
+      "no_link": "[kein nutzbarer Link]",
+      "nothing": "Nichts zu zeigen",
+      "open_original": "Original öffnen ↗",
+      "previous": "Vorheriger Anhang",
+      "sensitive_cover": "[ SENSIBEL — anzeigen ]"
+    },
+    "notifications": {
+      "log_label": "Benachrichtigungen",
+      "topic": "Benachrichtigungen"
+    },
+    "password_reset": {
+      "close_button": "[ schließen ]",
+      "confirm_password": "Neues Passwort bestätigen",
+      "done": "Passwort geändert. Sie können sich jetzt damit anmelden.",
+      "empty": "Geben Sie ein neues Passwort ein.",
+      "form_label": "Passwort zurücksetzen",
+      "instance": "Instanz",
+      "mismatch": "Die beiden Passwörter stimmen nicht überein.",
+      "new_password": "Neues Passwort",
+      "reset_button": "[ passwort zurücksetzen ]"
+    },
+    "people": {
+      "in_conversation": "im Gespräch",
+      "in_thread": "im Thread",
+      "nobody": "Hier hat sich niemand versammelt.",
+      "recently_here": "vor kurzem hier",
+      "window_closed": "Fenster geschlossen"
+    },
+    "profile": {
+      "log_label": "Profil"
+    },
+    "registration": {
+      "agreement": "Ich stimme den Regeln und Bedingungen dieser Instanz zu.",
+      "close_button": "[ schließen ]",
+      "email": "E-Mail",
+      "form_label": "Registrieren",
+      "instance": "Instanz",
+      "logged_in": "Bei {origin} als @{handle} eingeloggt",
+      "password": "Passwort",
+      "reason": "Grund (optional)",
+      "register_button": "[ registrieren ]",
+      "unreachable": "Konnte {origin} nicht erreichen: {reason}",
+      "username": "Benutzername",
+      "waiting_approval": "Konto erstellt. Es wartet auf die Genehmigung durch einen Moderator.",
+      "waiting_confirmation": "Konto erstellt. Überprüfen Sie Ihre E-Mails, um Ihre Adresse zu bestätigen, und melden Sie sich dann an."
+    },
+    "route": {
+      "follow_hint": "Gib /follow ein, um @{acct} zu folgen",
+      "not_found": "Konnte {value} nicht finden"
+    },
+    "search": {
+      "account_line": "  @{acct} — {name}  (/whois @{acct})",
+      "accounts": "Konten:",
+      "log_label": "suchen",
+      "no_results": "Keine Ergebnisse für \"{query}\"",
+      "tag_line": "  #{name}  (/join #{name})",
+      "tags": "Schlagwörter:",
+      "topic": "Suchen",
+      "topic_query": "suche: {query}"
+    },
+    "status": {
+      "log_label": "Status",
+      "topic": "{appName} — Heutiger Tag. Aktuelle Zeit."
+    },
+    "thread": {
+      "loading": "Thread wird geladen…",
+      "log_label": "Thema",
+      "nothing_to_answer": "In diesem Fenster gibt es nichts zu beantworten"
+    }
+  },
+  "format": {
+    "boost_count": "{count, plural, one {# Boost} other {# Boosts}}",
+    "closed": "geschlossen",
+    "closes": "schließt um {time}",
+    "favourite_count": "{count, plural, one {# Favorit} other {# Favoriten}}",
+    "multiple_choice": "(Mehrfachauswahl)",
+    "reaction_label": "{name}, {count, plural, one {# Reaktion} other {# Reaktionen}}",
+    "reply_to": "Auf Beitrag {label} antworten",
+    "reply_to_counted": "Auf Beitrag {label} antworten ({count, plural, one {# Antwort} other {# Antworten}})",
+    "vote_count": "{count, plural, one {# Stimme} other {# Stimmen}}",
+    "whois_counts": "Beiträge {posts, number} · folgt {following, number} · Follower {followers, number} · beigetreten {joined}"
+  },
+  "keys": {
+    "already_bound": "/{command}: {chord} ist bereits an {line} gebunden",
+    "conflicts": "/{command}: {chord} kollidiert mit {other}",
+    "invalid_key": "/{command}: ungültige Taste {chord}",
+    "override_conflicts": "Überschreibung: {chord} steht in Konflikt mit {other}",
+    "override_invalid_key": "override: ungültiger Schlüssel {chord}",
+    "override_would_block_typing": "override: {chord} würde das Tippen im Einfügemodus blockieren",
+    "would_block_typing": "/{command}: {chord} würde das Tippen im Einfügemodus blockieren"
+  },
+  "state": {
+    "dropped_empty_desktops": "{count, plural, one {# leerer Desktop} other {# leere Desktops}}",
+    "dropped_hidden_windows": "{count, plural, one {# verstecktes Fenster} other {# versteckte Fenster}}",
+    "dropped_key_overrides": "{count, plural, one {# Schlüsselüberschreibung} other {# Schlüsselüberschreibungen}}",
+    "duration_days": "{count} Tage",
+    "duration_hours": "{count} Std.",
+    "duration_minutes": "{count} Min.",
+    "feed_id_taken": "Ein Feed mit id {id} existiert bereits",
+    "feed_name_length": "Ein Feed-Name muss 1 bis {max} Zeichen lang sein",
+    "feed_name_taken": "Ein Feed mit dem Namen \"{name}\" existiert bereits",
+    "mentioned_you": "@{handle} hat dich erwähnt [see notifs]",
+    "no_account_signed_in": "Kein Konto ist angemeldet",
+    "no_feed_with_id": "Kein Feed mit der ID {id}",
+    "no_post_here": "Sie können in diesem Fenster nicht posten",
+    "no_signed_in_account": "Kein angemeldetes Konto @{handle}",
+    "not_a_source": "Keine Quelle: \"{text}\" (versuche @me@host:home, *:mentions oder @me@host:tag:rust)",
+    "not_logged_in": "Nicht angemeldet. Tippe /connect",
+    "poll_closed": "Ein Beitrag, dessen Umfrage geschlossen wurde, kann nicht bearbeitet werden.",
+    "poll_option_empty": "Option {n} ist leer",
+    "poll_option_repeats": "Option {n} wiederholt Option {first}",
+    "poll_option_too_long": "Option {n} überschreitet {max} Zeichen",
+    "posted_as": "Veröffentlicht als @{handle}",
+    "posting_line": "{subject, select, feed {{title} Beiträge} other {Beiträge}} als @{handle} ({source, select, window {Fensterkonto} feed {Feed-Standard} global {Global-Standard} other {nur Konto}})",
+    "posting_set_feed": "~{feed} veröffentlicht als @{handle} (Standard-Feed)",
+    "posting_set_global": "postet als @{handle} (globaler Standard)",
+    "session_expired": "Die Sitzung für @{handle} ist abgelaufen. Gib /connect ein, um dich erneut anzumelden.",
+    "setting_avatars": "Autor-Avatare in Beiträgen anzeigen",
+    "setting_clock_format": "Wie werden Zeitstempel ausgegeben: im 24‑Stunden‑Format oder im 12‑Stunden‑Format?",
+    "setting_default_visibility": "Die Zielgruppe, auf die neue Beiträge standardmäßig abzielen",
+    "setting_density": "Wie Beiträge gerendert werden: als Karten oder als IRC-Zeilen",
+    "setting_effects": "Die CRT/Glitch-Effekte (sie blinken nie)",
+    "setting_expand_media": "Medien hinter einer Inhaltswarnung sind standardmäßig geöffnet.",
+    "setting_images": "Anhänge inline anzeigen statt [IMG …]-Zeilen",
+    "setting_open_in": "Wo neue Fenster geöffnet werden: here, vsplit, split, float oder hidden",
+    "setting_reply_in": "Wo der Antworteditor geöffnet wird: hier, vsplit, split, float oder hidden",
+    "setting_theme": "Die Farben, in denen die Schale gestrichen ist",
+    "skip_no_settings_store": "kein Konfigurationsspeicher",
+    "skip_not_signed_in": "nicht angemeldet",
+    "skip_session_expired": "Sitzung abgelaufen",
+    "stream_edited_hint": "~{name} wurde bearbeitet, daher ist @{handle} nicht darin: /feed add {name} {sources}",
+    "sync_failed": "Synchronisierung fehlgeschlagen. {reason}",
+    "sync_forbidden": "Synchronisierung: Diese Anmeldung kann möglicherweise nicht auf den Einstellungsspeicher zugreifen. Melden Sie sich erneut an, um Zugriff zu gewähren.",
+    "sync_invalid_remote": "Sync: der auf dem Server gespeicherte Schreibtisch ist nicht lesbar und wurde ignoriert; dieser wird beibehalten.",
+    "sync_paused": "Synchronisation pausiert: Der Schreibtisch ist zu groß zum Synchronisieren (über {size} KiB selbst ohne versteckte Fenster, leere Desktops und zusätzliche Tastenüberschreibungen); er wird hier aufbewahrt",
+    "sync_too_large": "Sync: Der Server meldet, dass der Schreibtisch zu groß ist, um gespeichert zu werden",
+    "sync_trimmed": "Synchronisierung: der Schreibtisch ist groß, deshalb lässt die Kopie auf dem Server {dropped} weg; dieses Gerät bewahrt sie.",
+    "sync_unsupported": "Synchronisierung: Der Server hat keinen Einstellungs-Speicher; die Synchronisierung wurde gestoppt"
+  },
+  "ui": {
+    "account_picker_dialog": {
+      "accounts": "Konten",
+      "cancel": "Abbrechen",
+      "ok": "In Ordnung",
+      "remember": "Merken"
+    },
+    "attach_button": {
+      "label": "Medien anhängen"
+    },
+    "avatar": {
+      "alt": "Avatar von {handle}"
+    },
+    "boost_line": {
+      "boosted": "verstärkt"
+    },
+    "card_dm": {
+      "you": "du"
+    },
+    "card_head": {
+      "dm_strip": "✉ Direktnachricht  {from}{count, plural, =0 {} other { → {to}}}"
+    },
+    "confirm_dialog": {
+      "cancel": "Abbrechen"
+    },
+    "divider": {
+      "resize": "Größe der Bereiche ändern"
+    },
+    "drop_highlight": {
+      "text": "-- zum Anhängen ablegen --"
+    },
+    "emoji_picker": {
+      "dialog": "Reagiere auf [{label}]",
+      "search_label": "Emoji suchen",
+      "search_placeholder": "Emoji suchen…"
+    },
+    "emoji_picker_model": {
+      "custom": "Benutzerdefiniert",
+      "custom_category": "benutzerdefiniert: {category}",
+      "emoji": "Emoji",
+      "emoji_group": "Emoji: {group}",
+      "loading": "Lädt…",
+      "on_this_post": "zu diesem Beitrag"
+    },
+    "emoji_section": {
+      "no_matches": "keine Treffer"
+    },
+    "error_alert": {
+      "count": "(×{count})",
+      "label": "Fehler",
+      "ok": "In Ordnung"
+    },
+    "input_line": {
+      "label": "Kommandozeile"
+    },
+    "instance_choices": {
+      "legend": "Instanz",
+      "other": "Andere Instanz"
+    },
+    "media_grid": {
+      "alt_line": "[Alt-Text {number}] {text}",
+      "more": "Weitere {count} Anhänge anzeigen",
+      "sensitive_show": "[ SENSIBEL — anzeigen ]"
+    },
+    "media_list": {
+      "kind_audio": "Australischer Dollar (AUD)",
+      "kind_file": "Datei",
+      "kind_gif": "GIF-Bild",
+      "kind_image": "Bild",
+      "kind_video": "VID",
+      "no_description": "keine Beschreibung",
+      "no_usable_link": "[kein nutzbarer Link]",
+      "placeholder": "[{kind} {number}/{total}: {description}]",
+      "sensitive": "[SENSIBEL]"
+    },
+    "media_review_dialog": {
+      "attachments": "Anhänge",
+      "cancel": "Abbrechen",
+      "description_for": "Beschreibung für {name}",
+      "missing": "keine Beschreibung",
+      "submit": "Absenden",
+      "summary": "{missing} von {total} Anhängen haben keine Beschreibung",
+      "title": "Beschreiben Sie Medien"
+    },
+    "media_tile": {
+      "alt": "ALT",
+      "alt_label": "ALT: Beschreibung des Anhangs {number}",
+      "no_description": "Bild ohne Beschreibung",
+      "no_usable_link": "[kein nutzbarer Link]"
+    },
+    "mute_durations": {
+      "days": "{count, plural, one {# Tag} other {# Tage}}",
+      "forever": "Für immer",
+      "group": "Stummschalten für",
+      "hours": "{count, plural, one {# Stunde} other {# Stunden}}",
+      "minutes": "{count, plural, one {# Minute} other {# Minuten}}"
+    },
+    "poll_view": {
+      "own_vote": "du hast dafür gestimmt"
+    },
+    "post_actions": {
+      "bookmark": "Beitrag {label} als Lesezeichen speichern",
+      "boost": "Beitrag {label} bewerben",
+      "favourite": "Lieblingsbeitrag {label}",
+      "group": "Aktionen für den Beitrag {label}"
+    },
+    "post_actions_more": {
+      "block": "Autor blockieren",
+      "copy": "Link kopieren",
+      "delete": "Löschen",
+      "edit": "Bearbeiten",
+      "menu": "Weitere Aktionen für den Beitrag {label}",
+      "mute": "Autor stummschalten",
+      "open": "Im Browser öffnen",
+      "pin": "Anheften",
+      "quote": "Zitat",
+      "thread": "Thread öffnen",
+      "unpin": "Anheften aufheben"
+    },
+    "post_article": {
+      "direct": "Direktnachricht {label} von {handle}",
+      "post": "Beitrag {label} von {handle}"
+    },
+    "post_body": {
+      "content_warning": "[INHALTSWARNUNG: {text}]"
+    },
+    "post_card_parts": {
+      "reply_to": "↳ betreffend {label}"
+    },
+    "post_meta": {
+      "audience_direct": "direkt",
+      "audience_local": "nur lokal",
+      "audience_private": "Nur für Follower",
+      "audience_unlisted": "nicht gelistet",
+      "edited": "(bearbeitet)",
+      "you_bookmarked": "Du hast dies zu deinen Lesezeichen hinzugefügt",
+      "you_boosted": "Du hast das beworben",
+      "you_favourited": "Du hast dies zu deinen Favoriten hinzugefügt",
+      "you_reacted": "Du hast mit {name} reagiert"
+    },
+    "post_row_head": {
+      "reply_to": "↳ bezüglich {label}:"
+    },
+    "prompt_dialog": {
+      "cancel": "Abbrechen",
+      "ok": "In Ordnung",
+      "suggestions": "Vorschläge für {title}"
+    },
+    "react_button": {
+      "label": "Auf Beitrag {label} reagieren"
+    },
+    "status_line": {
+      "close_desktop": "Desktop {number} schließen",
+      "desktop": "Desktop {number}{active, select, true {, aktiv} other {}}{unread, plural, =0 {} other {, {unread} ungelesen}}{highlight, select, true {, markiert} other {}}",
+      "desktop_title": "Desktop {number}: klicken, um zu wechseln, Mittelklick zum Schließen",
+      "media_pending": "[+{count} Medien]",
+      "media_waiting": "{count} Medien warten, anzeigen",
+      "no_posting_account": "Kein Konto zum Posten vorhanden, wählen",
+      "posting_as": "Als {label} posten, ändern",
+      "sync_failed": "Synchronisierung fehlgeschlagen",
+      "sync_pending": "Synchronisierung ausstehend",
+      "window": "Fenster {number}: {title}{unread, plural, =0 {} other {, {unread} ungelesen}}{highlight, select, true {, markiert} other {}}"
+    },
+    "via_mark": {
+      "label": "über {accounts}"
+    },
+    "whois_block": {
+      "blocked": "blockiert",
+      "followed_by": "Sie folgen dir",
+      "following": "Du folgst ihnen.",
+      "muted": "stumm",
+      "verified": "verifiziert",
+      "verified_title": "verifizierter Link"
+    }
+  },
+  "views": {
+    "attachments": {
+      "description": "Beschreibung für {name}",
+      "failed": "fehlgeschlagen: {error}",
+      "ready": "Bereit",
+      "remove": "Entfernen von {name}",
+      "uploading": "wird hochgeladen…"
+    },
+    "composer": {
+      "content_warning": "Inhaltswarnung",
+      "post_suggestions": "Vorschläge für Beiträge",
+      "post_text": "Beitragstext",
+      "send": "[ senden ]"
+    },
+    "confirm": {
+      "block": "Blockieren",
+      "block_message": "Sie können Ihrem Konto nicht folgen oder mit ihm interagieren, und ihre Beiträge sind für Sie verborgen.",
+      "block_title": "Blockiere {handle}?",
+      "delete": "Löschen",
+      "delete_message": "Dies kann nicht rückgängig gemacht werden.",
+      "delete_message_excerpt": "Das lässt sich nicht rückgängig machen. \"{excerpt}\"",
+      "delete_title": "Beitrag [{label}] löschen?",
+      "mute": "Stummschalten",
+      "mute_message": "Deren Beiträge sind für Sie so lange verborgen, wie Sie es wünschen.",
+      "mute_title": "Möchten Sie {handle} stummschalten?"
+    },
+    "excerpt": {
+      "attachments": "({count, plural, one {# Anhang} other {# Anhänge}})",
+      "no_text": "(kein Text)"
+    },
+    "media": {
+      "attach": "Medien anhängen",
+      "attach_button": "[ 📎 Anhängen ]",
+      "attach_short": "[📎]",
+      "attachments": "Anhänge",
+      "files": "Mediendateien",
+      "not_media": "Kann {name} nicht anhängen: es handelt sich nicht um eine Bild-, Video- oder Audiodatei.",
+      "too_many": "zu viele Anhänge: {max} pro Beitrag, {name} übersprungen"
+    },
+    "notification": {
+      "annual_report": "Ihr Jahresbericht ist fertig",
+      "chat_mention": "{actor} hat dir eine Chatnachricht gesendet: {excerpt}",
+      "favourite": "{actor} hat {label} {excerpt} als Favorit markiert",
+      "follow": "{actor} hat dir gefolgt",
+      "follow_request": "{actor} möchte dir folgen (/accept oder /reject kommen später)",
+      "mention": "{actor} hat dich in {label} erwähnt: {excerpt}",
+      "moderation_warning": "Du hast eine Moderationswarnung erhalten",
+      "move": "{actor} hat sich bewegt",
+      "other": "{actor}: {type} Benachrichtigung",
+      "poll_own": "Eine von Ihnen erstellte Umfrage endete {label}",
+      "poll_voted": "Eine Umfrage, an der Sie abgestimmt haben, endete {label}",
+      "quote": "{actor} hat {label} zitiert: {excerpt}",
+      "quoted_update": "{actor} hat einen Beitrag bearbeitet, der deinen zitiert",
+      "reaction": "{actor} reagierte mit {emoji} auf {label} {excerpt}",
+      "reblog": "{actor} hat {label} {excerpt} hervorgehoben",
+      "report": "{actor} hat einen Bericht eingereicht{target, select, none {} other { über {target}}} {comment}",
+      "severed_relationships": "Eine Moderationsmaßnahme hat einige deiner Abonnements oder Follower entfernt.",
+      "sign_up": "{actor} hat sich angemeldet",
+      "status": "{actor} hat {label} gepostet",
+      "update": "{actor} hat {label} {excerpt} bearbeitet"
+    },
+    "notification_card": {
+      "favourite": "hat deinen Beitrag als Favorit markiert",
+      "mention": "hat dich erwähnt",
+      "poll": "Eine Umfrage wurde beendet",
+      "quote": "ich habe dich zitiert",
+      "reaction": "hat auf deinen Beitrag reagiert",
+      "reblog": "hat deinen Beitrag beworben",
+      "reply": "hat dir geantwortet",
+      "status": "veröffentlicht",
+      "update": "hat einen Beitrag bearbeitet"
+    },
+    "paging": {
+      "no_account": "Kein Konto für dieses Fenster"
+    },
+    "poll": {
+      "add_option": "[+ Option]",
+      "duration": "Dauer",
+      "hide_totals": "Gesamtsummen ausblenden",
+      "media_conflict": "Ein Beitrag kann nicht gleichzeitig Medien und eine Umfrage enthalten.",
+      "multiple_choice": "Mehrfachauswahl",
+      "option": "Option {number}",
+      "remove_option": "Option {number} entfernen",
+      "toggle": "[ ☰ Umfrage ]"
+    },
+    "post": {
+      "a_thread": "ein Thread",
+      "content_warning": "Warnung: {warning}"
+    },
+    "quote": {
+      "content_warning": "[Inhaltswarnung: {warning}]"
+    },
+    "runner": {
+      "unavailable": "Die Befehlszeile ist nicht verfügbar"
+    },
+    "stream": {
+      "live": "Live für @{handle} streamen",
+      "restored": "Streaming für @{handle} wiederhergestellt",
+      "unavailable": "Streaming für @{handle} nicht verfügbar; es wird jede Minute abgefragt"
+    },
+    "visibility": {
+      "direct": "direkt",
+      "label": "Sichtbarkeit",
+      "local": "lokal",
+      "private": "privat",
+      "public": "öffentlich",
+      "unlisted": "nicht gelistet"
+    }
+  },
+  "windows": {
+    "desktop_empty": "Desktop {count} ist leer: {last, select, yes {leg etwas darauf} other {benutze ihn}} bevor du einen weiteren erstellst",
+    "no_desktop": "Kein Desktop {number}; Desktops reichen von 1–{count}"
+  }
+}

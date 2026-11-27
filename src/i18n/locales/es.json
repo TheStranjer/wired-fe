@@ -1,0 +1,1212 @@
+{
+  "commands": {
+    "help_topics": {
+      "feeds": {
+        "display": "Las publicaciones se muestran como tarjetas por defecto; /display density lines cambia esta ventana a líneas estilo IRC, /display avatars off y /display images off ocultan esos elementos, /display reset borra las anulaciones, y /set density, /set avatars y /set images cambian el valor predeterminado para todas las ventanas.",
+        "editor": "Tu primera ejecución crea uno llamado stream (inicio, menciones, DMs y notificaciones de todas las cuentas); /feed edit {name}, /feed new o el botón ✎ en un panel de feeds abre el editor.",
+        "labels": "Cada publicación tiene una etiqueta corta como [a3]: /fav a3, /reply a3, /pop a3; actúa sobre ella como la cuenta que la recuperó.",
+        "merge": "Un feed combina cualquier fuente de todas las cuentas con sesión iniciada en un único flujo, ordenado de más reciente a más antiguo, mostrando una publicación que ven varias cuentas solo una vez.",
+        "sources": "Las fuentes son inicio, menciones, mensajes directos, notificaciones, local, federado y etiqueta:{name}."
+      },
+      "layout": {
+        "buttons": "Botones: ◫▾ y ⊟▾ dividen con una vista, ⧉ flota un panel, ⇲ atraca un flotante, ✕ cierra. Mantén Shift y arrastra un flotante sobre un panel para acoplarlo contra ese borde.",
+        "close": "Cerrar un panel mantiene su ventana; /close termina la ventana.",
+        "desktop_close": "Ctrl+B & (o la × después del escritorio activo en la línea de estado, o un clic central en cualquier escritorio) cierra un escritorio y mantiene sus ventanas abiertas (/win); /desktop prune cierra todos los escritorios vacíos.",
+        "desktop_keys": "Alt+1..9 van a un escritorio, Alt+[ y Alt+] avanzan al anterior y al siguiente.",
+        "navigation_keys": "En modo de navegación (Esc): w v / w s dividir, w h j k l mover el foco, w c cierra el panel, w o dejar solo este, w = igualar tamaños, w f / w d flotar y acoplar.",
+        "panes": "La pantalla es un escritorio de paneles divididos uno al lado del otro (fila) o apilados (columna); cualquier panel puede desprenderse en un flotante, una ventana que arrastras por el interior de la zona de visualización.",
+        "phone": "En un teléfono se muestra un panel a la vez, con un conmutador ‹ 2/4 › en la barra de título.",
+        "placement": "Ctrl+click abre en una ventana flotante, Shift+click en una división lado a lado, middle-click oculta; --in here|vsplit|split|float|hidden coloca cualquier ventana abierta.",
+        "prefix_keys": "Teclas: Ctrl+B % / \" split, Ctrl+B flechas para enfocar, Ctrl+B x cierra el panel, Ctrl+B z deja solo este, Ctrl+B f / d flotar y acoplar.",
+        "start_menu": "Ctrl+B Espacio / w Espacio (o el botón [≡ wired] a la izquierda de la línea de estado) abre el menú de inicio, cuyas filas abren una vista en modo flotante."
+      },
+      "sync": {
+        "accounts": "Una cuenta principal mantiene la copia sincronizada; las alternativas en orden se hacen cargo cuando no tiene un almacén de ajustes o su token falla (/sync primary {handle}, /sync fallback add|rm|up {handle}).",
+        "budget": "El servidor limita toda la tienda a 1 MiB, por lo que un escritorio demasiado grande para el presupuesto de 384 KiB deja fuera únicamente de la copia sincronizada las ventanas ocultas, los escritorios vacíos y las anulaciones de teclas adicionales, y lo indica.",
+        "devices": "Los navegadores de escritorio (Windows, macOS, Linux, ChromeOS) y los móviles (Android, iOS, iPadOS) mantienen cada uno su propio diseño, y la copia más reciente prevalece.",
+        "mastodon": "Mastodon no tiene un almacén de configuración: una cuenta allí guarda su escritorio únicamente en este navegador.",
+        "push": "Un push se realiza 3 segundos después del último cambio; /sync ahora ejecuta pull y push a la vez, /sync off y /sync on lo alternan.",
+        "saved": "Tus escritorios, ventanas flotantes, ventanas abiertas, canales y ajustes se guardan en este navegador y se sincronizan a través de tu servidor, así que el escritorio te sigue."
+      }
+    },
+    "aliases": "Alias: {aliases}",
+    "already_in_thread": "Ya en este hilo",
+    "bad_duration": "Duración inválida: {word}",
+    "command_failed": "Comando falló: {error}",
+    "defs": {
+      "about": {
+        "backend": "backend: {backend}",
+        "device": "dispositivo: {device}",
+        "features": "características: {count, plural, =0 {ninguna} other {{names}}}",
+        "not_connected": "No conectado. Escriba /connect.",
+        "polls": "encuestas: {options, plural, one {# opción} other {# opciones}} de {characters} caracteres, {span}",
+        "posts": "publicaciones: hasta {characters} caracteres, {attachments, plural, one {# archivo adjunto} other {# archivos adjuntos}}",
+        "summary": "Muestra qué es esta instancia y qué puede hacer",
+        "title_at": "{title} en {origin}"
+      },
+      "account": {
+        "active": "Cuenta activa: @{handle}",
+        "logged_out": "Has cerrado sesión @{handle}",
+        "revoke_failed": "No se pudo revocar el token: {reason}",
+        "summary": "Listar cuentas, cambiar entre ellas y cerrar sesión",
+        "usage": "/account [lista] | /account cambiar '<n|handle>' | /account siguiente | /account cerrar_sesión [n|handle]",
+        "usage_error": "Uso: {usage}"
+      },
+      "as": {
+        "posted": "publicado como @{handle}",
+        "summary": "Publicar una línea como otra cuenta",
+        "usage": "/como '<handle|n> <text>'",
+        "usage_error": "Uso: {usage}"
+      },
+      "attach": {
+        "summary": "Adjunta medios a tu próxima publicación",
+        "usage": "/adjuntar [alt text]"
+      },
+      "bind": {
+        "blocks_typing": "{chord} bloquearía la escritura en modo insertar",
+        "must_start_with_slash": "La línea de comandos debe comenzar con /",
+        "not_a_key": "No es una clave: {chords}",
+        "summary": "Vincular una tecla a una línea de comandos",
+        "usage": "/bind '<insert|navigation> <chord> <command line>'",
+        "usage_error": "Uso: {usage}"
+      },
+      "binds": {
+        "mode_header": "Claves ({mode} modo):",
+        "none": "(ninguno)",
+        "not_a_mode": "No es un modo: {word}. Prueba /binds",
+        "prefill": "(rellenar previamente)",
+        "summary": "Mostrar las asignaciones de teclas efectivas",
+        "usage_error": "Uso: {usage}"
+      },
+      "block": {
+        "summary": "Bloquear una cuenta",
+        "usage": "/bloquear [target]"
+      },
+      "bookmark": {
+        "summary": "Añadir un marcador a una publicación o quitarlo.",
+        "usage": "/marcar [label]"
+      },
+      "boost": {
+        "summary": "Impulsa una publicación o retira el impulso",
+        "usage": "/impulsar [label]"
+      },
+      "clear": {
+        "summary": "Limpiar la ventana activa"
+      },
+      "close": {
+        "cannot_close_status": "No se puede cerrar la ventana de estado.",
+        "summary": "Cerrar la ventana activa"
+      },
+      "compose": {
+        "summary": "Abrir una ventana de Composer",
+        "usage": "/compose [text] [--in '<placement>']"
+      },
+      "connect": {
+        "could_not_start": "No se pudo iniciar sesión: {reason}",
+        "opening": "Abriendo {origin} para iniciar sesión…",
+        "summary": "Iniciar sesión en una instancia",
+        "usage": "/conectar [instance]"
+      },
+      "copy": {
+        "copied": "Copiado {link}",
+        "summary": "Copiar el enlace de la publicación al portapapeles",
+        "unavailable": "Portapapeles no disponible",
+        "usage": "/copiar [label]"
+      },
+      "cw": {
+        "summary": "Publicar en la ventana activa detrás de una advertencia de contenido",
+        "usage": "/cw '<warning> <text>'",
+        "usage_error": "Uso: /cw \"advertencia\" texto"
+      },
+      "delete": {
+        "deleted": "✗ eliminado [{label}]",
+        "summary": "Elimina una de tus propias publicaciones",
+        "usage": "/eliminar [label]"
+      },
+      "desktop": {
+        "closed": "escritorio cerrado {number} (sus ventanas siguen abiertas: /win)",
+        "closed_empty": "{count, plural, one {cerrado # escritorio vacío} other {cerrados # escritorios vacíos}}",
+        "last_desktop": "No se puede cerrar el último escritorio",
+        "no_desktop": "No hay escritorio {number}",
+        "no_empty": "No hay escritorios vacíos",
+        "summary": "Listar, cambiar (Alt+1..9, Alt+[ y Alt+]), crear (solo después de un escritorio con algo en él), cerrar (Ctrl+B &, una × o un clic central en la barra de estado) o eliminar escritorios vacíos",
+        "usage": "/desktop [list] | /desktop '<number>' | /desktop siguiente | /desktop anterior | /desktop nuevo | /desktop cerrar [number] | /desktop podar",
+        "usage_error": "Uso: {usage}"
+      },
+      "detach": {
+        "cleared": "archivos adjuntos eliminados",
+        "summary": "Descarta todos los archivos adjuntos que estén pendientes de la siguiente publicación"
+      },
+      "display": {
+        "cleared": "Anulaciones de visualización borradas.",
+        "inherited": "{key} heredado",
+        "line": "{key} = {value}  ({source, select, inherited {inherited} other {overridden}})",
+        "no_key": "No se encontró la clave de visualización {key}. Prueba /display",
+        "summary": "Mostrar o sobrescribir la densidad, los avatares y las imágenes de esta ventana",
+        "takes": "{key} toma {values}",
+        "usage": "/display [clave [valor] | restablecer [clave]]",
+        "usage_error": "Uso: {usage}"
+      },
+      "dm": {
+        "summary": "Envía un mensaje directo en una sola línea",
+        "usage": "/dm @user@host mensaje",
+        "usage_error": "Uso: {usage}"
+      },
+      "dock": {
+        "not_a_float": "El panel enfocado no es flotante",
+        "summary": "Dock the focused float into the tiled panes"
+      },
+      "edit": {
+        "edited": "✎ editado [{label}]",
+        "summary": "Edita una de tus propias publicaciones; si no hay texto, abre el editor (la tecla e lo autorrellena)",
+        "usage": "/edit [label] [text]; si no hay texto, abre un editor"
+      },
+      "equalize": {
+        "summary": "Asignar a cada panel la misma porción del escritorio."
+      },
+      "fav": {
+        "summary": "Marca una publicación como favorita o quita la marca de favorita",
+        "usage": "/favorito [label]"
+      },
+      "federated": {
+        "summary": "Abrir la cronología federada",
+        "usage": "/federated [text] [--in '<placement>']"
+      },
+      "feed": {
+        "summary": "Crear, cambiar y abrir feeds ({subcommands})",
+        "usage": "/feed [lista] | /feed '<name>' | /feed editar '<name>' | /feed nuevo ['<name> <source>'…] | /feed añadir|eliminar '<name> <source>'… | /feed renombrar '<old> <new>' | /feed eliminar '<name>'"
+      },
+      "float": {
+        "already_floating": "El panel enfocado ya es flotante.",
+        "no_pane": "No hay panel para flotar en este escritorio.",
+        "summary": "Separar el panel enfocado en una ventana flotante, o abrir una vista en un panel nuevo."
+      },
+      "focus": {
+        "summary": "Enfoca el panel en una dirección, o recorre los paneles.",
+        "usage_error": "Uso: {usage}"
+      },
+      "follow": {
+        "summary": "Seguir una cuenta",
+        "usage": "/seguir [target]"
+      },
+      "forgot": {
+        "letter": "Si esa cuenta existe, un correo de restablecimiento está en camino.",
+        "summary": "Enviar por correo una carta de restablecimiento de contraseña",
+        "usage": "/forgot '<email|nick>' [instance]",
+        "usage_error": "Uso: /forgot '<email|nick>'"
+      },
+      "help": {
+        "footer": "Escriba /help '<command>' para obtener más detalles.",
+        "header": "Comandos:",
+        "no_such_command": "No existe tal comando: /{subject}",
+        "summary": "Enumera comandos, o muestra ayuda para uno",
+        "topics": "Temas: {topics}. Escriba /help '<topic>'.",
+        "usage": "/ayuda [comando | tema]"
+      },
+      "home": {
+        "summary": "Abre tu cronología de inicio",
+        "usage": "/home [texto] [--in '<ubicación>']"
+      },
+      "lang": {
+        "auto_hint": "Sigue la configuración predeterminada de la instancia y luego la del navegador",
+        "available": "Idiomas disponibles:",
+        "cleared": "Configuración de idioma borrada: ahora {name} ({code}), desde {source, select, user {tu configuración} instance {la predeterminada de la instancia} browser {el navegador} other {la alternativa}}",
+        "current": "Idioma: {name} ({code}), de {source, select, user {tu configuración} instance {la configuración predeterminada de la instancia} browser {el navegador} other {la opción por defecto}}",
+        "set": "Idioma establecido en {name} ({code})",
+        "summary": "Mostrar o elegir el idioma de la interfaz",
+        "unknown": "No hay idioma {input}. Elija auto o uno de: {choices}",
+        "usage": "/lang [código|nombre|automático]"
+      },
+      "local": {
+        "summary": "Abrir la línea de tiempo local",
+        "usage": "/local [text] [--in '<placement>']"
+      },
+      "media": {
+        "few_attachments": "La publicación {label} tiene {count, plural, one {# archivo adjunto} other {# archivos adjuntos}}",
+        "no_attachments": "La publicación {label} no tiene archivos adjuntos",
+        "summary": "Mostrar el adjunto de una publicación a tamaño completo en una ventana",
+        "usage": "/media [label] [n]",
+        "usage_error": "Uso: /media [label] [n]"
+      },
+      "more": {
+        "no_older": "No hay publicaciones anteriores",
+        "summary": "Cargar la siguiente página de publicaciones anteriores"
+      },
+      "mute": {
+        "summary": "Silenciar una cuenta",
+        "usage": "/silenciar [target] [duration]"
+      },
+      "mvd": {
+        "already_on": "Ya en el escritorio {number}",
+        "no_pane": "No hay panel para mover",
+        "summary": "Mover el panel enfocado a otro escritorio",
+        "usage": "/mvd '<number>' [seguir]",
+        "usage_error": "Uso: /mvd '<number>' [follow]"
+      },
+      "notifications": {
+        "summary": "Abre tus notificaciones",
+        "usage": "/notifications [text] [--in '<placement>']"
+      },
+      "only": {
+        "no_panes": "No hay paneles en este escritorio",
+        "summary": "Cerrar todos los demás paneles y flotar; sus ventanas permanecen abiertas (a diferencia de /close)"
+      },
+      "open": {
+        "not_http": "Solo se pueden abrir enlaces http(s)",
+        "summary": "Abrir una publicación o URL en una nueva pestaña del navegador",
+        "usage": "/abrir [label | url]"
+      },
+      "people": {
+        "nothing_to_list": "Una ventana de personas no tiene personas propias.",
+        "summary": "Mostrar u ocultar quién está en esta ventana"
+      },
+      "pin": {
+        "summary": "Fija una de tus propias publicaciones, o quítale la fijación",
+        "usage": "/fijar [label]"
+      },
+      "poll": {
+        "hours_wants": "--hours requiere un número positivo de horas",
+        "not_connected": "No conectado. Escribe /connect",
+        "option_count": "Una encuesta necesita {min}–{max} opciones",
+        "option_too_long": "La opción \"{option}\" es más larga que {max, plural, one {# carácter} other {# caracteres}}",
+        "posted": "encuesta publicada",
+        "run_span": "La encuesta debe durar entre {min} y {max}",
+        "summary": "Publicar una encuesta en la ventana activa",
+        "unknown_flag": "Opción desconocida: {flag}",
+        "usage": "/poll \"'<question>'\" \"'<option>'\" \"'<option>'\" [...] [--multiple] [--hours N]",
+        "usage_error": "Uso: /poll \"'<question>'\" \"'<option>'\" \"'<option>'\" [...] [--multiple] [--hours N]"
+      },
+      "pop": {
+        "summary": "Sacar el hilo de una publicación en una ventana flotante, o enfocarlo donde se muestra; si ya estás dentro de ese hilo, no hacer nada (tecla rápida p, o doble clic)",
+        "usage": "/pop [label]"
+      },
+      "postas": {
+        "feed_cleared": "~{feed} predeterminado restablecido",
+        "global_cleared": "Cuenta de publicación global borrada",
+        "global_own": "{line}; esta ventana tiene su propia cuenta, por lo que es la predeterminada global",
+        "no_default": "No se ha configurado una cuenta para publicar: /postas '<handle|n>'",
+        "summary": "Mostrar o establecer con qué cuenta publican los feeds",
+        "usage": "/postas [--global] ['<handle|n>'|--clear]",
+        "usage_error": "Uso: {usage}"
+      },
+      "query": {
+        "summary": "Abrir una ventana de conversación privada",
+        "usage": "/consultar '<@handle>'",
+        "usage_error": "Uso: {usage}"
+      },
+      "quote": {
+        "quoted": "❝ entrecomillado {label}",
+        "summary": "Citar una publicación; si no hay texto, abrir el editor (q precompleta, Shift+c redacta)",
+        "usage": "/cita [label] [text]"
+      },
+      "raise": {
+        "no_pane": "No hay ningún panel que se pueda elevar en este escritorio.",
+        "summary": "Traer el flotante enfocado al frente"
+      },
+      "react": {
+        "summary": "Reacciona a una publicación con un emoji",
+        "usage": "/reaccionar [label] '<emoji>'"
+      },
+      "reply": {
+        "replied": "↳ respondió a {label}",
+        "summary": "Responde en una línea; sin texto, abre el editor de redacción (r rellena, Shift+r redacta)",
+        "usage": "/responder [label] [text]"
+      },
+      "resize": {
+        "nothing_to_resize": "Nada que redimensionar",
+        "summary": "Redimensionar el panel enfocado en puntos porcentuales u establecer su proporción",
+        "usage": "/resize ancho|alto +N|-N|N",
+        "usage_error": "Uso: {usage}"
+      },
+      "search": {
+        "summary": "Buscar cuentas, publicaciones y etiquetas",
+        "usage": "/buscar '<query>'",
+        "usage_error": "Uso: {usage}"
+      },
+      "select": {
+        "no_post": "No hay publicación {label} aquí",
+        "summary": "Mover o establecer la publicación seleccionada",
+        "usage": "/select siguiente | anterior | primero | último | ninguno | '<label>'",
+        "usage_error": "Uso: {usage}"
+      },
+      "set": {
+        "listed": "  {key} = {value}  — {description}",
+        "no_setting": "No hay configuración {key}. Prueba /set",
+        "summary": "Mostrar o cambiar tu configuración",
+        "takes": "{key} toma {words}",
+        "usage": "/set [clave [valor]]",
+        "usage_error": "Uso: {usage}"
+      },
+      "split": {
+        "summary": "Dividir el panel activo en modo apilado",
+        "usage": "/dividir {views}"
+      },
+      "start": {
+        "summary": "Abre el menú Inicio para abrir una vista como ventana flotante"
+      },
+      "swap": {
+        "summary": "Intercambiar la ventana del panel enfocado con su vecino",
+        "usage": "/swap '<left|right|up|down>'",
+        "usage_error": "Uso: {usage}"
+      },
+      "sync": {
+        "accounts": "Sincronizar cuentas: {accounts}",
+        "already_listed": "Ya está en la lista de sincronización",
+        "already_primary": "Ya es el principal",
+        "no_holder": "Ninguna cuenta puede mantener el escritorio sincronizado. Escriba /sync para ver por qué",
+        "no_primary": "Aún no hay principal. Escribe /sync primary '<handle>' primero",
+        "not_listed": "No está en la lista de sincronización",
+        "summary": "Elige qué cuenta tiene tu escritorio sincronizado",
+        "switched_off": "Sincronización: desactivada",
+        "switched_on": "Sincronización: activada",
+        "syncing": "Sincronizando…",
+        "usage": "/sync | /sync primary '<handle>' | /sync fallback add|rm|up '<handle>' | /sync off | /sync on | /sync now",
+        "usage_error": "Uso: {usage}"
+      },
+      "tag": {
+        "not_a_hashtag": "No es un hashtag: {input}",
+        "summary": "Abrir la línea de tiempo de un hashtag",
+        "usage": "/etiqueta '<name>'"
+      },
+      "theme": {
+        "current": "{name} (actual)",
+        "list_header": "Temas:",
+        "no_theme": "No hay tema {name}. Prueba /theme",
+        "summary": "Listar o elegir el tema de color",
+        "usage": "/tema [name]",
+        "usage_error": "Uso: {usage}"
+      },
+      "thread": {
+        "summary": "Abrir la ventana del hilo de una publicación",
+        "usage": "/hilo [label]"
+      },
+      "unbind": {
+        "not_a_key": "No es una tonalidad: {chord}",
+        "summary": "Desasignar una tecla",
+        "unbound": "{mode} {chord} sin asignar",
+        "usage": "/desasignar '<insert|navigation>' '<chord>'",
+        "usage_error": "Uso: {usage}"
+      },
+      "unblock": {
+        "summary": "Devuelve un bloque",
+        "usage": "/desbloquear [target]"
+      },
+      "unbookmark": {
+        "summary": "Elimina tu marcador de una publicación.",
+        "usage": "/quitar_marcador [label]"
+      },
+      "unboost": {
+        "summary": "Retira tu promoción de una publicación",
+        "usage": "/quitar_impulso [label]"
+      },
+      "unfav": {
+        "summary": "Quita tu favorito de una publicación",
+        "usage": "Quitar de favoritos [label]"
+      },
+      "unfollow": {
+        "summary": "Seguir de vuelta",
+        "usage": "/dejar-de-seguir [target]"
+      },
+      "unmute": {
+        "summary": "Quitar el silencio",
+        "usage": "/desilenciar [target]"
+      },
+      "unpin": {
+        "summary": "Desanclar una de tus propias publicaciones",
+        "usage": "/desanclar [label]"
+      },
+      "unreact": {
+        "summary": "Quita tu reacción emoji de una publicación",
+        "usage": "/unreact [label] '<emoji>'"
+      },
+      "unsplit": {
+        "no_pane": "No hay panel para cerrar en este escritorio.",
+        "summary": "Cerrar el panel enfocado; su ventana permanece abierta (a diferencia de /close)"
+      },
+      "vis": {
+        "report": "Las nuevas publicaciones son {visibility} por defecto.",
+        "summary": "Mostrar o establecer la audiencia predeterminada, o publicar una línea con una audiencia",
+        "usage": "/vis [público|sin listar|privado|directo|local] [texto]",
+        "usage_error": "Uso: {usage}",
+        "usage_for": "/vis [{audiences}] [text]"
+      },
+      "vote": {
+        "already_voted": "Ya has votado.",
+        "closed": "Esa encuesta está cerrada.",
+        "no_poll": "No hay encuesta en {label}",
+        "options_range": "Opciones: 1–{last}",
+        "pick_one": "Seleccione una opción (1–{last})",
+        "summary": "Votar en la encuesta de una publicación",
+        "usage": "/vote [etiqueta] '<n>' [n…]",
+        "voted": "votó por {choices} en {label}"
+      },
+      "vsplit": {
+        "summary": "Dividir el panel enfocado lado a lado",
+        "usage": "/vsplit {views}"
+      },
+      "whois": {
+        "summary": "Abrir la ventana de perfil de la cuenta",
+        "usage": "/whois [etiqueta | @user@host]"
+      },
+      "win": {
+        "cannot_move": "No se puede mover esta ventana allí",
+        "no_window": "No hay ventana {number}",
+        "summary": "Cambiar, recorrer, reordenar o listar ventanas (escritorios: /desktop)",
+        "unread": "({count, plural, one {{count} sin leer} other {{count} sin leer}})",
+        "usage": "/win '<number>' | /win siguiente | /win anterior | /win mover '<number>' | /win lista",
+        "usage_error": "Uso: {usage}"
+      }
+    },
+    "desktop_line": "{label}: {count, plural, one {# panel} other {# paneles}}",
+    "desktop_line_titles": "{label}: {count, plural, one {# panel} other {# paneles}}: {titles}",
+    "desktops_up_to": "Los escritorios llegan hasta {max}",
+    "error_with_usage": "{error}. Uso: {usage}",
+    "failed": "Falló: {error}",
+    "feed_deleted": "Eliminado ~{name}",
+    "feed_line": "{title} ({id}): {sources}",
+    "feed_line_empty": "{title} ({id}): sin fuentes",
+    "feed_made": "Hecho por ~{name}",
+    "feed_none": "No hay feeds. Crea uno con /feed new {name} {source}…",
+    "feed_not_found": "No hay ningún feed llamado \"{name}\"",
+    "feed_reads": "~{name} lee {sources}",
+    "feed_reads_no_longer": "~{name} ya no lee {sources}",
+    "feed_reads_none": "~{name} no lee ninguna de {sources}",
+    "feed_renamed": "Se cambió el nombre de ~{old} a ~{name}",
+    "feed_reserved": "\"{name}\" es una palabra /feed; elige otro nombre",
+    "follow_requested": "solicitud de seguimiento",
+    "in_takes": "--in acepta {words}",
+    "invalid_name": "Nombre de comando inválido: /{name}",
+    "key_in_mode": "{chord} ({mode, select, insert {insert} other {navegación}})",
+    "keys": "Claves: {keys}",
+    "missing_name": "Falta el nombre del comando después de /",
+    "no_account_lookup": "No existe la cuenta {handle}: {error}",
+    "no_post_here": "No hay publicación {label} aquí",
+    "no_window": "No hay ventana {number}",
+    "no_window_kind": "No hay tipo de ventana {kind}. Tipos: {kinds}",
+    "not_a_command": "No es un comando: {line}",
+    "not_a_float": "El panel enfocado no está en modo flotante",
+    "not_available_here": "/{command} no está disponible aquí",
+    "not_logged_in": "No has iniciado sesión. Escribe /connect",
+    "not_signed_in_as": "No has iniciado sesión como {handle}. {count, plural, =0 {No hay ninguna cuenta iniciada.} other {Conectado: {accounts}.}} Escribe /connect para agregar una cuenta.",
+    "opened_no_window": "/{command} no abrió ninguna ventana",
+    "own_posts_only": "Solo puedes {verb, select, delete {eliminar} other {editar}} tus propias publicaciones",
+    "pin_own_only": "Solo puedes anclar tus propias publicaciones.",
+    "placement_takes": "{key} toma {words}",
+    "reaction_done": "{emoji} {kind, select, react {reaccionó a} other {quitó la reacción a}} {label}",
+    "select_post_first": "Selecciona primero una publicación (j/k) o asigna una etiqueta",
+    "status_bookmarked": "Marcado como favorito",
+    "status_boosted": "potenciado",
+    "status_favourited": "marcado como favorito",
+    "status_moved": "{mark} {word} {label}",
+    "status_pinned": "anclado",
+    "status_unbookmarked": "eliminado de marcadores",
+    "status_unboosted": "no potenciado",
+    "status_unfavourited": "eliminado de favoritos",
+    "status_unpinned": "Desanclado",
+    "sync_fallback": "{skipped, select, yes {Alternativa {index}: {account} (omitido: {reason})} other {Alternativa {index}: {account}}}",
+    "sync_in_use": "En uso: {account}",
+    "sync_in_use_none": "En uso: ninguno",
+    "sync_last_error": "Último error: {error}",
+    "sync_last_pull": "Última extracción: {time}",
+    "sync_last_push": "Último push: {time}",
+    "sync_off": "Sincronización: desactivada. Escribe /sync on para volver a activarla.",
+    "sync_on": "Sincronización: activada",
+    "sync_primary": "{skipped, select, yes {Principal: {account} (omitido: {reason})} other {Principal: {account}}}",
+    "sync_primary_none": "Principal: no se eligió ninguna (se usa la primera cuenta disponible)",
+    "that_is_you": "Eres tú",
+    "tip": "{action}: /{command}",
+    "tip_keys": "{action}: /{command} ({keys})",
+    "toggle_done": "{word} @{acct}",
+    "toggle_done_for": "{word} @{acct} durante {duration}",
+    "unknown_command": "Comando desconocido: /{name}. Prueba /help",
+    "unknown_command_plain": "Comando desconocido: /{name}",
+    "usage": "Uso: {usage}",
+    "view_needs_argument": "{word} necesita un argumento",
+    "view_no_argument": "{word} no toma argumentos.",
+    "view_unknown": "Vista desconocida: {view}",
+    "view_win_number": "win toma un número de ventana"
+  },
+  "accounts": {
+    "login_expired": "El inicio de sesión expiró o no se inició aquí. Vuelve a intentarlo.",
+    "login_failed": "Inicio de sesión fallido: {reason}",
+    "login_mismatch": "El estado de inicio de sesión no coincide. Inténtalo de nuevo.",
+    "login_refused": "Inicio de sesión denegado",
+    "login_refused_code": "Inicio de sesión denegado ({code})",
+    "need_https": "Solo se admiten instancias https",
+    "need_instance": "Introduce una instancia, como wired.example",
+    "not_listed": "Esa instancia no está disponible aquí",
+    "registered_login_failed": "Registrado, pero el inicio de sesión falló: {reason}",
+    "registration_failed": "Registro fallido: {reason}"
+  },
+  "api": {
+    "http_error": "HTTP {status}: {message}",
+    "invalid_json": "JSON no válido",
+    "media_timeout": "El procesamiento de medios superó el tiempo de espera.",
+    "network_error": "Error de red: {message}",
+    "nodeinfo_no_link": "No hay enlace de NodeInfo 2.x",
+    "nodeinfo_other_origin": "El enlace de NodeInfo apunta a otro origen",
+    "rate_limited": "Límite de solicitudes",
+    "rate_limited_until": "Límite de solicitudes hasta {time}",
+    "request_cancelled": "Solicitud cancelada",
+    "request_failed": "Solicitud fallida",
+    "unexpected_response": "Respuesta inesperada: {message}"
+  },
+  "app": {
+    "account_none": "sin cuenta",
+    "ask_dm_title": "Mensaje directo",
+    "ask_handle_placeholder": "@user@instance",
+    "ask_hashtag_placeholder": "#etiqueta",
+    "ask_hashtag_title": "Dividir con hashtag",
+    "ask_profile_title": "Abrir perfil",
+    "ask_search_placeholder": "palabras, @cuenta o #etiqueta",
+    "ask_search_title": "Buscar",
+    "attach_media": "Adjuntar medios…",
+    "attach_refused": "No se puede adjuntar {file}: no es un archivo de imagen, vídeo ni audio",
+    "attach_too_many": "demasiados archivos adjuntos: {max} por publicación, se omitió {file}",
+    "attach_uploading": "subiendo {file}…",
+    "attached": "adjunto {file} ({attached}/{max})",
+    "authorize_app": "Autorizar aplicación",
+    "close_pane": "Cerrar el panel {title}",
+    "command_line_not_ready": "La línea de comandos no está lista",
+    "command_suggestions": "Sugerencias de comandos",
+    "connect_hint_list": "No conectado. Escriba /connect '<'instance'>'. Disponibles: {origins}",
+    "connect_hint_list_custom": "No conectado. Escriba /connect '<'instance'>'. Disponibles: {origins}. Cualquier otra instancia también funciona.",
+    "connect_hint_log_in": "No conectado. Escribe /connect para iniciar sesión.",
+    "connect_hint_open": "No está conectado. Escribe /connect '<'instance'>', p. ej. /connect wired.example",
+    "connected_to": "Conectado a {title} ({backend}) en {origin}",
+    "could_not_reach": "No se pudo acceder a {origin}: {reason}",
+    "desktop_label": "Escritorio {number}",
+    "display_avatars": "Avatares",
+    "display_cards": "Tarjetas",
+    "display_images": "Imágenes",
+    "display_lines": "Líneas",
+    "display_options": "Mostrar opciones para {title}",
+    "display_reset": "Restablecer los valores predeterminados",
+    "display_row_spoken": "{label}, {state, select, on {activado} on_overridden {activado, sobrescrito} off_overridden {desactivado, sobrescrito} other {desactivado}}",
+    "dock_announce": "Anclar {edge, select, left {a la izquierda} right {a la derecha} top {encima} other {debajo}} de #{title}",
+    "dock_window": "Anclar {title}",
+    "edit_feed": "Editar fuente {title}",
+    "empty_desktop_hint": "escritorio vacío — /vsplit, /split o Ctrl+B %",
+    "finish_registration": "Finalizar registro",
+    "float_window": "Flotar {title}",
+    "language_auto": "Automático",
+    "language_list_label": "Elija el idioma de la interfaz",
+    "language_row": "Idioma…",
+    "logged_in_as": "Conectado como @{handle}",
+    "logged_in_as_active": "Conectado como @{handle} (activo)",
+    "logged_in_to": "Conectado en {origin} como @{handle}",
+    "menu_composer": "Compositor",
+    "menu_dm": "Mensaje directo…",
+    "menu_dms": "Mensajes directos",
+    "menu_existing_window": "Ventana existente…",
+    "menu_federated": "Federado",
+    "menu_feed": "Fuente: {name}",
+    "menu_hashtag": "Hashtag…",
+    "menu_home": "Inicio",
+    "menu_local": "Local",
+    "menu_new_feed": "Nueva fuente…",
+    "menu_notifications": "Notificaciones",
+    "menu_people": "Gente aquí",
+    "menu_profile": "Perfil…",
+    "menu_same_window": "Misma ventana",
+    "menu_search": "Buscar…",
+    "no_view": "No hay vista para esta ventana",
+    "open_view": "Abrir una vista",
+    "open_view_float": "Abrir una vista como ventana flotante",
+    "pane_next": "Siguiente panel",
+    "pane_previous": "Panel anterior",
+    "pane_switch": "Cambiar panel, {count}",
+    "pending_media": "Medios pendientes",
+    "post_as": "Publicar como",
+    "post_just_this": "Solo esta publicación",
+    "post_no_account": "No hay cuenta de publicación configurada",
+    "post_not_posted": "No publicado: {text}",
+    "reset_password": "Restablecer la contraseña",
+    "resize_window": "Cambiar el tamaño de la ventana",
+    "scope_everywhere": "En todas partes",
+    "scope_this_feed": "Para este feed (~{name})",
+    "select_post_first": "Selecciona primero una publicación (j/k)",
+    "sign_up": "Regístrate",
+    "split_side_by_side": "Dividir lado a lado",
+    "split_side_by_side_tip": "Dividir lado a lado con una vista",
+    "split_stacked": "Dividir apilados",
+    "split_stacked_tip": "Vista dividida apilada",
+    "start_menu_label": "[≡ wired] menú de inicio",
+    "sync_took_newer": "Sincronización: se tomó el escritorio más reciente del servidor",
+    "sync_up_to_date": "Sincronización: al día",
+    "tagline": "Día actual. Tiempo actual.",
+    "tip_close": "Cerrar este panel",
+    "tip_display": "Cómo se muestran las publicaciones",
+    "tip_dock": "Acoplarse a las fichas",
+    "tip_edit_feed": "Editar este feed",
+    "tip_float": "Separar en una ventana flotante"
+  },
+  "capabilities": {
+    "cannot": {
+      "custom_emoji_reactions": "{owner, select, handle {@{handle}'s server} other {Este servidor}}{brand} no puede reaccionar con emojis personalizados",
+      "editing": "{owner, select, handle {el servidor de @{handle}} other {Este servidor}}{brand} no puede editar publicaciones",
+      "emoji_reactions": "{owner, select, handle {@{handle}'s server} other {This server}}{brand} no puede reaccionar a las publicaciones con emoji",
+      "local_only_posts": "{owner, select, handle {el servidor de @{handle}} other {Este servidor}}{brand} no puede publicar solo localmente",
+      "markdown": "{owner, select, handle {@{handle}'s server} other {Este servidor}}{brand} no puede formatear publicaciones con Markdown",
+      "password_reset_api": "{owner, select, handle {@{handle}'s server} other {This server}}{brand} no puede restablecer contraseñas",
+      "quote_posting": "{owner, select, handle {@{handle}'s server} other {This server}}{brand} no puede citar publicaciones",
+      "settings_store": "{owner, select, handle {@{handle}'s server} other {Este servidor}}{brand} no puede sincronizar la configuración"
+    }
+  },
+  "features": {
+    "authorize": {
+      "as_handle": "Como @{handle}, esta aplicación podrá:",
+      "authorize_button": "[ autorizar ]",
+      "cancel_button": "[ cancelar ]",
+      "close_button": "[ cerrar ]",
+      "code_intro": "Autorizado. Entrega este código a la aplicación:",
+      "copied": "Copiado al portapapeles.",
+      "copy_button": "[ copiar ]",
+      "copy_failed": "No se pudo copiar. Seleccione el código y cópielo manualmente.",
+      "deny_button": "[ denegar ]",
+      "done": "Hecho. Puedes cerrar este cuadro.",
+      "failed": "No se pudo autorizar: {reason}",
+      "form_label": "Iniciar sesión",
+      "instance": "Instancia",
+      "loading": "Cargando la solicitud…",
+      "log_in_button": "[ iniciar sesión ]",
+      "log_in_intro": "Inicia sesión para autorizar la aplicación.",
+      "narrow_follow": "Gestiona tu {noun}",
+      "narrow_push": "Notificaciones push para tu {noun}",
+      "narrow_read": "Lee tu {noun}",
+      "narrow_write": "Cambia tu {noun}",
+      "not_trusted": "Esta instancia no ha marcado a WiredFE como una aplicación de confianza, por lo que no puede autorizar a otras aplicaciones. Pida al administrador de la instancia que marque a WiredFE como de confianza.",
+      "password": "Contraseña",
+      "refused": "La instancia rechazó esta solicitud de autorización: {message}",
+      "returning": "Volviendo a la aplicación…",
+      "scope_admin": "Como administrador: {words} ({scope})",
+      "scope_plain": "{words} ({scope})",
+      "scope_unknown": "Permiso desconocido ({scope})",
+      "title": "¿Autorizar a {name}?",
+      "unsafe_redirect": "La instancia respondió con una dirección de redirección que no es segura para seguir. No se envió nada.",
+      "username": "Nombre de usuario",
+      "website": "Sitio web: {website}",
+      "whole_follow": "Seguir, dejar de seguir, bloquear y silenciar cuentas",
+      "whole_push": "Enviar notificaciones push",
+      "whole_read": "Lee todo lo que puedas ver",
+      "whole_write": "Publica, edita y elimina como quieras"
+    },
+    "composer": {
+      "attachments_removed": "adjuntos eliminados: pertenecen a la cuenta antigua",
+      "editing": "Editando [{label}]: {excerpt}",
+      "log_label": "Redactar",
+      "post_as": "Publicar como",
+      "posted_as": "Publicado como @{author}",
+      "quoted": "❝ citado @{author}",
+      "quoting": "Citando a @{author}: {excerpt}",
+      "replied": "↳ respondió a @{author}",
+      "replying": "Respondiendo a @{author}: {excerpt}",
+      "topic": "compositor",
+      "topic_as": "compositor, publicando como @{handle}"
+    },
+    "dm": {
+      "log_label": "mensaje directo",
+      "no_messages": "Aún no hay mensajes con @{target}. Escribe para iniciar uno.",
+      "topic": "mensaje directo (DM)",
+      "topic_with": "conversación privada con {mention}"
+    },
+    "external": {
+      "asks_for": "Esta aplicación solicita:",
+      "authorize_button": "[ autorizar ]",
+      "cancel_button": "[ cancelar ]",
+      "close_button": "[ cerrar ]",
+      "continuing": "Continuando…",
+      "deny_button": "[ rechazar ]",
+      "email": "Correo electrónico",
+      "form_label": "Registrarse",
+      "intro": "Has iniciado sesión con {provider}{named, select, yes { como {name}} other {}}. Elige cómo apareces aquí.",
+      "loading": "Cargando la solicitud…",
+      "loading_details": "Cargando tus datos…",
+      "nickname": "Apodo",
+      "password_optional": "Contraseña (opcional)",
+      "register_button": "[ registrarse ]",
+      "title": "¿Autorizar a {name}?",
+      "unsafe_redirect": "La instancia respondió con una dirección de redireccionamiento que no es segura para seguir. No se envió nada.",
+      "waiting_approval": "Cuenta creada. Está a la espera de la aprobación de un moderador.",
+      "waiting_confirmation": "Cuenta creada. Revisa tu correo electrónico para confirmar tu dirección y luego inicia sesión.",
+      "website": "Sitio web: {website}",
+      "your_provider": "su proveedor"
+    },
+    "federated": {
+      "log_label": "federado",
+      "topic": "línea de tiempo federada"
+    },
+    "feed": {
+      "log_label": "fuente",
+      "missing": "Este feed ya no existe",
+      "source_failed": "{source} falló: {reason}",
+      "topic_posting": "{title}, publicando como @{handle}"
+    },
+    "feed_editor": {
+      "add_button": "[ añadir ]",
+      "add_button_label": "Agregar etiqueta para @{handle}",
+      "add_label": "añadir etiqueta para @{handle}",
+      "add_placeholder": "agregar etiqueta",
+      "cancel_button": "[ Cancelar ]",
+      "cell_name": "{source} de @{handle}",
+      "cell_name_blocked": "{source} de @{handle} ({reason})",
+      "column_account": "cuenta",
+      "confirm_delete_label": "Confirmar eliminación del feed",
+      "delete_button": "[ eliminar feed ]",
+      "delete_question": "¿Eliminar este feed?",
+      "delete_yes": "[ sí, eliminar ]",
+      "feed_name": "Nombre del feed",
+      "gone": "Este feed ya no existe.",
+      "name_has_spaces": "El nombre del feed no debe contener espacios.",
+      "not_a_tag": "No es una etiqueta: \"{text}\"",
+      "remove_tag": "Eliminar la etiqueta {tag} de @{handle}",
+      "save_button": "[ guardar ]",
+      "saved": "Guardado",
+      "sign_in_expired": "inicio de sesión caducado",
+      "sources_label": "Fuentes por cuenta",
+      "tags_label": "Etiquetas de @{handle}"
+    },
+    "hashtag": {
+      "log_label": "hashtag"
+    },
+    "home": {
+      "log_label": "Inicio",
+      "topic": "Cronología principal"
+    },
+    "local": {
+      "log_label": "local",
+      "topic": "cronología local"
+    },
+    "media": {
+      "loading": "cargando…",
+      "next": "Siguiente archivo adjunto",
+      "no_attachment": "Esta publicación no tiene archivos adjuntos {n}",
+      "no_description": "Imagen sin descripción",
+      "no_link": "[no hay enlace utilizable]",
+      "nothing": "Nada que mostrar",
+      "open_original": "Abrir original ↗",
+      "previous": "Adjunto anterior",
+      "sensitive_cover": "[ SENSIBLE — mostrar ]"
+    },
+    "notifications": {
+      "log_label": "notificaciones",
+      "topic": "notificaciones"
+    },
+    "password_reset": {
+      "close_button": "[ cerrar ]",
+      "confirm_password": "Confirmar nueva contraseña",
+      "done": "La contraseña ha sido cambiada. Ahora puedes iniciar sesión con ella.",
+      "empty": "Introduce una nueva contraseña.",
+      "form_label": "Restablecer la contraseña",
+      "instance": "Instancia",
+      "mismatch": "Las dos contraseñas no coinciden.",
+      "new_password": "Nueva contraseña",
+      "reset_button": "[ restablecer contraseña ]"
+    },
+    "people": {
+      "in_conversation": "en conversación",
+      "in_thread": "en el hilo",
+      "nobody": "Aquí no se reunió nadie.",
+      "recently_here": "recientemente aquí",
+      "window_closed": "ventana cerrada"
+    },
+    "profile": {
+      "log_label": "perfil"
+    },
+    "registration": {
+      "agreement": "Acepto las reglas y los términos de esta instancia",
+      "close_button": "[ cerrar ]",
+      "email": "Correo electrónico",
+      "form_label": "Registrarse",
+      "instance": "Instancia",
+      "logged_in": "Conectado en {origin} como @{handle}",
+      "password": "Contraseña",
+      "reason": "Motivo (opcional)",
+      "register_button": "[ registrarse ]",
+      "unreachable": "No se pudo contactar con {origin}: {reason}",
+      "username": "Nombre de usuario",
+      "waiting_approval": "Cuenta creada. Está pendiente de aprobación por un moderador.",
+      "waiting_confirmation": "Cuenta creada. Comprueba tu correo electrónico para confirmar tu dirección, luego inicia sesión."
+    },
+    "route": {
+      "follow_hint": "Escribe /follow para seguir a @{acct}",
+      "not_found": "No se pudo encontrar {value}"
+    },
+    "search": {
+      "account_line": "  @{acct} — {name}  (/whois @{acct})",
+      "accounts": "Cuentas:",
+      "log_label": "buscar",
+      "no_results": "No hay resultados para \"{query}\"",
+      "tag_line": "  #{name}  (/join #{name})",
+      "tags": "Etiquetas:",
+      "topic": "buscar",
+      "topic_query": "buscar: {query}"
+    },
+    "status": {
+      "log_label": "estado",
+      "topic": "{appName} — Día actual. Hora actual."
+    },
+    "thread": {
+      "loading": "Cargando hilo…",
+      "log_label": "hilo",
+      "nothing_to_answer": "No hay nada que responder en esta ventana"
+    }
+  },
+  "format": {
+    "boost_count": "{count, plural, one {# impulso} other {# impulsos}}",
+    "closed": "cerrado",
+    "closes": "cierra a las {time}",
+    "favourite_count": "{count, plural, one {# favorito} other {# favoritos}}",
+    "multiple_choice": "(opción múltiple)",
+    "reaction_label": "{name}, {count, plural, one {# reacción} other {# reacciones}}",
+    "reply_to": "Responder a la publicación {label}",
+    "reply_to_counted": "Responder a la publicación {label} ({count, plural, one {# respuesta} other {# respuestas}})",
+    "vote_count": "{count, plural, one {# voto} other {# votos}}",
+    "whois_counts": "publicaciones {posts, number} · siguiendo {following, number} · seguidores {followers, number} · se unió {joined}"
+  },
+  "keys": {
+    "already_bound": "/{command}: {chord} ya está asignado a {line}",
+    "conflicts": "/{command}: {chord} entra en conflicto con {other}",
+    "invalid_key": "/{command}: tecla inválida {chord}",
+    "override_conflicts": "sobrescritura: {chord} entra en conflicto con {other}",
+    "override_invalid_key": "override: clave inválida {chord}",
+    "override_would_block_typing": "override: {chord} bloquearía la escritura en el modo de inserción",
+    "would_block_typing": "/{command}: {chord} bloquearía la escritura en modo insertar"
+  },
+  "state": {
+    "dropped_empty_desktops": "{count, plural, one {# escritorio vacío} other {# escritorios vacíos}}",
+    "dropped_hidden_windows": "{count, plural, one {# ventana oculta} other {# ventanas ocultas}}",
+    "dropped_key_overrides": "{count, plural, one {# sobrescritura de clave} other {# sobrescrituras de clave}}",
+    "duration_days": "{count} días",
+    "duration_hours": "{count} h",
+    "duration_minutes": "{count} min",
+    "feed_id_taken": "Un feed con id {id} ya existe",
+    "feed_name_length": "Un nombre de feed debe tener entre 1 y {max} caracteres",
+    "feed_name_taken": "Ya existe un feed llamado \"{name}\"",
+    "mentioned_you": "@{handle} te mencionó [see notifs]",
+    "no_account_signed_in": "Ninguna cuenta ha iniciado sesión",
+    "no_feed_with_id": "No hay feed con id {id}",
+    "no_post_here": "No puedes publicar en esta ventana",
+    "no_signed_in_account": "No hay una cuenta iniciada @{handle}",
+    "not_a_source": "No es una fuente: \"{text}\" (intenta @me@host:home, *:mentions o @me@host:tag:rust)",
+    "not_logged_in": "No has iniciado sesión. Escribe /connect",
+    "poll_closed": "No se puede editar una publicación cuya encuesta se ha cerrado.",
+    "poll_option_empty": "La opción {n} está vacía",
+    "poll_option_repeats": "La opción {n} se repite con la opción {first}",
+    "poll_option_too_long": "La opción {n} supera los {max} caracteres",
+    "posted_as": "Publicado como @{handle}",
+    "posting_line": "{subject, select, feed {{title} publicaciones} other {publicaciones}} como @{handle} ({source, select, window {cuenta de la ventana} feed {predeterminado del feed} global {predeterminado global} other {solo cuenta}})",
+    "posting_set_feed": "~{feed} publica como @{handle} (predeterminado del feed)",
+    "posting_set_global": "publica como @{handle} (predeterminado global)",
+    "session_expired": "La sesión ha caducado para @{handle}. Escribe /connect para iniciar sesión de nuevo.",
+    "setting_avatars": "Mostrar avatares del autor en las publicaciones",
+    "setting_clock_format": "¿Cómo se imprimen las marcas de tiempo: 24 horas o 12 horas?",
+    "setting_default_visibility": "El público al que se dirigen las nuevas publicaciones por defecto",
+    "setting_density": "Cómo se muestran las publicaciones: como tarjetas o como líneas de IRC",
+    "setting_effects": "Efectos CRT/glitch (nunca parpadean)",
+    "setting_expand_media": "Los medios protegidos por una advertencia de contenido se muestran abiertos.",
+    "setting_images": "Mostrar los archivos adjuntos en línea en lugar de las líneas [IMG …]",
+    "setting_open_in": "Dónde se abren nuevas ventanas: aquí, vsplit, split, float o hidden",
+    "setting_reply_in": "Dónde se abre el compositor de respuestas: aquí, vsplit, split, float o hidden",
+    "setting_theme": "Los colores en los que está pintada la concha",
+    "skip_no_settings_store": "no hay almacén de configuración",
+    "skip_not_signed_in": "no has iniciado sesión",
+    "skip_session_expired": "La sesión ha expirado",
+    "stream_edited_hint": "~{name} se editó, así que @{handle} no está en él: /feed add {name} {sources}",
+    "sync_failed": "Sincronización fallida. {reason}",
+    "sync_forbidden": "Sincronización: este inicio de sesión puede no tener acceso al almacén de configuración. Inicie sesión de nuevo para conceder acceso.",
+    "sync_invalid_remote": "Sincronización: el escritorio guardado en el servidor no es legible y fue ignorado; este se mantiene.",
+    "sync_paused": "Sincronización pausada: el escritorio es demasiado grande para sincronizar (más de {size} KiB incluso sin ventanas ocultas, escritorios vacíos y anulaciones de teclas adicionales); se conserva aquí",
+    "sync_too_large": "Sincronización: el servidor dice que el escritorio es demasiado grande para almacenar",
+    "sync_trimmed": "Sincronización: el escritorio es grande, por lo que la copia en el servidor omite {dropped}; este dispositivo los conserva.",
+    "sync_unsupported": "Sincronización: el servidor no tiene un almacén de configuración; la sincronización se detuvo"
+  },
+  "ui": {
+    "account_picker_dialog": {
+      "accounts": "Cuentas",
+      "cancel": "Cancelar",
+      "ok": "De acuerdo",
+      "remember": "Recordar"
+    },
+    "attach_button": {
+      "label": "Adjuntar medios"
+    },
+    "avatar": {
+      "alt": "Avatar de {handle}"
+    },
+    "boost_line": {
+      "boosted": "impulsado"
+    },
+    "card_dm": {
+      "you": "tú"
+    },
+    "card_head": {
+      "dm_strip": "✉ Mensaje directo  {from}{count, plural, =0 {} other { → {to}}}"
+    },
+    "confirm_dialog": {
+      "cancel": "Cancelar"
+    },
+    "divider": {
+      "resize": "Redimensionar paneles"
+    },
+    "drop_highlight": {
+      "text": "-- soltar para adjuntar --"
+    },
+    "emoji_picker": {
+      "dialog": "Reacciona a [{label}]",
+      "search_label": "Buscar emojis",
+      "search_placeholder": "buscar emoji…"
+    },
+    "emoji_picker_model": {
+      "custom": "personalizado",
+      "custom_category": "personalizado: {category}",
+      "emoji": "emoji",
+      "emoji_group": "emoji: {group}",
+      "loading": "cargando…",
+      "on_this_post": "en esta publicación"
+    },
+    "emoji_section": {
+      "no_matches": "sin coincidencias"
+    },
+    "error_alert": {
+      "count": "(×{count})",
+      "label": "Error",
+      "ok": "Aceptar"
+    },
+    "input_line": {
+      "label": "Línea de comandos"
+    },
+    "instance_choices": {
+      "legend": "Instancia",
+      "other": "Otra instancia"
+    },
+    "media_grid": {
+      "alt_line": "[Texto alternativo {number}] {text}",
+      "more": "Mostrar {count} archivos adjuntos más",
+      "sensitive_show": "[ SENSIBLE — mostrar ]"
+    },
+    "media_list": {
+      "kind_audio": "dólar australiano (AUD)",
+      "kind_file": "Archivo",
+      "kind_gif": "imagen GIF",
+      "kind_image": "Imagen",
+      "kind_video": "VID",
+      "no_description": "sin descripción",
+      "no_usable_link": "[sin enlace utilizable]",
+      "placeholder": "[{kind} {number}/{total}: {description}]",
+      "sensitive": "[SENSIBLE]"
+    },
+    "media_review_dialog": {
+      "attachments": "Adjuntos",
+      "cancel": "Cancelar",
+      "description_for": "Descripción de {name}",
+      "missing": "sin descripción",
+      "submit": "Enviar",
+      "summary": "{missing} de {total} archivos adjuntos no tienen descripción",
+      "title": "Describe los medios"
+    },
+    "media_tile": {
+      "alt": "ALT",
+      "alt_label": "ALT: descripción del archivo adjunto {number}",
+      "no_description": "Imagen sin descripción",
+      "no_usable_link": "[no hay enlace usable]"
+    },
+    "mute_durations": {
+      "days": "{count, plural, one {# día} other {# días}}",
+      "forever": "Para siempre",
+      "group": "Silenciar durante",
+      "hours": "{count, plural, one {# hora} other {# horas}}",
+      "minutes": "{count, plural, one {# minuto} other {# minutos}}"
+    },
+    "poll_view": {
+      "own_vote": "votaste por esto"
+    },
+    "post_actions": {
+      "bookmark": "Marcar la publicación {label}",
+      "boost": "Promocionar la publicación {label}",
+      "favourite": "Publicación favorita {label}",
+      "group": "Acciones para la publicación {label}"
+    },
+    "post_actions_more": {
+      "block": "Bloquear al autor",
+      "copy": "Copiar enlace",
+      "delete": "Eliminar",
+      "edit": "Editar",
+      "menu": "Más acciones para la publicación {label}",
+      "mute": "Silenciar al autor",
+      "open": "Abrir en el navegador",
+      "pin": "Anclar",
+      "quote": "Cita",
+      "thread": "Abrir hilo",
+      "unpin": "Desanclar"
+    },
+    "post_article": {
+      "direct": "Mensaje directo {label} de {handle}",
+      "post": "Publicación {label} de {handle}"
+    },
+    "post_body": {
+      "content_warning": "[AVISO: {text}]"
+    },
+    "post_card_parts": {
+      "reply_to": "↳ acerca de {label}"
+    },
+    "post_meta": {
+      "audience_direct": "directo",
+      "audience_local": "solo local",
+      "audience_private": "solo para seguidores",
+      "audience_unlisted": "no listado",
+      "edited": "(editado)",
+      "you_bookmarked": "Has guardado esto en tus marcadores",
+      "you_boosted": "Has promocionado esto",
+      "you_favourited": "Has marcado esto como favorito",
+      "you_reacted": "Has reaccionado con {name}"
+    },
+    "post_row_head": {
+      "reply_to": "↳ respecto a {label}:"
+    },
+    "prompt_dialog": {
+      "cancel": "Cancelar",
+      "ok": "De acuerdo",
+      "suggestions": "Sugerencias de {title}"
+    },
+    "react_button": {
+      "label": "Reaccionar a la publicación {label}"
+    },
+    "status_line": {
+      "close_desktop": "Cerrar escritorio {number}",
+      "desktop": "Escritorio {number}{active, select, true {, activo} other {}}{unread, plural, =0 {} other {, {unread} sin leer}}{highlight, select, true {, resaltado} other {}}",
+      "desktop_title": "Escritorio {number}: haz clic para cambiar, clic central para cerrar",
+      "media_pending": "[+{count} medios]",
+      "media_waiting": "{count} medios esperando, mostrar",
+      "no_posting_account": "No hay cuenta de publicación, elija",
+      "posting_as": "Publicando como {label}, cambiar",
+      "sync_failed": "Sincronización fallida",
+      "sync_pending": "Sincronización pendiente",
+      "window": "Ventana {number}: {title}{unread, plural, =0 {} other {, {unread} sin leer}}{highlight, select, true {, resaltado} other {}}"
+    },
+    "via_mark": {
+      "label": "vía {accounts}"
+    },
+    "whois_block": {
+      "blocked": "bloqueado",
+      "followed_by": "te siguen",
+      "following": "Los sigues.",
+      "muted": "silenciado",
+      "verified": "verificado",
+      "verified_title": "enlace verificado"
+    }
+  },
+  "views": {
+    "attachments": {
+      "description": "Descripción de {name}",
+      "failed": "falló: {error}",
+      "ready": "Listo",
+      "remove": "Eliminar {name}",
+      "uploading": "subiendo…"
+    },
+    "composer": {
+      "content_warning": "Advertencia de contenido",
+      "post_suggestions": "Sugerencias de publicación",
+      "post_text": "Texto de la publicación",
+      "send": "[ enviar ]"
+    },
+    "confirm": {
+      "block": "Bloquear",
+      "block_message": "No podrán seguir ni interactuar con tu cuenta, y sus publicaciones están ocultas para ti.",
+      "block_title": "¿Bloquear {handle}?",
+      "delete": "Eliminar",
+      "delete_message": "Esto no se puede deshacer.",
+      "delete_message_excerpt": "Esto no se puede deshacer. \"{excerpt}\"",
+      "delete_title": "¿Eliminar la publicación [{label}]?",
+      "mute": "Silenciar",
+      "mute_message": "Sus publicaciones están ocultas para ti durante el tiempo que elijas.",
+      "mute_title": "¿Silenciar a {handle}?"
+    },
+    "excerpt": {
+      "attachments": "({count, plural, one {# archivo adjunto} other {# archivos adjuntos}})",
+      "no_text": "(sin texto)"
+    },
+    "media": {
+      "attach": "Adjuntar medios",
+      "attach_button": "[ 📎 Adjuntar ]",
+      "attach_short": "[📎]",
+      "attachments": "Archivos adjuntos",
+      "files": "Archivos multimedia",
+      "not_media": "No se puede adjuntar {name}: no es un archivo de imagen, vídeo o audio.",
+      "too_many": "demasiados archivos adjuntos: {max} por publicación, se omitió {name}"
+    },
+    "notification": {
+      "annual_report": "su informe anual está listo",
+      "chat_mention": "{actor} te envió un mensaje de chat: {excerpt}",
+      "favourite": "{actor} marcó {label} {excerpt} como favorito",
+      "follow": "{actor} te siguió",
+      "follow_request": "{actor} quiere seguirte (/accept o /reject llegarán más tarde)",
+      "mention": "{actor} te mencionó en {label}: {excerpt}",
+      "moderation_warning": "Has recibido una advertencia de moderación",
+      "move": "{actor} se movió",
+      "other": "{actor}: {type} notificación",
+      "poll_own": "una encuesta que creaste terminó {label}",
+      "poll_voted": "una encuesta en la que votaste terminó {label}",
+      "quote": "{actor} citó {label}: {excerpt}",
+      "quoted_update": "{actor} editó una publicación que cita la tuya",
+      "reaction": "{actor} reaccionó con {emoji} a {label} {excerpt}",
+      "reblog": "{actor} impulsó {label} {excerpt}",
+      "report": "{actor} presentó un informe{target, select, none {} other { sobre {target}}} {comment}",
+      "severed_relationships": "Una acción de moderación eliminó a algunos de tus seguidos o seguidores.",
+      "sign_up": "{actor} se registró",
+      "status": "{actor} publicó {label}",
+      "update": "{actor} editó {label} {excerpt}"
+    },
+    "notification_card": {
+      "favourite": "marcó tu publicación como favorita",
+      "mention": "te mencionó",
+      "poll": "una encuesta terminó",
+      "quote": "te cité",
+      "reaction": "reaccionó a tu publicación",
+      "reblog": "impulsó tu publicación",
+      "reply": "te respondió",
+      "status": "publicado",
+      "update": "editó una publicación"
+    },
+    "paging": {
+      "no_account": "No hay cuenta para esta ventana"
+    },
+    "poll": {
+      "add_option": "[+ opción]",
+      "duration": "Duración",
+      "hide_totals": "Ocultar totales",
+      "media_conflict": "Una publicación no puede incluir a la vez medios y una encuesta.",
+      "multiple_choice": "Opción múltiple",
+      "option": "Opción {number}",
+      "remove_option": "Quitar la opción {number}",
+      "toggle": "[ ☰ encuesta ]"
+    },
+    "post": {
+      "a_thread": "un hilo",
+      "content_warning": "Advertencia: {warning}"
+    },
+    "quote": {
+      "content_warning": "[Aviso de contenido: {warning}]"
+    },
+    "runner": {
+      "unavailable": "La línea de comandos no está disponible"
+    },
+    "stream": {
+      "live": "Transmitiendo en vivo para @{handle}",
+      "restored": "Transmisión restaurada para @{handle}",
+      "unavailable": "Transmisión no disponible para @{handle}; sondeo cada minuto"
+    },
+    "visibility": {
+      "direct": "directo",
+      "label": "Visibilidad",
+      "local": "local",
+      "private": "privado",
+      "public": "público",
+      "unlisted": "no listado"
+    }
+  },
+  "windows": {
+    "desktop_empty": "Escritorio {count} está vacío: {last, select, yes {pon algo en él} other {úsalo}} antes de crear otro",
+    "no_desktop": "No hay escritorio {number}; los escritorios van 1–{count}"
+  }
+}
