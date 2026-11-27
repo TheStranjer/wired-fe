@@ -30,8 +30,9 @@ import { editFields } from '../editFields';
 import { openReplyWindow, splitPlacement } from '../openWindowRun';
 import { OK, fail } from '../outcome';
 import { wantsComposer } from '../ownStream';
+import { resolveOwnStatusTarget } from '../ownTarget';
 import { printedLabel } from '../statusLabel';
-import { type StatusTarget, resolveOwnStatusTarget } from '../targets';
+import type { StatusTarget } from '../targets';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** Send {@link text} as {@link target}'s new body, keeping the rest of the post. */

@@ -8,8 +8,10 @@
  * a word that is neither — or no word at all — leaves the post the
  * navigation mode selected to stand. A boost resolves to the original status
  * and to its author: the booster showed the post, it is not what the post
- * is about. {@link resolveOwnStatusTarget} puts this account's authorship on
- * top of that resolution, for the commands that may change only its own posts.
+ * is about. ./ownTarget puts this account's authorship on top of that
+ * resolution, for the commands that may change only its own posts. A command
+ * that only reads says so (`'read'`); every other is refused in a signed-out
+ * window (WFE-340).
  */
 
 import type { CommandContext } from './types';
@@ -21,8 +23,9 @@ import type { Status } from '../api/schemas/status';
 import type { ApiSession } from '../api/session';
 import { t } from '../i18n/translate';
 import { type Result, err, ok } from '../lib/result';
+import { isAnonKey } from '../state/anonAccount';
 import { type LineStatus, lineStatusForLabel, selectedLineStatus } from '../state/bufferSelection';
-import { accountByKey, activeBuffer, sessionFor, windowAccountKey } from '../state/selectors';
+import { activeBuffer, sessionFor, windowAccountKey } from '../state/selectors';
 import { activeWindow } from '../windows/model';
 
 /** A first argument word that could be a post label: letters, then digits. */
@@ -58,10 +61,26 @@ export type AccountTarget = {
   readonly session: ApiSession;
 };
 
-/** The active window's account and its session, or the refusal to run without one. */
-function actingAs(context: CommandContext): Result<Acting, string> {
+/**
+ * What a command does with its target: `act` changes something as an account
+ * (favourite, boost, reply, follow...), `read` only looks (open, copy,
+ * thread...). The default is `act`, so a command added later is refused in a
+ * signed-out window unless it says it only reads.
+ */
+export type TargetUse = 'act' | 'read';
+
+/**
+ * The active window's account and its session, or the refusal to run without
+ * one. The one place commands resolve an account for a line: a signed-out
+ * window (WFE-340, ./state/anonAccount) has none to act as, so an `act` is
+ * refused here with the one sign-in message, and sends no request.
+ */
+function actingAs(context: CommandContext, use: TargetUse): Result<Acting, string> {
   const { state } = context;
   const accountKey = windowAccountKey(state, activeWindow(state.windows).id);
+  if (use === 'act' && isAnonKey(accountKey)) {
+    return err(t('commands.sign_in_to_act'));
+  }
   const session = sessionFor(state, accountKey);
   return session === null ? err(t('commands.not_logged_in')) : ok({ accountKey, session });
 }
@@ -76,7 +95,7 @@ function displayed(status: Status): Status {
  * the line when it is still signed in, else {@link fallback}, the window's.
  */
 function actingForLine(context: CommandContext, fallback: Acting, lineKey: string | null): Acting {
-  const session = sessionFor(context.state, lineKey);
+  const session = isAnonKey(lineKey) ? null : sessionFor(context.state, lineKey);
   return session === null ? fallback : { accountKey: lineKey, session };
 }
 
@@ -100,8 +119,9 @@ function selectedPost(context: CommandContext): Result<LineStatus, string> {
 export function resolveStatusTarget(
   args: string,
   context: CommandContext,
+  use: TargetUse = 'act',
 ): Result<StatusTarget, string> {
-  const acting = actingAs(context);
+  const acting = actingAs(context, use);
   if (!acting.ok) {
     return acting;
   }
@@ -116,33 +136,6 @@ export function resolveStatusTarget(
     rest: byLabel ? rest : args.trim(),
     ...actingForLine(context, acting.value, picked.value.accountKey),
   });
-}
-
-/** Which verb the own-post commands refuse with: the one the reader typed. */
-export type OwnCommand = 'delete' | 'edit';
-
-/**
- * The post {@link args} names, kept only when the acting account authored it:
- * {@link resolveStatusTarget}'s resolution — a leading label, else the
- * navigation selection, a boost unwrapped to its original — with the author
- * check on top. A boost is the boosted author's post and not the booster's to
- * change, and a status of an account no longer in the store is nobody's here;
- * either refuses in the wording of {@link verb}, which is what a status window
- * line has to say on its own.
- */
-export function resolveOwnStatusTarget(
-  args: string,
-  context: CommandContext,
-  verb: OwnCommand,
-): Result<StatusTarget, string> {
-  const target = resolveStatusTarget(args, context);
-  if (!target.ok) {
-    return target;
-  }
-  const accountId = accountByKey(context.state, target.value.accountKey)?.accountId;
-  return target.value.status.account.id === accountId
-    ? target
-    : err(t('commands.own_posts_only', { verb }));
 }
 
 /** The account named by {@link handle}, or the refusal quoting why the lookup failed. */
@@ -167,8 +160,9 @@ async function accountByHandle(
 export async function resolveAccountTarget(
   args: string,
   context: CommandContext,
+  use: TargetUse = 'act',
 ): Promise<Result<AccountTarget, string>> {
-  const acting = actingAs(context);
+  const acting = actingAs(context, use);
   if (!acting.ok) {
     return acting;
   }

@@ -17,16 +17,27 @@
 
 import type { JSX } from 'react';
 
+import { SignInNote } from './SignInNote';
 import { ThreadInput } from './ThreadInput';
 import { postReply } from './threadReply';
 import { useThread } from './useThread';
 import { useT } from '../../i18n/I18nProvider';
+import { isAnonKey } from '../../state/anonAccount';
 import { bufferFor } from '../../state/selectors';
 import { useAppState } from '../../state/StateContext';
 import type { WindowKindDefinition } from '../../state/windowKind';
 import { BufferView } from '../../views/BufferView';
 import { DockedInput } from '../../views/DockedInput';
 import { useComposerMedia } from '../../views/useComposerMedia';
+import type { WindowState } from '../../windows/model';
+
+/** What is docked under the thread: its reply box, a note to sign in for a signed-out window, or nothing. */
+function dockedBox(win: WindowState | undefined, failed: boolean): JSX.Element | null {
+  if (win === undefined || failed) {
+    return null;
+  }
+  return isAnonKey(win.ref.accountKey) ? <SignInNote /> : <ThreadInput win={win} />;
+}
 
 /** The thread window: its buffer's lines, filled once by ./useThread, over its docked box. */
 function ThreadWindow({ windowId }: { readonly windowId: string }): JSX.Element {
@@ -37,10 +48,7 @@ function ThreadWindow({ windowId }: { readonly windowId: string }): JSX.Element 
   const media = useComposerMedia(windowId, win?.ref.accountKey ?? null);
   const logLabel = useT()('features.thread.log_label');
   return (
-    <DockedInput
-      input={win === undefined || failed ? null : <ThreadInput win={win} />}
-      onFiles={media.add}
-    >
+    <DockedInput input={dockedBox(win, failed)} onFiles={media.add}>
       <BufferView windowId={windowId} label={win?.title ?? logLabel} />
     </DockedInput>
   );

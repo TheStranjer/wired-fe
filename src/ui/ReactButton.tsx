@@ -13,6 +13,7 @@ import { EmojiPicker } from './EmojiPicker';
 import styles from './PostActions.module.css';
 import type { PostActionLine, ReactPicker } from './postActionTypes';
 import type { PostReaction } from './ReactionChip';
+import { readOnlyProps } from './readOnlyProps';
 import { useOutsideDismiss } from './useOutsideDismiss';
 import { useT } from '../i18n/I18nProvider';
 
@@ -28,6 +29,8 @@ export type ReactButtonProps = {
   readonly picker: ReactPicker;
   /** Called with the line when the click is not for the picker. */
   readonly onAction: (line: PostActionLine) => void;
+  /** The sign-in note of a signed-out card: the button is disabled, opens no picker and hands its line on. */
+  readonly readOnly?: string | undefined;
 };
 
 /** The open state of a popover under a button, and the ways out of it. */
@@ -56,17 +59,18 @@ function usePopover(): {
 
 /** The react button and the picker it opens, or nothing while `/react` has no line. */
 export function ReactButton(props: ReactButtonProps): JSX.Element | null {
-  const { label, line, reactions, picker, onAction } = props;
+  const { label, line, reactions, picker, onAction, readOnly } = props;
   const { open, toggle, close, buttonRef, rootRef } = usePopover();
   const t = useT();
   if (line === undefined) {
     return null;
   }
-  const opens = line.picker === true;
+  const opens = line.picker === true && readOnly === undefined;
 
   return (
     <div className={styles['root']} ref={rootRef}>
       <button
+        {...readOnlyProps(readOnly)}
         aria-expanded={opens ? open : undefined}
         aria-haspopup={opens ? 'dialog' : undefined}
         aria-label={t('ui.react_button.label', { label })}

@@ -18,7 +18,8 @@ import type { Account } from '../../api/schemas/account';
 import type { Relationship } from '../../api/schemas/relationship';
 import type { ApiSession } from '../../api/session';
 import type { Result } from '../../lib/result';
-import { accountByKey, windowAccountKey } from '../../state/selectors';
+import { anonKey, isRefusedAnon } from '../../state/anonAccount';
+import { sessionFor, windowAccountKey } from '../../state/selectors';
 import type { Dispatch } from '../../state/StateContext';
 import { useAppDispatch, useAppState } from '../../state/StateContext';
 import type { WhoisBlockProps } from '../../ui/WhoisBlock';
@@ -92,13 +93,18 @@ function relationshipOf(
  */
 export async function fetchWhois(job: WhoisJob): Promise<void> {
   const found = await getAccount(job.session, job.id, job.signal);
-  const related = found.ok ? await relationships(job.session, [job.id], job.signal) : null;
+  const signedIn = job.session.token !== null;
+  const related =
+    found.ok && signedIn ? await relationships(job.session, [job.id], job.signal) : null;
   if (job.signal.aborted) {
     return;
   }
   if (found.ok) {
     job.setLoaded({ account: found.value, relationship: relationshipOf(related) });
     return;
+  }
+  if (!signedIn && isRefusedAnon(found)) {
+    job.dispatch({ type: 'anonRefused', accountKey: anonKey(job.session.origin) });
   }
   printFailure(job, found.error);
 }
@@ -113,13 +119,14 @@ export function useProfile(windowId: string): WhoisBlockProps | null {
   const state = useAppState();
   const dispatch = useAppDispatch();
   const target = state.windows.windows.find((win) => win.id === windowId)?.ref.target ?? null;
-  const owner = accountByKey(state, windowAccountKey(state, windowId));
-  const origin = owner?.origin ?? '';
-  const token = owner?.token ?? null;
+  const session = sessionFor(state, windowAccountKey(state, windowId));
+  const standing = session !== null;
+  const origin = session?.origin ?? '';
+  const token = session?.token ?? null;
   const [loaded, setLoaded] = useState<Loaded | null>(null);
 
   useEffect(() => {
-    if (target === null || token === null) {
+    if (target === null || !standing) {
       return;
     }
     const controller = new AbortController();
@@ -134,7 +141,7 @@ export function useProfile(windowId: string): WhoisBlockProps | null {
     return () => {
       controller.abort();
     };
-  }, [target, origin, token, windowId, dispatch]);
+  }, [target, standing, origin, token, windowId, dispatch]);
 
   return loaded === null ? null : whoisView(loaded.account, loaded.relationship, origin);
 }

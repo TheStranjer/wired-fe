@@ -6,7 +6,8 @@
  */
 import { describe, expect, it } from 'vitest';
 
-import { resolveAccountTarget, resolveOwnStatusTarget, resolveStatusTarget } from './targets';
+import { resolveOwnStatusTarget } from './ownTarget';
+import { resolveAccountTarget, resolveStatusTarget } from './targets';
 import type { StoredAccount } from '../accounts/accountStore';
 import { type AppState, initialAppState } from '../state/appState';
 import { EMPTY_BUFFER, type LineData } from '../state/buffer';

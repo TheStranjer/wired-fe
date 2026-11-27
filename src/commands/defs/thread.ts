@@ -22,7 +22,7 @@ import type { CommandContext, CommandDefinition, CommandOutcome } from '../types
 
 /** Resolve the post, then ask the window list for its thread window. */
 function handle(args: string, context: CommandContext): CommandOutcome {
-  const target = resolveStatusTarget(args, context);
+  const target = resolveStatusTarget(args, context, 'read');
   return target.ok ? openThreadWindow(context, target.value) : fail(target.error);
 }
 

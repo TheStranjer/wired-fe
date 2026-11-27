@@ -2,12 +2,11 @@
  * The piecewise transitions the core reducer is built from (AGENTS.md "Layout").
  * Each one takes the smallest thing it needs — a window list, the buffer map,
  * the account list, the settings — and hands back the very same object when its
- * request changes nothing, so the reducer can tell whether the app state moves
- * at all and React can compare by identity. Nothing here names the whole app
- * state: ./appState does, and it is the only caller.
+ * request changes nothing, so React can compare by identity. Nothing here names
+ * the whole app state: ./appState does, and it is the only caller.
  */
 
-import { type Buffer, EMPTY_BUFFER } from './buffer';
+import { type Buffer, EMPTY_BUFFER, clearBuffer } from './buffer';
 import type { Settings } from './settings';
 import type { StoredAccount } from '../accounts/accountStore';
 import type { InstanceProfile } from '../capabilities/detect';
@@ -65,6 +64,17 @@ export function putBuffer(
 /** Whether clearing {@link buffer} would take anything away. */
 export function isBlank(buffer: Buffer): boolean {
   return buffer.lines.length === 0 && buffer.selectedKey === null && buffer.revealed.size === 0;
+}
+
+/** The buffers with window {@link id}'s scrollback wiped; the same map when it holds nothing to wipe. */
+export function clearedBuffers(
+  buffers: ReadonlyMap<string, Buffer>,
+  id: string,
+): ReadonlyMap<string, Buffer> {
+  const buffer = buffers.get(id);
+  return buffer === undefined || isBlank(buffer)
+    ? buffers
+    : putBuffer(buffers, id, clearBuffer(buffer));
 }
 
 /** {@link accounts} still holding {@link key}; the key of a signed-out state, null. */

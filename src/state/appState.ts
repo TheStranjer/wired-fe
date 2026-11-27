@@ -12,16 +12,15 @@ import type { Alert } from './alerts';
 import { withPrintedAlert } from './appPrint';
 import type { PrintLine } from './appPrint';
 import {
-  isBlank,
+  clearedBuffers,
   mergedSettings,
-  putBuffer,
   putProfile,
   replacing,
   syncBuffers,
   withAccounts,
   withExpired,
 } from './appReducer';
-import { type Buffer, clearBuffer, type LineLevel } from './buffer';
+import type { Buffer, LineLevel } from './buffer';
 import type { ComposerFields, ComposerMedia } from './draft';
 import { applyLayoutAction, applyWindowsAction } from './layoutSync';
 import { DEFAULT_SETTINGS, type Settings } from './settings';
@@ -57,6 +56,8 @@ export type AppState = {
   readonly activeAccountKey: string | null;
   /** Keys of accounts whose token was refused and could not be refreshed. */
   readonly expired: ReadonlySet<string>;
+  /** Signed-out keys refused a read, until answered (./anonRefusal). */
+  readonly anonRefused: ReadonlySet<string>;
   /** What each instance turned out to be, by origin (decision 5). */
   readonly profiles: ReadonlyMap<string, InstanceProfile>;
   /** The pane composers' drafts, by window id (./composerActions). */
@@ -113,6 +114,7 @@ export function initialAppState(settings: Settings = DEFAULT_SETTINGS): AppState
     accounts: [],
     activeAccountKey: null,
     expired: new Set<string>(),
+    anonRefused: new Set<string>(),
     profiles: new Map<string, InstanceProfile>(),
     composers: new Map<string, ComposerFields>(),
     composerMedia: new Map<string, readonly ComposerMedia[]>(),
@@ -173,11 +175,7 @@ function applyLayout(state: AppState, action: LayoutAction): AppState {
 
 /** Everything a window shows, wiped from its scrollback; `/clear` and Ctrl+L. */
 function applyClear(state: AppState, windowId: string): AppState {
-  const buffer = state.buffers.get(windowId);
-  if (buffer === undefined || isBlank(buffer)) {
-    return state;
-  }
-  return { ...state, buffers: putBuffer(state.buffers, windowId, clearBuffer(buffer)) };
+  return replacing(state, 'buffers', clearedBuffers(state.buffers, windowId));
 }
 
 /** The mode the keyboard is in. */

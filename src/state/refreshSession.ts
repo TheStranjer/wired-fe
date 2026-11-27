@@ -8,6 +8,7 @@
  * and reported once in the status window; the caller gets the original error.
  */
 
+import { anonSession, isRefusedAnon } from './anonAccount';
 import { type AppState, printAction } from './appState';
 import type { AppAction } from './reducer';
 import { accountByKey } from './selectors';
@@ -136,7 +137,25 @@ function isUnauthorized(result: Result<unknown, ApiError>): boolean {
 }
 
 /**
- * Run {@link call} with the session of {@link accountKey}. A 401 triggers one
+ * Run {@link call} signed out, with the tokenless {@link session} of the
+ * signed-out {@link key} (./anonAccount): nothing to refresh and nobody to sign
+ * out, so a 401 or 403 is reported with `anonRefused` and the answer comes back.
+ */
+async function callAnon<T>(
+  deps: RefreshDeps,
+  anon: { readonly key: string; readonly session: ApiSession },
+  call: SessionCall<T>,
+): Promise<Result<T, ApiError>> {
+  const answer = await call(anon.session);
+  if (isRefusedAnon(answer)) {
+    deps.dispatch({ type: 'anonRefused', accountKey: anon.key });
+  }
+  return answer;
+}
+
+/**
+ * Run {@link call} with the session of {@link accountKey}. A signed-out key
+ * runs without a token and is never refreshed ({@link callAnon}). A 401 triggers one
  * refresh and one retry whose answer is returned; when no refresh can be had
  * the account is marked expired and the original answer comes back. Any other
  * outcome passes through untouched.
@@ -146,6 +165,10 @@ export async function withFreshToken<T>(
   accountKey: string,
   call: SessionCall<T>,
 ): Promise<Result<T, ApiError>> {
+  const anon = anonSession(accountKey);
+  if (anon !== null) {
+    return await callAnon(deps, { key: accountKey, session: anon }, call);
+  }
   const account = accountOf(deps, accountKey);
   if (account === null) {
     return err({ kind: 'http', status: 401, message: t('state.not_logged_in') });

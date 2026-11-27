@@ -55,7 +55,7 @@ function openAttachment(context: CommandContext, target: StatusTarget, n: number
 
 /** Resolve the post and the index, then ask the window list for the media window. */
 function handle(args: string, context: CommandContext): CommandOutcome {
-  const target = resolveStatusTarget(args, context);
+  const target = resolveStatusTarget(args, context, 'read');
   if (!target.ok) {
     return fail(target.error);
   }

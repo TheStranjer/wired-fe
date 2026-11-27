@@ -7,6 +7,7 @@
  * the same through ./streamFeed on its own (src/app/startupStream).
  */
 
+import { rebindAnon } from './anonAccount';
 import { withPrinted } from './appPrint';
 import { mergedSettings, syncBuffers } from './appReducer';
 import type { AppState } from './appState';
@@ -40,8 +41,27 @@ function withOpened(state: AppState, actions: readonly WindowsAction[]): AppStat
   return { ...state, windows, layout, buffers: syncBuffers(windows.windows, state.buffers) };
 }
 
-/** Make the account's way into the session: the stream, or the stream plus a hint, or its own windows. */
+/**
+ * {@link state} with the signed-out windows of the origin {@link account} signed
+ * in on rebound to it (./anonAccount): they become normal windows. The same
+ * state when there are none.
+ */
+function withRebound(state: AppState, account: StoredAccount): AppState {
+  const windows = rebindAnon(state.windows, account.origin, account.key);
+  return windows === state.windows ? state : { ...state, windows };
+}
+
+/**
+ * Make the account's way into the session: its origin's signed-out windows
+ * become its own, then the stream, or the stream plus a hint, or its own
+ * windows.
+ */
 export function signInReducer(state: AppState, action: SignInAction): AppState {
+  return joinSession(withRebound(state, action.account), action);
+}
+
+/** Make the account's way into the session: the stream, or the stream plus a hint, or its own windows. */
+function joinSession(state: AppState, action: SignInAction): AppState {
   const seed = streamSeed(state.settings, state.accounts);
   if (seed !== null) {
     const made = withSettings(state, { feeds: [seed], streamMade: true });

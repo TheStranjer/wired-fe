@@ -15,6 +15,7 @@
 
 import { type AccountPickAction, accountPickReducer } from './accountPick';
 import { type AlertAction, withAlertDismissed } from './alerts';
+import { type AnonRefusalAction, anonRefusalReducer } from './anonRefusal';
 import { type AppState, type CoreAction, coreReducer } from './appState';
 import { bufferReducer, type BufferAction } from './bufferActions';
 import { type ComposerAction, composerReducer, withLiveComposers } from './composerActions';
@@ -31,6 +32,7 @@ export type AppAction =
   | CoreAction
   | RestoreAction
   | SignInAction
+  | AnonRefusalAction
   | SyncAction
   | AlertAction
   | AccountPickAction
@@ -66,6 +68,7 @@ const COMPOSER_ACTION_TYPES: Record<ComposerAction['type'], true> = {
 /** The sign-in, sync, alert, account picker, start menu and language list actions: each a one-line transition, handled by {@link smallReducer}. */
 type SmallAction =
   | SignInAction
+  | AnonRefusalAction
   | SyncAction
   | AlertAction
   | AccountPickAction
@@ -75,6 +78,8 @@ type SmallAction =
 /** The action types of {@link SmallAction}, every one of them by name. */
 const SMALL_ACTION_TYPES: Record<SmallAction['type'], true> = {
   signedIn: true,
+  anonRefused: true,
+  anonHandled: true,
   sync: true,
   syncUnsupported: true,
   dismissAlert: true,
@@ -89,16 +94,25 @@ function isSmallAction(action: AppAction): action is SmallAction {
   return Object.hasOwn(SMALL_ACTION_TYPES, action.type);
 }
 
-/** The transition of one {@link SmallAction}. */
-function smallReducer(state: AppState, action: SmallAction): AppState {
+/** The account picker, start menu and language list actions. */
+type MenuAction = AccountPickAction | StartMenuAction | LanguageMenuAction;
+
+/** The action types of {@link MenuAction}. */
+const MENU_ACTION_TYPES: ReadonlySet<string> = new Set([
+  'openAccountPick',
+  'closeAccountPick',
+  'startMenu',
+  'languageMenu',
+]);
+
+/** Whether this small action is one of the menus'. */
+function isMenuAction(action: SmallAction): action is MenuAction {
+  return MENU_ACTION_TYPES.has(action.type);
+}
+
+/** The transition of one account picker, start menu or language list action. */
+function menuReducer(state: AppState, action: MenuAction): AppState {
   switch (action.type) {
-    case 'signedIn':
-      return signInReducer(state, action);
-    case 'sync':
-    case 'syncUnsupported':
-      return syncReducer(state, action);
-    case 'dismissAlert':
-      return withAlertDismissed(state);
     case 'openAccountPick':
     case 'closeAccountPick':
       return accountPickReducer(state, action);
@@ -106,6 +120,25 @@ function smallReducer(state: AppState, action: SmallAction): AppState {
       return startMenuReducer(state, action);
     case 'languageMenu':
       return languageMenuReducer(state, action);
+  }
+}
+
+/** The transition of one {@link SmallAction}. */
+function smallReducer(state: AppState, action: SmallAction): AppState {
+  if (isMenuAction(action)) {
+    return menuReducer(state, action);
+  }
+  switch (action.type) {
+    case 'signedIn':
+      return signInReducer(state, action);
+    case 'anonRefused':
+    case 'anonHandled':
+      return anonRefusalReducer(state, action);
+    case 'sync':
+    case 'syncUnsupported':
+      return syncReducer(state, action);
+    case 'dismissAlert':
+      return withAlertDismissed(state);
   }
 }
 

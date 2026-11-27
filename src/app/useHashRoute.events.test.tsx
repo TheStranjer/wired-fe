@@ -9,14 +9,23 @@ import { act, waitFor } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { afterEach, describe, expect, it } from 'vitest';
 
+import type { PublicConfig } from './publicRoute';
 import { useHashRoute } from './useHashRoute';
 import type { AppAction } from '../state/reducer';
 import { LAIN, ORIGIN, mountRouter, statusLines, titles, visit } from '../test/hashRoute';
 import { server } from '../test/server';
 
+/** The build with public view off; one object, since the router's effect reruns when its config changes. */
+const CLOSED: PublicConfig = { instances: { mode: 'same-origin' }, publicView: false };
+
+/** The router of a build with public view off, so nobody signed in gets the hint (WFE-340). */
+function useClosedRouter(ready: boolean): void {
+  useHashRoute(ready, CLOSED);
+}
+
 /** The router mounted over lain's session, or over the state {@link actions} lead to. */
 function mount(ready: boolean, actions?: readonly AppAction[]): ReturnType<typeof mountRouter> {
-  return mountRouter(useHashRoute, ready, actions);
+  return mountRouter(useClosedRouter, ready, actions);
 }
 
 describe(useHashRoute, () => {

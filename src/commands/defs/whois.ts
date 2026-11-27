@@ -21,7 +21,7 @@ import type { CommandContext, CommandDefinition, CommandOutcome } from '../types
 
 /** Resolve the account, then ask the window list for its profile window. */
 async function handle(args: string, context: CommandContext): Promise<CommandOutcome> {
-  const target = await resolveAccountTarget(args, context);
+  const target = await resolveAccountTarget(args, context, 'read');
   if (!target.ok) {
     return fail(target.error);
   }

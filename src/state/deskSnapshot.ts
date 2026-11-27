@@ -6,6 +6,7 @@
  * floats that showed them, and anything that does not hold together. Buffers,
  * unread counts and scroll positions are never saved. Pure; never throws.
  */
+import { isAnonWindow } from './anonAccount';
 import { DESK_VERSION } from './deskSchema';
 import type { DeskSnapshot } from './deskSchema';
 import type { StoredAccount } from '../accounts/accountStore';
@@ -23,16 +24,41 @@ export type DeskState = {
   readonly layout: DesktopsState;
 };
 
-/** The snapshot of {@link state} taken at {@link now} (ms since the epoch). */
+/**
+ * The desktops of {@link layout} without the panes and floats that show a
+ * signed-out window ({@link anonIds}, ./anonAccount); the very desktops when
+ * there are none.
+ */
+function withoutAnonPanes(
+  layout: DesktopsState,
+  anonIds: ReadonlySet<string>,
+): DesktopsState['desktops'] {
+  if (anonIds.size === 0) {
+    return layout.desktops;
+  }
+  const shown = new Set(
+    layout.desktops.flatMap((desktop) => shownPanes(desktop).map((pane) => pane.windowId)),
+  );
+  return layout.desktops.map((desktop) =>
+    tidyDesktop(desktop, new Set([...shown].filter((id) => !anonIds.has(id)))),
+  );
+}
+
+/**
+ * The snapshot of {@link state} taken at {@link now} (ms since the epoch).
+ * Signed-out windows (./anonAccount) and the panes showing them are not part
+ * of the desk: they are left out, so they reach neither storage nor the sync.
+ */
 export function toSnapshot(state: DeskState, now: number): DeskSnapshot {
+  const anonIds = new Set(state.windows.windows.filter(isAnonWindow).map((win) => win.id));
   return {
     version: DESK_VERSION,
     updatedAt: now,
     windows: state.windows.windows
-      .filter((win) => win.id !== STATUS_WINDOW_ID)
+      .filter((win) => win.id !== STATUS_WINDOW_ID && !anonIds.has(win.id))
       .map(({ id, title, ref, display }) => ({ id, title, ref, display })),
     layout: {
-      desktops: state.layout.desktops,
+      desktops: withoutAnonPanes(state.layout, anonIds),
       active: state.layout.active,
       nextPaneSeq: state.layout.nextPaneSeq,
     },

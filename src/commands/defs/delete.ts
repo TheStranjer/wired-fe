@@ -17,8 +17,9 @@ import { deleteStatus } from '../../api/endpoints/statusWrite';
 import { describeApiError } from '../../api/errors';
 import { t } from '../../i18n/translate';
 import { OK, fail } from '../outcome';
+import { resolveOwnStatusTarget } from '../ownTarget';
 import { printedLabel } from '../statusLabel';
-import { type StatusTarget, resolveOwnStatusTarget } from '../targets';
+import type { StatusTarget } from '../targets';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
 /** Delete {@link target}'s post and tell every scrollback its id is gone. */

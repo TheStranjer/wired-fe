@@ -97,6 +97,7 @@ function CardContent(props: PostCardProps): JSX.Element {
         own={props.author.self}
         picker={props.reactPicker}
         reactions={props.reactions}
+        readOnly={props.readOnly}
       />
     </>
   );
