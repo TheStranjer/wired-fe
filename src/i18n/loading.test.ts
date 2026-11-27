@@ -55,11 +55,11 @@ describe('loading a catalog', () => {
       .mockResolvedValueOnce(catalog('JA'));
     replaceLoaders({ './locales/ja.json': load });
 
-    await setLocale('ja');
+    await expect(setLocale('ja')).resolves.toBe(false);
 
     expect(activeLocale()).toBe('en');
 
-    await setLocale('ja');
+    await expect(setLocale('ja')).resolves.toBe(true);
 
     expect(load).toHaveBeenCalledTimes(2);
     expect(activeLocale()).toBe('ja');

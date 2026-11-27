@@ -110,7 +110,7 @@ The build reads one JSON configuration file (decision 3): the `WIRED_CONFIG` env
 
 ## Output
 
-`pnpm build` writes `dist/`: `index.html`, one `wired.[hash].js`, one `wired.[hash].css`, and the files from `public/`. Serve it from any static host. For the usual same-origin deployment, put a reverse proxy in front of wired-be and `dist/`: see [Deploying in front of wired-be](#deploying-in-front-of-wired-be). Sending API, OAuth, ActivityPub and well-known paths to the backend and everything else to `dist/` is not enough; some paths belong to both.
+`pnpm build` writes `dist/`: `index.html`, one `wired.[hash].js`, one `wired.[hash].css`, the lazy chunks `wired.emoji.[hash].js` and `wired.locale.[hash].js` (one per language), and the files from `public/`. Serve it from any static host. For the usual same-origin deployment, put a reverse proxy in front of wired-be and `dist/`: see [Deploying in front of wired-be](#deploying-in-front-of-wired-be). Sending API, OAuth, ActivityPub and well-known paths to the backend and everything else to `dist/` is not enough; some paths belong to both.
 
 ### Permalinks and the SPA fallback
 
@@ -120,7 +120,7 @@ WiredFE routes by hash (decision 4): `/#/notice/<id>`, `/#/@user@host`, `/#/user
 
 When someone on another server clicks "follow" or "interact" for a user of this instance, their server sends the browser to the instance's WebFinger subscribe template. wired-be's template must be `{FRONTEND_BASE_URL}/#/authorize_interaction?uri={uri}` (a wired-be change, tracked separately). The path form `{FRONTEND_BASE_URL}/authorize_interaction?uri={uri}` (Mastodon's) also works: startup rewrites it to the hash form. The old `acct=` parameter is accepted in place of `uri=`, and a leading `acct:` is stripped. WiredFE searches the value with `resolve=true` as the active account: an account opens its profile window with `Type /follow to follow @<acct>` printed in it, a post opens its thread window, and no result prints `Could not find <value>`. With nobody signed in it prints the `/connect` hint and keeps the link for after login.
 
-For that the static host must serve `index.html` for unknown paths (SPA fallback), e.g. nginx `try_files $uri /index.html;`. The bundle refers to its JS and CSS relatively, so the page loaded at `/notice/<id>` asks for `/notice/wired.<hash>.js`; the host must answer `/<any path>/wired.<hash>.js` and `.css` with the root files, or the page has no script. The next section gives the complete rules for a same-origin proxy.
+For that the static host must serve `index.html` for unknown paths (SPA fallback), e.g. nginx `try_files $uri /index.html;`. The bundle refers to its JS and CSS relatively, so the page loaded at `/notice/<id>` asks for `/notice/wired.<hash>.js`; the host must answer `/<any path>/wired.<hash>.js` and `.css` with the root files, or the page has no script. The lazy chunks (`wired.emoji.<hash>.js`, `wired.locale.<hash>.js`) match the same rule. The next section gives the complete rules for a same-origin proxy.
 
 #### Hosting under a sub-path
 

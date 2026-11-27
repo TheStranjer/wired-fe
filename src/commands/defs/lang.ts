@@ -11,13 +11,14 @@
  * languages, which is what the hotkeys run (`Ctrl+B Shift+l`, `Shift+l`).
  */
 
+import { setLocale } from '../../i18n/activeLocale';
 import { languageFor, languageLine } from '../../i18n/languageLabels';
 import { parseLanguage } from '../../i18n/parseLanguage';
 import { resolveSource } from '../../i18n/resolveLocale';
 import { SUPPORTED_LOCALES } from '../../i18n/supportedLocales';
 import { t } from '../../i18n/translate';
 import { AUTO_WORD } from '../languageWords';
-import { OK, fail, syncRun } from '../outcome';
+import { OK, fail } from '../outcome';
 import { tmuxBindings } from '../tmuxBindings';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
@@ -59,20 +60,27 @@ function clear(context: CommandContext): CommandOutcome {
   return OK;
 }
 
-/** Make the language {@link word} names the setting; refuse a word that names none. */
-function choose(word: string, context: CommandContext): CommandOutcome {
+/**
+ * Make the language {@link word} names the setting; refuse a word that names
+ * none. The confirmation waits for the catalog, so it is worded in the new
+ * language; when the file fails to load it says so, in English.
+ */
+async function choose(word: string, context: CommandContext): Promise<CommandOutcome> {
   const code = parseLanguage(word);
   if (code === null) {
     const choices = SUPPORTED_LOCALES.map(languageLine).join('; ');
     return fail(t('commands.defs.lang.unknown', { input: word, choices }));
   }
   context.dispatch({ type: 'settings', settings: { language: code } });
+  if (!(await setLocale(code))) {
+    return fail(t('commands.defs.lang.load_failed', describing(code)));
+  }
   context.print(t('commands.defs.lang.set', describing(code)));
   return OK;
 }
 
 /** Show, choose or clear the language the argument text asks for. */
-function handle(args: string, context: CommandContext): CommandOutcome {
+async function handle(args: string, context: CommandContext): Promise<CommandOutcome> {
   const word = args.trim();
   if (word === '') {
     return show(context);
@@ -80,7 +88,7 @@ function handle(args: string, context: CommandContext): CommandOutcome {
   if (word === PICK_FLAG) {
     return pick(context);
   }
-  return word.toLowerCase() === AUTO_WORD ? clear(context) : choose(word, context);
+  return word.toLowerCase() === AUTO_WORD ? clear(context) : await choose(word, context);
 }
 
 /** The `/lang` definition. */
@@ -93,7 +101,7 @@ export const command: CommandDefinition = {
   get summary(): string {
     return t('commands.defs.lang.summary');
   },
-  run: syncRun(handle),
+  run: handle,
   bindings: [
     ...tmuxBindings('Shift+l', PICK_FLAG),
     { mode: 'navigation', chord: 'Shift+l', args: PICK_FLAG },

@@ -1,12 +1,12 @@
 [
   {
     "name": "JavaScript bundle",
-    "path": "dist/wired.*.js",
+    "path": ["dist/wired.*.js", "!dist/wired.emoji.*.js", "!dist/wired.locale.*.js"],
     "gzip": true
   },
   {
     "name": "Emoji chunk (loaded when a picker first opens)",
-    "path": "dist/emoji.*.js",
+    "path": "dist/wired.emoji.*.js",
     "gzip": true
   },
   {
