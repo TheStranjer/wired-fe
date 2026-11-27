@@ -215,7 +215,8 @@
         "set": "Idioma establecido en {name} ({code})",
         "summary": "Mostrar o elegir el idioma de la interfaz",
         "unknown": "No hay idioma {input}. Elija auto o uno de: {choices}",
-        "usage": "/lang [código|nombre|automático]"
+        "usage": "/lang [código|nombre|automático]",
+        "load_failed": "No se pudo cargar {name} ({code}); el inglés permanece activo"
       },
       "local": {
         "summary": "Abrir la línea de tiempo local",

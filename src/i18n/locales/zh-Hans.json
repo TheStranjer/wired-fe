@@ -215,7 +215,8 @@
         "set": "语言已设置为 {name} ({code})",
         "summary": "显示或选择界面语言",
         "unknown": "没有语言 {input}。请选择 auto 或下列之一：{choices}",
-        "usage": "/lang [代码|名称|自动]"
+        "usage": "/lang [代码|名称|自动]",
+        "load_failed": "无法加载 {name} ({code}); 英语保持启用"
       },
       "local": {
         "summary": "打开本地时间线",

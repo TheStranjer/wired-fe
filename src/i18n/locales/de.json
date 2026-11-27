@@ -215,7 +215,8 @@
         "set": "Sprache auf {name} ({code}) eingestellt",
         "summary": "Die Sprache der Benutzeroberfläche anzeigen oder auswählen",
         "unknown": "Keine Sprache {input}. Wählen Sie auto oder eine der folgenden: {choices}",
-        "usage": "/lang [Code|Name|Automatisch]"
+        "usage": "/lang [Code|Name|Automatisch]",
+        "load_failed": "Konnte {name} ({code}) nicht laden; Englisch bleibt aktiv"
       },
       "local": {
         "summary": "Lokale Zeitleiste öffnen",

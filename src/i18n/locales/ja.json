@@ -215,7 +215,8 @@
         "set": "言語が {name} ({code}) に設定されました",
         "summary": "インターフェースの言語を表示または選択",
         "unknown": "{input}という言語はありません。autoを選択するか、次のいずれかを選んでください: {choices}",
-        "usage": "/lang [コード|名前|自動]"
+        "usage": "/lang [コード|名前|自動]",
+        "load_failed": "{name} ({code}) を読み込めませんでした; 英語が有効のままです"
       },
       "local": {
         "summary": "ローカルタイムラインを開く",
