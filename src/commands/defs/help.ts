@@ -5,7 +5,7 @@
  * and the topic names; one argument (a leading slash allowed and ignored, any
  * case, matched against names and aliases) prints that command's usage,
  * summary, aliases and keys (the effective keymap, rebinds included), except that a topic name typed without a
- * slash (`/help layout`, `/help sync`) prints the topic: its paragraph and
+ * slash (`/help layout`, `/help sync`) prints the topic: its lines and
  * the commands it covers (helpTopics.ts). Words beyond the first are ignored.
  * Only the commands the active account's backend can do are listed (WFE-172);
  * asking about one it cannot do says why.
@@ -37,9 +37,11 @@ function listAll(context: CommandContext): CommandOutcome {
   return OK;
 }
 
-/** Print {@link topic}'s paragraph, then one line per covered command this backend has. */
+/** Print {@link topic}'s lines, then one line per covered command this backend has. */
 function showTopic(topic: HelpTopic, context: CommandContext): CommandOutcome {
-  context.print(topic.text);
+  for (const line of topic.lines) {
+    context.print(line);
+  }
   for (const name of topic.commands) {
     const definition = lookupCommand(context.registry, name);
     if (definition !== undefined) {

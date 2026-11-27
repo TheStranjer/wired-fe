@@ -26,6 +26,12 @@ function shippedRegistry(): Registry {
   return built.value;
 }
 
+/**
+ * The longest a topic line may be. One long catalog message made Prism's
+ * translation request time out (WFE-334), so each line stays a sentence or two.
+ */
+const MAX_LINE_LENGTH = 300;
+
 /** A context over {@link registry} whose print records. */
 function contextOver(registry: Registry): CommandContext {
   return fakeCommandContext({ registry, print: vi.fn() });
@@ -37,11 +43,21 @@ function printed(context: CommandContext): readonly string[] {
 }
 
 describe('the help topics', () => {
-  it('are layout, feeds and sync, each with a paragraph', () => {
+  it('are layout, feeds and sync, each with several lines of text', () => {
     expect(HELP_TOPICS.map((topic) => topic.name)).toStrictEqual(['layout', 'feeds', 'sync']);
 
     for (const topic of HELP_TOPICS) {
-      expect(topic.text.length).toBeGreaterThan(100);
+      expect(topic.lines.length).toBeGreaterThan(1);
+      expect(topic.lines.join(' ').length).toBeGreaterThan(100);
+    }
+  });
+
+  it('keep every line short enough for the translator to take in one request', () => {
+    for (const topic of HELP_TOPICS) {
+      for (const line of topic.lines) {
+        expect(line.length).toBeGreaterThan(0);
+        expect(line.length).toBeLessThanOrEqual(MAX_LINE_LENGTH);
+      }
     }
   });
 
@@ -80,7 +96,7 @@ describe('/help <topic>', () => {
 
       expect(outcome).toStrictEqual({ ok: true });
       expect(printed(context)).toStrictEqual([
-        topic.text,
+        ...topic.lines,
         ...lines,
         'Type /help <command> for details.',
       ]);
@@ -92,7 +108,7 @@ describe('/help <topic>', () => {
 
     await command.run('  LAYOUT more words', context);
 
-    expect(printed(context)[0]).toBe(lookupTopic('layout')?.text);
+    expect(printed(context)[0]).toBe(lookupTopic('layout')?.lines[0]);
   });
 
   it('keeps /help /sync for the command itself', async () => {
@@ -101,7 +117,7 @@ describe('/help <topic>', () => {
     await command.run('/sync', context);
 
     expect(printed(context)[0]).toContain('/sync primary <handle>');
-    expect(printed(context)).not.toContain(lookupTopic('sync')?.text);
+    expect(printed(context)).not.toContain(lookupTopic('sync')?.lines[0]);
   });
 
   it('leaves out the covered commands the registry does not have', async () => {
@@ -110,7 +126,7 @@ describe('/help <topic>', () => {
     await command.run('sync', context);
 
     expect(printed(context)).toStrictEqual([
-      lookupTopic('sync')?.text,
+      ...(lookupTopic('sync')?.lines ?? []),
       'Type /help <command> for details.',
     ]);
   });

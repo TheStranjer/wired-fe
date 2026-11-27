@@ -1,7 +1,7 @@
 /**
  * Tests that the command layer's own text follows the language in use
  * (WFE-316, decision 19): the parse and dispatch errors, the shared refusals,
- * the detail block's labels, the help topic paragraphs, the usage and refusal
+ * the detail block's labels, the help topic lines, the usage and refusal
  * sentences and the post-toggle words all come from the catalog, so a fake
  * language replaces them.
  */
@@ -78,10 +78,18 @@ describe('the command layer in another language', () => {
     expect(commandTip('Go', 'other', { registry, keymap })).toBe('XX Go /other');
   });
 
-  it('reads a help topic paragraph from the catalog each time it is asked', () => {
-    installFakeLocale({ commands: { help_topics: { sync: 'XX sync {handle}' } } });
+  it('reads the help topic lines from the catalog each time they are asked for', () => {
+    installFakeLocale({
+      commands: {
+        help_topics: {
+          feeds: { sources: 'XX sources {name}' },
+          sync: { saved: 'XX saved', accounts: 'XX sync {handle}' },
+        },
+      },
+    });
 
-    expect(lookupTopic('sync')?.text).toBe('XX sync <handle>');
+    expect(lookupTopic('sync')?.lines.slice(0, 2)).toStrictEqual(['XX saved', 'XX sync <handle>']);
+    expect(lookupTopic('feeds')?.lines[2]).toBe('XX sources <name>');
   });
 
   it('words the usage and refusal sentences from the catalog', () => {
