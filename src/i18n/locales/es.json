@@ -525,7 +525,8 @@
     "view_needs_argument": "{word} necesita un argumento",
     "view_no_argument": "{word} no toma argumentos.",
     "view_unknown": "Vista desconocida: {view}",
-    "view_win_number": "win toma un número de ventana"
+    "view_win_number": "win toma un número de ventana",
+    "sign_in_to_act": "Inicia sesión para hacer eso: esta ventana es de solo lectura. Escribe /connect para iniciar sesión."
   },
   "accounts": {
     "login_expired": "El inicio de sesión expiró o no se inició aquí. Vuelve a intentarlo.",
@@ -832,7 +833,8 @@
     "route": {
       "follow_hint": "Escribe /follow para seguir a @{acct}",
       "not_found": "No se pudo encontrar {value}",
-      "no_account": "No has iniciado sesión en {host}. Escribe /connect para iniciar sesión allí."
+      "no_account": "No has iniciado sesión en {host}. Escribe /connect para iniciar sesión allí.",
+      "public_view_conflict": "publicView está activado obligatoriamente para {host}, pero la instancia restringe esta lectura para visitantes no autenticados."
     },
     "search": {
       "account_line": "  @{acct} — {name}  (/whois @{acct})",
@@ -851,7 +853,8 @@
     "thread": {
       "loading": "Cargando hilo…",
       "log_label": "hilo",
-      "nothing_to_answer": "No hay nada que responder en esta ventana"
+      "nothing_to_answer": "No hay nada que responder en esta ventana",
+      "sign_in_to_reply": "Inicia sesión para responder. Escribe /connect para iniciar sesión."
     }
   },
   "format": {
@@ -1027,7 +1030,8 @@
       "bookmark": "Marcar la publicación {label}",
       "boost": "Promocionar la publicación {label}",
       "favourite": "Publicación favorita {label}",
-      "group": "Acciones para la publicación {label}"
+      "group": "Acciones para la publicación {label}",
+      "sign_in": "Inicia sesión para usar esta acción"
     },
     "post_actions_more": {
       "block": "Bloquear al autor",

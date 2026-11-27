@@ -525,7 +525,8 @@
     "view_needs_argument": "{word} 需要一个参数",
     "view_no_argument": "{word} 不接受参数。",
     "view_unknown": "未知视图: {view}",
-    "view_win_number": "win 接受一个窗口编号"
+    "view_win_number": "win 接受一个窗口编号",
+    "sign_in_to_act": "请登录以执行该操作: 此窗口为只读。输入 /connect 以登录。"
   },
   "accounts": {
     "login_expired": "登录已过期或未在此处启动。请重试。",
@@ -832,7 +833,8 @@
     "route": {
       "follow_hint": "输入 /follow 来关注 @{acct}",
       "not_found": "找不到 {value}",
-      "no_account": "您尚未在 {host} 登录。输入 /connect 在那里登录。"
+      "no_account": "您尚未在 {host} 登录。输入 /connect 在那里登录。",
+      "public_view_conflict": "publicView 对 {host} 被强制开启，但该实例限制未登录访客的读取。"
     },
     "search": {
       "account_line": "  @{acct} — {name}  (/whois @{acct})",
@@ -851,7 +853,8 @@
     "thread": {
       "loading": "正在加载帖子…",
       "log_label": "主题",
-      "nothing_to_answer": "此窗口没有可回复的内容"
+      "nothing_to_answer": "此窗口没有可回复的内容",
+      "sign_in_to_reply": "登录以回复。输入 /connect 以登录。"
     }
   },
   "format": {
@@ -1027,7 +1030,8 @@
       "bookmark": "收藏帖子 {label}",
       "boost": "推广帖子 {label}",
       "favourite": "收藏的帖子 {label}",
-      "group": "帖子 {label} 的操作"
+      "group": "帖子 {label} 的操作",
+      "sign_in": "登录以使用此操作"
     },
     "post_actions_more": {
       "block": "屏蔽作者",

@@ -525,7 +525,8 @@
     "view_needs_argument": "{word}は引数が必要です",
     "view_no_argument": "{word} は引数を取りません。",
     "view_unknown": "不明なビュー: {view}",
-    "view_win_number": "win はウィンドウ番号を受け取ります"
+    "view_win_number": "win はウィンドウ番号を受け取ります",
+    "sign_in_to_act": "その操作を行うにはサインインしてください: このウィンドウは読み取り専用です。ログインするには /connect と入力してください。"
   },
   "accounts": {
     "login_expired": "ログインの有効期限が切れたか、ここでログインが開始されていません。再度お試しください。",
@@ -832,7 +833,8 @@
     "route": {
       "follow_hint": "「/follow」と入力して @{acct} をフォローしてください",
       "not_found": "{value}が見つかりませんでした",
-      "no_account": "{host} にサインインしていません。/connect を入力してそこでログインしてください。"
+      "no_account": "{host} にサインインしていません。/connect を入力してそこでログインしてください。",
+      "public_view_conflict": "publicView は {host} に対して強制的にオンになっていますが、インスタンスはサインアウトした訪問者によるこの閲覧を制限しています。"
     },
     "search": {
       "account_line": "  @{acct} — {name}  (/whois @{acct})",
@@ -851,7 +853,8 @@
     "thread": {
       "loading": "スレッドを読み込み中…",
       "log_label": "スレッド",
-      "nothing_to_answer": "このウィンドウには返信するものがありません"
+      "nothing_to_answer": "このウィンドウには返信するものがありません",
+      "sign_in_to_reply": "返信するにはサインインしてください。ログインするには /connect と入力してください。"
     }
   },
   "format": {
@@ -1027,7 +1030,8 @@
       "bookmark": "投稿 {label} をブックマーク",
       "boost": "{label} の投稿を宣伝する",
       "favourite": "お気に入りの投稿 {label}",
-      "group": "投稿 {label} の操作"
+      "group": "投稿 {label} の操作",
+      "sign_in": "この操作を使用するにはサインインしてください。"
     },
     "post_actions_more": {
       "block": "投稿者をブロック",

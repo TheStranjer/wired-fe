@@ -525,7 +525,8 @@
     "view_needs_argument": "{word} benötigt ein Argument",
     "view_no_argument": "{word} nimmt keine Argumente an.",
     "view_unknown": "Unbekannte Ansicht: {view}",
-    "view_win_number": "win nimmt eine Fensternummer an"
+    "view_win_number": "win nimmt eine Fensternummer an",
+    "sign_in_to_act": "Melden Sie sich an, um das zu tun: Dieses Fenster ist schreibgeschützt. Geben Sie /connect ein, um sich anzumelden."
   },
   "accounts": {
     "login_expired": "Die Anmeldung ist abgelaufen oder wurde hier nicht gestartet. Bitte versuchen Sie es erneut.",
@@ -832,7 +833,8 @@
     "route": {
       "follow_hint": "Gib /follow ein, um @{acct} zu folgen",
       "not_found": "Konnte {value} nicht finden",
-      "no_account": "Nicht bei {host} angemeldet. Gib /connect ein, um dich dort anzumelden."
+      "no_account": "Nicht bei {host} angemeldet. Gib /connect ein, um dich dort anzumelden.",
+      "public_view_conflict": "publicView ist für {host} erzwungen, aber die Instanz schränkt dieses Lesen für abgemeldete Besucher ein."
     },
     "search": {
       "account_line": "  @{acct} — {name}  (/whois @{acct})",
@@ -851,7 +853,8 @@
     "thread": {
       "loading": "Thread wird geladen…",
       "log_label": "Thema",
-      "nothing_to_answer": "In diesem Fenster gibt es nichts zu beantworten"
+      "nothing_to_answer": "In diesem Fenster gibt es nichts zu beantworten",
+      "sign_in_to_reply": "Melden Sie sich an, um zu antworten. Geben Sie /connect ein, um sich anzumelden."
     }
   },
   "format": {
@@ -1027,7 +1030,8 @@
       "bookmark": "Beitrag {label} als Lesezeichen speichern",
       "boost": "Beitrag {label} bewerben",
       "favourite": "Lieblingsbeitrag {label}",
-      "group": "Aktionen für den Beitrag {label}"
+      "group": "Aktionen für den Beitrag {label}",
+      "sign_in": "Melden Sie sich an, um diese Aktion zu verwenden."
     },
     "post_actions_more": {
       "block": "Autor blockieren",
