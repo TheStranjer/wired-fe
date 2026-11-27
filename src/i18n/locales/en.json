@@ -831,6 +831,7 @@
     },
     "route": {
       "follow_hint": "Type /follow to follow @{acct}",
+      "no_account": "Not signed in to {host}. Type /connect to log in there.",
       "not_found": "Could not find {value}"
     },
     "search": {
