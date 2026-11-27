@@ -10,6 +10,7 @@
  * nothing changes. Completion of keys and values is displayProvider's.
  */
 
+import { literals } from '../../i18n/messages';
 import { t } from '../../i18n/translate';
 import { wordsOf } from '../../lib/words';
 import { resolveDisplay } from '../../state/resolveDisplay';
@@ -127,7 +128,7 @@ export const command: CommandDefinition = {
     return usage();
   },
   get summary(): string {
-    return t('commands.defs.display.summary');
+    return t('commands.defs.display.summary', literals('density', 'avatars', 'images'));
   },
   run: syncRun(handle),
 };

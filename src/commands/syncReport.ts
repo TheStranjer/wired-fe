@@ -9,6 +9,7 @@
 import type { SyncPrefs } from '../accounts/syncPrefs';
 import { activeLocale } from '../i18n/activeLocale';
 import { formatClock } from '../i18n/format';
+import { literals } from '../i18n/messages';
 import { t } from '../i18n/translate';
 import type { AppState } from '../state/appState';
 import { type SyncWorld, pickSyncAccount, skipReason } from '../state/syncAccount';
@@ -56,7 +57,7 @@ function historyLines(world: SyncReportWorld): readonly string[] {
 /** The lines `/sync` prints for {@link prefs} over {@link world}. */
 export function syncReport(prefs: SyncPrefs, world: SyncReportWorld): readonly string[] {
   if (!prefs.syncEnabled) {
-    return [t('commands.sync_off')];
+    return [t('commands.sync_off', literals('on'))];
   }
   const listed = prefs.syncAccounts.map((key, index) => listedLine(world, key, index));
   const chosen = listed.length === 0 ? [t('commands.sync_primary_none')] : listed;

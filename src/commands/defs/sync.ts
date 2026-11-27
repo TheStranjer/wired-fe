@@ -13,6 +13,7 @@
 import { findAccount } from '../../accounts/findAccount';
 import { movedUp, withPrimary, withoutKey } from '../../accounts/syncList';
 import type { SyncPrefs } from '../../accounts/syncPrefs';
+import { literals } from '../../i18n/messages';
 import { t } from '../../i18n/translate';
 import { wordsOf } from '../../lib/words';
 import { pickSyncAccount } from '../../state/syncAccount';
@@ -86,7 +87,7 @@ function change(query: string | undefined, context: CommandContext, edit: Edit):
 /** `fallback add`: appended after the others, once. */
 const ADD: Edit = (list, key) => {
   if (list.length === 0) {
-    return t('commands.defs.sync.no_primary');
+    return t('commands.defs.sync.no_primary', literals('primary'));
   }
   return list.includes(key) ? t('commands.defs.sync.already_listed') : [...list, key];
 };

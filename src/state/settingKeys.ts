@@ -8,6 +8,7 @@
 
 import { PLACEMENTS } from './placement';
 import { CLOCK_FORMATS, DENSITIES, type Settings, THEMES, VISIBILITIES } from './settings';
+import { literals } from '../i18n/messages';
 import { t } from '../i18n/translate';
 
 /** The knobs `/set` lists and turns: every setting except the hidden key overrides. */
@@ -87,7 +88,7 @@ export const SETTING_KEYS: readonly SettingKey[] = [
     kind: 'enum',
     values: PLACEMENTS,
     get description(): string {
-      return t('state.setting_open_in');
+      return t('state.setting_open_in', literals(...PLACEMENTS));
     },
   },
   {
@@ -95,7 +96,7 @@ export const SETTING_KEYS: readonly SettingKey[] = [
     kind: 'enum',
     values: PLACEMENTS,
     get description(): string {
-      return t('state.setting_reply_in');
+      return t('state.setting_reply_in', literals(...PLACEMENTS));
     },
   },
   {
