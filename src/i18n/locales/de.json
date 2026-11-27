@@ -831,7 +831,8 @@
     },
     "route": {
       "follow_hint": "Gib /follow ein, um @{acct} zu folgen",
-      "not_found": "Konnte {value} nicht finden"
+      "not_found": "Konnte {value} nicht finden",
+      "no_account": "Nicht bei {host} angemeldet. Gib /connect ein, um dich dort anzumelden."
     },
     "search": {
       "account_line": "  @{acct} — {name}  (/whois @{acct})",

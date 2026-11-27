@@ -831,7 +831,8 @@
     },
     "route": {
       "follow_hint": "「/follow」と入力して @{acct} をフォローしてください",
-      "not_found": "{value}が見つかりませんでした"
+      "not_found": "{value}が見つかりませんでした",
+      "no_account": "{host} にサインインしていません。/connect を入力してそこでログインしてください。"
     },
     "search": {
       "account_line": "  @{acct} — {name}  (/whois @{acct})",

@@ -831,7 +831,8 @@
     },
     "route": {
       "follow_hint": "Escribe /follow para seguir a @{acct}",
-      "not_found": "No se pudo encontrar {value}"
+      "not_found": "No se pudo encontrar {value}",
+      "no_account": "No has iniciado sesión en {host}. Escribe /connect para iniciar sesión allí."
     },
     "search": {
       "account_line": "  @{acct} — {name}  (/whois @{acct})",

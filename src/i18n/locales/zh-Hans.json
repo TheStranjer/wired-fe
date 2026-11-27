@@ -831,7 +831,8 @@
     },
     "route": {
       "follow_hint": "输入 /follow 来关注 @{acct}",
-      "not_found": "找不到 {value}"
+      "not_found": "找不到 {value}",
+      "no_account": "您尚未在 {host} 登录。输入 /connect 在那里登录。"
     },
     "search": {
       "account_line": "  @{acct} — {name}  (/whois @{acct})",

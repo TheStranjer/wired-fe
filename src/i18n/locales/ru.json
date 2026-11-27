@@ -831,7 +831,8 @@
     },
     "route": {
       "follow_hint": "Введите /follow, чтобы подписаться на @{acct}",
-      "not_found": "Не удалось найти {value}"
+      "not_found": "Не удалось найти {value}",
+      "no_account": "Вы не вошли на {host}. Введите /connect, чтобы войти туда."
     },
     "search": {
       "account_line": "  @{acct} — {name}  (/whois @{acct})",
