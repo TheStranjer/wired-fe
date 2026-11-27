@@ -14,7 +14,7 @@
 import { t } from '../../i18n/translate';
 import { accountByKey } from '../../state/selectors';
 import { OK, fail, syncRun } from '../outcome';
-import { localPermalink, statusLink } from '../statusLink';
+import { currentPage, localPermalink, statusLink } from '../statusLink';
 import { type StatusTarget, resolveStatusTarget } from '../targets';
 import { openThreadWindow } from '../threadWindow';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
@@ -40,7 +40,7 @@ function openUrl(url: string): CommandOutcome {
 /** Open a local post's thread window, any other post's link in a tab. */
 function openPost(target: StatusTarget, context: CommandContext): CommandOutcome {
   const account = accountByKey(context.state, target.accountKey);
-  if (localPermalink(target.status, account, window.location) !== null) {
+  if (localPermalink(target.status, account, currentPage()) !== null) {
     return openThreadWindow(context, target);
   }
   const link = statusLink(target.status);

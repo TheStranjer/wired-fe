@@ -31,3 +31,32 @@ export function instanceWord(origin: string): string {
   const url = new URL(origin);
   return url.protocol === 'https:' ? url.host : url.origin;
 }
+
+/** The host (port included) of {@link origin}: `wired.example`, `localhost:4000`. */
+export function hostOfOrigin(origin: string): string {
+  return new URL(origin).host;
+}
+
+/**
+ * A permalink's host segment: a dotted host name, or `localhost`, then an
+ * optional port. Anything else (`registration`, `notice`, a bare word) is not
+ * a host, which keeps the box routes and `#/@user` unambiguous.
+ */
+const ROUTE_HOST = /^(?:[a-z\d-]+(?:\.[a-z\d-]+)+|localhost)(?::\d{1,5})?$/iu;
+
+/**
+ * The origin a permalink's {@link host} segment stands for, by the rule of
+ * {@link isAllowedInstanceUrl}: `http:` for a {@link LOCAL_HOSTNAMES} host,
+ * `https:` for any other; null when it is no host or its port is out of range.
+ */
+export function originOfHost(host: string): string | null {
+  if (!ROUTE_HOST.test(host)) {
+    return null;
+  }
+  try {
+    const scheme = LOCAL_HOSTNAMES.includes(new URL(`http://${host}`).hostname) ? 'http' : 'https';
+    return new URL(`${scheme}://${host}`).origin;
+  } catch {
+    return null;
+  }
+}

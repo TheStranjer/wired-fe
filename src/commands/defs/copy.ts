@@ -12,7 +12,7 @@
 import { t } from '../../i18n/translate';
 import { accountByKey } from '../../state/selectors';
 import { OK, fail } from '../outcome';
-import { localPermalink, statusLink } from '../statusLink';
+import { currentPage, localPermalink, statusLink } from '../statusLink';
 import { resolveStatusTarget } from '../targets';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
@@ -29,7 +29,7 @@ async function handle(args: string, context: CommandContext): Promise<CommandOut
   }
   const { status, accountKey } = target.value;
   const account = accountByKey(context.state, accountKey);
-  const link = localPermalink(status, account, window.location) ?? statusLink(status);
+  const link = localPermalink(status, account, currentPage()) ?? statusLink(status);
   try {
     await navigator.clipboard.writeText(link);
   } catch {
