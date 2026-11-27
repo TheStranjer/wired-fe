@@ -7,6 +7,8 @@
 import { describe, expect, it, vi, type Mock } from 'vitest';
 
 import { command } from './lang';
+import { activeLocale } from '../../i18n/activeLocale';
+import { replaceLoaders } from '../../i18n/catalogs';
 import { type AppState, initialAppState } from '../../state/appState';
 import { DEFAULT_SETTINGS } from '../../state/settings';
 import { fakeCommandContext } from '../../test/commandContext';
@@ -98,6 +100,7 @@ describe('/lang', () => {
     ['german', 'de', 'Deutsch'],
     ['Chinese', 'zh-Hans', '简体中文'],
   ])('sets %s as %s', async (word, code, name) => {
+    replaceLoaders({});
     const { context, print, dispatch } = contextWith();
 
     const outcome = await command.run(word, context);
@@ -108,6 +111,40 @@ describe('/lang', () => {
       settings: { language: code },
     });
     expect(lines(print)).toStrictEqual([`Language set to ${name} (${code})`]);
+  });
+
+  it('words the confirmation in the language it has just loaded', async () => {
+    replaceLoaders({
+      './locales/de.json': async () =>
+        await Promise.resolve({ commands: { defs: { lang: { set: 'XX {name} {code}' } } } }),
+    });
+    const { context, print } = contextWith();
+
+    const outcome = await command.run('de', context);
+
+    expect(outcome).toStrictEqual({ ok: true });
+    expect(activeLocale()).toBe('de');
+    expect(lines(print)).toStrictEqual(['XX Deutsch de']);
+  });
+
+  it('says the catalog could not load, and keeps English, when its file fails', async () => {
+    replaceLoaders({
+      './locales/de.json': async () => await Promise.reject(new Error('404')),
+    });
+    const { context, print, dispatch } = contextWith();
+
+    const outcome = await command.run('de', context);
+
+    expect(outcome).toStrictEqual({
+      ok: false,
+      message: 'Could not load Deutsch (de); English stays active',
+    });
+    expect(print).not.toHaveBeenCalled();
+    expect(dispatch).toHaveBeenCalledExactlyOnceWith({
+      type: 'settings',
+      settings: { language: 'de' },
+    });
+    expect(activeLocale()).toBe('en');
   });
 
   it('clears the setting for auto, in any case, and says what shows now', async () => {

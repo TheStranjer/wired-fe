@@ -41,14 +41,16 @@ function activate(locale: string): void {
 /**
  * Switch to {@link locale}: load its catalog, then make it active. English
  * stays (or becomes) active when the file fails to load. When two switches
- * overlap, the later one wins.
+ * overlap, the later one wins. Resolves true when the catalog is held
+ * (or the language has no file yet), false when its file failed to load.
  */
-export async function setLocale(locale: string): Promise<void> {
+export async function setLocale(locale: string): Promise<boolean> {
   requested = locale;
   const loaded = await loadCatalog(locale);
   if (requested === locale) {
     activate(loaded ? locale : SOURCE_LOCALE);
   }
+  return loaded;
 }
 
 /** Hold {@link messages} as the catalog of {@link locale} and switch to it at once (tests only). */

@@ -59,10 +59,13 @@ export default defineConfig({
         entryFileNames: 'wired.[hash].js',
         // The language catalogs (src/i18n/locales, decision 19) are chunks of
         // their own, named apart from the emoji one the size report counts.
+        // Every file starts with `wired.`, so the hosting rule that maps
+        // `/<any path>/wired.<hash>.*` back to `dist/` covers the chunks a
+        // page at a nested path requests (WFE-335).
         chunkFileNames: (chunk) =>
           chunk.facadeModuleId?.includes('/i18n/locales/') === true
-            ? 'locale.[hash].js'
-            : 'emoji.[hash].js',
+            ? 'wired.locale.[hash].js'
+            : 'wired.emoji.[hash].js',
         assetFileNames: 'wired.[hash][extname]',
       },
     },

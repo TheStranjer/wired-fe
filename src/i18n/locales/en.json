@@ -310,6 +310,7 @@
         "available": "Available languages:",
         "cleared": "Language setting cleared: now {name} ({code}), from {source, select, user {your setting} instance {the instance default} browser {the browser} other {the fallback}}",
         "current": "Language: {name} ({code}), from {source, select, user {your setting} instance {the instance default} browser {the browser} other {the fallback}}",
+        "load_failed": "Could not load {name} ({code}); English stays active",
         "set": "Language set to {name} ({code})",
         "summary": "Show or choose the interface language",
         "unknown": "No language {input}. Choose auto or one of: {choices}",

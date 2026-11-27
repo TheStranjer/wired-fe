@@ -35,9 +35,12 @@ test('/lang German puts de on the page and /lang auto goes back to en', async ({
   await submit(page, '/lang German');
 
   await expect(page.locator('html')).toHaveAttribute('lang', 'de');
-  await expect(logRegion(page, 'feed')).toContainText('Language set to Deutsch (de)');
+  await expect(logRegion(page, 'feed')).toContainText('Sprache auf Deutsch (de) eingestellt');
 
-  await submit(page, '/lang auto');
+  // The command line's own label is German now that the catalog has loaded.
+  const line = page.getByRole('combobox', { name: 'Kommandozeile' });
+  await line.fill('/lang auto');
+  await line.press('Enter');
 
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');
 });
