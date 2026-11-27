@@ -10,6 +10,7 @@ import type { PollLimits } from '../../api/schemas/pollLimits';
 import {
   type Capabilities,
   DEFAULT_POLL_LIMITS,
+  NO_ANONYMOUS_READS,
   type FeatureFlag,
 } from '../../capabilities/capabilities';
 import { type AppState, initialAppState } from '../../state/appState';
@@ -57,6 +58,7 @@ function capabilities(
     maxMediaAttachments: 4,
     pollLimits,
     features: new Set<FeatureFlag>(local ? ['localOnlyPosts'] : []),
+    anonymousReads: NO_ANONYMOUS_READS,
   };
 }
 

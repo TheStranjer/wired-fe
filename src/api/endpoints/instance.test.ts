@@ -12,6 +12,7 @@ import { getInstanceV1, getInstanceV2 } from './instance';
 import { type Result, err, ok } from '../../lib/result';
 import { server } from '../../test/server';
 import type { ApiError } from '../errors';
+import { NO_ANONYMOUS_READS } from '../schemas/anonymousReads';
 import type { InstanceV1 } from '../schemas/instanceV1';
 import type { InstanceV2 } from '../schemas/instanceV2';
 import type { ApiSession } from '../session';
@@ -87,6 +88,7 @@ const MASTODON_V2: InstanceV2 = {
     minExpiration: 300,
     maxExpiration: 2_592_000,
   },
+  anonymousReads: NO_ANONYMOUS_READS,
 };
 
 /** The error a failed result carries, failing the test when it succeeded. */

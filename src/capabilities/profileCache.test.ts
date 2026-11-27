@@ -7,7 +7,7 @@
 import * as v from 'valibot';
 import { describe, expect, it, vi } from 'vitest';
 
-import { type Capabilities, DEFAULT_POLL_LIMITS } from './capabilities';
+import { type Capabilities, DEFAULT_POLL_LIMITS, NO_ANONYMOUS_READS } from './capabilities';
 import type { Detect, InstanceProfile } from './detect';
 import {
   type ProfileStorage,
@@ -32,6 +32,7 @@ const CAPABILITIES: Capabilities = {
   maxMediaAttachments: 6,
   pollLimits: DEFAULT_POLL_LIMITS,
   features: new Set(['quotePosting', 'markdown']),
+  anonymousReads: NO_ANONYMOUS_READS,
 };
 
 const PROFILE: InstanceProfile = { origin: ORIGIN, title: 'The Wired', capabilities: CAPABILITIES };

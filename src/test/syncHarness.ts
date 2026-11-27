@@ -9,6 +9,7 @@
 import { BOB, LAIN, builtDesk } from './deskFixtures';
 import { memoryBackend } from './memoryBackend';
 import type { SyncPrefs } from '../accounts/syncPrefs';
+import { NO_ANONYMOUS_READS } from '../api/schemas/anonymousReads';
 import type { DeviceClass } from '../lib/deviceClass';
 import type { AppState } from '../state/appState';
 import { toSyncSnapshot } from '../state/deskSync';
@@ -44,6 +45,7 @@ function profileOf(origin: string, store: boolean): Profile {
         maxExpiration: 2629746,
       },
       features: new Set(store ? (['settingsStore'] as const) : []),
+      anonymousReads: NO_ANONYMOUS_READS,
     },
   };
 }

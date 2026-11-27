@@ -7,10 +7,18 @@
  * answers 404/501 is dropped by its caller with {@link withoutFeature}.
  */
 import { type Backend, identifyBackend, speaksPleromaDialect } from './backend';
+import {
+  type AnonymousReads,
+  NO_ANONYMOUS_READS,
+  mergeAnonymousReads,
+} from '../api/schemas/anonymousReads';
 import type { InstanceV1 } from '../api/schemas/instanceV1';
 import type { InstanceV2 } from '../api/schemas/instanceV2';
 import type { NodeInfo } from '../api/schemas/nodeinfo';
 import type { PollLimits } from '../api/schemas/pollLimits';
+
+/** Nothing published about signed-out reads: what a Capabilities built by hand holds. */
+export { NO_ANONYMOUS_READS };
 
 /** Every UI feature WiredFE can switch on, for code that has to check a stored flag. */
 export const FEATURE_FLAGS = [
@@ -34,6 +42,11 @@ export type Capabilities = {
   readonly maxMediaAttachments: number;
   readonly pollLimits: PollLimits;
   readonly features: ReadonlySet<FeatureFlag>;
+  /**
+   * What the backend publishes about signed-out reads of posts, profiles and
+   * hashtag feeds: true allowed, false restricted, null not published.
+   */
+  readonly anonymousReads: AnonymousReads;
 };
 
 /** The poll limits of an instance that advertises none: Mastodon's defaults. */
@@ -109,6 +122,11 @@ function flagsFor(
   return family === 'mastodon' ? mastodonFlags(docs.v2) : [];
 }
 
+/** The signed-out read policy: what NodeInfo publishes, else what the v2 document does. */
+function readsOf(nodeInfo: NodeInfo, v2: InstanceV2 | null): AnonymousReads {
+  return mergeAnonymousReads(nodeInfo.anonymousReads, v2?.anonymousReads ?? NO_ANONYMOUS_READS);
+}
+
 /** Builds the {@link Capabilities} from the documents read on connect (decision 5). */
 export function deriveCapabilities(input: {
   readonly nodeInfo: NodeInfo;
@@ -128,6 +146,7 @@ export function deriveCapabilities(input: {
     ),
     pollLimits: pick(v2?.pollLimits, v1?.pollLimits, DEFAULT_POLL_LIMITS),
     features: new Set(flagsFor(backend, advertised, { v1, v2 })),
+    anonymousReads: readsOf(nodeInfo, v2),
   };
 }
 

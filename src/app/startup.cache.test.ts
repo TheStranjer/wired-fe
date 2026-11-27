@@ -9,7 +9,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { type Detect, runStartup } from './startup';
 import { createAccountStore } from '../accounts/accountStore';
 import { createSyncStore } from '../accounts/syncPrefs';
-import { DEFAULT_POLL_LIMITS } from '../capabilities/capabilities';
+import { DEFAULT_POLL_LIMITS, NO_ANONYMOUS_READS } from '../capabilities/capabilities';
 import type { InstanceProfile } from '../capabilities/detect';
 import { ok } from '../lib/result';
 import type { AppAction } from '../state/reducer';
@@ -27,6 +27,7 @@ const PROFILE: InstanceProfile = {
     maxMediaAttachments: 4,
     pollLimits: DEFAULT_POLL_LIMITS,
     features: new Set(['editing', 'quotePosting']),
+    anonymousReads: NO_ANONYMOUS_READS,
   },
 };
 

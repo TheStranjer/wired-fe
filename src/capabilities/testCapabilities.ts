@@ -11,6 +11,7 @@ import {
   FEATURE_FLAGS,
   type FeatureFlag,
 } from './capabilities';
+import { NO_ANONYMOUS_READS } from '../api/schemas/anonymousReads';
 
 /** Capabilities of a {@link backend} carrying exactly {@link flags}. */
 export function capabilitiesOn(backend: Backend, flags: readonly FeatureFlag[]): Capabilities {
@@ -20,6 +21,7 @@ export function capabilitiesOn(backend: Backend, flags: readonly FeatureFlag[]):
     maxMediaAttachments: 4,
     pollLimits: DEFAULT_POLL_LIMITS,
     features: new Set(flags),
+    anonymousReads: NO_ANONYMOUS_READS,
   };
 }
 

@@ -3,6 +3,7 @@
  * v2 documents in their parsed internal shape, each with every field set to a
  * neutral value the tests override.
  */
+import { NO_ANONYMOUS_READS } from '../api/schemas/anonymousReads';
 import type { InstanceV1 } from '../api/schemas/instanceV1';
 import type { InstanceV2 } from '../api/schemas/instanceV2';
 import type { NodeInfo } from '../api/schemas/nodeinfo';
@@ -31,6 +32,7 @@ export function nodeInfoNamed(
     openRegistrations: false,
     features,
     nodeName: 'test.example',
+    anonymousReads: NO_ANONYMOUS_READS,
   };
 }
 
@@ -57,6 +59,7 @@ export function v2Doc(overrides: Partial<InstanceV2> = {}): InstanceV2 {
     maxCharacters: null,
     maxMediaAttachments: null,
     pollLimits: null,
+    anonymousReads: NO_ANONYMOUS_READS,
     ...overrides,
   };
 }

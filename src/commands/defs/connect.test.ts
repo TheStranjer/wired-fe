@@ -9,7 +9,11 @@ import { type Mock, describe, expect, it, vi } from 'vitest';
 
 import { command } from './connect';
 import { OAUTH_SCOPES } from '../../api/oauth';
-import { type Capabilities, DEFAULT_POLL_LIMITS } from '../../capabilities/capabilities';
+import {
+  type Capabilities,
+  DEFAULT_POLL_LIMITS,
+  NO_ANONYMOUS_READS,
+} from '../../capabilities/capabilities';
 import { cacheProfile, readCachedProfile } from '../../capabilities/profileCache';
 import type { WiredConfig } from '../../config/schema';
 import { fakeCommandContext } from '../../test/commandContext';
@@ -28,6 +32,7 @@ const CAPABILITIES: Capabilities = {
   maxMediaAttachments: 4,
   pollLimits: DEFAULT_POLL_LIMITS,
   features: new Set(),
+  anonymousReads: NO_ANONYMOUS_READS,
 };
 
 /** Answers `POST <origin>/api/v1/apps` with one client. */

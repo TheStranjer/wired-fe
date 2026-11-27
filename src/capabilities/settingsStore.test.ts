@@ -8,7 +8,12 @@ import { HttpResponse, http } from 'msw';
 import * as v from 'valibot';
 import { describe, expect, it } from 'vitest';
 
-import { type Capabilities, DEFAULT_POLL_LIMITS, type FeatureFlag } from './capabilities';
+import {
+  type Capabilities,
+  DEFAULT_POLL_LIMITS,
+  NO_ANONYMOUS_READS,
+  type FeatureFlag,
+} from './capabilities';
 import { detectInstance } from './detect';
 import { type ProfileStorage, cacheProfile, readCachedProfile } from './profileCache';
 import { NODEINFO_REL_21 } from '../api/nodeinfo';
@@ -58,6 +63,7 @@ function capabilitiesWith(features: readonly FeatureFlag[]): Capabilities {
     maxMediaAttachments: 4,
     pollLimits: DEFAULT_POLL_LIMITS,
     features: new Set(features),
+    anonymousReads: NO_ANONYMOUS_READS,
   };
 }
 

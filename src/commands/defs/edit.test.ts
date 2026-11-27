@@ -13,7 +13,7 @@ import { HttpResponse, http } from 'msw';
 import { describe, expect, it } from 'vitest';
 
 import { command } from './edit';
-import { DEFAULT_POLL_LIMITS } from '../../capabilities/capabilities';
+import { DEFAULT_POLL_LIMITS, NO_ANONYMOUS_READS } from '../../capabilities/capabilities';
 import type { InstanceProfile } from '../../capabilities/detect';
 import { ORIGIN, homeContext, putStatus } from '../../test/editHome';
 import { status } from '../../test/fixtures';
@@ -29,6 +29,7 @@ const EDITING_PROFILE: InstanceProfile = {
     maxMediaAttachments: 4,
     pollLimits: DEFAULT_POLL_LIMITS,
     features: new Set(['editing']),
+    anonymousReads: NO_ANONYMOUS_READS,
   },
 };
 

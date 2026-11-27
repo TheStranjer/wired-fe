@@ -6,11 +6,13 @@
  * to null. The free-form `metadata` block is straightened out here:
  * Pleroma-family servers advertise their capabilities as a `features` string
  * array (non-strings in it are dropped), Mastodon-family servers their display
- * name as `nodeName`; both fall back when the shape is not there.
+ * name as `nodeName`; both fall back when the shape is not there. Pleroma-family
+ * servers also publish `restrict_unauthenticated`, read as `anonymousReads`.
  */
 
 import * as v from 'valibot';
 
+import { type AnonymousReads, restrictionReads } from './anonymousReads';
 import { stringList } from './common';
 import { readKey } from './pollLimits';
 
@@ -26,6 +28,8 @@ export type NodeInfo = {
   readonly openRegistrations: boolean | null;
   readonly features: readonly string[];
   readonly nodeName: string | null;
+  /** What `metadata.restrict_unauthenticated` lets a signed-out visitor read, inverted; null where unpublished. */
+  readonly anonymousReads: AnonymousReads;
 };
 
 /** Parses the link list: entries need a `rel` and an `href`, the rest is dropped. */
@@ -58,5 +62,6 @@ export const NodeInfoSchema: v.GenericSchema<unknown, NodeInfo> = v.pipe(
     openRegistrations: doc.openRegistrations,
     features: stringList(readKey(doc.metadata, 'features')),
     nodeName: stringOrNull(readKey(doc.metadata, 'nodeName')),
+    anonymousReads: restrictionReads(readKey(doc.metadata, 'restrict_unauthenticated')),
   })),
 );

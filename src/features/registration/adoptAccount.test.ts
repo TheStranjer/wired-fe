@@ -9,7 +9,7 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { type AdoptEnv, adoptAccount } from './adoptAccount';
 import { type StoredAccount, createAccountStore } from '../../accounts/accountStore';
-import { DEFAULT_POLL_LIMITS } from '../../capabilities/capabilities';
+import { DEFAULT_POLL_LIMITS, NO_ANONYMOUS_READS } from '../../capabilities/capabilities';
 import type { InstanceProfile } from '../../capabilities/detect';
 import { err, ok } from '../../lib/result';
 import { createStore } from '../../storage/store';
@@ -37,6 +37,7 @@ const PROFILE: InstanceProfile = {
     maxMediaAttachments: 4,
     pollLimits: DEFAULT_POLL_LIMITS,
     features: new Set(),
+    anonymousReads: NO_ANONYMOUS_READS,
   },
 };
 

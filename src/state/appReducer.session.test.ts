@@ -9,7 +9,11 @@ import { describe, expect, it } from 'vitest';
 import { knownActiveKey, mergedSettings, putProfile, sameAccounts } from './appReducer';
 import { DEFAULT_SETTINGS, type Settings } from './settings';
 import type { StoredAccount } from '../accounts/accountStore';
-import { type Capabilities, DEFAULT_POLL_LIMITS } from '../capabilities/capabilities';
+import {
+  type Capabilities,
+  DEFAULT_POLL_LIMITS,
+  NO_ANONYMOUS_READS,
+} from '../capabilities/capabilities';
 import type { InstanceProfile } from '../capabilities/detect';
 import type { KeyOverride } from '../lib/keyOverride';
 
@@ -24,6 +28,7 @@ const CAPABILITIES: Capabilities = {
   maxMediaAttachments: 4,
   pollLimits: DEFAULT_POLL_LIMITS,
   features: new Set(),
+  anonymousReads: NO_ANONYMOUS_READS,
 };
 
 /** An account as stored, keyed by origin plus account id. */

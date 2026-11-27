@@ -10,8 +10,9 @@ import { HttpResponse, http } from 'msw';
 import { describe, expect, it } from 'vitest';
 
 import type { Backend } from './backend';
-import { type Capabilities, type FeatureFlag, DEFAULT_POLL_LIMITS } from './capabilities';
+import type { Capabilities, FeatureFlag } from './capabilities';
 import { type InstanceProfile, detectInstance } from './detect';
+import { capabilitiesOn } from './testCapabilities';
 import { NODEINFO_REL_21 } from '../api/nodeinfo';
 import { err, ok } from '../lib/result';
 import { server } from '../test/server';
@@ -52,11 +53,7 @@ function capsWith(
   extra: Partial<Capabilities> = {},
 ): Capabilities {
   return {
-    backend,
-    maxCharacters: 500,
-    maxMediaAttachments: 4,
-    pollLimits: DEFAULT_POLL_LIMITS,
-    features: new Set(flags),
+    ...capabilitiesOn(backend, flags),
     ...extra,
   };
 }

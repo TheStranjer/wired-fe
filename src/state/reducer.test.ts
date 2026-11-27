@@ -13,7 +13,11 @@ import { type AppState, type CoreAction, coreReducer, initialAppState } from './
 import { type BufferAction, bufferReducer } from './bufferActions';
 import { type AppAction, appReducer } from './reducer';
 import type { StoredAccount } from '../accounts/accountStore';
-import { type Capabilities, DEFAULT_POLL_LIMITS } from '../capabilities/capabilities';
+import {
+  type Capabilities,
+  DEFAULT_POLL_LIMITS,
+  NO_ANONYMOUS_READS,
+} from '../capabilities/capabilities';
 import type { InstanceProfile } from '../capabilities/detect';
 import { notification, status } from '../test/fixtures';
 import { STATUS_WINDOW_ID, windowId } from '../windows/model';
@@ -47,6 +51,7 @@ const CAPABILITIES: Capabilities = {
   maxMediaAttachments: 4,
   pollLimits: DEFAULT_POLL_LIMITS,
   features: new Set(),
+  anonymousReads: NO_ANONYMOUS_READS,
 };
 
 /** What the instance under test turned out to be. */

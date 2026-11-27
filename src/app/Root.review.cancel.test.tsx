@@ -9,7 +9,7 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { Root } from './Root';
-import { DEFAULT_POLL_LIMITS } from '../capabilities/capabilities';
+import { DEFAULT_POLL_LIMITS, NO_ANONYMOUS_READS } from '../capabilities/capabilities';
 import type { AppAction } from '../state/reducer';
 import { AppStateProvider } from '../state/StateContext';
 import { stateAfter } from '../test/appSessions';
@@ -32,6 +32,7 @@ const SESSION: readonly AppAction[] = [
         maxMediaAttachments: 4,
         pollLimits: DEFAULT_POLL_LIMITS,
         features: new Set(),
+        anonymousReads: NO_ANONYMOUS_READS,
       },
     },
   },

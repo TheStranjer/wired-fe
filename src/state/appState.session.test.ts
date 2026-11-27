@@ -14,6 +14,7 @@ import {
   type Capabilities,
   type FeatureFlag,
   DEFAULT_POLL_LIMITS,
+  NO_ANONYMOUS_READS,
 } from '../capabilities/capabilities';
 import type { InstanceProfile } from '../capabilities/detect';
 
@@ -28,6 +29,7 @@ const CAPABILITIES: Capabilities = {
   maxMediaAttachments: 4,
   pollLimits: DEFAULT_POLL_LIMITS,
   features: new Set<FeatureFlag>(['emojiReactions']),
+  anonymousReads: NO_ANONYMOUS_READS,
 };
 
 /** An account as it is stored, with a token no test reads back. */

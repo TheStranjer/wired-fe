@@ -6,6 +6,7 @@
 import * as v from 'valibot';
 import { describe, expect, it } from 'vitest';
 
+import { NO_ANONYMOUS_READS } from './anonymousReads';
 import { InstanceV2Schema } from './instanceV2';
 
 /** Parses {@link input}, throwing on invalid input so tests read the output. */
@@ -47,6 +48,7 @@ describe('InstanceV2 schema', () => {
         minExpiration: 300,
         maxExpiration: 2_592_000,
       },
+      anonymousReads: NO_ANONYMOUS_READS,
     });
   });
 
@@ -83,6 +85,7 @@ describe('InstanceV2 schema', () => {
       maxCharacters: 500,
       maxMediaAttachments: null,
       pollLimits: null,
+      anonymousReads: NO_ANONYMOUS_READS,
     });
   });
 
@@ -94,6 +97,7 @@ describe('InstanceV2 schema', () => {
       maxCharacters: null,
       maxMediaAttachments: null,
       pollLimits: null,
+      anonymousReads: NO_ANONYMOUS_READS,
     });
   });
 

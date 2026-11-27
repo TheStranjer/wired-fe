@@ -9,6 +9,7 @@ import { describe, expect, it } from 'vitest';
 import { useComposerMedia } from './useComposerMedia';
 import {
   DEFAULT_POLL_LIMITS,
+  NO_ANONYMOUS_READS,
   type Capabilities,
   type FeatureFlag,
 } from '../capabilities/capabilities';
@@ -25,6 +26,7 @@ const CAPABILITIES: Capabilities = {
   maxMediaAttachments: 0,
   pollLimits: DEFAULT_POLL_LIMITS,
   features: new Set<FeatureFlag>([]),
+  anonymousReads: NO_ANONYMOUS_READS,
 };
 
 /** The hook and the state it prints into, signed in on {@link CAPABILITIES}. */

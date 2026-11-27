@@ -13,9 +13,10 @@ import { describe, expect, it } from 'vitest';
 import { command } from './react';
 import type { StoredAccount } from '../../accounts/accountStore';
 import { type Status, StatusSchema } from '../../api/schemas/status';
-import { type Capabilities, DEFAULT_POLL_LIMITS } from '../../capabilities/capabilities';
+import type { Capabilities } from '../../capabilities/capabilities';
 import type { InstanceProfile } from '../../capabilities/detect';
 import { cacheProfile, readCachedProfile } from '../../capabilities/profileCache';
+import { capabilitiesOn } from '../../capabilities/testCapabilities';
 import { type AppState, initialAppState } from '../../state/appState';
 import { appReducer } from '../../state/reducer';
 import { fakeCommandContext } from '../../test/commandContext';
@@ -44,11 +45,8 @@ const HOME_ID = windowId(HOME);
 
 /** The instance that serves both plain and custom emoji reactions. */
 const REACTING: Capabilities = {
-  backend: 'pleroma',
+  ...capabilitiesOn('pleroma', ['emojiReactions', 'customEmojiReactions']),
   maxCharacters: 5000,
-  maxMediaAttachments: 4,
-  pollLimits: DEFAULT_POLL_LIMITS,
-  features: new Set(['emojiReactions', 'customEmojiReactions']),
 };
 
 /** The twelve fields every backend sends for the author of the test post. */

@@ -7,39 +7,14 @@
 
 import * as v from 'valibot';
 
-import { isAllowedInstanceUrl } from '../lib/origin';
+import { type InstancesConfig, OriginSchema } from './instances';
+import { type PublicViewConfig, PublicViewSchema, publicViewProblems } from './publicView';
 import { type Result, err, ok } from '../lib/result';
+
+export type { InstancesConfig } from './instances';
 
 /** The longest accepted {@link WiredConfig.appName}, after trimming. */
 const MAX_APP_NAME_LENGTH = 64;
-
-/** True when {@link value} is an `https:` origin, or `http:` on a local hostname. */
-function isDevAllowedOrigin(value: string): boolean {
-  try {
-    const url = new URL(value);
-    return url.origin === value && isAllowedInstanceUrl(url);
-  } catch {
-    return false;
-  }
-}
-
-/** A scheme-and-host origin: `https://host[:port]`, or `http:` for localhost. */
-const OriginSchema = v.pipe(
-  v.string(),
-  v.check(isDevAllowedOrigin, 'must be an https:// origin, or http:// for localhost'),
-);
-
-/** Which instances the build may talk to (decision 3). */
-export type InstancesConfig =
-  | { readonly mode: 'same-origin' }
-  | { readonly mode: 'fixed'; readonly origin: string }
-  | {
-      readonly mode: 'list';
-      readonly origins: readonly string[];
-      /** Also accept any valid typed instance; `false` when absent. An empty list needs this. */
-      readonly allowCustom?: boolean | undefined;
-    }
-  | { readonly mode: 'open' };
 
 /** The validated build-time configuration. */
 export type WiredConfig = {
@@ -57,6 +32,12 @@ export type WiredConfig = {
    * of the supported languages.
    */
   readonly defaultLocale?: string | undefined;
+  /**
+   * Whether signed-out visitors may read an instance (decision 3): `true`
+   * forces it on, `false` off, `null` or absent leaves it to the backend's
+   * published policy, an object sets each origin. See `publicViewSetting`.
+   */
+  readonly publicView?: PublicViewConfig | undefined;
 };
 
 /** A path that starts and ends with `/`, with no empty, query or fragment parts. */
@@ -102,17 +83,27 @@ const InstancesVariants = v.variant('mode', [
 const InstancesSchema = v.pipe(InstancesVariants, v.check(listHasInstances, EMPTY_LIST_MESSAGE));
 
 /** The schema for the build-time configuration file (decision 3). */
-export const WiredConfigSchema: v.GenericSchema<unknown, WiredConfig> = v.strictObject({
-  appName: v.pipe(
-    v.string(),
-    v.transform((value) => value.trim()),
-    v.minLength(1),
-    v.maxLength(MAX_APP_NAME_LENGTH),
+export const WiredConfigSchema: v.GenericSchema<unknown, WiredConfig> = v.pipe(
+  v.strictObject({
+    appName: v.pipe(
+      v.string(),
+      v.transform((value) => value.trim()),
+      v.minLength(1),
+      v.maxLength(MAX_APP_NAME_LENGTH),
+    ),
+    instances: InstancesSchema,
+    basePath: v.optional(BasePathSchema),
+    defaultLocale: v.optional(LocaleCodeSchema),
+    publicView: v.optional(PublicViewSchema),
+  }),
+  v.forward(
+    v.check(
+      (config) => publicViewProblems(config).length === 0,
+      (issue) => publicViewProblems(issue.input).join('; '),
+    ),
+    ['publicView'],
   ),
-  instances: InstancesSchema,
-  basePath: v.optional(BasePathSchema),
-  defaultLocale: v.optional(LocaleCodeSchema),
-});
+);
 
 /** Formats one valibot issue as `"<dot.path>: <message>"`, `(root)` when unpathed. */
 function describeIssue(issue: v.BaseIssue<unknown>): string {

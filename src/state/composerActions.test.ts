@@ -21,11 +21,8 @@ import type { ComposerFields } from './draft';
 import { newPoll } from './pollEditor';
 import { type AppAction, appReducer } from './reducer';
 import type { StoredAccount } from '../accounts/accountStore';
-import {
-  type Capabilities,
-  DEFAULT_POLL_LIMITS,
-  type FeatureFlag,
-} from '../capabilities/capabilities';
+import { type Capabilities, DEFAULT_POLL_LIMITS } from '../capabilities/capabilities';
+import { capabilitiesOn } from '../capabilities/testCapabilities';
 import { status } from '../test/fixtures';
 import { STATUS_WINDOW_ID } from '../windows/model';
 
@@ -42,13 +39,7 @@ const ACCOUNT: StoredAccount = {
 };
 
 /** A wired instance that serves local-only posts and caps posts at thirty. */
-const CAPS: Capabilities = {
-  backend: 'wired',
-  maxCharacters: 30,
-  maxMediaAttachments: 4,
-  pollLimits: DEFAULT_POLL_LIMITS,
-  features: new Set<FeatureFlag>(['localOnlyPosts']),
-};
+const CAPS: Capabilities = { ...capabilitiesOn('wired', ['localOnlyPosts']), maxCharacters: 30 };
 
 /** A session signed in as lain, its instance detected as {@link CAPS} when asked. */
 function session(detected: boolean): AppState {

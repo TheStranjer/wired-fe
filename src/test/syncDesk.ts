@@ -8,6 +8,7 @@ import { vi } from 'vitest';
 
 import { fakeCommandContext } from './commandContext';
 import { accountKey } from '../accounts/accountStore';
+import { NO_ANONYMOUS_READS } from '../api/schemas/anonymousReads';
 import type { CommandContext } from '../commands/types';
 import { initialAppState } from '../state/appState';
 import { type AppAction, appReducer } from '../state/reducer';
@@ -38,6 +39,7 @@ function detected(backend: Detected['backend'], settingsStore: boolean): Detecte
       maxExpiration: 2629746,
     },
     features: new Set(settingsStore ? (['settingsStore'] as const) : []),
+    anonymousReads: NO_ANONYMOUS_READS,
   };
 }
 

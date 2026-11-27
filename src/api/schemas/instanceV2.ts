@@ -8,6 +8,7 @@
 
 import * as v from 'valibot';
 
+import { type AnonymousReads, timelinesAccessReads } from './anonymousReads';
 import { extractPollLimits, nonNegativeInt, readKey } from './pollLimits';
 import type { PollLimits } from './pollLimits';
 
@@ -19,6 +20,8 @@ export type InstanceV2 = {
   readonly maxCharacters: number | null;
   readonly maxMediaAttachments: number | null;
   readonly pollLimits: PollLimits | null;
+  /** What `configuration.timelines_access` lets a signed-out visitor read: hashtag feeds only. */
+  readonly anonymousReads: AnonymousReads;
 };
 
 /** The v2 document as far as this schema cares: only the blocks we read. */
@@ -44,6 +47,7 @@ export const InstanceV2Schema: v.GenericSchema<unknown, InstanceV2> = v.pipe(
         readKey(doc.configuration, 'polls'),
         'max_characters_per_option',
       ),
+      anonymousReads: timelinesAccessReads(readKey(doc.configuration, 'timelines_access')),
     };
   }),
 );

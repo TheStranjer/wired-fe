@@ -15,11 +15,7 @@ import type { JSX } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
 import { type Attachments, useAttachments } from './useAttachments';
-import {
-  DEFAULT_POLL_LIMITS,
-  type Capabilities,
-  type FeatureFlag,
-} from '../capabilities/capabilities';
+import { capabilitiesOn } from '../capabilities/testCapabilities';
 import type { AppState } from '../state/appState';
 import type { AppAction } from '../state/reducer';
 import { AppStateProvider, useAppState } from '../state/StateContext';
@@ -37,13 +33,7 @@ import { server } from '../test/server';
 
 /** A signed-in, detected session whose instance allows `max` attachments. */
 function signedIn(max: number): readonly AppAction[] {
-  const capabilities: Capabilities = {
-    backend: 'wired',
-    maxCharacters: 500,
-    maxMediaAttachments: max,
-    pollLimits: DEFAULT_POLL_LIMITS,
-    features: new Set<FeatureFlag>([]),
-  };
+  const capabilities = { ...capabilitiesOn('wired', []), maxMediaAttachments: max };
   return [
     { type: 'accounts', accounts: [ACCOUNT], activeKey: ACCOUNT.key },
     { type: 'profile', profile: { origin: ORIGIN, title: 'wired.example', capabilities } },
