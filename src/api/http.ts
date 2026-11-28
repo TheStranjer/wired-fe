@@ -3,11 +3,12 @@
  * call goes through {@link apiRequest}. It builds the URL (./url), sets the
  * auth and content headers, sends the request, and maps the outcome onto a
  * `Result` (./response): data validated against the caller's schema, or one
- * typed {@link ApiError}. It never throws.
+ * typed {@link ApiError}. It never throws, not even when the body read fails.
  */
 import type * as v from 'valibot';
 
 import type { ApiError } from './errors';
+import { rejectionError } from './failure';
 import { type ApiResponse, toApiResponse } from './response';
 import { type QueryValue, buildUrl } from './url';
 import { type Result, err, ok } from '../lib/result';
@@ -76,38 +77,26 @@ function requestInit<T>(options: RequestOptions<T>): RequestInit {
   };
 }
 
-/** Whether a fetch rejection is the abort of the request's own signal. */
-function isAborted(error: unknown): boolean {
-  return (
-    typeof error === 'object' && error !== null && 'name' in error && error.name === 'AbortError'
-  );
-}
-
-/** The `network` error message: the error's own message, or its string form. */
-function failureMessage(error: unknown): string {
-  if (error instanceof Error) {
-    return error.message;
-  }
-  return String(error);
-}
-
-/** Sends the request; a rejection becomes `aborted` or `network`, never a throw. */
+/**
+ * Sends the request; a rejection of `fetch()` becomes `aborted` or `network`,
+ * never a throw. The body is read later, in `toApiResponse`, which maps its
+ * own rejection the same way.
+ */
 async function send<T>(options: RequestOptions<T>): Promise<Result<Response, ApiError>> {
   const url = buildUrl(options.origin, options.path, options.query);
   try {
     return ok(await fetch(url, requestInit(options)));
   } catch (error) {
-    const apiError: ApiError = isAborted(error)
-      ? { kind: 'aborted' }
-      : { kind: 'network', message: failureMessage(error) };
-    return err(apiError);
+    return err(rejectionError(error));
   }
 }
 
 /**
  * Performs one API request and returns its typed outcome: the response body
  * validated against {@link RequestOptions.schema} together with the `Link`
- * header, or the {@link ApiError} explaining why the call failed.
+ * header, or the {@link ApiError} explaining why the call failed. Never
+ * throws: a rejection of the request or of the read of its body (an abort, a
+ * dropped connection) comes back as `aborted` or `network`.
  */
 export async function apiRequest<T>(
   options: RequestOptions<T>,
