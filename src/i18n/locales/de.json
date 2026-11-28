@@ -105,7 +105,9 @@
         "could_not_start": "Anmeldung konnte nicht gestartet werden: {reason}",
         "opening": "Öffne {origin}, um dich anzumelden…",
         "summary": "Bei einer Instanz anmelden",
-        "usage": "/verbinden [instance]"
+        "usage": "/verbinden [instance]",
+        "discovered": "{host} stellt seine API unter {origin} bereit; verbinde mich dort",
+        "host_hint": "Wenn die Domain deines Benutzernamens sich von der Domain deines Servers unterscheidet, verbinde dich mit dem Server-Host, der in deiner Profil-URL angezeigt wird."
       },
       "copy": {
         "copied": "Kopiert {link}",

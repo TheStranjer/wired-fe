@@ -105,7 +105,9 @@
         "could_not_start": "无法开始登录: {reason}",
         "opening": "正在打开 {origin} 以登录…",
         "summary": "登录到实例",
-        "usage": "/连接 [instance]"
+        "usage": "/连接 [instance]",
+        "discovered": "{host} 在 {origin} 提供其 API; 正在连接到那里",
+        "host_hint": "如果你的用户名的域名与服务器的域名不同，请连接到在你的个人资料 URL 中显示的服务器主机。"
       },
       "copy": {
         "copied": "已复制 {link}",

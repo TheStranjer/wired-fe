@@ -105,7 +105,9 @@
         "could_not_start": "No se pudo iniciar sesión: {reason}",
         "opening": "Abriendo {origin} para iniciar sesión…",
         "summary": "Iniciar sesión en una instancia",
-        "usage": "/conectar [instance]"
+        "usage": "/conectar [instance]",
+        "discovered": "{host} sirve su API en {origin}; conectando allí",
+        "host_hint": "Si el dominio de tu nombre de usuario difiere del del servidor, conéctate al host del servidor que aparece en la URL de tu perfil."
       },
       "copy": {
         "copied": "Copiado {link}",

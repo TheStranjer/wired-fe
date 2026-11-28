@@ -105,7 +105,9 @@
         "could_not_start": "ログインを開始できませんでした: {reason}",
         "opening": "{origin} を開いてログインしています…",
         "summary": "インスタンスにログイン",
-        "usage": "/接続 [instance]"
+        "usage": "/接続 [instance]",
+        "discovered": "{host} は {origin} で API を提供しています; そこに接続しています",
+        "host_hint": "ハンドルのドメインがサーバーのドメインと異なる場合は、プロフィールのURLに表示されているサーバーホストに接続してください。"
       },
       "copy": {
         "copied": "{link}をコピーしました",
