@@ -1,7 +1,9 @@
 /**
  * The account read endpoints: `GET /api/v1/accounts/verify_credentials` for
  * the session's own account, `.../accounts/<id>` for any one account,
- * `.../lookup?acct=<acct>` to find an account by name, `.../<id>/statuses`
+ * `.../lookup?acct=<acct>` to find an account by name (and, for a remote
+ * name the instance has not stored yet, a resolving search: see
+ * {@link findAccountByHandle}), `.../<id>/statuses`
  * for a page of its posts, and `.../relationships?id[]=<id>` for how the
  * session stands to a set of accounts. Wired, Mastodon and Pleroma all serve
  * these; the shared schemas normalize their shapes onto one model
@@ -11,6 +13,7 @@
  */
 import * as v from 'valibot';
 
+import { search } from './search';
 import { type Result, ok } from '../../lib/result';
 import type { ApiError } from '../errors';
 import { type Page, type PageRequest, pageQuery } from '../page';
@@ -77,6 +80,43 @@ export async function lookupAccount(
     schema: AccountSchema,
     signal,
   });
+}
+
+/** True when {@link error} is an HTTP 404 answer. */
+function isNotFound(error: ApiError): boolean {
+  return error.kind === 'http' && error.status === 404;
+}
+
+/** True when {@link account} is the one named {@link name}, by `acct` or `fqn`, in any case. */
+function isNamed(account: Account, name: string): boolean {
+  return [account.acct, account.fqn].some((own) => own?.toLowerCase() === name);
+}
+
+/**
+ * The account named by {@link handle} (see {@link lookupAccount}), found even
+ * when the instance has never stored it: a lookup that fails with HTTP 404 for
+ * a `user@host` handle falls back to a resolving account search, and the first
+ * result whose `acct` or `fqn` equals the handle (any case) is the answer. No
+ * exact match answers the original 404, and any other lookup error is answered
+ * unchanged. A session with no token never searches: backends refuse
+ * anonymous resolution. {@link signal} can cancel the requests, which answers
+ * the `aborted` error.
+ */
+export async function findAccountByHandle(
+  session: ApiSession,
+  handle: string,
+  signal?: AbortSignal,
+): Promise<Result<Account, ApiError>> {
+  const found = await lookupAccount(session, handle, signal);
+  const name = handle.startsWith('@') ? handle.slice(1) : handle;
+  if (found.ok || !isNotFound(found.error) || !name.includes('@') || session.token === null) {
+    return found;
+  }
+  const options = { resolve: true, type: 'accounts', limit: 5 } as const;
+  const searched = await search(session, name, options, signal);
+  const lower = name.toLowerCase();
+  const match = searched.ok ? searched.value.accounts.find((a) => isNamed(a, lower)) : undefined;
+  return match === undefined ? found : ok(match);
 }
 
 /** The statuses query: {@link pageQuery}'s page parameters, plus each filter

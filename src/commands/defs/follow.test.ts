@@ -39,6 +39,26 @@ describe('/follow', () => {
     expect(context.print).toHaveBeenCalledWith('following @smiling@wired.example');
   });
 
+  it('follows the account a search finds when the lookup is a 404', async () => {
+    const calls = serveAccountActions({ id: '2' });
+    server.use(
+      http.get(`${ORIGIN}/api/v1/accounts/lookup`, () => {
+        return HttpResponse.json({ error: 'Record not found' }, { status: 404 });
+      }),
+      http.get(`${ORIGIN}/api/v2/search`, () => {
+        const found = { ...FOREIGN_WIRE, acct: 'bob@remote.example' };
+        return HttpResponse.json({ accounts: [found] });
+      }),
+    );
+    const context = homeContext([]);
+
+    const outcome = await command.run('@bob@remote.example', context);
+
+    expect(outcome).toStrictEqual({ ok: true });
+    expect(calls).toStrictEqual([{ path: '/api/v1/accounts/2/follow', body: undefined }]);
+    expect(context.print).toHaveBeenCalledWith('following @bob@remote.example');
+  });
+
   it('refuses to follow itself', async () => {
     const calls = serveAccountActions({ id: '1' });
     const context = homeContext([MINE]);

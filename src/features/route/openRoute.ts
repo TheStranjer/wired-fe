@@ -4,14 +4,14 @@
  * the commands already use, for one account. A notice opens that post's
  * thread window, a tag its hashtag window (lowercased, as `/tag` does, so the
  * same tag is the same window), and an account — by name through
- * `lookupAccount`, by id through `getAccount` — its profile window. A lookup
+ * `findAccountByHandle`, by id through `getAccount` — its profile window. A lookup
  * that fails prints why into the status window instead, and opens nothing. A
  * remote follow or interaction link is searched for by ./openInteraction and
  * opens the account or post it finds.
  */
 
 import { findInteraction } from './openInteraction';
-import { getAccount, lookupAccount } from '../../api/endpoints/accountRead';
+import { findAccountByHandle, getAccount } from '../../api/endpoints/accountRead';
 import { type ApiError, describeApiError } from '../../api/errors';
 import type { Account } from '../../api/schemas/account';
 import type { ApiSession } from '../../api/session';
@@ -81,7 +81,7 @@ export async function openRoute(route: Route, target: RouteTarget): Promise<void
   } else if (kind === 'interact') {
     await openInteraction(target, value);
   } else {
-    const read = kind === 'acct' ? lookupAccount : getAccount;
+    const read = kind === 'acct' ? findAccountByHandle : getAccount;
     openProfile(target, await read(target.session, value));
   }
 }

@@ -16,7 +16,7 @@
 
 import type { CommandContext } from './types';
 import { splitFirstWord } from './words';
-import { lookupAccount } from '../api/endpoints/accountRead';
+import { findAccountByHandle } from '../api/endpoints/accountRead';
 import { describeApiError } from '../api/errors';
 import type { Account } from '../api/schemas/account';
 import type { Status } from '../api/schemas/status';
@@ -144,7 +144,7 @@ async function accountByHandle(
   rest: string,
   acting: Acting,
 ): Promise<Result<AccountTarget, string>> {
-  const found = await lookupAccount(acting.session, handle);
+  const found = await findAccountByHandle(acting.session, handle);
   if (!found.ok) {
     return err(t('commands.no_account_lookup', { handle, error: describeApiError(found.error) }));
   }
