@@ -5,6 +5,9 @@
  * options (or, with `allowCustom`, anything typed) and an `open` build, the
  * same as an empty `allowCustom` list, whatever the user typed — `wired.example`,
  * `https://wired.example` or `@lain@wired.example` all mean the same instance.
+ * When the typed host is not the API host (a handle's domain with split
+ * domains) and its login fails, src/commands/connectLogin.ts looks the API
+ * host up in the host's NodeInfo and retries there once (WFE-343).
  * On a `list` build Tab completes the argument to the listed hosts
  * (src/commands/connectWords.ts, WFE-307).
  * The argument is the only subject; on an unusable one nothing is registered
@@ -15,12 +18,9 @@
  * authorize page, where the callback handler picks the flow up again.
  */
 
-import { beginLogin } from '../../accounts/beginLogin';
-import { redirectUriFor } from '../../accounts/callback';
 import { resolveInstanceOrigin } from '../../accounts/origin';
-import { describeApiError } from '../../api/errors';
-import { forgetProfile } from '../../capabilities/profileCache';
 import { t } from '../../i18n/translate';
+import { startLogin } from '../connectLogin';
 import { OK, fail } from '../outcome';
 import type { CommandContext, CommandDefinition, CommandOutcome } from '../types';
 
@@ -38,24 +38,13 @@ async function handle(args: string, context: CommandContext): Promise<CommandOut
     return fail(instance.error);
   }
 
-  forgetProfile(context.stores.profiles, instance.value);
-  const started = await beginLogin(
-    { apps: context.stores.apps, login: context.stores.login },
-    {
-      origin: instance.value,
-      redirectUri: redirectUriFor(context.page),
-      appName: context.config.appName,
-      now: context.now().getTime(),
-    },
-  );
+  const started = await startLogin(context, instance.value);
   if (!started.ok) {
-    return fail(
-      t('commands.defs.connect.could_not_start', { reason: describeApiError(started.error) }),
-    );
+    return fail(started.error);
   }
 
-  context.print(t('commands.defs.connect.opening', { origin: instance.value }));
-  context.navigate(started.value);
+  context.print(t('commands.defs.connect.opening', { origin: started.value.origin }));
+  context.navigate(started.value.url);
   return OK;
 }
 

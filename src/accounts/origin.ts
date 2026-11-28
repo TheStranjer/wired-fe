@@ -94,6 +94,24 @@ export function resolveInstanceOrigin(
 }
 
 /**
+ * Whether the user's own input picked {@link origin} as the instance (WFE-343):
+ * an `open` build always, a `list` build with `allowCustom` when the origin is
+ * not one of the listed ones. `same-origin`, `fixed` and listed hosts ignore
+ * or vouch for the input, so there is nothing to second-guess.
+ */
+export function isTypedInstance(instances: InstancesConfig, origin: string): boolean {
+  switch (instances.mode) {
+    case 'open':
+      return true;
+    case 'list':
+      return instances.allowCustom === true && !instances.origins.includes(origin);
+    case 'same-origin':
+    case 'fixed':
+      return false;
+  }
+}
+
+/**
  * What a visitor may pick from on {@link instances}: the listed origins of a
  * `list` build, and whether they may type another. Null when there is nothing
  * to pick from (every other mode, and a list with no origins), which leaves the

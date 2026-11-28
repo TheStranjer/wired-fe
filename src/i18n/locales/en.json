@@ -201,6 +201,8 @@
       },
       "connect": {
         "could_not_start": "Could not start login: {reason}",
+        "discovered": "{host} serves its API at {origin}; connecting there",
+        "host_hint": "If your handle's domain differs from your server's, connect to the server host shown in your profile URL.",
         "opening": "Opening {origin} to log in…",
         "summary": "Log in to an instance",
         "usage": "/connect [instance]"
