@@ -8,6 +8,7 @@
 import * as v from 'valibot';
 
 import type { ApiError, FieldErrors } from './errors';
+import { rejectionError } from './failure';
 import { t } from '../i18n/translate';
 import { type Result, err, ok } from '../lib/result';
 
@@ -115,12 +116,17 @@ function validate<T>(body: unknown, schema: v.GenericSchema<unknown, T>): Result
   return err(parseError(result.issues));
 }
 
-/** Reads a 2xx body: a 204 or an empty body validates as `null`, anything else must be JSON. */
+/** Reads a 2xx body: a 204 or an empty body validates as `null`, anything else must be JSON; a failed read is `aborted` or `network`. */
 async function decodeBody<T>(
   response: Response,
   schema: v.GenericSchema<unknown, T>,
 ): Promise<Result<T, ApiError>> {
-  const text = await response.text();
+  let text: string;
+  try {
+    text = await response.text();
+  } catch (error) {
+    return err(rejectionError(error));
+  }
   if (response.status === 204 || text === '') {
     return validate(null, schema);
   }
