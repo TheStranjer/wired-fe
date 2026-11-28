@@ -2,11 +2,11 @@
  * Tests for opening a route with nobody to open it (decision 4, WFE-340):
  * which instance a signed-out visitor may read a route from, by instance mode,
  * and what that and the build's `publicView` make of a route. Opening it is
- * ./publicRoute.open.test and ./publicRoute.user.test.
+ * ./publicRoute.open.test, ./publicRoute.user.test and ./publicRoute.acct.test.
  */
 import { describe, expect, it } from 'vitest';
 
-import { publicCandidate, publicOrigin, routeArea } from './publicRoute';
+import { type PublicConfig, publicCandidate, publicOrigin, routeArea } from './publicRoute';
 import type { InstancesConfig } from '../config/schema';
 import type { Route } from '../lib/route';
 import { ORIGIN } from '../test/hashRoute';
@@ -24,8 +24,17 @@ describe(routeArea, () => {
     expect(routeArea(NOTICE)).toBe('posts');
     expect(routeArea(USER)).toBe('profiles');
     expect(routeArea(TAG)).toBe('tags');
-    expect(routeArea({ kind: 'acct', value: 'lain' })).toBeNull();
     expect(routeArea({ kind: 'interact', value: 'x' })).toBeNull();
+  });
+
+  it('reads an account by name as a profile only when its handle is local to the host given', () => {
+    expect(routeArea({ kind: 'acct', value: 'lain' })).toBe('profiles');
+    expect(routeArea({ kind: 'acct', value: '@lain' }, 'wired.example')).toBe('profiles');
+    expect(routeArea({ kind: 'acct', value: 'lain@Wired.Example' }, 'wired.example')).toBe(
+      'profiles',
+    );
+    expect(routeArea({ kind: 'acct', value: 'lain@wired.example' })).toBeNull();
+    expect(routeArea({ kind: 'acct', value: 'bob@elsewhere.example' }, 'wired.example')).toBeNull();
   });
 });
 
@@ -65,7 +74,13 @@ describe(publicOrigin, () => {
   });
 
   it('is none for a route a visitor never opens', () => {
-    expect(publicOrigin({ kind: 'acct', value: 'lain' }, SAME, ORIGIN)).toBeNull();
+    expect(publicOrigin({ kind: 'interact', value: 'lain' }, SAME, ORIGIN)).toBeNull();
+  });
+
+  it('is the instance for a local handle, and none for a remote one', () => {
+    expect(publicOrigin({ kind: 'acct', value: 'wanda' }, SAME, ORIGIN)).toBe(ORIGIN);
+    expect(publicOrigin({ kind: 'acct', value: 'wanda@wired.example' }, SAME, ORIGIN)).toBe(ORIGIN);
+    expect(publicOrigin({ kind: 'acct', value: 'bob@elsewhere.example' }, SAME, ORIGIN)).toBeNull();
   });
 });
 
@@ -87,6 +102,42 @@ describe(publicCandidate, () => {
 
   it('is none where there is no instance or no read', () => {
     expect(publicCandidate(NOTICE, { instances: { mode: 'open' } }, ORIGIN)).toBeNull();
-    expect(publicCandidate({ kind: 'acct', value: 'a' }, { instances: SAME }, ORIGIN)).toBeNull();
+    expect(
+      publicCandidate({ kind: 'interact', value: 'a' }, { instances: SAME }, ORIGIN),
+    ).toBeNull();
+  });
+
+  it('reads a bare nickname as a profile of a same-origin or fixed instance', () => {
+    const wanda: Route = { kind: 'acct', value: 'wanda' };
+    const fixed: PublicConfig = { instances: { mode: 'fixed', origin: OTHER } };
+
+    expect(publicCandidate(wanda, { instances: SAME }, ORIGIN)).toStrictEqual({
+      origin: ORIGIN,
+      setting: 'backend',
+      area: 'profiles',
+    });
+    expect(publicCandidate(wanda, fixed, ORIGIN)).toStrictEqual({
+      origin: OTHER,
+      setting: 'backend',
+      area: 'profiles',
+    });
+  });
+
+  it('reads a handle on the instance’s own host as a profile, and a remote one as none', () => {
+    const fixed: PublicConfig = { instances: { mode: 'fixed', origin: OTHER } };
+
+    expect(publicCandidate({ kind: 'acct', value: 'wanda@b.example' }, fixed, ORIGIN)?.area).toBe(
+      'profiles',
+    );
+    expect(
+      publicCandidate({ kind: 'acct', value: 'wanda@wired.example' }, fixed, ORIGIN),
+    ).toBeNull();
+    expect(
+      publicCandidate(
+        { kind: 'acct', value: 'bob@elsewhere.example' },
+        { instances: SAME },
+        ORIGIN,
+      ),
+    ).toBeNull();
   });
 });
