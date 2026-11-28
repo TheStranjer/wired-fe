@@ -111,7 +111,7 @@ The build reads one JSON configuration file (decision 3): the `WIRED_CONFIG` env
 
 ## Output
 
-`pnpm build` writes `dist/`: `index.html`, one `wired.[hash].js`, one `wired.[hash].css`, the lazy chunks `wired.emoji.[hash].js` and `wired.locale.[hash].js` (one per language), and the files from `public/`. Serve it from any static host. For the usual same-origin deployment, put a reverse proxy in front of wired-be and `dist/`: see [Deploying in front of wired-be](#deploying-in-front-of-wired-be). Sending API, OAuth, ActivityPub and well-known paths to the backend and everything else to `dist/` is not enough; some paths belong to both.
+`pnpm build` writes `dist/`: `index.html`, one `wired.[hash].js`, one `wired.[hash].css`, the lazy chunks `wired.emoji.[hash].js` and `wired.locale.[hash].js` (one per language), and the files from `public/` (today `wired.favicon.png`, named so rule 1 below serves it at any depth). Serve it from any static host. For the usual same-origin deployment, put a reverse proxy in front of wired-be and `dist/`: see [Deploying in front of wired-be](#deploying-in-front-of-wired-be). Sending API, OAuth, ActivityPub and well-known paths to the backend and everything else to `dist/` is not enough; some paths belong to both.
 
 ### Permalinks and the SPA fallback
 
